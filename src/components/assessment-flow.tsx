@@ -17,7 +17,7 @@ import {
 } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
 
-const STEP_COUNT = 4; // position, style, ratings, goal — reveal is separate.
+type StepKind = "position" | "style" | "ratings" | "goal";
 
 type Props = {
   playerId: string;
@@ -27,6 +27,17 @@ type Props = {
 
 export function AssessmentFlow({ playerId, playerName, initialPosition }: Props) {
   const router = useRouter();
+
+  // Position is often already answered during "Set up your family" — skip
+  // re-asking it here unless it's genuinely unset (or, defensively, set to
+  // a value that isn't one of the current position options).
+  const positionAlreadyKnown = PRIMARY_POSITIONS.some((p) => p.value === initialPosition);
+  const steps = useMemo<StepKind[]>(
+    () => (positionAlreadyKnown ? ["style", "ratings", "goal"] : ["position", "style", "ratings", "goal"]),
+    [positionAlreadyKnown]
+  );
+  const STEP_COUNT = steps.length;
+
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [revealed, setRevealed] = useState(false);
@@ -43,13 +54,15 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
   });
   const [goal, setGoal] = useState("");
 
+  const currentStep = steps[step];
+
   const canAdvance = useMemo(() => {
-    if (step === 0) return primaryPosition !== "";
-    if (step === 1) return styleTags.length > 0;
-    if (step === 2) return Object.values(ratings).every((v) => v > 0);
-    if (step === 3) return goal !== "";
+    if (currentStep === "position") return primaryPosition !== "";
+    if (currentStep === "style") return styleTags.length > 0;
+    if (currentStep === "ratings") return Object.values(ratings).every((v) => v > 0);
+    if (currentStep === "goal") return goal !== "";
     return true;
-  }, [step, primaryPosition, styleTags, ratings, goal]);
+  }, [currentStep, primaryPosition, styleTags, ratings, goal]);
 
   function goNext() {
     haptic("step");
@@ -114,7 +127,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
           transition={{ duration: 0.22, ease: "easeOut" }}
           className="court-glow rounded-3xl border border-line bg-surface p-6 sm:p-8"
         >
-          {step === 0 && (
+          {currentStep === "position" && (
             <StepShell
               eyebrow={`${playerName}'s assessment`}
               title="What position do you play most?"
@@ -135,9 +148,9 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
             </StepShell>
           )}
 
-          {step === 1 && (
+          {currentStep === "style" && (
             <StepShell
-              eyebrow="Playing style"
+              eyebrow={`${playerName}'s assessment`}
               title="How would you describe your game?"
               subtitle="Pick up to 2 — this shapes your Player Card and every workout we curate."
             >
@@ -164,7 +177,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
             </StepShell>
           )}
 
-          {step === 2 && (
+          {currentStep === "ratings" && (
             <StepShell eyebrow="Self-scout" title="Rate yourself, honestly">
               <div className="space-y-5">
                 {RATING_CATEGORIES.map((cat) => (
@@ -182,7 +195,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
             </StepShell>
           )}
 
-          {step === 3 && (
+          {currentStep === "goal" && (
             <StepShell eyebrow="Almost there" title="What's your #1 goal this year?">
               <div className="space-y-2.5">
                 {ASSESSMENT_GOALS.map((g) => (
