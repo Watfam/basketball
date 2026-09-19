@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SetupFamilyForm } from "@/components/setup-family-form";
 import { AddPlayerForm } from "@/components/add-player-form";
+import { PlayerRow } from "@/components/player-row";
+import { HouseholdSettings } from "@/components/household-settings";
 import { SignOutButton } from "@/components/sign-out-button";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 
@@ -64,36 +65,27 @@ export default async function Home() {
               {players?.map((player) => {
                 const playerType = (player.player_type ?? {}) as { archetype?: string };
                 const hasAssessment = Boolean(playerType.archetype);
+                const subtitle = hasAssessment
+                  ? (playerType.archetype as string)
+                  : [positionLabel(player.primary_position), player.birth_year]
+                      .filter(Boolean)
+                      .join(" · ") || "Assessment not started";
 
                 return (
-                  <div
+                  <PlayerRow
                     key={player.id}
-                    className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3.5"
-                  >
-                    <div>
-                      <p className="font-semibold text-foreground">{player.display_name}</p>
-                      <p className="mt-0.5 text-xs text-foreground-dim">
-                        {hasAssessment
-                          ? playerType.archetype
-                          : [positionLabel(player.primary_position), player.birth_year]
-                              .filter(Boolean)
-                              .join(" · ") || "Assessment not started"}
-                      </p>
-                    </div>
-                    {!hasAssessment && (
-                      <Link
-                        href={`/players/${player.id}/assessment`}
-                        className="rounded-lg bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
-                      >
-                        Start
-                      </Link>
-                    )}
-                  </div>
+                    id={player.id}
+                    displayName={player.display_name}
+                    subtitle={subtitle}
+                    hasAssessment={hasAssessment}
+                  />
                 );
               })}
 
               <AddPlayerForm householdId={household.id} />
             </div>
+
+            <HouseholdSettings householdId={household.id} householdName={household.name} />
           </div>
         )}
       </main>

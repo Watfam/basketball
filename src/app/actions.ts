@@ -89,6 +89,42 @@ export async function addPlayer(formData: FormData) {
 }
 
 /**
+ * Removes a single player profile and everything nested under it
+ * (assessments, workout sessions — cascades via FK) without touching the
+ * household. RLS (players_household_owner_all) already scopes this to
+ * players in the caller's own household, so there's nothing extra to
+ * check here.
+ */
+export async function removePlayer(playerId: string) {
+  if (!playerId) return { error: "Missing player." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("players").delete().eq("id", playerId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null };
+}
+
+/**
+ * Deletes the caller's household and every player nested under it
+ * (cascades via FK). RLS (household_owner_all) already scopes this to
+ * households the caller owns.
+ */
+export async function deleteHousehold(householdId: string) {
+  if (!householdId) return { error: "Missing household." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("households").delete().eq("id", householdId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null };
+}
+
+/**
  * Onboarding (or periodic re-) assessment submit. Writes the raw answers to
  * hoops.assessments and the derived snapshot to both
  * assessments.computed_player_type and players.player_type — the latter is
