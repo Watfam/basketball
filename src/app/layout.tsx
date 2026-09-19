@@ -9,7 +9,7 @@ import "./globals.css";
 // anyway — swap this out once a type choice is made.
 
 export const metadata: Metadata = {
-  title: "THE OFFSEASON",
+  title: "Hardwood Lab",
   description: "Player and coach development app",
 };
 

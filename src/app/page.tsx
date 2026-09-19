@@ -40,7 +40,7 @@ export default async function Home() {
       <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div>
           <p className="text-sm font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-            THE OFFSEASON
+            HARDWOOD LAB
           </p>
           {household && (
             <p className="text-xs text-zinc-500">{household.name}</p>

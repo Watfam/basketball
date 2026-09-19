@@ -1,5 +1,5 @@
 -- ============================================================================
--- THE OFFSEASON — App schema
+-- Hardwood Lab — App schema
 -- Lives in its own Postgres schema ("hoops") inside the shared Supabase
 -- project (same project as Cardlocity). Auth stays shared at the project
 -- level (auth.users); everything below is namespaced under hoops.* so it

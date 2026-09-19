@@ -1,9 +1,10 @@
-# THE OFFSEASON — App
+# Hardwood Lab
 
-A player & coach development app built on the ideas in *THE OFFSEASON —
-Road to Point Guard* (curated workouts, film study, player cards,
-assessments, progress tracking) plus a coach-side practice/scheme
-toolkit. Next.js + Supabase + Vercel.
+A player & coach development app, originally inspired by the ideas in
+*THE OFFSEASON — Road to Point Guard* (curated workouts, film study,
+player cards, assessments, progress tracking) plus a coach-side
+practice/scheme toolkit — now grown beyond just an offseason plan into
+year-round player and team development. Next.js + Supabase + Vercel.
 
 ## Architecture
 
