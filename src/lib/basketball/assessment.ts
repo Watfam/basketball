@@ -38,6 +38,10 @@ export const RATING_CATEGORIES = [
 
 export type RatingCategoryValue = (typeof RATING_CATEGORIES)[number]["value"];
 
+// 1-10 scale rather than 1-5 — gives self-ratings (and the Player Card
+// stat bars built from them) more room to actually vary between players.
+export const RATING_SCALE_MAX = 10;
+
 export type AssessmentAnswers = {
   primary_position: string;
   style_tags: StyleTagValue[];

@@ -8,6 +8,7 @@ import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import {
   ASSESSMENT_GOALS,
   RATING_CATEGORIES,
+  RATING_SCALE_MAX,
   STYLE_TAGS,
   computeArchetype,
   type AssessmentAnswers,
@@ -291,13 +292,13 @@ function RatingRow({
   return (
     <div>
       <p className="text-sm font-semibold text-foreground">{label}</p>
-      <div className="mt-2 flex gap-2">
-        {[1, 2, 3, 4, 5].map((n) => (
+      <div className="mt-2 grid grid-cols-5 gap-1.5">
+        {Array.from({ length: RATING_SCALE_MAX }, (_, i) => i + 1).map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => onChange(n)}
-            className={`h-9 flex-1 rounded-lg border text-sm font-bold transition-colors ${
+            className={`h-8 rounded-lg border text-xs font-bold transition-colors ${
               n <= value
                 ? "border-accent bg-accent text-white"
                 : "border-line bg-elevated text-foreground-dim hover:border-accent/50"
@@ -353,12 +354,12 @@ function PlayerCardReveal({
             <div key={cat.value}>
               <div className="flex items-center justify-between text-xs font-semibold text-foreground-dim">
                 <span>{cat.label}</span>
-                <span>{ratings[cat.value]}/5</span>
+                <span>{ratings[cat.value]}/{RATING_SCALE_MAX}</span>
               </div>
               <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${(ratings[cat.value] / 5) * 100}%` }}
+                  animate={{ width: `${(ratings[cat.value] / RATING_SCALE_MAX) * 100}%` }}
                   transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                   className="h-full rounded-full bg-accent"
                 />
