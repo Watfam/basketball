@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
+/*
+ * Hardwood Lab brand theme — fixed dark navy/orange, "Nike-poster" energy.
+ * Not a light/dark toggle (like Whoop / Nike Training Club always being
+ * dark) — these are the only values, regardless of system preference.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a1120;
+  --surface: #10192e;
+  --elevated: #16223d;
+  --foreground: #f4f6fb;
+  --foreground-dim: #8fa0bd;
+  --accent: #ff6a1a;
+  --accent-hover: #ff8140;
+  --line: #1f2c48;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
   --color-foreground: var(--foreground);
+  --color-foreground-dim: var(--foreground-dim);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-line: var(--line);
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Subtle floodlight glow behind hero/reveal moments — cheap to render, reads as "designed" rather than flat. */
+.court-glow {
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(255, 106, 26, 0.16), transparent 70%),
+    radial-gradient(80% 60% at 50% 100%, rgba(22, 34, 61, 0.9), transparent 70%);
 }

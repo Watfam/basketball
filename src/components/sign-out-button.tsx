@@ -10,7 +10,7 @@ export function SignOutButton() {
       type="button"
       onClick={() => startTransition(() => signOut())}
       disabled={pending}
-      className="text-sm font-medium text-zinc-500 hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+      className="text-sm font-medium text-foreground-dim hover:text-foreground disabled:opacity-50"
     >
       {pending ? "Signing out…" : "Sign out"}
     </button>

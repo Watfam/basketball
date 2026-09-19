@@ -8,7 +8,10 @@ year-round player and team development. Next.js + Supabase + Vercel.
 
 ## Architecture
 
-- **Framework:** Next.js 16 (App Router, TypeScript, Tailwind CSS 4).
+- **Framework:** Next.js 16 (App Router, TypeScript, Tailwind CSS 4),
+  Framer Motion for step transitions and the Player Card reveal.
+- **Design:** fixed dark navy/orange brand theme (not a light/dark
+  toggle) — see the tokens in `src/app/globals.css`.
 - **Backend:** Supabase — Postgres, Auth, Storage — **the same Supabase
   project Cardlocity uses.** This app's tables all live in a dedicated
   `hoops` Postgres schema (see `supabase/schema.sql`), so nothing here
@@ -100,6 +103,8 @@ src/
       types.ts             Generated (or placeholder) DB types
     basketball/
       taxonomy.ts          Fixed scheme/focus-area/position option lists
+      assessment.ts        Onboarding quiz content + player_type/archetype computation
+    haptics.ts             Web Vibration API wrapper, no-op where unsupported (e.g. iOS Safari)
 supabase/
   schema.sql               Full hoops schema + RLS policies
 middleware.ts               Wires up Supabase session refresh

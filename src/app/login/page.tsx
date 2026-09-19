@@ -61,23 +61,26 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-4 py-16 dark:bg-black">
-      <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-          HARDWOOD LAB
+    <div className="court-glow flex flex-1 items-center justify-center px-4 py-16">
+      <div className="w-full max-w-sm rounded-3xl border border-line bg-surface p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+          Hardwood Lab
+        </p>
+        <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">
+          {mode === "sign_in" ? "Welcome back" : "Start your team"}
         </h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-foreground-dim">
           {mode === "sign_in" ? "Sign in to your household account." : "Create your household account."}
         </p>
 
         {checkEmail ? (
-          <div className="mt-6 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+          <div className="mt-6 rounded-xl border border-accent/40 bg-accent/10 p-4 text-sm text-foreground">
             Check <strong>{email}</strong> for a confirmation link to finish creating your account.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wide text-foreground-dim">
                 Email
               </label>
               <input
@@ -87,11 +90,11 @@ function LoginForm() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+                className="mt-2 w-full rounded-xl border border-line bg-elevated px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-accent"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wide text-foreground-dim">
                 Password
               </label>
               <input
@@ -102,18 +105,16 @@ function LoginForm() {
                 autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+                className="mt-2 w-full rounded-xl border border-line bg-elevated px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-accent"
               />
             </div>
 
-            {error && (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-400">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
+              className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
             >
               {loading ? "Please wait…" : mode === "sign_in" ? "Sign in" : "Create account"}
             </button>
@@ -127,7 +128,7 @@ function LoginForm() {
               setMode(mode === "sign_in" ? "sign_up" : "sign_in");
               setError(null);
             }}
-            className="mt-4 text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+            className="mt-5 text-sm text-foreground-dim hover:text-foreground"
           >
             {mode === "sign_in"
               ? "Need an account? Create one"

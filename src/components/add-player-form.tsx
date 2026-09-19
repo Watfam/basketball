@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { addPlayer } from "@/app/actions";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
+import { haptic } from "@/lib/haptics";
 
 export function AddPlayerForm({ householdId }: { householdId: string }) {
+  const router = useRouter();
   const [displayName, setDisplayName] = useState("");
   const [birthYear, setBirthYear] = useState("");
   const [primaryPosition, setPrimaryPosition] = useState("");
@@ -23,12 +26,10 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
       const result = await addPlayer(formData);
       if (result?.error) {
         setError(result.error);
-      } else {
-        setDisplayName("");
-        setBirthYear("");
-        setPrimaryPosition("");
-        setOpen(false);
+        return;
       }
+      haptic("success");
+      router.push(`/players/${result.playerId}/assessment`);
     });
   }
 
@@ -37,7 +38,7 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full rounded-xl border border-dashed border-zinc-300 px-4 py-3 text-sm font-medium text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-100"
+        className="w-full rounded-xl border border-dashed border-line px-4 py-3 text-sm font-semibold text-foreground-dim transition-colors hover:border-accent hover:text-foreground"
       >
         + Add a player
       </button>
@@ -47,7 +48,7 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+      className="space-y-3 rounded-xl border border-line bg-surface p-4"
     >
       <input
         type="text"
@@ -55,7 +56,7 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
         placeholder="Player name"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        className="w-full rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
       />
       <div className="flex gap-2">
         <input
@@ -63,12 +64,12 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
           placeholder="Birth year"
           value={birthYear}
           onChange={(e) => setBirthYear(e.target.value)}
-          className="w-1/2 rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="w-1/2 rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
         />
         <select
           value={primaryPosition}
           onChange={(e) => setPrimaryPosition(e.target.value)}
-          className="w-1/2 rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="w-1/2 rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
         >
           <option value="">Position (optional)</option>
           {PRIMARY_POSITIONS.map((p) => (
@@ -78,19 +79,19 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
           ))}
         </select>
       </div>
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={pending}
-          className="flex-1 rounded-lg bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
+          className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
         >
           {pending ? "Adding…" : "Add player"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-foreground-dim hover:text-foreground"
         >
           Cancel
         </button>
