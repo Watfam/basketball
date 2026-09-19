@@ -60,38 +60,45 @@ const ARCHETYPES: Record<string, Partial<Record<StyleTagValue, string>>> = {
     high_motor: "Relentless Point Guard",
     floor_general: "Floor-General Point Guard",
   },
+  shooting_guard: {
+    shooter: "Sharpshooting Guard",
+    slasher: "Slashing Shooting Guard",
+    lockdown_defender: "3-and-D Shooting Guard",
+    high_motor: "High-Motor Shooting Guard",
+  },
   combo_guard: {
     shooter: "Sharpshooting Combo Guard",
     slasher: "Slashing Combo Guard",
     playmaker: "Playmaking Combo Guard",
     lockdown_defender: "3-and-D Combo Guard",
   },
-  wing: {
-    shooter: "3-and-D Wing",
-    slasher: "Slashing Wing",
-    lockdown_defender: "Lockdown Wing",
-    high_motor: "High-Motor Wing",
+  small_forward: {
+    shooter: "3-and-D Small Forward",
+    slasher: "Slashing Small Forward",
+    lockdown_defender: "Lockdown Small Forward",
+    high_motor: "High-Motor Small Forward",
   },
-  forward: {
-    rebounder: "Glass-Eating Forward",
-    rim_protector: "Rim-Protecting Forward",
-    shooter: "Stretch Forward",
-    high_motor: "Hustle Forward",
+  power_forward: {
+    rebounder: "Glass-Eating Power Forward",
+    rim_protector: "Rim-Protecting Power Forward",
+    shooter: "Stretch Power Forward",
+    high_motor: "Hustle Power Forward",
   },
-  post: {
-    rim_protector: "Rim-Protecting Post",
-    rebounder: "Glass-Eating Post",
-    high_motor: "Bruising Post",
-    shooter: "Face-Up Post",
+  center: {
+    rim_protector: "Rim-Protecting Center",
+    rebounder: "Glass-Eating Center",
+    high_motor: "Bruising Center",
+    shooter: "Face-Up Center",
   },
 };
 
 const POSITION_LABELS: Record<string, string> = {
   point_guard: "Point Guard",
+  shooting_guard: "Shooting Guard",
   combo_guard: "Combo Guard",
-  wing: "Wing",
-  forward: "Forward",
-  post: "Post",
+  small_forward: "Small Forward",
+  power_forward: "Power Forward",
+  center: "Center",
 };
 
 export function computeArchetype(position: string, styleTags: StyleTagValue[]): string {

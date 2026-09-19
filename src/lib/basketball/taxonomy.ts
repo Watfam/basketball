@@ -42,8 +42,9 @@ export const TEAM_FOCUS_AREAS = [
 
 export const PRIMARY_POSITIONS = [
   { value: "point_guard", label: "Point Guard" },
+  { value: "shooting_guard", label: "Shooting Guard" },
   { value: "combo_guard", label: "Combo Guard" },
-  { value: "wing", label: "Wing" },
-  { value: "forward", label: "Forward" },
-  { value: "post", label: "Post" },
+  { value: "small_forward", label: "Small Forward" },
+  { value: "power_forward", label: "Power Forward" },
+  { value: "center", label: "Center" },
 ] as const;

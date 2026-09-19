@@ -12,6 +12,14 @@ create schema if not exists hoops;
 -- After running this once, add "hoops" to:
 --   Project Settings -> API -> Exposed schemas
 -- in the Supabase dashboard, or the API won't serve it.
+--
+-- That dashboard toggle alone is NOT enough, though — unlike "public",
+-- a custom schema has no default grants for PostgREST's own Postgres
+-- roles. Without the USAGE/table grants below, every request fails with
+-- "permission denied for schema hoops" regardless of RLS. RLS still does
+-- all the actual per-row authorization; these grants just clear the
+-- SQL-level gate that sits in front of it.
+grant usage on schema hoops to anon, authenticated, service_role;
 
 -- ----------------------------------------------------------------------------
 -- households
@@ -49,7 +57,10 @@ create table hoops.players (
   -- Primary position is a simple filter/label; player_type below is the
   -- richer, multi-signal profile actually used to curate content.
   primary_position text check (
-    primary_position in ('point_guard', 'combo_guard', 'wing', 'forward', 'post')
+    primary_position in (
+      'point_guard', 'shooting_guard', 'combo_guard',
+      'small_forward', 'power_forward', 'center'
+    )
   ),
 
   -- Freeform, extensible bag of signals that make up "player type":
@@ -429,6 +440,25 @@ create policy drills_read_all on hoops.drills for select using (auth.role() = 'a
 create policy workouts_read_all on hoops.workouts for select using (auth.role() = 'authenticated');
 create policy workout_drills_read_all on hoops.workout_drills for select using (auth.role() = 'authenticated');
 create policy film_resources_read_all on hoops.film_resources for select using (auth.role() = 'authenticated');
+
+-- ============================================================================
+-- Grants
+-- RLS above controls per-row access; these grants clear the SQL-level
+-- permission check that PostgREST's roles need in front of that (see the
+-- note by "create schema" above). Table grants are broad on purpose —
+-- RLS is still the real gate on every row.
+-- ============================================================================
+
+grant all on all tables in schema hoops to anon, authenticated, service_role;
+grant all on all sequences in schema hoops to anon, authenticated, service_role;
+grant all on all routines in schema hoops to anon, authenticated, service_role;
+
+-- So tables created by a future migration inherit the same grants
+-- automatically, instead of silently 403ing until someone remembers to
+-- grant them by hand.
+alter default privileges in schema hoops grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema hoops grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema hoops grant all on routines to anon, authenticated, service_role;
 
 -- ============================================================================
 -- Seed data: scheme taxonomy is enforced app-side (a simple constant list

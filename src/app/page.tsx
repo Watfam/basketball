@@ -4,6 +4,7 @@ import { SetupFamilyForm } from "@/components/setup-family-form";
 import { AddPlayerForm } from "@/components/add-player-form";
 import { PlayerRow } from "@/components/player-row";
 import { HouseholdSettings } from "@/components/household-settings";
+import { EmptyState } from "@/components/empty-state";
 import { SignOutButton } from "@/components/sign-out-button";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 
@@ -62,6 +63,14 @@ export default async function Home() {
             </div>
 
             <div className="space-y-3">
+              {players?.length === 0 && (
+                <EmptyState
+                  eyebrow="No players yet"
+                  title="Add your first player"
+                  subtitle="Build their Player Card and start curating workouts and film for them."
+                />
+              )}
+
               {players?.map((player) => {
                 const playerType = (player.player_type ?? {}) as { archetype?: string };
                 const hasAssessment = Boolean(playerType.archetype);
