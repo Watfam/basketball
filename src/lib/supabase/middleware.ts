@@ -37,15 +37,24 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users away from protected routes.
-  // Adjust the path prefixes below as the app grows.
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
+  // Redirect unauthenticated users away from protected routes. Only the
+  // login page and the auth callback (email confirmation / magic link
+  // landing) are public — everything else, including "/", requires a
+  // session, since "/" is the household/player dashboard.
+  const { pathname } = request.nextUrl;
   const isPublicRoute =
-    request.nextUrl.pathname === "/" || isAuthRoute;
+    pathname.startsWith("/login") || pathname.startsWith("/auth");
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Signed-in users shouldn't land back on the login screen.
+  if (user && pathname.startsWith("/login")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
