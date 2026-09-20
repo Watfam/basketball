@@ -122,7 +122,7 @@ const POSITION_LABELS: Record<string, string> = {
 };
 
 /**
- * Reorders (never filters) the goal list so the 1-2 goals most relevant to
+ * Reorders (never filters) the goal list so the goals most relevant to
  * this player's position and weakest self-ratings surface first, while
  * every option stays available — a center who dreams of running the
  * offense shouldn't be blocked from picking that goal, just not have it
@@ -132,19 +132,21 @@ export function rankAssessmentGoals(
   position: string,
   ratings: Record<RatingCategoryValue, number>
 ): typeof ASSESSMENT_GOALS[number][] {
-  // Only the single weakest of these three counts as "room to grow" —
-  // a middling-but-not-worst rating shouldn't out-rank a neutral goal
-  // like "make the team" just because it isn't a perfect 10.
+  // The weakest AND second-weakest of these three count as "room to
+  // grow" (weighted higher for the weakest) — only ever excluding
+  // whichever single skill is this player's strongest, so two goals can
+  // move instead of always just one.
   const skillCategories: RatingCategoryValue[] = ["ball_handling", "shooting", "athleticism"];
-  const weakestCategory = skillCategories.reduce((weakest, cat) =>
-    ratings[cat] < ratings[weakest] ? cat : weakest
+  const [weakestCategory, secondWeakestCategory] = [...skillCategories].sort(
+    (a, b) => ratings[a] - ratings[b]
   );
 
   const scored = ASSESSMENT_GOALS.map((goal, index) => {
     const rule = GOAL_RELEVANCE[goal.value];
     let score = 0;
-    if (rule?.positions?.includes(position)) score += 2;
-    if (rule?.lowRatingCategory === weakestCategory) score += 1;
+    if (rule?.positions?.includes(position)) score += 3;
+    if (rule?.lowRatingCategory === weakestCategory) score += 2;
+    else if (rule?.lowRatingCategory === secondWeakestCategory) score += 1;
     return { goal, index, score };
   });
 
