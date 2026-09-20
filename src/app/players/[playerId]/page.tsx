@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlayerCard } from "@/components/player-card";
-import { WorkoutCard, type Workout } from "@/components/workout-card";
+import { type Workout } from "@/components/workout-card";
+import { WorkoutCarousel } from "@/components/workout-carousel";
 import { EmptyState } from "@/components/empty-state";
 import { rankWorkouts, type PlayerType } from "@/lib/basketball/workout-matching";
 import { randomQuote } from "@/lib/basketball/quotes";
@@ -43,7 +44,6 @@ export default async function PlayerHubPage({
     );
 
   const ranked = rankWorkouts(playerType, (workouts ?? []) as unknown as Workout[]);
-  const recommended = ranked[0];
 
   const { data: recentSessions } = await supabase
     .schema("hoops")
@@ -80,9 +80,10 @@ export default async function PlayerHubPage({
 
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Up Next</h2>
+          <p className="mt-1 text-xs text-foreground-dim">Swipe for more options.</p>
           <div className="mt-3">
-            {recommended ? (
-              <WorkoutCard workout={recommended} playerId={playerId} />
+            {ranked.length > 0 ? (
+              <WorkoutCarousel workouts={ranked} playerId={playerId} />
             ) : (
               <EmptyState
                 eyebrow="No workouts yet"
@@ -91,14 +92,6 @@ export default async function PlayerHubPage({
               />
             )}
           </div>
-          {ranked.length > 1 && (
-            <Link
-              href={`/players/${playerId}/workouts`}
-              className="mt-3 inline-block text-xs font-semibold text-accent hover:text-accent-hover"
-            >
-              See all {ranked.length} workouts →
-            </Link>
-          )}
         </section>
 
         <section>
