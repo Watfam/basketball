@@ -198,7 +198,7 @@ function TimerDrill({
       }
       return;
     }
-    if (secondsLeft <= 3) haptic("tap");
+    if (secondsLeft <= 10) haptic("tap");
     const timeout = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
