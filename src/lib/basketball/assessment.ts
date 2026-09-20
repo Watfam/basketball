@@ -29,6 +29,26 @@ export const ASSESSMENT_GOALS = [
   { value: "more_confidence", label: "Play with more confidence" },
 ] as const;
 
+type GoalValue = (typeof ASSESSMENT_GOALS)[number]["value"];
+
+// Which positions a goal is especially relevant to, and which self-rating
+// (if any) makes it more relevant the lower it is — a low score reads as
+// "room to grow here," not "bad at this." Goals with neither stay neutral
+// (make_the_team, more_confidence) rather than being force-ranked.
+const GOAL_RELEVANCE: Partial<
+  Record<GoalValue, { positions?: string[]; lowRatingCategory?: RatingCategoryValue }>
+> = {
+  primary_ballhandler: {
+    positions: ["point_guard", "combo_guard", "shooting_guard"],
+    lowRatingCategory: "ball_handling",
+  },
+  improve_shooting: { lowRatingCategory: "shooting" },
+  get_stronger_faster: {
+    positions: ["power_forward", "center"],
+    lowRatingCategory: "athleticism",
+  },
+};
+
 export const RATING_CATEGORIES = [
   { value: "ball_handling", label: "Ball Handling" },
   { value: "shooting", label: "Shooting" },
@@ -100,6 +120,38 @@ const POSITION_LABELS: Record<string, string> = {
   power_forward: "Power Forward",
   center: "Center",
 };
+
+/**
+ * Reorders (never filters) the goal list so the 1-2 goals most relevant to
+ * this player's position and weakest self-ratings surface first, while
+ * every option stays available — a center who dreams of running the
+ * offense shouldn't be blocked from picking that goal, just not have it
+ * shoved in front of him by default.
+ */
+export function rankAssessmentGoals(
+  position: string,
+  ratings: Record<RatingCategoryValue, number>
+): typeof ASSESSMENT_GOALS[number][] {
+  // Only the single weakest of these three counts as "room to grow" —
+  // a middling-but-not-worst rating shouldn't out-rank a neutral goal
+  // like "make the team" just because it isn't a perfect 10.
+  const skillCategories: RatingCategoryValue[] = ["ball_handling", "shooting", "athleticism"];
+  const weakestCategory = skillCategories.reduce((weakest, cat) =>
+    ratings[cat] < ratings[weakest] ? cat : weakest
+  );
+
+  const scored = ASSESSMENT_GOALS.map((goal, index) => {
+    const rule = GOAL_RELEVANCE[goal.value];
+    let score = 0;
+    if (rule?.positions?.includes(position)) score += 2;
+    if (rule?.lowRatingCategory === weakestCategory) score += 1;
+    return { goal, index, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((s) => s.goal);
+}
 
 export function computeArchetype(position: string, styleTags: StyleTagValue[]): string {
   const positionLabel = POSITION_LABELS[position] ?? "Baller";

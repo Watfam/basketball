@@ -2,15 +2,15 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { submitAssessment } from "@/app/actions";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import {
-  ASSESSMENT_GOALS,
   RATING_CATEGORIES,
   RATING_SCALE_MAX,
   STYLE_TAGS,
   computeArchetype,
+  rankAssessmentGoals,
   type AssessmentAnswers,
   type RatingCategoryValue,
   type StyleTagValue,
@@ -55,6 +55,14 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
   const [goal, setGoal] = useState("");
 
   const currentStep = steps[step];
+
+  // Reorders (never filters) the goal list toward what's most relevant to
+  // this player's position and weakest self-ratings once those are known —
+  // see rankAssessmentGoals for why nothing is ever hidden outright.
+  const rankedGoals = useMemo(
+    () => rankAssessmentGoals(primaryPosition, ratings),
+    [primaryPosition, ratings]
+  );
 
   const canAdvance = useMemo(() => {
     if (currentStep === "position") return primaryPosition !== "";
@@ -117,15 +125,21 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
         ))}
       </div>
 
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={step}
-          custom={direction}
-          initial={{ opacity: 0, x: direction * 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: direction * -24 }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
-          className="court-glow rounded-3xl border border-line bg-surface p-6 sm:p-8"
+      {/*
+        No AnimatePresence here on purpose: its exit-then-enter sequencing
+        (mode="wait") can stall on a slow/interrupted exit animation and
+        strand the UI on the previous step even after React state has
+        already moved on — a real risk with kids tapping through fast.
+        Keying on `step` still gives each step its own entrance animation;
+        React just swaps the DOM immediately on key change instead of
+        waiting for anything to finish first.
+      */}
+      <motion.div
+        key={step}
+        initial={{ opacity: 0, x: direction * 24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className="court-glow rounded-3xl border border-line bg-surface p-6 sm:p-8"
         >
           {currentStep === "position" && (
             <StepShell
@@ -198,7 +212,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
           {currentStep === "goal" && (
             <StepShell eyebrow="Almost there" title="What's your #1 goal this year?">
               <div className="space-y-2.5">
-                {ASSESSMENT_GOALS.map((g) => (
+                {rankedGoals.map((g) => (
                   <ChoiceCard
                     key={g.value}
                     label={g.label}
@@ -213,8 +227,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
               </div>
             </StepShell>
           )}
-        </motion.div>
-      </AnimatePresence>
+      </motion.div>
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
