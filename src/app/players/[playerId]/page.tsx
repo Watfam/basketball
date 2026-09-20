@@ -8,7 +8,8 @@ import { EmptyState } from "@/components/empty-state";
 import { rankWorkouts, type PlayerType } from "@/lib/basketball/workout-matching";
 import { randomQuote } from "@/lib/basketball/quotes";
 import { computeStreakWeeks } from "@/lib/basketball/progress";
-import type { ComputedPlayerType } from "@/lib/basketball/assessment";
+import { suggestSkillLevel, type ComputedPlayerType, type SkillLevel } from "@/lib/basketball/assessment";
+import { LevelPicker } from "@/components/level-picker";
 
 export default async function PlayerHubPage({
   params,
@@ -34,17 +35,21 @@ export default async function PlayerHubPage({
 
   if (!player) notFound();
 
-  const playerType = (player.player_type ?? {}) as ComputedPlayerType & PlayerType;
+  const playerType = (player.player_type ?? {}) as ComputedPlayerType &
+    PlayerType & { preferred_level?: SkillLevel };
   if (!playerType.archetype) redirect(`/players/${playerId}/assessment`);
+
+  const suggestedLevel = suggestSkillLevel(
+    playerType.ratings ?? { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 }
+  );
+  const currentLevel = playerType.preferred_level ?? suggestedLevel;
 
   const { data: workouts } = await supabase
     .schema("hoops")
     .from("workouts")
     .select(
-      "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(drill_id, sort_order, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer))"
+      "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(drill_id, sort_order, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, difficulty))"
     );
-
-  const ranked = rankWorkouts(playerType, (workouts ?? []) as unknown as Workout[]);
 
   // An abandoned in-progress session — left mid-workout, whether by
   // closing the app or tapping "Finish workout now" isn't how it ends up
@@ -68,21 +73,34 @@ export default async function PlayerHubPage({
     .order("completed_at", { ascending: false })
     .limit(5);
 
-  // All-time completion dates drive the two progress stats below — total
-  // volume and a streak, the "am I actually developing" signal the hub
-  // was missing when it was just a stack of independent sections.
+  // Every completed session, most recent first — drives both the progress
+  // stats below (total volume + streak) and the ranking's "sink this down,
+  // you just did it" signal, instead of two separate near-identical queries.
   const { data: allCompletedSessions } = await supabase
     .schema("hoops")
     .from("workout_sessions")
-    .select("completed_at")
+    .select("workout_id, completed_at")
     .eq("player_id", playerId)
-    .eq("status", "completed");
+    .eq("status", "completed")
+    .order("completed_at", { ascending: false });
 
   const completedDates = (allCompletedSessions ?? [])
     .map((s) => (s.completed_at ? new Date(s.completed_at) : null))
     .filter((d): d is Date => d !== null);
   const totalCompleted = completedDates.length;
   const streakWeeks = computeStreakWeeks(completedDates);
+
+  const lastCompletedByWorkoutId: Record<string, string> = {};
+  (allCompletedSessions ?? []).forEach((s) => {
+    if (s.workout_id && s.completed_at && !lastCompletedByWorkoutId[s.workout_id]) {
+      lastCompletedByWorkoutId[s.workout_id] = s.completed_at;
+    }
+  });
+
+  const ranked = rankWorkouts(playerType, (workouts ?? []) as unknown as Workout[], {
+    playerLevel: currentLevel,
+    lastCompletedByWorkoutId,
+  });
 
   const quote = randomQuote();
 
@@ -142,6 +160,17 @@ export default async function PlayerHubPage({
           <p className="text-sm italic text-foreground">&ldquo;{quote.text}&rdquo;</p>
           <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-accent">— {quote.author}</p>
         </blockquote>
+
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Your Level</h2>
+          <div className="mt-3">
+            <LevelPicker
+              playerId={playerId}
+              currentLevel={currentLevel}
+              isSuggested={!playerType.preferred_level}
+            />
+          </div>
+        </section>
 
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Up Next</h2>

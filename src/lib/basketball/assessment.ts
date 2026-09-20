@@ -174,6 +174,30 @@ export function computeArchetype(position: string, styleTags: StyleTagValue[]): 
   return topTagLabel ? `${topTagLabel} ${positionLabel}` : `Rising ${positionLabel}`;
 }
 
+export const SKILL_LEVELS = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+] as const;
+
+export type SkillLevel = (typeof SKILL_LEVELS)[number]["value"];
+
+/**
+ * A starting point, not a verdict — the assessment's own ratings suggest
+ * a level so a player isn't handed a blank "pick one" with no context,
+ * but this is always meant to be overridden (see the hub's level picker).
+ * Auto-only (no override) would be a black box with no fallback if it
+ * guesses wrong; manual-only would throw away the personalization the
+ * assessment already captured. This is the middle ground.
+ */
+export function suggestSkillLevel(ratings: Record<RatingCategoryValue, number>): SkillLevel {
+  const values = Object.values(ratings);
+  const average = values.reduce((sum, v) => sum + v, 0) / values.length;
+  if (average < RATING_SCALE_MAX * 0.4) return "beginner";
+  if (average < RATING_SCALE_MAX * 0.7) return "intermediate";
+  return "advanced";
+}
+
 export function computePlayerType(answers: AssessmentAnswers) {
   return {
     primary_position: answers.primary_position,

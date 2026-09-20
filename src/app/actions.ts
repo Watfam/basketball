@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { computePlayerType, type AssessmentAnswers } from "@/lib/basketball/assessment";
+import { computePlayerType, type AssessmentAnswers, type SkillLevel } from "@/lib/basketball/assessment";
 
 export async function signOut() {
   const supabase = await createClient();
@@ -231,4 +231,36 @@ export async function submitAssessment(playerId: string, answers: AssessmentAnsw
 
   revalidatePath("/");
   return { error: null, computed };
+}
+
+/**
+ * Overrides the level the assessment suggested. Stored inside the same
+ * player_type JSONB bag rather than a new column — consistent with how
+ * every other player-type signal is stored, and needs no migration.
+ */
+export async function setPreferredLevel(playerId: string, level: SkillLevel) {
+  if (!playerId) return { error: "Missing player." };
+
+  const supabase = await createClient();
+  const { data: player, error: fetchError } = await supabase
+    .schema("hoops")
+    .from("players")
+    .select("player_type")
+    .eq("id", playerId)
+    .single();
+
+  if (fetchError) return { error: fetchError.message };
+
+  const nextPlayerType = { ...(player.player_type ?? {}), preferred_level: level };
+
+  const { error } = await supabase
+    .schema("hoops")
+    .from("players")
+    .update({ player_type: nextPlayerType, updated_at: new Date().toISOString() })
+    .eq("id", playerId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
 }

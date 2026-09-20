@@ -1,4 +1,5 @@
 import { StartSessionButton } from "@/components/start-session-button";
+import { computeWorkoutDifficulty } from "@/lib/basketball/workout-matching";
 
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -7,12 +8,19 @@ const SKILL_LABELS: Record<string, string> = {
   athleticism: "Athleticism",
 };
 
+const DIFFICULTY_LABELS: Record<string, string> = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+};
+
 type Drill = {
   id: string;
   name: string;
   description: string | null;
   video_url: string | null;
   source_trainer: string | null;
+  difficulty: string | null;
 };
 
 type WorkoutDrill = {
@@ -44,6 +52,7 @@ function targetLabel(wd: WorkoutDrill): string | null {
 
 export function WorkoutCard({ workout, playerId }: { workout: Workout; playerId: string }) {
   const drills = [...workout.workout_drills].sort((a, b) => a.sort_order - b.sort_order);
+  const difficulty = computeWorkoutDifficulty(drills.map((wd) => wd.drills?.difficulty));
 
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
@@ -64,9 +73,14 @@ export function WorkoutCard({ workout, playerId }: { workout: Workout; playerId:
         </div>
       </div>
 
-      {workout.focus_areas && workout.focus_areas.length > 0 && (
+      {((workout.focus_areas && workout.focus_areas.length > 0) || difficulty) && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {workout.focus_areas.map((area) => (
+          {difficulty && (
+            <span className="rounded-full border border-line bg-elevated px-2.5 py-0.5 text-xs font-semibold text-foreground-dim">
+              {DIFFICULTY_LABELS[difficulty]}
+            </span>
+          )}
+          {workout.focus_areas?.map((area) => (
             <span
               key={area}
               className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent"
