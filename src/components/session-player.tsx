@@ -41,6 +41,19 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // How far into the *current* drill the player actually is (0-1) — sets
+  // logged / total sets, or seconds elapsed / target — not just "which
+  // drill am I on." Without this the current segment jumped to 100% the
+  // instant you arrived at a drill you hadn't started yet. Reset during
+  // render (React's documented pattern for "adjust state when a prop
+  // changes") rather than in an effect, which the lint rules flag.
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [progressResetForIndex, setProgressResetForIndex] = useState(index);
+  if (progressResetForIndex !== index) {
+    setProgressResetForIndex(index);
+    setCurrentProgress(0);
+  }
+
   const current = drills[index];
   const isTimed = Boolean(current?.target_duration_seconds);
 
@@ -87,16 +100,19 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
   return (
     <div className="mx-auto w-full max-w-md">
       <div className="mb-6 flex items-center gap-2">
-        {drills.map((_, i) => (
-          <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-            <motion.div
-              initial={false}
-              animate={{ width: i <= index ? "100%" : "0%" }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="h-full rounded-full bg-accent"
-            />
-          </div>
-        ))}
+        {drills.map((_, i) => {
+          const width = i < index ? 100 : i === index ? currentProgress * 100 : 0;
+          return (
+            <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+              <motion.div
+                initial={false}
+                animate={{ width: `${width}%` }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="h-full rounded-full bg-accent"
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/*
@@ -146,6 +162,7 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
             {isTimed ? (
               <TimerDrill
                 targetSeconds={current.target_duration_seconds as number}
+                onProgress={setCurrentProgress}
                 onComplete={(actualSeconds) =>
                   finishDrill({
                     drill_id: current.drill_id,
@@ -157,6 +174,7 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
               <RepDrill
                 targetSets={current.target_sets}
                 targetReps={current.target_reps}
+                onProgress={setCurrentProgress}
                 onComplete={(actualSets) =>
                   finishDrill({
                     drill_id: current.drill_id,
@@ -189,9 +207,11 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
 
 function TimerDrill({
   targetSeconds,
+  onProgress,
   onComplete,
 }: {
   targetSeconds: number;
+  onProgress: (fraction: number) => void;
   onComplete: (actualSeconds: number) => void;
 }) {
   const [running, setRunning] = useState(false);
@@ -200,6 +220,7 @@ function TimerDrill({
 
   useEffect(() => {
     if (!running) return;
+    onProgress((targetSeconds - secondsLeft) / targetSeconds);
     if (secondsLeft <= 0) {
       if (!doneRef.current) {
         doneRef.current = true;
@@ -247,10 +268,12 @@ function TimerDrill({
 function RepDrill({
   targetSets,
   targetReps,
+  onProgress,
   onComplete,
 }: {
   targetSets: number | null;
   targetReps: number | null;
+  onProgress: (fraction: number) => void;
   onComplete: (actualSets: number) => void;
 }) {
   // Tapping per individual rep breaks down for anything fast (30 dribbles
@@ -266,6 +289,7 @@ function RepDrill({
     haptic("tap");
     const next = setsDone + 1;
     setSetsDone(next);
+    onProgress(next / totalSets);
     if (next >= totalSets) {
       doneRef.current = true;
       haptic("success");
