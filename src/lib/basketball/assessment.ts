@@ -128,25 +128,34 @@ const POSITION_LABELS: Record<string, string> = {
  * offense shouldn't be blocked from picking that goal, just not have it
  * shoved in front of him by default.
  */
+// Below this, a rating counts as genuine "room to grow." Purely relative
+// ranking (just picking whichever of the three is lowest) would flag an
+// 8/10 as a "weakness" for a player who rated 9/8/9/9 — nothing about
+// that player is actually weak, so a well-rounded strong player should
+// fall back to the neutral goal order instead of an invented weak spot.
+const WEAKNESS_THRESHOLD = Math.floor(RATING_SCALE_MAX * 0.6);
+
 export function rankAssessmentGoals(
   position: string,
   ratings: Record<RatingCategoryValue, number>
 ): typeof ASSESSMENT_GOALS[number][] {
-  // The weakest AND second-weakest of these three count as "room to
-  // grow" (weighted higher for the weakest) — only ever excluding
-  // whichever single skill is this player's strongest, so two goals can
-  // move instead of always just one.
+  // Of the ratings that actually clear the "room to grow" bar, the
+  // weakest and second-weakest count (weighted higher for the weakest)
+  // — so two goals can move instead of always just one, but only when
+  // there's a real weakness to point at.
   const skillCategories: RatingCategoryValue[] = ["ball_handling", "shooting", "athleticism"];
-  const [weakestCategory, secondWeakestCategory] = [...skillCategories].sort(
-    (a, b) => ratings[a] - ratings[b]
-  );
+  const [weakestCategory, secondWeakestCategory] = skillCategories
+    .filter((cat) => ratings[cat] < WEAKNESS_THRESHOLD)
+    .sort((a, b) => ratings[a] - ratings[b]);
 
   const scored = ASSESSMENT_GOALS.map((goal, index) => {
     const rule = GOAL_RELEVANCE[goal.value];
     let score = 0;
     if (rule?.positions?.includes(position)) score += 3;
-    if (rule?.lowRatingCategory === weakestCategory) score += 2;
-    else if (rule?.lowRatingCategory === secondWeakestCategory) score += 1;
+    // Guard against both sides being `undefined` (no genuine weakness AND
+    // a neutral goal with no lowRatingCategory) accidentally "matching."
+    if (weakestCategory && rule?.lowRatingCategory === weakestCategory) score += 2;
+    else if (secondWeakestCategory && rule?.lowRatingCategory === secondWeakestCategory) score += 1;
     return { goal, index, score };
   });
 
