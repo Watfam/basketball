@@ -39,7 +39,7 @@ export default async function PlayerWorkoutsPage({
     .schema("hoops")
     .from("workouts")
     .select(
-      "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(id, sort_order, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer))"
+      "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(drill_id, sort_order, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer))"
     );
 
   if (workoutsError) {

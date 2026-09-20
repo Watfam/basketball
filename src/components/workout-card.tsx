@@ -14,7 +14,9 @@ type Drill = {
 };
 
 type WorkoutDrill = {
-  id: string;
+  // hoops.workout_drills has a composite primary key (workout_id, drill_id)
+  // — no standalone id column — so drill_id doubles as the React key here.
+  drill_id: string;
   sort_order: number;
   target_sets: number | null;
   target_reps: number | null;
@@ -76,7 +78,7 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
           if (!drill) return null;
           const target = targetLabel(wd);
           return (
-            <div key={wd.id} className="flex items-start justify-between gap-3">
+            <div key={wd.drill_id} className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">{drill.name}</p>
                 {drill.description && (
