@@ -62,7 +62,14 @@ export function PlayerRow({ id, displayName, subtitle, hasAssessment }: Props) {
         <p className="mt-0.5 text-xs text-foreground-dim">{subtitle}</p>
       </div>
       <div className="flex items-center gap-3">
-        {!hasAssessment && (
+        {hasAssessment ? (
+          <Link
+            href={`/players/${id}/workouts`}
+            className="rounded-lg border border-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-white"
+          >
+            Workouts
+          </Link>
+        ) : (
           <Link
             href={`/players/${id}/assessment`}
             className="rounded-lg bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"

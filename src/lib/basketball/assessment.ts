@@ -133,7 +133,7 @@ const POSITION_LABELS: Record<string, string> = {
 // 8/10 as a "weakness" for a player who rated 9/8/9/9 — nothing about
 // that player is actually weak, so a well-rounded strong player should
 // fall back to the neutral goal order instead of an invented weak spot.
-const WEAKNESS_THRESHOLD = Math.floor(RATING_SCALE_MAX * 0.6);
+export const WEAKNESS_THRESHOLD = Math.floor(RATING_SCALE_MAX * 0.6);
 
 export function rankAssessmentGoals(
   position: string,

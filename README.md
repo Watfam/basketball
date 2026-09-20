@@ -70,20 +70,25 @@ year-round player and team development. Next.js + Supabase + Vercel.
 2. **Expose the schema to the API.** Project Settings → API → "Exposed
    schemas" → add `hoops` alongside `public`. Without this step the app's
    Supabase client calls will 404.
-3. **Get your API keys.** Project Settings → API → copy the Project URL
+3. **(Optional) Seed the workout library.** Run `supabase/seed_content.sql`
+   in the SQL Editor to add a starter set of drills/workouts so the
+   curated workout feed has something to show. Content tables are
+   read-only from the app (see the RLS policies in `schema.sql`) — this
+   is how you add more later, too.
+4. **Get your API keys.** Project Settings → API → copy the Project URL
    and the `anon` public key.
-4. **Configure the app.** `cp .env.local.example .env.local` and paste in
-   the URL/key from step 3.
-5. **Install and run locally.**
+5. **Configure the app.** `cp .env.local.example .env.local` and paste in
+   the URL/key from step 4.
+6. **Install and run locally.**
    ```bash
    npm install
    npm run dev
    ```
    Visit http://localhost:3000.
-6. **Deploy to Vercel.** Import this repo in Vercel, add the same two
+7. **Deploy to Vercel.** Import this repo in Vercel, add the same two
    environment variables (`NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`) in the Vercel project settings, deploy.
-7. **(Optional) Generate real TypeScript types** once the schema is
+8. **(Optional) Generate real TypeScript types** once the schema is
    applied, replacing the placeholder in `src/lib/supabase/types.ts`:
    ```bash
    npx supabase gen types typescript --project-id <your-project-ref> \
@@ -104,9 +109,11 @@ src/
     basketball/
       taxonomy.ts          Fixed scheme/focus-area/position option lists
       assessment.ts        Onboarding quiz content + player_type/archetype computation
+      workout-matching.ts  Ranks curated workouts against a player's player_type
     haptics.ts             Web Vibration API wrapper, no-op where unsupported (e.g. iOS Safari)
 supabase/
   schema.sql               Full hoops schema + RLS policies
+  seed_content.sql         Starter drill/workout library (run once, optional)
 middleware.ts               Wires up Supabase session refresh
 ```
 
