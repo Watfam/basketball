@@ -35,12 +35,20 @@ export default async function PlayerWorkoutsPage({
   // Content library is readable by any signed-in user (see the
   // "Content libraries" RLS policies) — it's seeded via supabase/seed_content.sql,
   // not written through the app.
-  const { data: workouts } = await supabase
+  const { data: workouts, error: workoutsError } = await supabase
     .schema("hoops")
     .from("workouts")
     .select(
       "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(id, sort_order, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer))"
     );
+
+  if (workoutsError) {
+    // Surfaced instead of silently falling back to an empty feed — a
+    // stale PostgREST schema cache (common right after running raw SQL
+    // in the Supabase SQL Editor instead of through migrations) or a
+    // missing grant shows up here as a real Postgres error, not "0 rows."
+    console.error("[workouts] fetch failed:", workoutsError);
+  }
 
   const ranked = rankWorkouts(playerType, (workouts ?? []) as unknown as Workout[]);
 
@@ -58,7 +66,13 @@ export default async function PlayerWorkoutsPage({
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-8 sm:py-12">
-        {ranked.length === 0 ? (
+        {workoutsError ? (
+          <EmptyState
+            eyebrow="Couldn't load workouts"
+            title="Something went wrong fetching the workout library"
+            subtitle={workoutsError.message}
+          />
+        ) : ranked.length === 0 ? (
           <EmptyState
             eyebrow="No workouts yet"
             title="No curated content yet"
