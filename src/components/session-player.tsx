@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { completeWorkoutSession, logDrillProgress } from "@/app/actions";
 import { ProgressRing } from "@/components/charts/progress-ring";
+import { DrillInstructions } from "@/components/drill-instructions";
+import {
+  resolvePrescription,
+  BLOCK_LABELS,
+  type LevelTarget,
+} from "@/lib/basketball/prescription";
+import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
 
 type Drill = {
@@ -13,29 +20,50 @@ type Drill = {
   description: string | null;
   video_url: string | null;
   source_trainer: string | null;
+  setup: string | null;
+  cues: string[] | null;
+  common_mistakes: string[] | null;
+  equipment: string[] | null;
 };
 
 export type SessionDrill = {
+  // The workout_drills row id. A drill can now appear more than once in a
+  // workout ("right side", then "left side"), so drill_id is no longer
+  // unique within a session and can't be used as a key.
+  id: string;
   drill_id: string;
   sort_order: number;
+  block: string | null;
+  variant_label: string | null;
+  levels: string[] | null;
+  level_targets: Record<string, LevelTarget> | null;
   target_sets: number | null;
   target_reps: number | null;
   target_duration_seconds: number | null;
   drills: Drill | null;
 };
 
-type DrillLog = { drill_id: string; metrics: Record<string, unknown> };
+type DrillLog = {
+  drill_id: string;
+  workout_drill_id: string;
+  metrics: Record<string, unknown>;
+};
 
 type Props = {
   playerId: string;
   sessionId: string;
   workoutName: string;
   drills: SessionDrill[];
+  // Drives both which variation of a slot the player gets and how the
+  // sets/reps scale — see lib/basketball/prescription.ts.
+  level: SkillLevel;
+  // Week-over-week progression when this session is part of a program.
+  volumeStep: number;
   alreadyCompleted: boolean;
-  // drill_ids already logged in a previous visit to this session — lets a
-  // player leave mid-workout and pick back up later instead of losing
-  // progress or being forced to redo drills they already did.
-  initialLoggedDrillIds: string[];
+  // workout_drills entry ids already logged in a previous visit to this
+  // session — lets a player leave mid-workout and pick back up later
+  // instead of losing progress or redoing what they already did.
+  initialLoggedEntryIds: string[];
 };
 
 /**
@@ -56,20 +84,22 @@ export function SessionPlayer({
   sessionId,
   workoutName,
   drills,
+  level,
+  volumeStep,
   alreadyCompleted,
-  initialLoggedDrillIds,
+  initialLoggedEntryIds,
 }: Props) {
   const router = useRouter();
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const initialCompleted = useMemo(() => {
-    const loggedIds = new Set(initialLoggedDrillIds);
+    const loggedIds = new Set(initialLoggedEntryIds);
     const indexes = new Set<number>();
     drills.forEach((d, i) => {
-      if (loggedIds.has(d.drill_id)) indexes.add(i);
+      if (loggedIds.has(d.id)) indexes.add(i);
     });
     return indexes;
-  }, [drills, initialLoggedDrillIds]);
+  }, [drills, initialLoggedEntryIds]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [completed, setCompleted] = useState<Set<number>>(initialCompleted);
@@ -141,7 +171,7 @@ export function SessionPlayer({
     // Fire-and-forget: saved immediately so progress survives leaving
     // mid-workout, without making every drill wait on a network round
     // trip before it can advance.
-    logDrillProgress(sessionId, log.drill_id, log.metrics).then((result) => {
+    logDrillProgress(sessionId, log.drill_id, log.metrics, log.workout_drill_id).then((result) => {
       if (result?.error) setError(result.error);
     });
 
@@ -162,7 +192,11 @@ export function SessionPlayer({
     if (completed.has(activeIndex)) return;
     haptic("tap");
     const drill = drills[activeIndex];
-    handleDrillComplete(activeIndex, { drill_id: drill.drill_id, metrics: { skipped: true } });
+    handleDrillComplete(activeIndex, {
+      drill_id: drill.drill_id,
+      workout_drill_id: drill.id,
+      metrics: { skipped: true, variant: drill.variant_label },
+    });
   }
 
   if (finished) {
@@ -235,9 +269,11 @@ export function SessionPlayer({
         className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {drills.map((drill, i) => (
-          <div key={drill.drill_id} className="w-full shrink-0 snap-center">
+          <div key={drill.id} className="w-full shrink-0 snap-center">
             <DrillCard
               drill={drill}
+              level={level}
+              volumeStep={volumeStep}
               onProgress={(fraction) => setProgressByIndex((prev) => ({ ...prev, [i]: fraction }))}
               onComplete={(log) => handleDrillComplete(i, log)}
             />
@@ -295,18 +331,37 @@ export function SessionPlayer({
 
 function DrillCard({
   drill,
+  level,
+  volumeStep,
   onProgress,
   onComplete,
 }: {
   drill: SessionDrill;
+  level: SkillLevel;
+  volumeStep: number;
   onProgress: (fraction: number) => void;
   onComplete: (log: DrillLog) => void;
 }) {
-  const isTimed = Boolean(drill.target_duration_seconds);
+  const prescription = resolvePrescription(drill, level, volumeStep);
+  const isTimed = Boolean(prescription.durationSeconds);
+  const blockLabel = drill.block ? BLOCK_LABELS[drill.block] : null;
 
   return (
     <div className="panel-lit rounded-3xl border border-line bg-surface p-6 sm:p-7">
-      <h2 className="font-display text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
+      <div className="flex flex-wrap items-center gap-2">
+        {blockLabel && (
+          <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+            {blockLabel}
+          </span>
+        )}
+        {drill.variant_label && (
+          <span className="rounded-md border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)]">
+            {drill.variant_label}
+          </span>
+        )}
+      </div>
+
+      <h2 className="font-display mt-2.5 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
         {drill.drills?.name ?? "Drill"}
       </h2>
       {drill.drills?.description && (
@@ -314,34 +369,26 @@ function DrillCard({
           {drill.drills.description}
         </p>
       )}
-      {(drill.drills?.source_trainer || drill.drills?.video_url) && (
-        <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
-          {drill.drills.source_trainer}
-          {drill.drills.source_trainer && drill.drills.video_url ? " · " : ""}
-          {drill.drills.video_url && (
-            <a
-              href={drill.drills.video_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent transition-colors hover:text-accent-hover"
-            >
-              Watch film ↗
-            </a>
-          )}
-        </p>
+
+      {drill.drills && (
+        <div className="mt-2.5">
+          <DrillInstructions drill={drill.drills} />
+        </div>
       )}
 
       <div className="mt-7">
         {isTimed ? (
           <TimerDrill
-            targetSeconds={drill.target_duration_seconds as number}
+            targetSeconds={prescription.durationSeconds as number}
             onProgress={onProgress}
             onComplete={(actualSeconds) =>
               onComplete({
                 drill_id: drill.drill_id,
+                workout_drill_id: drill.id,
                 metrics: {
                   type: "timed",
-                  target_duration_seconds: drill.target_duration_seconds,
+                  variant: drill.variant_label,
+                  target_duration_seconds: prescription.durationSeconds,
                   actual_duration_seconds: actualSeconds,
                 },
               })
@@ -349,16 +396,18 @@ function DrillCard({
           />
         ) : (
           <RepDrill
-            targetSets={drill.target_sets}
-            targetReps={drill.target_reps}
+            targetSets={prescription.sets}
+            targetReps={prescription.reps}
             onProgress={onProgress}
             onComplete={(actualSets) =>
               onComplete({
                 drill_id: drill.drill_id,
+                workout_drill_id: drill.id,
                 metrics: {
                   type: "reps",
-                  target_sets: drill.target_sets,
-                  target_reps: drill.target_reps,
+                  variant: drill.variant_label,
+                  target_sets: prescription.sets,
+                  target_reps: prescription.reps,
                   actual_sets: actualSets,
                 },
               })

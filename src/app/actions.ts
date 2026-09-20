@@ -177,14 +177,27 @@ export async function startWorkoutSession(playerId: string, workoutId: string) {
  * the very end. If the player closes the app mid-workout, whatever they
  * did up to that point is already saved and the session stays resumable.
  */
-export async function logDrillProgress(sessionId: string, drillId: string, metrics: Record<string, unknown>) {
+export async function logDrillProgress(
+  sessionId: string,
+  drillId: string,
+  metrics: Record<string, unknown>,
+  // The workout_drills entry this satisfied. A drill can appear twice in
+  // one workout (right side, then left side), so drill_id alone can't say
+  // which half just got done.
+  workoutDrillId?: string
+) {
   if (!sessionId || !drillId) return { error: "Missing session or drill." };
 
   const supabase = await createClient();
   const { error } = await supabase
     .schema("hoops")
     .from("session_logs")
-    .insert({ session_id: sessionId, drill_id: drillId, metrics });
+    .insert({
+      session_id: sessionId,
+      drill_id: drillId,
+      workout_drill_id: workoutDrillId ?? null,
+      metrics,
+    });
 
   if (error) return { error: error.message };
 

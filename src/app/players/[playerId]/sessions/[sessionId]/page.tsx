@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SessionPlayer, type SessionDrill } from "@/components/session-player";
+import { entriesForLevel } from "@/lib/basketball/prescription";
+import { suggestSkillLevel, type SkillLevel } from "@/lib/basketball/assessment";
 
 export default async function SessionPage({
   params,
@@ -21,11 +23,35 @@ export default async function SessionPage({
     .schema("hoops")
     .from("workout_sessions")
     .select(
-      "id, status, workouts(id, name, workout_drills(drill_id, sort_order, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer)))"
+      "id, status, program_days(volume_step, week_number, day_number), workouts(id, name, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, setup, cues, common_mistakes, equipment)))"
     )
     .eq("id", sessionId)
     .eq("player_id", playerId)
     .maybeSingle();
+
+  // The player's training level decides both which variation of each slot
+  // they get and how the sets/reps scale.
+  const { data: player } = await supabase
+    .schema("hoops")
+    .from("players")
+    .select("player_type")
+    .eq("id", playerId)
+    .maybeSingle();
+
+  const playerType = (player?.player_type ?? {}) as {
+    ratings?: Record<string, number>;
+    preferred_level?: SkillLevel;
+  };
+  const level: SkillLevel =
+    playerType.preferred_level ??
+    suggestSkillLevel(
+      (playerType.ratings ?? {
+        ball_handling: 0,
+        shooting: 0,
+        defense: 0,
+        athleticism: 0,
+      }) as Parameters<typeof suggestSkillLevel>[0]
+    );
 
   if (error) {
     console.error("[session] fetch failed:", error);
@@ -42,15 +68,20 @@ export default async function SessionPage({
 
   if (!session || !workout) notFound();
 
-  const drills = [...workout.workout_drills].sort((a, b) => a.sort_order - b.sort_order);
+  // Entries restricted to other levels are dropped here, so the player
+  // only ever sees their own version of each slot.
+  const drills = entriesForLevel(workout.workout_drills, level);
 
-  // Drills already logged in a previous visit — lets the player resume
+  const programDay = session.program_days as unknown as { volume_step: number } | null;
+  const volumeStep = programDay?.volume_step ?? 0;
+
+  // Entries already logged in a previous visit — lets the player resume
   // where they left off instead of redoing everything or losing progress
   // if they closed the app mid-workout.
   const { data: existingLogs } = await supabase
     .schema("hoops")
     .from("session_logs")
-    .select("drill_id")
+    .select("workout_drill_id")
     .eq("session_id", sessionId);
 
   return (
@@ -63,8 +94,12 @@ export default async function SessionPage({
         sessionId={session.id}
         workoutName={workout.name}
         drills={drills}
+        level={level}
+        volumeStep={volumeStep}
         alreadyCompleted={session.status === "completed"}
-        initialLoggedDrillIds={(existingLogs ?? []).map((log) => log.drill_id)}
+        initialLoggedEntryIds={(existingLogs ?? [])
+          .map((log) => log.workout_drill_id)
+          .filter((id): id is string => Boolean(id))}
       />
     </div>
   );

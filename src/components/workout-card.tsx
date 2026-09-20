@@ -1,5 +1,6 @@
 import { StartSessionButton } from "@/components/start-session-button";
 import { computeWorkoutDifficulty } from "@/lib/basketball/workout-matching";
+import { type LevelTarget } from "@/lib/basketball/prescription";
 
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -28,10 +29,16 @@ type Drill = {
 };
 
 type WorkoutDrill = {
-  // hoops.workout_drills has a composite primary key (workout_id, drill_id)
-  // — no standalone id column — so drill_id doubles as the React key here.
+  // The workout_drills row id. A drill can appear more than once in one
+  // workout ("right side", then "left side"), so drill_id isn't unique
+  // within a workout and can't be the React key.
+  id: string;
   drill_id: string;
   sort_order: number;
+  block: string | null;
+  variant_label: string | null;
+  levels: string[] | null;
+  level_targets: Record<string, LevelTarget> | null;
   target_sets: number | null;
   target_reps: number | null;
   target_duration_seconds: number | null;
@@ -111,9 +118,16 @@ export function WorkoutCard({ workout, playerId }: { workout: Workout; playerId:
           if (!drill) return null;
           const target = targetLabel(wd);
           return (
-            <div key={wd.drill_id} className="flex items-baseline justify-between gap-3">
+            <div key={wd.id} className="flex items-baseline justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-foreground">{drill.name}</p>
+                <p className="truncate text-sm font-semibold text-foreground">
+                  {drill.name}
+                  {wd.variant_label && (
+                    <span className="ml-1.5 font-bold text-[var(--data-cyan)]">
+                      {wd.variant_label}
+                    </span>
+                  )}
+                </p>
                 {drill.source_trainer && (
                   <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
                     {drill.source_trainer}

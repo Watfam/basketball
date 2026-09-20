@@ -94,9 +94,12 @@ export function FeaturedWorkout({
 
         <ul className="mt-3 space-y-1.5">
           {drills.slice(0, 3).map((wd) => (
-            <li key={wd.drill_id} className="flex items-center justify-between gap-3 text-xs">
+            <li key={wd.id} className="flex items-center justify-between gap-3 text-xs">
               <span className="truncate font-semibold text-foreground-dim">
                 {wd.drills?.name}
+                {wd.variant_label && (
+                  <span className="ml-1.5 text-[var(--data-cyan)]">{wd.variant_label}</span>
+                )}
               </span>
               <span className="shrink-0 font-bold text-foreground-mute">
                 {wd.target_sets && wd.target_reps
