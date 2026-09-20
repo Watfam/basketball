@@ -45,6 +45,19 @@ export default async function PlayerHubPage({
 
   const ranked = rankWorkouts(playerType, (workouts ?? []) as unknown as Workout[]);
 
+  // An abandoned in-progress session — left mid-workout, whether by
+  // closing the app or tapping "Finish workout now" isn't how it ends up
+  // in_progress (that marks it completed). Surfaced so it's not just lost.
+  const { data: inProgressSession } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .select("id, workouts(name)")
+    .eq("player_id", playerId)
+    .eq("status", "in_progress")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const { data: recentSessions } = await supabase
     .schema("hoops")
     .from("workout_sessions")
@@ -65,6 +78,23 @@ export default async function PlayerHubPage({
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-8 sm:py-12">
+        {inProgressSession && (
+          <Link
+            href={`/players/${playerId}/sessions/${inProgressSession.id}`}
+            className="flex items-center justify-between gap-3 rounded-2xl border border-accent bg-accent/10 px-5 py-4 transition-colors hover:bg-accent/20"
+          >
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-accent">Continue where you left off</p>
+              <p className="mt-1 truncate text-sm font-semibold text-foreground">
+                {(inProgressSession.workouts as unknown as { name: string } | null)?.name ?? "Workout"}
+              </p>
+            </div>
+            <span className="shrink-0 whitespace-nowrap text-xs font-bold uppercase tracking-wide text-accent">
+              Resume →
+            </span>
+          </Link>
+        )}
+
         <PlayerCard
           playerName={player.display_name}
           archetype={playerType.archetype}

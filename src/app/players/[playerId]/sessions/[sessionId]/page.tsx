@@ -44,6 +44,15 @@ export default async function SessionPage({
 
   const drills = [...workout.workout_drills].sort((a, b) => a.sort_order - b.sort_order);
 
+  // Drills already logged in a previous visit — lets the player resume
+  // where they left off instead of redoing everything or losing progress
+  // if they closed the app mid-workout.
+  const { data: existingLogs } = await supabase
+    .schema("hoops")
+    .from("session_logs")
+    .select("drill_id")
+    .eq("session_id", sessionId);
+
   return (
     <div className="court-glow flex flex-1 flex-col justify-center px-4 py-10 sm:py-16">
       <SessionPlayer
@@ -52,6 +61,7 @@ export default async function SessionPage({
         workoutName={workout.name}
         drills={drills}
         alreadyCompleted={session.status === "completed"}
+        initialLoggedDrillIds={(existingLogs ?? []).map((log) => log.drill_id)}
       />
     </div>
   );

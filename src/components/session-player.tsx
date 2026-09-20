@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { completeWorkoutSession } from "@/app/actions";
+import { completeWorkoutSession, logDrillProgress } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
 
 type Drill = {
@@ -31,6 +31,10 @@ type Props = {
   workoutName: string;
   drills: SessionDrill[];
   alreadyCompleted: boolean;
+  // drill_ids already logged in a previous visit to this session — lets a
+  // player leave mid-workout and pick back up later instead of losing
+  // progress or being forced to redo drills they already did.
+  initialLoggedDrillIds: string[];
 };
 
 /**
@@ -46,16 +50,52 @@ type Props = {
  * get stuck in, and as a bonus a drill's own progress now survives being
  * scrolled away from and back to, since it's never torn down.
  */
-export function SessionPlayer({ playerId, sessionId, workoutName, drills, alreadyCompleted }: Props) {
+export function SessionPlayer({
+  playerId,
+  sessionId,
+  workoutName,
+  drills,
+  alreadyCompleted,
+  initialLoggedDrillIds,
+}: Props) {
   const router = useRouter();
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const initialCompleted = useMemo(() => {
+    const loggedIds = new Set(initialLoggedDrillIds);
+    const indexes = new Set<number>();
+    drills.forEach((d, i) => {
+      if (loggedIds.has(d.drill_id)) indexes.add(i);
+    });
+    return indexes;
+  }, [drills, initialLoggedDrillIds]);
+
   const [activeIndex, setActiveIndex] = useState(0);
-  const [completed, setCompleted] = useState<Set<number>>(new Set());
+  const [completed, setCompleted] = useState<Set<number>>(initialCompleted);
   const [progressByIndex, setProgressByIndex] = useState<Record<number, number>>({});
   const [finished, setFinished] = useState(alreadyCompleted);
+  const [finishConfirming, setFinishConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const logsRef = useRef<Record<number, DrillLog>>({});
+
+  // Resuming a session that already has some drills logged — jump
+  // straight to the first one that isn't done yet instead of starting
+  // back at drill 1.
+  useEffect(() => {
+    if (initialCompleted.size === 0) return;
+    const nextIndex = drills.findIndex((_, i) => !initialCompleted.has(i));
+    if (nextIndex > 0) {
+      requestAnimationFrame(() => {
+        const el = scrollerRef.current;
+        if (!el) return;
+        el.scrollTo({ left: nextIndex * el.clientWidth, behavior: "instant" });
+        setActiveIndex(nextIndex);
+      });
+    }
+    // Only on mount — this is a one-time "where was I" jump, not something
+    // that should re-fire as completed/drills change during the session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleScroll() {
     const el = scrollerRef.current;
@@ -80,11 +120,29 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
     }, 400);
   }
 
+  function finishSession() {
+    startTransition(async () => {
+      const result = await completeWorkoutSession(sessionId);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      haptic("success");
+      setFinished(true);
+    });
+  }
+
   function handleDrillComplete(index: number, log: DrillLog) {
-    logsRef.current[index] = log;
     const nextCompleted = new Set(completed).add(index);
     setCompleted(nextCompleted);
     haptic("step");
+
+    // Fire-and-forget: saved immediately so progress survives leaving
+    // mid-workout, without making every drill wait on a network round
+    // trip before it can advance.
+    logDrillProgress(sessionId, log.drill_id, log.metrics).then((result) => {
+      if (result?.error) setError(result.error);
+    });
 
     if (nextCompleted.size < drills.length) {
       // Jump to the next not-yet-done drill — usually index + 1, but if
@@ -96,15 +154,7 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
     }
 
     // Every drill is done, regardless of the order they were done in.
-    startTransition(async () => {
-      const result = await completeWorkoutSession(sessionId, Object.values(logsRef.current));
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-      haptic("success");
-      setFinished(true);
-    });
+    finishSession();
   }
 
   function skipActiveDrill() {
@@ -118,7 +168,8 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
     return (
       <SessionComplete
         workoutName={workoutName}
-        drillCount={drills.length}
+        loggedCount={completed.size}
+        totalCount={drills.length}
         onDone={() => router.push(`/players/${playerId}`)}
       />
     );
@@ -180,6 +231,40 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
       >
         {completed.has(activeIndex) ? "Drill logged" : "Skip this drill"}
       </button>
+
+      {finishConfirming ? (
+        <div className="mt-3 rounded-xl border border-line bg-surface px-4 py-3 text-center">
+          <p className="text-sm text-foreground">
+            Finish now with {completed.size} of {drills.length} drills logged? You can pick this
+            workout back up later — whatever you&rsquo;ve done so far is already saved.
+          </p>
+          <div className="mt-3 flex justify-center gap-4">
+            <button
+              type="button"
+              onClick={finishSession}
+              disabled={pending}
+              className="text-xs font-bold uppercase tracking-wide text-accent hover:text-accent-hover disabled:opacity-50"
+            >
+              {pending ? "Finishing…" : "Finish now"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setFinishConfirming(false)}
+              className="text-xs font-semibold text-foreground-dim hover:text-foreground"
+            >
+              Keep going
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setFinishConfirming(true)}
+          className="mt-3 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground"
+        >
+          Finish workout now
+        </button>
+      )}
     </div>
   );
 }
@@ -379,13 +464,16 @@ function RepDrill({
 
 function SessionComplete({
   workoutName,
-  drillCount,
+  loggedCount,
+  totalCount,
   onDone,
 }: {
   workoutName: string;
-  drillCount: number;
+  loggedCount: number;
+  totalCount: number;
   onDone: () => void;
 }) {
+  const fullyDone = loggedCount >= totalCount;
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center">
       <motion.div
@@ -399,7 +487,9 @@ function SessionComplete({
           {workoutName}
         </h2>
         <p className="mt-2 text-sm text-foreground-dim">
-          {drillCount} {drillCount === 1 ? "drill" : "drills"} logged. Nice work.
+          {fullyDone
+            ? `All ${totalCount} ${totalCount === 1 ? "drill" : "drills"} logged. Nice work.`
+            : `${loggedCount} of ${totalCount} drills logged. Nice work getting some in.`}
         </p>
       </motion.div>
 

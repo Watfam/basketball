@@ -152,35 +152,43 @@ export async function startWorkoutSession(playerId: string, workoutId: string) {
 }
 
 /**
- * Finishes a session: writes one hoops.session_logs row per drill actually
- * performed (not just "hit the target" — metrics carries whatever was
- * actually logged, per the schema's "never limit what might be helpful to
- * capture" JSONB design) and marks the session completed.
+ * Logs a single drill's actual performance (not just "hit the target" —
+ * metrics carries whatever was actually logged, per the schema's "never
+ * limit what might be helpful to capture" JSONB design) as soon as that
+ * drill is finished, rather than batching everything up for one write at
+ * the very end. If the player closes the app mid-workout, whatever they
+ * did up to that point is already saved and the session stays resumable.
  */
-export async function completeWorkoutSession(
-  sessionId: string,
-  logs: { drill_id: string; metrics: Record<string, unknown> }[]
-) {
+export async function logDrillProgress(sessionId: string, drillId: string, metrics: Record<string, unknown>) {
+  if (!sessionId || !drillId) return { error: "Missing session or drill." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("session_logs")
+    .insert({ session_id: sessionId, drill_id: drillId, metrics });
+
+  if (error) return { error: error.message };
+
+  return { error: null };
+}
+
+/**
+ * Marks a session completed — whether every drill got logged or the
+ * player chose to finish early with only some of them done. Drill logs
+ * themselves are already saved via logDrillProgress by this point.
+ */
+export async function completeWorkoutSession(sessionId: string) {
   if (!sessionId) return { error: "Missing session." };
 
   const supabase = await createClient();
-
-  if (logs.length > 0) {
-    const { error: logsError } = await supabase
-      .schema("hoops")
-      .from("session_logs")
-      .insert(logs.map((log) => ({ session_id: sessionId, drill_id: log.drill_id, metrics: log.metrics })));
-
-    if (logsError) return { error: logsError.message };
-  }
-
-  const { error: sessionError } = await supabase
+  const { error } = await supabase
     .schema("hoops")
     .from("workout_sessions")
     .update({ status: "completed", completed_at: new Date().toISOString() })
     .eq("id", sessionId);
 
-  if (sessionError) return { error: sessionError.message };
+  if (error) return { error: error.message };
 
   return { error: null };
 }
