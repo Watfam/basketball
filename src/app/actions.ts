@@ -134,6 +134,24 @@ export async function startWorkoutSession(playerId: string, workoutId: string) {
   if (!playerId || !workoutId) return { error: "Missing player or workout." };
 
   const supabase = await createClient();
+
+  // Resume rather than duplicate. Starting a workout you already have an
+  // unfinished session for used to insert a second in_progress row, which
+  // stranded the first one (along with everything already logged against
+  // it) and left two "unfinished" entries for one workout.
+  const { data: existing } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .select("id")
+    .eq("player_id", playerId)
+    .eq("workout_id", workoutId)
+    .eq("status", "in_progress")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) return { error: null, sessionId: existing.id as string };
+
   const { data: session, error } = await supabase
     .schema("hoops")
     .from("workout_sessions")

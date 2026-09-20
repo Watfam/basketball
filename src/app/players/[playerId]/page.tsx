@@ -85,18 +85,21 @@ export default async function PlayerHubPage({
   const previousRatings =
     (assessments?.[1]?.computed_player_type as ComputedPlayerType | undefined)?.ratings ?? null;
 
-  // An abandoned in-progress session — left mid-workout, whether by
-  // closing the app or tapping "Finish workout now" isn't how it ends up
-  // in_progress (that marks it completed). Surfaced so it's not just lost.
-  const { data: inProgressSession } = await supabase
+  // Every unfinished session, not just the newest. Showing only the most
+  // recent one silently stranded older ones: a player who starts A, drifts
+  // off, then starts B had no way back to A except the history page.
+  const { data: inProgressSessions } = await supabase
     .schema("hoops")
     .from("workout_sessions")
-    .select("id, workouts(name)")
+    .select("id, workout_id, started_at, workouts(name)")
     .eq("player_id", playerId)
     .eq("status", "in_progress")
-    .order("started_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("started_at", { ascending: false });
+
+  const unfinished = inProgressSessions ?? [];
+  const unfinishedWorkoutIds = new Set(
+    unfinished.map((s) => s.workout_id).filter((id): id is string => Boolean(id))
+  );
 
   const { data: recentSessions } = await supabase
     .schema("hoops")
@@ -134,10 +137,14 @@ export default async function PlayerHubPage({
     }
   });
 
+  // A workout you've already started doesn't belong in "Up Next" — it's
+  // not a suggestion any more, and offering "Start session" for something
+  // already underway would create a second session or silently resume.
+  // It isn't hidden: it's promoted to the Continue banner above.
   const ranked = rankWorkouts(playerType, (workouts ?? []) as unknown as Workout[], {
     playerLevel: currentLevel,
     lastCompletedByWorkoutId,
-  });
+  }).filter((w) => !unfinishedWorkoutIds.has(w.id));
 
   const [featured, ...alternates] = ranked;
   const reasons: Record<string, string> = {};
@@ -171,23 +178,45 @@ export default async function PlayerHubPage({
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
-        {inProgressSession && (
-          <Link
-            href={`/players/${playerId}/sessions/${inProgressSession.id}`}
-            className="flex items-center justify-between gap-3 rounded-2xl border border-accent bg-accent/10 px-5 py-3.5 transition-colors hover:bg-accent/20"
-          >
-            <div className="min-w-0">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
-                Unfinished session
-              </p>
-              <p className="mt-0.5 truncate text-sm font-bold text-foreground">
-                {(inProgressSession.workouts as unknown as { name: string } | null)?.name ?? "Workout"}
-              </p>
+        {unfinished.length > 0 && (
+          <section>
+            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+              {unfinished.length === 1
+                ? "Unfinished session"
+                : `${unfinished.length} unfinished sessions`}
+            </p>
+            <div className="space-y-2">
+              {unfinished.map((session) => {
+                const startedLabel = session.started_at
+                  ? new Date(session.started_at).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : "";
+                return (
+                  <Link
+                    key={session.id}
+                    href={`/players/${playerId}/sessions/${session.id}`}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-accent bg-accent/10 px-5 py-3.5 transition-colors hover:bg-accent/20"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-foreground">
+                        {(session.workouts as unknown as { name: string } | null)?.name ?? "Workout"}
+                      </p>
+                      {startedLabel && (
+                        <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
+                          Started {startedLabel}
+                        </p>
+                      )}
+                    </div>
+                    <span className="shrink-0 whitespace-nowrap text-xs font-extrabold uppercase tracking-wide text-accent">
+                      Resume →
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
-            <span className="shrink-0 whitespace-nowrap text-xs font-extrabold uppercase tracking-wide text-accent">
-              Resume →
-            </span>
-          </Link>
+          </section>
         )}
 
         <div className="animate-rise">
