@@ -79,18 +79,30 @@ export default async function PlayerWorkoutsPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between border-b border-line px-6 py-4">
-        <div>
-          <Link href={`/players/${playerId}`} className="text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground">
-            ← Back
+      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
+          <Link
+            href={`/players/${playerId}`}
+            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+          >
+            ← {player.display_name}
           </Link>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.3em] text-accent">
-            {player.display_name}&rsquo;s workouts
-          </p>
+          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            {ranked.length} {ranked.length === 1 ? "workout" : "workouts"}
+          </span>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-8 sm:py-12">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-5 sm:py-8">
+        <div className="mb-1">
+          <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
+            Workout Library
+          </h1>
+          <p className="mt-1.5 text-xs text-foreground-dim">
+            Ordered for you — nothing is hidden.
+          </p>
+        </div>
+
         {workoutsError ? (
           <EmptyState
             eyebrow="Couldn't load workouts"

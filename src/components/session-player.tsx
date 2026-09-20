@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { completeWorkoutSession, logDrillProgress } from "@/app/actions";
+import { ProgressRing } from "@/components/charts/progress-ring";
 import { haptic } from "@/lib/haptics";
 
 type Drill = {
@@ -185,23 +186,28 @@ export function SessionPlayer({
 
   return (
     <div className="mx-auto w-full max-w-md">
-      <button
-        type="button"
-        onClick={() => router.push(`/players/${playerId}`)}
-        className="mb-4 text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground"
-      >
-        {/* Not "Finish" — this just leaves. Nothing special needs to
-            happen on the way out since every drill is already saved as
-            it's logged; the hub's "Continue where you left off" banner
-            is what actually brings you back to this exact session. */}
-        ← Save &amp; exit
-      </button>
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => router.push(`/players/${playerId}`)}
+          className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+        >
+          {/* Not "Finish" — this just leaves. Nothing special needs to
+              happen on the way out since every drill is already saved as
+              it's logged; the hub's "Continue where you left off" banner
+              is what actually brings you back to this exact session. */}
+          ← Save &amp; exit
+        </button>
+        <span className="truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
+          {workoutName}
+        </span>
+      </div>
 
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-3 flex items-center gap-1.5">
         {drills.map((_, i) => {
           const width = completed.has(i) ? 100 : (progressByIndex[i] ?? 0) * 100;
           return (
-            <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-[var(--data-dim)]">
               <motion.div
                 initial={false}
                 animate={{ width: `${width}%` }}
@@ -213,9 +219,15 @@ export function SessionPlayer({
         })}
       </div>
 
-      <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-        Drill {activeIndex + 1} of {drills.length} — swipe for more
-      </p>
+      <div className="mb-4 flex items-baseline justify-between">
+        <p className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
+          Drill {activeIndex + 1}
+          <span className="text-foreground-mute">/{drills.length}</span>
+        </p>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+          Swipe for more
+        </span>
+      </div>
 
       <div
         ref={scrollerRef}
@@ -293,15 +305,17 @@ function DrillCard({
   const isTimed = Boolean(drill.target_duration_seconds);
 
   return (
-    <div className="court-glow rounded-3xl border border-line bg-surface p-6 sm:p-8">
-      <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+    <div className="panel-lit rounded-3xl border border-line bg-surface p-6 sm:p-7">
+      <h2 className="font-display text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
         {drill.drills?.name ?? "Drill"}
       </h2>
       {drill.drills?.description && (
-        <p className="mt-1 text-sm text-foreground-dim">{drill.drills.description}</p>
+        <p className="mt-2 text-sm leading-relaxed text-foreground-dim">
+          {drill.drills.description}
+        </p>
       )}
       {(drill.drills?.source_trainer || drill.drills?.video_url) && (
-        <p className="mt-1 text-xs text-foreground-dim">
+        <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {drill.drills.source_trainer}
           {drill.drills.source_trainer && drill.drills.video_url ? " · " : ""}
           {drill.drills.video_url && (
@@ -309,7 +323,7 @@ function DrillCard({
               href={drill.drills.video_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-accent hover:text-accent-hover"
+              className="text-accent transition-colors hover:text-accent-hover"
             >
               Watch film ↗
             </a>
@@ -317,7 +331,7 @@ function DrillCard({
         </p>
       )}
 
-      <div className="mt-8">
+      <div className="mt-7">
         {isTimed ? (
           <TimerDrill
             targetSeconds={drill.target_duration_seconds as number}
@@ -389,18 +403,21 @@ function TimerDrill({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running, secondsLeft]);
 
-  const progress = ((targetSeconds - secondsLeft) / targetSeconds) * 100;
-
   return (
     <div className="text-center">
-      <p className="text-6xl font-extrabold tabular-nums text-foreground">{secondsLeft}</p>
-      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-foreground-dim">seconds</p>
-
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-elevated">
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-1000 ease-linear"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="flex justify-center">
+        <ProgressRing
+          ratio={secondsLeft / targetSeconds}
+          size={176}
+          stroke={8}
+          idPrefix="timer"
+          animate={false}
+        >
+          <span className="font-display text-6xl leading-none text-foreground">{secondsLeft}</span>
+          <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+            {running ? "seconds left" : "seconds"}
+          </span>
+        </ProgressRing>
       </div>
 
       {!running && (
@@ -410,7 +427,7 @@ function TimerDrill({
             haptic("tap");
             setRunning(true);
           }}
-          className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+          className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover active:scale-[0.99]"
         >
           Start
         </button>
@@ -418,6 +435,12 @@ function TimerDrill({
     </div>
   );
 }
+
+// Rest between sets. A flat default rather than a per-drill column: the
+// schema has no rest field, and one honest default is better than a fake
+// per-drill number. Always skippable — a prescribed rest that can't be
+// cut short is worse than none.
+const REST_SECONDS = 15;
 
 function RepDrill({
   targetSets,
@@ -436,39 +459,114 @@ function RepDrill({
   // the timer auto-completes at 0.
   const totalSets = targetSets ?? 1;
   const [setsDone, setSetsDone] = useState(0);
+  const [restLeft, setRestLeft] = useState<number | null>(null);
   const doneRef = useRef(false);
 
+  const resting = restLeft !== null;
+
+  // Every state change happens inside the timeout callback rather than in
+  // the effect body, so this never sets state during render/commit.
+  useEffect(() => {
+    if (restLeft === null) return;
+    const timeout = setTimeout(() => {
+      const next = restLeft - 1;
+      if (next <= 0) {
+        haptic("success");
+        setRestLeft(null);
+        return;
+      }
+      // A single cue at 10 seconds out, not a buzz every second — this is
+      // a "get ready" nudge, and the work timer already owns the
+      // buzz-down-to-zero pattern.
+      if (next === 10) haptic("tap");
+      setRestLeft(next);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [restLeft]);
+
   function logSet() {
-    if (doneRef.current) return;
+    if (doneRef.current || resting) return;
     haptic("tap");
     const next = setsDone + 1;
     setSetsDone(next);
     onProgress(next / totalSets);
+
     if (next >= totalSets) {
       doneRef.current = true;
       haptic("success");
       onComplete(next);
+      return;
     }
+
+    setRestLeft(REST_SECONDS);
+  }
+
+  if (resting) {
+    return (
+      <div className="text-center">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[var(--data-cyan)]">
+          Rest
+        </p>
+
+        <div className="mt-3 flex justify-center">
+          <ProgressRing
+            ratio={(restLeft ?? 0) / REST_SECONDS}
+            size={168}
+            stroke={8}
+            idPrefix="rest"
+            animate={false}
+          >
+            <span className="font-display text-6xl leading-none text-foreground">{restLeft}</span>
+            <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+              seconds
+            </span>
+          </ProgressRing>
+        </div>
+
+        <p className="mt-4 text-sm font-semibold text-foreground-dim">
+          Set {setsDone + 1} of {totalSets} up next
+        </p>
+
+        <button
+          type="button"
+          onClick={() => {
+            haptic("tap");
+            setRestLeft(null);
+          }}
+          className="mt-3 text-xs font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+        >
+          Skip rest →
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="text-center">
-      {targetReps && (
-        <p className="text-xs font-semibold uppercase tracking-wide text-foreground-dim">
-          {targetReps} reps per set — tap when a set is done
-        </p>
-      )}
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+        {targetReps ? `${targetReps} reps per set` : "Tap when a set is done"}
+      </p>
+
       <button
         type="button"
         onClick={logSet}
-        className="mx-auto mt-3 flex h-40 w-40 flex-col items-center justify-center rounded-full border-2 border-accent bg-accent/10 transition-colors hover:bg-accent/20 active:bg-accent/30"
+        className="group relative mx-auto mt-3 flex h-44 w-44 items-center justify-center"
       >
-        <span className="text-5xl font-extrabold tabular-nums text-foreground">
-          {setsDone}/{totalSets}
-        </span>
-        <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-foreground-dim">
-          sets · tap when done
-        </span>
+        <ProgressRing
+          ratio={setsDone / totalSets}
+          size={176}
+          stroke={8}
+          idPrefix="sets"
+          animate={false}
+        >
+          <span className="font-display text-6xl leading-none text-foreground">
+            {setsDone}
+            <span className="text-foreground-mute">/{totalSets}</span>
+          </span>
+          <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+            Tap when done
+          </span>
+        </ProgressRing>
       </button>
     </div>
   );
@@ -492,17 +590,33 @@ function SessionComplete({
         initial={{ opacity: 0, scale: 0.82, rotate: -4 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 220, damping: 20 }}
-        className="court-glow relative w-full overflow-hidden rounded-3xl border-2 border-accent bg-elevated p-6 text-center shadow-2xl sm:p-8"
+        className="hero-sheen panel-lit relative w-full overflow-hidden rounded-3xl border border-accent p-7 text-center shadow-2xl"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Workout Complete</p>
-        <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-          {workoutName}
-        </h2>
-        <p className="mt-2 text-sm text-foreground-dim">
-          {fullyDone
-            ? `All ${totalCount} ${totalCount === 1 ? "drill" : "drills"} logged. Nice work.`
-            : `${loggedCount} of ${totalCount} drills logged. Nice work getting some in.`}
-        </p>
+        <div className="court-lines absolute inset-0 opacity-60" aria-hidden />
+        <div className="relative">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
+            Workout Complete
+          </p>
+          <h2 className="font-display mt-3 text-4xl uppercase leading-[0.9] tracking-tight text-foreground">
+            {workoutName}
+          </h2>
+
+          <div className="mt-5 flex items-baseline justify-center gap-1.5">
+            <span className="font-display text-gradient-accent text-6xl leading-none">
+              {loggedCount}
+            </span>
+            <span className="font-display text-3xl leading-none text-foreground-mute">
+              /{totalCount}
+            </span>
+          </div>
+          <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+            {totalCount === 1 ? "Drill logged" : "Drills logged"}
+          </p>
+
+          <p className="mt-4 text-sm text-foreground-dim">
+            {fullyDone ? "Full session. That's the standard." : "Work is work. Pick it back up next time."}
+          </p>
+        </div>
       </motion.div>
 
       <motion.button

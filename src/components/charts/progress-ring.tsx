@@ -9,12 +9,17 @@ export function ProgressRing({
   size = 132,
   stroke = 9,
   idPrefix = "ring",
+  animate = true,
   children,
 }: {
   ratio: number;
   size?: number;
   stroke?: number;
   idPrefix?: string;
+  // Off for live countdowns: the draw-in animation is a one-time reveal,
+  // and replaying it against a value that changes every second fights the
+  // actual reading.
+  animate?: boolean;
   children?: React.ReactNode;
 }) {
   const clamped = Math.max(0, Math.min(1, ratio));
@@ -40,17 +45,20 @@ export function ProgressRing({
           stroke="var(--data-dim)"
           strokeWidth={stroke}
         />
+        {/* Skipped entirely at zero: a round line cap on a zero-length dash
+            still paints a dot, which reads as a stray artifact rather than
+            an empty gauge. */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
           stroke={`url(#${idPrefix}-stroke)`}
-          strokeWidth={stroke}
+          strokeWidth={clamped === 0 ? 0 : stroke}
           strokeLinecap="round"
           strokeDasharray={`${dash} ${circumference - dash}`}
-          className="animate-draw"
-          style={{ ["--dash-len" as string]: `${circumference}` }}
+          className={animate ? "animate-draw" : "transition-[stroke-dasharray] duration-500 ease-linear"}
+          style={animate ? { ["--dash-len" as string]: `${circumference}` } : undefined}
         />
       </svg>
 
