@@ -88,79 +88,89 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
     <div className="mx-auto w-full max-w-md">
       <div className="mb-6 flex items-center gap-2">
         {drills.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i <= index ? "bg-accent" : "bg-line"
-            }`}
-          />
+          <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+            <motion.div
+              initial={false}
+              animate={{ width: i <= index ? "100%" : "0%" }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="h-full rounded-full bg-accent"
+            />
+          </div>
         ))}
       </div>
 
+      {/*
+        No AnimatePresence here — tried "wait" (froze the UI on a stale
+        drill under fast clicking) and "popLayout" (the outgoing card got
+        visibly stuck mid-exit, overlapping the new one, reproduced in a
+        real production build, not just dev). Both are real Framer Motion
+        exit-tracking failures in this stack, not tooling flukes. A keyed
+        motion.div with no exit prop can't get stuck — React just swaps
+        the DOM instantly — so the slide is one-sided (new drill swipes
+        in; the old one doesn't swipe out), which is the safe trade-off.
+      */}
       <motion.div
         key={current.drill_id}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
+        initial={{ opacity: 0, x: 80 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         className="court-glow rounded-3xl border border-line bg-surface p-6 sm:p-8"
       >
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-          Drill {index + 1} of {drills.length}
-        </p>
-        <h2 className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          {current.drills?.name ?? "Drill"}
-        </h2>
-        {current.drills?.description && (
-          <p className="mt-1 text-sm text-foreground-dim">{current.drills.description}</p>
-        )}
-        {(current.drills?.source_trainer || current.drills?.video_url) && (
-          <p className="mt-1 text-xs text-foreground-dim">
-            {current.drills.source_trainer}
-            {current.drills.source_trainer && current.drills.video_url ? " · " : ""}
-            {current.drills.video_url && (
-              <a
-                href={current.drills.video_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-accent hover:text-accent-hover"
-              >
-                Watch film ↗
-              </a>
-            )}
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+            Drill {index + 1} of {drills.length}
           </p>
-        )}
-
-        <div className="mt-8">
-          {isTimed ? (
-            <TimerDrill
-              key={current.drill_id}
-              targetSeconds={current.target_duration_seconds as number}
-              onComplete={(actualSeconds) =>
-                finishDrill({
-                  drill_id: current.drill_id,
-                  metrics: { type: "timed", target_duration_seconds: current.target_duration_seconds, actual_duration_seconds: actualSeconds },
-                })
-              }
-            />
-          ) : (
-            <RepDrill
-              key={current.drill_id}
-              targetSets={current.target_sets}
-              targetReps={current.target_reps}
-              onComplete={(actualReps) =>
-                finishDrill({
-                  drill_id: current.drill_id,
-                  metrics: {
-                    type: "reps",
-                    target_sets: current.target_sets,
-                    target_reps: current.target_reps,
-                    actual_reps: actualReps,
-                  },
-                })
-              }
-            />
+          <h2 className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+            {current.drills?.name ?? "Drill"}
+          </h2>
+          {current.drills?.description && (
+            <p className="mt-1 text-sm text-foreground-dim">{current.drills.description}</p>
           )}
-        </div>
+          {(current.drills?.source_trainer || current.drills?.video_url) && (
+            <p className="mt-1 text-xs text-foreground-dim">
+              {current.drills.source_trainer}
+              {current.drills.source_trainer && current.drills.video_url ? " · " : ""}
+              {current.drills.video_url && (
+                <a
+                  href={current.drills.video_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-accent hover:text-accent-hover"
+                >
+                  Watch film ↗
+                </a>
+              )}
+            </p>
+          )}
+
+          <div className="mt-8">
+            {isTimed ? (
+              <TimerDrill
+                targetSeconds={current.target_duration_seconds as number}
+                onComplete={(actualSeconds) =>
+                  finishDrill({
+                    drill_id: current.drill_id,
+                    metrics: { type: "timed", target_duration_seconds: current.target_duration_seconds, actual_duration_seconds: actualSeconds },
+                  })
+                }
+              />
+            ) : (
+              <RepDrill
+                targetSets={current.target_sets}
+                targetReps={current.target_reps}
+                onComplete={(actualSets) =>
+                  finishDrill({
+                    drill_id: current.drill_id,
+                    metrics: {
+                      type: "reps",
+                      target_sets: current.target_sets,
+                      target_reps: current.target_reps,
+                      actual_sets: actualSets,
+                    },
+                  })
+                }
+              />
+            )}
+          </div>
       </motion.div>
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
@@ -241,41 +251,46 @@ function RepDrill({
 }: {
   targetSets: number | null;
   targetReps: number | null;
-  onComplete: (actualReps: number) => void;
+  onComplete: (actualSets: number) => void;
 }) {
-  const [count, setCount] = useState(0);
-  const goal = targetSets && targetReps ? targetSets * targetReps : targetReps ?? null;
+  // Tapping per individual rep breaks down for anything fast (30 dribbles
+  // in a row isn't tappable) — tap once per completed SET instead, and
+  // auto-complete once the target number of sets is reached, the same way
+  // the timer auto-completes at 0.
+  const totalSets = targetSets ?? 1;
+  const [setsDone, setSetsDone] = useState(0);
+  const doneRef = useRef(false);
+
+  function logSet() {
+    if (doneRef.current) return;
+    haptic("tap");
+    const next = setsDone + 1;
+    setSetsDone(next);
+    if (next >= totalSets) {
+      doneRef.current = true;
+      haptic("success");
+      onComplete(next);
+    }
+  }
 
   return (
     <div className="text-center">
-      {goal && (
+      {targetReps && (
         <p className="text-xs font-semibold uppercase tracking-wide text-foreground-dim">
-          Goal: {targetSets && targetReps ? `${targetSets} × ${targetReps}` : goal}
+          {targetReps} reps per set — tap when a set is done
         </p>
       )}
       <button
         type="button"
-        onClick={() => {
-          haptic("tap");
-          setCount((c) => c + 1);
-        }}
+        onClick={logSet}
         className="mx-auto mt-3 flex h-40 w-40 flex-col items-center justify-center rounded-full border-2 border-accent bg-accent/10 transition-colors hover:bg-accent/20 active:bg-accent/30"
       >
-        <span className="text-5xl font-extrabold tabular-nums text-foreground">{count}</span>
-        <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-foreground-dim">
-          tap +1
+        <span className="text-5xl font-extrabold tabular-nums text-foreground">
+          {setsDone}/{totalSets}
         </span>
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          haptic("success");
-          onComplete(count);
-        }}
-        className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
-      >
-        Mark Complete
+        <span className="mt-1 text-xs font-semibold uppercase tracking-wide text-foreground-dim">
+          sets · tap when done
+        </span>
       </button>
     </div>
   );
