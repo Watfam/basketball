@@ -56,7 +56,7 @@ export default async function PlayerWorkoutsPage({
     <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between border-b border-line px-6 py-4">
         <div>
-          <Link href="/" className="text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground">
+          <Link href={`/players/${playerId}`} className="text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground">
             ← Back
           </Link>
           <p className="mt-1 text-xs font-semibold uppercase tracking-[0.3em] text-accent">

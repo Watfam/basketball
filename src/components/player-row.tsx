@@ -64,10 +64,10 @@ export function PlayerRow({ id, displayName, subtitle, hasAssessment }: Props) {
       <div className="flex items-center gap-3">
         {hasAssessment ? (
           <Link
-            href={`/players/${id}/workouts`}
+            href={`/players/${id}`}
             className="rounded-lg border border-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-white"
           >
-            Workouts
+            View
           </Link>
         ) : (
           <Link

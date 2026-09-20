@@ -86,7 +86,7 @@ export function SessionPlayer({ playerId, sessionId, workoutName, drills, alread
   }
 
   if (finished) {
-    return <SessionComplete workoutName={workoutName} drillCount={drills.length} onDone={() => router.push(`/players/${playerId}/workouts`)} />;
+    return <SessionComplete workoutName={workoutName} drillCount={drills.length} onDone={() => router.push(`/players/${playerId}`)} />;
   }
 
   if (!current) {

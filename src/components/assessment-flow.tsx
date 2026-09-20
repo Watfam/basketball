@@ -16,6 +16,7 @@ import {
   type StyleTagValue,
 } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
+import { PlayerCard } from "@/components/player-card";
 
 type StepKind = "position" | "style" | "ratings" | "goal";
 
@@ -353,57 +354,22 @@ function PlayerCardReveal({
   ratings: Record<RatingCategoryValue, number>;
   onContinue: () => void;
 }) {
-  const positionLabel = PRIMARY_POSITIONS.find((p) => p.value === primaryPosition)?.label ?? "";
-
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.82, rotate: -4 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 220, damping: 20 }}
-        className="court-glow relative w-full overflow-hidden rounded-3xl border-2 border-accent bg-elevated p-6 shadow-2xl sm:p-8"
+        className="w-full"
       >
-        <div className="flex items-start justify-between">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Player Card</p>
-          <span className="rounded-full border border-accent px-3 py-1 text-xs font-bold uppercase text-accent">
-            {positionLabel}
-          </span>
-        </div>
-
-        <h2 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight text-foreground sm:text-3xl">
-          {archetype}
-        </h2>
-        <p className="mt-1 text-sm font-medium text-foreground-dim">{playerName}</p>
-
-        <div className="mt-6 space-y-3">
-          {RATING_CATEGORIES.map((cat) => (
-            <div key={cat.value}>
-              <div className="flex items-center justify-between text-xs font-semibold text-foreground-dim">
-                <span>{cat.label}</span>
-                <span>{ratings[cat.value]}/{RATING_SCALE_MAX}</span>
-              </div>
-              <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(ratings[cat.value] / RATING_SCALE_MAX) * 100}%` }}
-                  transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                  className="h-full rounded-full bg-accent"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          {styleTags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-foreground-dim"
-            >
-              {STYLE_TAGS.find((t) => t.value === tag)?.label}
-            </span>
-          ))}
-        </div>
+        <PlayerCard
+          playerName={playerName}
+          archetype={archetype}
+          primaryPosition={primaryPosition}
+          styleTags={styleTags}
+          ratings={ratings}
+          animateBars
+        />
       </motion.div>
 
       <motion.p
