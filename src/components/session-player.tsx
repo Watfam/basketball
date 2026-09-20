@@ -185,6 +185,18 @@ export function SessionPlayer({
 
   return (
     <div className="mx-auto w-full max-w-md">
+      <button
+        type="button"
+        onClick={() => router.push(`/players/${playerId}`)}
+        className="mb-4 text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground"
+      >
+        {/* Not "Finish" — this just leaves. Nothing special needs to
+            happen on the way out since every drill is already saved as
+            it's logged; the hub's "Continue where you left off" banner
+            is what actually brings you back to this exact session. */}
+        ← Save &amp; exit
+      </button>
+
       <div className="mb-4 flex items-center gap-2">
         {drills.map((_, i) => {
           const width = completed.has(i) ? 100 : (progressByIndex[i] ?? 0) * 100;
