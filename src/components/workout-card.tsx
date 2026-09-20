@@ -1,3 +1,5 @@
+import { StartSessionButton } from "@/components/start-session-button";
+
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
   shooting: "Shooting",
@@ -40,7 +42,7 @@ function targetLabel(wd: WorkoutDrill): string | null {
   return null;
 }
 
-export function WorkoutCard({ workout }: { workout: Workout }) {
+export function WorkoutCard({ workout, playerId }: { workout: Workout; playerId: string }) {
   const drills = [...workout.workout_drills].sort((a, b) => a.sort_order - b.sort_order);
 
   return (
@@ -52,11 +54,14 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
             <p className="mt-1 text-sm text-foreground-dim">{workout.description}</p>
           )}
         </div>
-        {workout.estimated_minutes && (
-          <span className="shrink-0 rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-foreground-dim">
-            ~{workout.estimated_minutes} min
-          </span>
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          {workout.estimated_minutes && (
+            <span className="rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-foreground-dim">
+              ~{workout.estimated_minutes} min
+            </span>
+          )}
+          <StartSessionButton playerId={playerId} workoutId={workout.id} />
+        </div>
       </div>
 
       {workout.focus_areas && workout.focus_areas.length > 0 && (

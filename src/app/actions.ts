@@ -125,6 +125,67 @@ export async function deleteHousehold(householdId: string) {
 }
 
 /**
+ * Starts a workout session — creates the hoops.workout_sessions row the
+ * session player writes drill logs against as the player works through it.
+ * RLS (workout_sessions_household_all) already scopes this to players in
+ * the caller's own household.
+ */
+export async function startWorkoutSession(playerId: string, workoutId: string) {
+  if (!playerId || !workoutId) return { error: "Missing player or workout." };
+
+  const supabase = await createClient();
+  const { data: session, error } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .insert({
+      player_id: playerId,
+      workout_id: workoutId,
+      status: "in_progress",
+      started_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  return { error: null, sessionId: session.id as string };
+}
+
+/**
+ * Finishes a session: writes one hoops.session_logs row per drill actually
+ * performed (not just "hit the target" — metrics carries whatever was
+ * actually logged, per the schema's "never limit what might be helpful to
+ * capture" JSONB design) and marks the session completed.
+ */
+export async function completeWorkoutSession(
+  sessionId: string,
+  logs: { drill_id: string; metrics: Record<string, unknown> }[]
+) {
+  if (!sessionId) return { error: "Missing session." };
+
+  const supabase = await createClient();
+
+  if (logs.length > 0) {
+    const { error: logsError } = await supabase
+      .schema("hoops")
+      .from("session_logs")
+      .insert(logs.map((log) => ({ session_id: sessionId, drill_id: log.drill_id, metrics: log.metrics })));
+
+    if (logsError) return { error: logsError.message };
+  }
+
+  const { error: sessionError } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .update({ status: "completed", completed_at: new Date().toISOString() })
+    .eq("id", sessionId);
+
+  if (sessionError) return { error: sessionError.message };
+
+  return { error: null };
+}
+
+/**
  * Onboarding (or periodic re-) assessment submit. Writes the raw answers to
  * hoops.assessments and the derived snapshot to both
  * assessments.computed_player_type and players.player_type — the latter is

@@ -79,7 +79,9 @@ export default async function PlayerWorkoutsPage({
             subtitle="The workout library hasn't been seeded for this project yet — see supabase/seed_content.sql."
           />
         ) : (
-          ranked.map((workout) => <WorkoutCard key={workout.id} workout={workout} />)
+          ranked.map((workout) => (
+            <WorkoutCard key={workout.id} workout={workout} playerId={playerId} />
+          ))
         )}
       </main>
     </div>
