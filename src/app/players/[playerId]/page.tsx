@@ -7,6 +7,7 @@ import { WorkoutCarousel } from "@/components/workout-carousel";
 import { EmptyState } from "@/components/empty-state";
 import { rankWorkouts, type PlayerType } from "@/lib/basketball/workout-matching";
 import { randomQuote } from "@/lib/basketball/quotes";
+import { computeStreakWeeks } from "@/lib/basketball/progress";
 import type { ComputedPlayerType } from "@/lib/basketball/assessment";
 
 export default async function PlayerHubPage({
@@ -67,6 +68,22 @@ export default async function PlayerHubPage({
     .order("completed_at", { ascending: false })
     .limit(5);
 
+  // All-time completion dates drive the two progress stats below — total
+  // volume and a streak, the "am I actually developing" signal the hub
+  // was missing when it was just a stack of independent sections.
+  const { data: allCompletedSessions } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .select("completed_at")
+    .eq("player_id", playerId)
+    .eq("status", "completed");
+
+  const completedDates = (allCompletedSessions ?? [])
+    .map((s) => (s.completed_at ? new Date(s.completed_at) : null))
+    .filter((d): d is Date => d !== null);
+  const totalCompleted = completedDates.length;
+  const streakWeeks = computeStreakWeeks(completedDates);
+
   const quote = randomQuote();
 
   return (
@@ -102,6 +119,24 @@ export default async function PlayerHubPage({
           styleTags={playerType.style_tags ?? []}
           ratings={playerType.ratings ?? { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 }}
         />
+
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Your Progress</h2>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-line bg-surface px-4 py-4 text-center">
+              <p className="text-3xl font-extrabold tabular-nums text-foreground">{totalCompleted}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-foreground-dim">
+                {totalCompleted === 1 ? "Workout logged" : "Workouts logged"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-line bg-surface px-4 py-4 text-center">
+              <p className="text-3xl font-extrabold tabular-nums text-foreground">{streakWeeks}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-foreground-dim">
+                Week streak
+              </p>
+            </div>
+          </div>
+        </section>
 
         <blockquote className="rounded-2xl border border-line bg-surface px-5 py-4 text-center">
           <p className="text-sm italic text-foreground">&ldquo;{quote.text}&rdquo;</p>
@@ -151,6 +186,12 @@ export default async function PlayerHubPage({
               />
             )}
           </div>
+          <Link
+            href={`/players/${playerId}/sessions`}
+            className="mt-3 inline-block text-xs font-semibold text-accent hover:text-accent-hover"
+          >
+            See full history →
+          </Link>
         </section>
       </main>
     </div>
