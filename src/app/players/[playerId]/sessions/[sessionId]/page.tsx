@@ -54,7 +54,10 @@ export default async function SessionPage({
     .eq("session_id", sessionId);
 
   return (
-    <div className="court-glow flex flex-1 flex-col justify-center px-4 py-10 sm:py-16">
+    // The session screen goes fully dark while the app shell stays light:
+    // this is the "lights down, you're training" moment, and it should feel
+    // like a different room than the rest of the app.
+    <div className="theme-dark court-glow flex flex-1 flex-col justify-center bg-background px-4 py-10 text-foreground sm:py-16">
       <SessionPlayer
         playerId={playerId}
         sessionId={session.id}

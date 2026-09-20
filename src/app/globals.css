@@ -1,36 +1,110 @@
 @import "tailwindcss";
 
 /*
- * Hardwood Lab brand theme — fixed dark navy/orange, "Nike-poster" energy.
- * Not a light/dark toggle (like Whoop / Nike Training Club always being
- * dark) — these are the only values, regardless of system preference.
+ * Hardwood Lab theming.
+ *
+ * The app shell is light ("chalk" — warm paper, not sterile white) and the
+ * identity/immersive moments are dark: the hero, the player card, and the
+ * full-screen session player. That contrast is the whole point of the
+ * direction — almost every training app is uniformly dark, and going light
+ * everywhere except the moments that should feel like a poster or a
+ * broadcast gives those moments somewhere to land.
+ *
+ * Every surface, line, glow and chart color resolves through the tokens
+ * below, so no component hardcodes a hex. Anything inside `.theme-dark`
+ * re-resolves the same token names against the dark palette, which is how a
+ * subtree goes dark without a single component knowing about it.
  */
+
 :root {
-  --background: #0a1120;
-  --surface: #10192e;
-  --elevated: #16223d;
+  --background: #f2efe9;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --raised: #f7f5f1;
+  --foreground: #0d1526;
+  --foreground-dim: #5c6b85;
+  --foreground-mute: #8b98ae;
+  --accent: #f2560a;
+  --accent-hover: #d64607;
+  --line: #e2ded6;
+  --line-strong: #cbc5ba;
+
+  --data-cyan: #0891b2;
+  --data-positive: #16a34a;
+  --data-dim: #e5e1d9;
+  /* On paper the heatmap ramp has to get lighter toward empty, so these are
+     tints. The ramp is hand-picked per palette rather than computed: blending
+     the accent toward the background in sRGB passes through brown, and in
+     OKLCH it swings through magenta. */
+  --heat-1: #f9c9a8;
+  --heat-2: #f4874a;
+
+  --glow: rgba(242, 86, 10, 0.16);
+  --glow-soft: rgba(242, 86, 10, 0.08);
+  --texture: rgba(13, 21, 38, 0.05);
+  --hero-base-a: #101a2e;
+  --hero-base-b: #0a1120;
+  /* The floodlight's lower wash. On paper it has to be a warm tint — the
+     dark navy used in the dark palette reads as a dirty smudge on light. */
+  --vignette: rgba(242, 86, 10, 0.07);
+  --shadow-panel: 0 16px 36px -26px rgba(13, 21, 38, 0.45);
+}
+
+.theme-dark {
+  --background: #070d18;
+  --surface: #0f1829;
+  --elevated: #172339;
+  --raised: #1f2d48;
   --foreground: #f4f6fb;
-  --foreground-dim: #8fa0bd;
+  --foreground-dim: #93a3c0;
+  --foreground-mute: #5f719a;
   --accent: #ff6a1a;
   --accent-hover: #ff8140;
-  --line: #1f2c48;
+  --line: #22314f;
+  --line-strong: #31416a;
+
+  --data-cyan: #22d3ee;
+  --data-positive: #4ade80;
+  --data-dim: #2b3b5e;
+  --heat-1: #8a3d12;
+  --heat-2: #cc5415;
+
+  --glow: rgba(255, 106, 26, 0.22);
+  --glow-soft: rgba(255, 106, 26, 0.12);
+  --texture: rgba(147, 163, 192, 0.07);
+  --hero-base-a: #172339;
+  --hero-base-b: #0f1829;
+  --vignette: #172339;
+  --shadow-panel: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
+
+  color-scheme: dark;
+  color: var(--foreground);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-elevated: var(--elevated);
+  --color-raised: var(--raised);
   --color-foreground: var(--foreground);
   --color-foreground-dim: var(--foreground-dim);
+  --color-foreground-mute: var(--foreground-mute);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-line: var(--line);
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --color-line-strong: var(--line-strong);
+  --color-data-cyan: var(--data-cyan);
+  --color-data-positive: var(--data-positive);
+  --color-data-dim: var(--data-dim);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-display-local), "Haettenschweiler", "Arial Narrow Bold", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -39,9 +113,109 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Subtle floodlight glow behind hero/reveal moments — cheap to render, reads as "designed" rather than flat. */
+/* Broadcast-style condensed caps for numerals and hero type. Bebas has no
+   lowercase, so anything using this must already read as uppercase. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Floodlight glow behind hero/reveal moments. */
+/* background-image, not the `background` shorthand: the shorthand resets
+   background-color, which would silently wipe out a `bg-*` utility on the
+   same element. */
 .court-glow {
-  background:
-    radial-gradient(60% 50% at 50% 0%, rgba(255, 106, 26, 0.16), transparent 70%),
-    radial-gradient(80% 60% at 50% 100%, rgba(22, 34, 61, 0.9), transparent 70%);
+  background-image:
+    radial-gradient(60% 50% at 50% 0%, var(--glow), transparent 70%),
+    radial-gradient(80% 60% at 50% 100%, var(--vignette), transparent 70%);
+}
+
+/* Hairline court markings — the geometry of a floor at very low contrast.
+   Texture, never a picture of a court. */
+.court-lines {
+  background-image:
+    linear-gradient(to right, var(--texture) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--texture) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Angled sheen across identity surfaces — the "poster print" highlight. */
+.hero-sheen {
+  background-image:
+    linear-gradient(115deg, var(--glow) 0%, transparent 38%),
+    radial-gradient(120% 90% at 85% 0%, var(--glow), transparent 60%),
+    linear-gradient(180deg, var(--hero-base-a) 0%, var(--hero-base-b) 100%);
+}
+
+/* Gradient fill for the single largest numeral on a screen. */
+.text-gradient-accent {
+  background: linear-gradient(160deg, #ffffff 0%, var(--accent-hover) 48%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Thin lit top edge — makes a panel read as a physical surface. */
+.panel-lit {
+  position: relative;
+}
+.panel-lit::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.55;
+}
+
+/* Horizontal rails: hide the scrollbar, keep native touch scrolling. */
+.rail {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes draw-in {
+    from {
+      stroke-dashoffset: var(--dash-len, 1000);
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .animate-draw {
+    animation: draw-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-rise {
+    animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes grow-up {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  .animate-grow {
+    transform-origin: bottom;
+    animation: grow-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }

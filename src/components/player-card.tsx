@@ -35,7 +35,9 @@ export function PlayerCard({
   const positionLabel = PRIMARY_POSITIONS.find((p) => p.value === primaryPosition)?.label ?? "";
 
   return (
-    <div className="court-glow relative w-full overflow-hidden rounded-3xl border-2 border-accent bg-elevated p-6 shadow-2xl sm:p-8">
+    // Stays dark on the light app shell — this is the reveal moment, and it
+    // should read like a card pulled out of a pack, not another page panel.
+    <div className="theme-dark court-glow relative w-full overflow-hidden rounded-3xl border-2 border-accent bg-elevated p-6 shadow-2xl sm:p-8">
       <div className="flex items-start justify-between">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Player Card</p>
         <span className="rounded-full border border-accent px-3 py-1 text-xs font-bold uppercase text-accent">

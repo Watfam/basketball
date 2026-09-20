@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Player and coach development app",
     start_url: "/",
     display: "standalone",
-    background_color: "#0a1120",
-    theme_color: "#0a1120",
+    background_color: "#f2efe9",
+    theme_color: "#f2efe9",
     icons: [
       { src: "/app-icon", sizes: "512x512", type: "image/png" },
       { src: "/app-icon", sizes: "192x192", type: "image/png" },

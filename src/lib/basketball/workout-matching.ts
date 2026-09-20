@@ -121,3 +121,74 @@ export function rankWorkouts<T extends WorkoutForMatching>(
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .map((s) => s.workout);
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ball_handling: "Ball Handling",
+  shooting: "Shooting",
+  defense: "Defense",
+  athleticism: "Athleticism",
+};
+
+/**
+ * The one-line "why you're seeing this" shown on a workout. Surfacing the
+ * reason is what stops a recommendation feed reading as a static list —
+ * the same ranking signals, said out loud. Returns the single strongest
+ * reason rather than all of them, so the card stays scannable.
+ */
+export function explainMatch(
+  playerType: PlayerType,
+  workout: WorkoutForMatching,
+  options: { playerLevel?: SkillLevel | null; lastCompletedIso?: string } = {}
+): string {
+  const ratings = playerType.ratings ?? {};
+
+  const weakestFocus = (workout.focus_areas ?? [])
+    .filter((area) => {
+      const value = ratings[area as RatingCategoryValue];
+      return value !== undefined && value < WEAKNESS_THRESHOLD;
+    })
+    .sort(
+      (a, b) =>
+        (ratings[a as RatingCategoryValue] ?? 0) - (ratings[b as RatingCategoryValue] ?? 0)
+    )[0];
+
+  if (weakestFocus) {
+    return `Targets ${CATEGORY_LABELS[weakestFocus] ?? weakestFocus} — your focus area`;
+  }
+
+  const tags = workout.player_type_tags ?? {};
+  const position = playerType.primary_position ?? null;
+  if (position && tags.positions?.includes(position)) {
+    return "Built for your position";
+  }
+
+  const styleTags = new Set(playerType.style_tags ?? []);
+  const matchedStyle = (tags.style_tags ?? []).find((t) => styleTags.has(t));
+  if (matchedStyle) {
+    return "Matches how you play";
+  }
+
+  if (options.playerLevel) {
+    const difficulty = computeWorkoutDifficulty(
+      workout.workout_drills.map((wd) => wd.drills?.difficulty)
+    );
+    if (difficulty === options.playerLevel) return "Right at your level";
+  }
+
+  if (options.lastCompletedIso) return "You've run this before";
+
+  return "Rounds out your game";
+}
+
+/** "3d ago" / "New" label for a workout, based on its last completion. */
+export function lastCompletedLabel(lastCompletedIso?: string): string | null {
+  if (!lastCompletedIso) return null;
+  const days = Math.floor(
+    (Date.now() - new Date(lastCompletedIso).getTime()) / (24 * 60 * 60 * 1000)
+  );
+  if (days <= 0) return "Done today";
+  if (days === 1) return "Done yesterday";
+  if (days < 7) return `Done ${days}d ago`;
+  if (days < 30) return `Done ${Math.floor(days / 7)}w ago`;
+  return "Done a while back";
+}

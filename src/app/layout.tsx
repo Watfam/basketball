@@ -1,19 +1,36 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 
-// Note: intentionally not using next/font/google here. That fetches font
-// files from fonts.googleapis.com at build time, which fails in network-
-// restricted environments (like this build sandbox) and adds an external
-// network dependency to every build. For a "premium, sticky" app, self-
-// hosting the chosen font (next/font/local) is the better long-term move
-// anyway — swap this out once a type choice is made.
+// Self-hosted rather than next/font/google: Google's loader fetches from
+// fonts.googleapis.com at build time, which fails in network-restricted
+// environments. These woff2 files (latin subset, ~43KB total) ship with
+// the repo, so builds never depend on the network.
+//
+// Archivo carries UI + body: a grotesque with real weight range (400-900)
+// that goes genuinely heavy without turning into a novelty face.
+const archivo = localFont({
+  src: "./fonts/archivo-variable.woff2",
+  weight: "400 900",
+  variable: "--font-sans-local",
+  display: "swap",
+});
+
+// Bebas is the broadcast/jersey face — used only for big numerals and
+// hero type (ratings, stat tiles, player name), never body copy.
+const bebas = localFont({
+  src: "./fonts/bebas-neue.woff2",
+  weight: "400",
+  variable: "--font-display-local",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#0a1120",
+  themeColor: "#f2efe9",
 };
 
 export const metadata: Metadata = {
@@ -24,7 +41,7 @@ export const metadata: Metadata = {
   // regular cramped browser tab.
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Hardwood Lab",
   },
   icons: {
@@ -35,7 +52,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`h-full antialiased ${archivo.variable} ${bebas.variable}`}>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
