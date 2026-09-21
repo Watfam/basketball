@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
+import { SessionHistoryRow } from "@/components/session-history-row";
 
 export default async function SessionHistoryPage({
   params,
@@ -48,19 +49,30 @@ export default async function SessionHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b border-line px-6 py-4">
-        <Link
-          href={`/players/${playerId}`}
-          className="text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground"
-        >
-          ← Back
-        </Link>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.3em] text-accent">
-          {player.display_name}&rsquo;s history
-        </p>
+      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
+          <Link
+            href={`/players/${playerId}`}
+            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+          >
+            ← {player.display_name}
+          </Link>
+          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            {sessions?.length ?? 0} {sessions?.length === 1 ? "session" : "sessions"}
+          </span>
+        </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-2 px-4 py-8 sm:py-12">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
+        <div className="mb-4">
+          <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
+            History
+          </h1>
+          <p className="mt-1.5 text-xs text-foreground-dim">
+            Every session, finished or not. Nothing is dropped.
+          </p>
+        </div>
+
         {!sessions || sessions.length === 0 ? (
           <EmptyState
             eyebrow="No sessions yet"
@@ -68,38 +80,34 @@ export default async function SessionHistoryPage({
             subtitle="Start a workout from the hub and it'll show up here — finished or not."
           />
         ) : (
-          sessions.map((session) => {
-            const workout = session.workouts as unknown as { name: string; workout_drills: unknown[] } | null;
-            const totalDrills = workout?.workout_drills.length ?? 0;
-            const loggedCount = loggedCountBySession.get(session.id) ?? 0;
-            const isInProgress = session.status === "in_progress";
-            const date = session.completed_at ?? session.started_at;
-            const dateLabel = date
-              ? new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric" })
-              : "";
+          <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            {sessions.map((session, i) => {
+              const workout = session.workouts as unknown as
+                | { name: string; workout_drills: unknown[] }
+                | null;
+              const date = session.completed_at ?? session.started_at;
 
-            return (
-              <Link
-                key={session.id}
-                href={`/players/${playerId}/sessions/${session.id}`}
-                className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3 transition-colors hover:border-accent/50"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-foreground">{workout?.name ?? "Workout"}</p>
-                  <p className="mt-0.5 text-xs text-foreground-dim">
-                    {loggedCount} of {totalDrills} drills · {dateLabel}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${
-                    isInProgress ? "border-accent text-accent" : "border-line text-foreground-dim"
-                  }`}
-                >
-                  {isInProgress ? "Resume" : "Done"}
-                </span>
-              </Link>
-            );
-          })
+              return (
+                <SessionHistoryRow
+                  key={session.id}
+                  href={`/players/${playerId}/sessions/${session.id}`}
+                  workoutName={workout?.name ?? "Workout"}
+                  loggedCount={loggedCountBySession.get(session.id) ?? 0}
+                  totalDrills={workout?.workout_drills.length ?? 0}
+                  dateLabel={
+                    date
+                      ? new Date(date).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })
+                      : ""
+                  }
+                  isInProgress={session.status === "in_progress"}
+                  isFirst={i === 0}
+                />
+              );
+            })}
+          </div>
         )}
       </main>
     </div>
