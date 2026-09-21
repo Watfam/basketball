@@ -61,7 +61,17 @@ function targetLabel(wd: WorkoutDrill): string | null {
   return null;
 }
 
-export function WorkoutCard({ workout, playerId }: { workout: Workout; playerId: string }) {
+export function WorkoutCard({
+  workout,
+  playerId,
+  showStart = true,
+}: {
+  workout: Workout;
+  playerId: string;
+  // Off when the card is being read rather than acted on — previewing a
+  // program shouldn't offer to start individual days out of order.
+  showStart?: boolean;
+}) {
   const drills = [...workout.workout_drills].sort((a, b) => a.sort_order - b.sort_order);
   const difficulty = computeWorkoutDifficulty(drills.map((wd) => wd.drills?.difficulty));
   const pips = difficulty ? DIFFICULTY_PIPS[difficulty] : 0;
@@ -156,9 +166,11 @@ export function WorkoutCard({ workout, playerId }: { workout: Workout; playerId:
         })}
       </div>
 
-      <div className="border-t border-line px-5 py-3.5">
-        <StartSessionButton playerId={playerId} workoutId={workout.id} fullWidth />
-      </div>
+      {showStart && (
+        <div className="border-t border-line px-5 py-3.5">
+          <StartSessionButton playerId={playerId} workoutId={workout.id} fullWidth />
+        </div>
+      )}
     </div>
   );
 }

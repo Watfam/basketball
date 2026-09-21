@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { enrollInProgram } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
@@ -98,7 +99,7 @@ export function ProgramOffer({
             </div>
           </div>
 
-          <div className="px-5 py-3.5">
+          <div className="space-y-2 px-5 py-3.5">
             <button
               type="button"
               onClick={() => join(program.id)}
@@ -107,6 +108,14 @@ export function ProgramOffer({
             >
               {pendingId === program.id ? "Starting…" : "Start this program"}
             </button>
+            {/* Six weeks is a real commitment — there should be a way to
+                read the whole thing before agreeing to it. */}
+            <Link
+              href={`/players/${playerId}/programs/${program.id}`}
+              className="block w-full py-1 text-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
+            >
+              See what&rsquo;s inside →
+            </Link>
             {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
           </div>
         </div>

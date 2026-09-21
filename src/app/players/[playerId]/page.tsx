@@ -337,10 +337,28 @@ export default async function PlayerHubPage({
           />
         </div>
 
+        {/* Directly under the hero rather than buried at the bottom of the
+            page. A quote nobody scrolls to isn't doing anything. */}
+        <blockquote className="animate-rise relative overflow-hidden rounded-2xl border-l-[3px] border-accent bg-[var(--raised)] py-4 pl-5 pr-5">
+          <span
+            className="font-display pointer-events-none absolute -right-2 -top-6 select-none text-[7rem] leading-none text-accent opacity-[0.07]"
+            aria-hidden
+          >
+            &ldquo;
+          </span>
+          <p className="relative text-[0.95rem] font-semibold leading-snug text-foreground">
+            {quote.text}
+          </p>
+          <p className="relative mt-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+            {quote.author}
+          </p>
+        </blockquote>
+
         {activeProgram && programProgress && (
           <section className="animate-rise" style={{ animationDelay: "40ms" }}>
             <ProgramPanel
               playerId={playerId}
+              programId={activeProgram.id}
               programName={activeProgram.name}
               weekCount={activeProgram.week_count}
               daysPerWeek={activeProgram.days_per_week}
@@ -468,14 +486,6 @@ export default async function PlayerHubPage({
           </section>
         )}
 
-        <blockquote className="animate-rise rounded-2xl border border-line bg-[var(--raised)] px-5 py-5 text-center">
-          <p className="text-sm font-semibold italic leading-relaxed text-foreground">
-            &ldquo;{quote.text}&rdquo;
-          </p>
-          <p className="mt-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
-            {quote.author}
-          </p>
-        </blockquote>
       </main>
     </div>
   );

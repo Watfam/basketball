@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startProgramDay, completeProgram, leaveProgram } from "@/app/actions";
 import { ProgressRing } from "@/components/charts/progress-ring";
@@ -14,6 +15,7 @@ import type { ProgramProgress } from "@/lib/basketball/program";
  */
 export function ProgramPanel({
   playerId,
+  programId,
   programName,
   weekCount,
   daysPerWeek,
@@ -21,6 +23,7 @@ export function ProgramPanel({
   nextWorkoutName,
 }: {
   playerId: string;
+  programId: string;
   programName: string;
   weekCount: number;
   daysPerWeek: number;
@@ -170,6 +173,13 @@ export function ProgramPanel({
 
         {expanded && (
           <div className="space-y-3 px-5 pb-5">
+            <Link
+              href={`/players/${playerId}/programs/${programId}`}
+              className="block w-full rounded-lg border border-line py-2 text-center text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+            >
+              Every session in this block →
+            </Link>
+
             {progress.weeks.map((week) => (
               <div key={week.weekNumber}>
                 <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
