@@ -24,169 +24,169 @@
 insert into hoops.film_resources
   (title, url, kind, difficulty, skill_tags, position_tags, watch_for, notes, pro_player_name, sort_order)
 select
-  v.title, null, 'pro_study', v.difficulty, v.skill_tags, v.position_tags, v.watch_for, v.notes,
+  v.title, null, $hl$pro_study$hl$, v.difficulty, v.skill_tags, v.position_tags, v.watch_for, v.notes,
   v.pro_player_name, v.sort_order
 from (values
   -- ---- Stephen Curry ----
   (
-    'Curry: The Two Seconds After the Pass',
-    'intermediate', array['shooting'], array['point_guard', 'combo_guard', 'shooting_guard'],
+    $hl$Curry: The Two Seconds After the Pass$hl$,
+    $hl$intermediate$hl$, array[$hl$shooting$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$, $hl$shooting_guard$hl$],
     array[
-      'What he does immediately after giving the ball up — he never stands and watches',
-      'Relocating to a new window rather than staying where the defender left him',
-      'Sprinting to space, not jogging, even when the ball is nowhere near him',
-      'How much of his scoring comes from movement rather than dribbling'
+      $hl$What he does immediately after giving the ball up — he never stands and watches$hl$,
+      $hl$Relocating to a new window rather than staying where the defender left him$hl$,
+      $hl$Sprinting to space, not jogging, even when the ball is nowhere near him$hl$,
+      $hl$How much of his scoring comes from movement rather than dribbling$hl$
     ],
-    'The most copyable thing he does, and the least copied. Most of what makes him hard to guard happens when he does not have the ball.',
-    'Stephen Curry', 20
+    $hl$The most copyable thing he does, and the least copied. Most of what makes him hard to guard happens when he does not have the ball.$hl$,
+    $hl$Stephen Curry$hl$, 20
   ),
   (
-    'Curry: Feet Ready Before the Ball Arrives',
-    'beginner', array['shooting'], array['point_guard', 'combo_guard', 'shooting_guard', 'small_forward'],
+    $hl$Curry: Feet Ready Before the Ball Arrives$hl$,
+    $hl$beginner$hl$, array[$hl$shooting$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$, $hl$shooting_guard$hl$, $hl$small_forward$hl$],
     array[
-      'His feet and hips are already turned to the rim before the catch',
-      'Hands up as a target the whole time, not raised once the pass is thrown',
-      'How little time passes between catch and release',
-      'The dip being the same every single time'
+      $hl$His feet and hips are already turned to the rim before the catch$hl$,
+      $hl$Hands up as a target the whole time, not raised once the pass is thrown$hl$,
+      $hl$How little time passes between catch and release$hl$,
+      $hl$The dip being the same every single time$hl$
     ],
-    'The release looks fast because the preparation happened early. Nothing about it is a trick.',
-    'Stephen Curry', 21
+    $hl$The release looks fast because the preparation happened early. Nothing about it is a trick.$hl$,
+    $hl$Stephen Curry$hl$, 21
   ),
 
   -- ---- Kevin Durant ----
   (
-    'Durant: Shooting Over Everybody',
-    'advanced', array['shooting'], array['small_forward', 'power_forward', 'shooting_guard'],
+    $hl$Durant: Shooting Over Everybody$hl$,
+    $hl$advanced$hl$, array[$hl$shooting$hl$], array[$hl$small_forward$hl$, $hl$power_forward$hl$, $hl$shooting_guard$hl$],
     array[
-      'The release point — high and straight up, no fade needed',
-      'Simple one-two footwork into the shot rather than anything fancy',
-      'Balance through the contest: nothing leans, nothing drifts',
-      'How often he takes the shot the defence gives instead of forcing a better one'
+      $hl$The release point — high and straight up, no fade needed$hl$,
+      $hl$Simple one-two footwork into the shot rather than anything fancy$hl$,
+      $hl$Balance through the contest: nothing leans, nothing drifts$hl$,
+      $hl$How often he takes the shot the defence gives instead of forcing a better one$hl$
     ],
-    'A masterclass in doing simple things perfectly. There is almost nothing decorative in his game.',
-    'Kevin Durant', 22
+    $hl$A masterclass in doing simple things perfectly. There is almost nothing decorative in his game.$hl$,
+    $hl$Kevin Durant$hl$, 22
   ),
 
   -- ---- Tyrese Haliburton ----
   (
-    'Haliburton: Pace Is a Skill',
-    'intermediate', array['ball_handling'], array['point_guard', 'combo_guard'],
+    $hl$Haliburton: Pace Is a Skill$hl$,
+    $hl$intermediate$hl$, array[$hl$ball_handling$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$],
     array[
-      'How rarely he plays at full speed — and how much faster he looks because of it',
-      'Slowing down to make the defence commit, then going',
-      'Head and eyes up the whole time, reading rather than dribbling',
-      'Getting the team into offence early without rushing it'
+      $hl$How rarely he plays at full speed — and how much faster he looks because of it$hl$,
+      $hl$Slowing down to make the defence commit, then going$hl$,
+      $hl$Head and eyes up the whole time, reading rather than dribbling$hl$,
+      $hl$Getting the team into offence early without rushing it$hl$
     ],
-    'Most young guards only have one gear. Watch someone whose main weapon is the gear change.',
-    'Tyrese Haliburton', 23
+    $hl$Most young guards only have one gear. Watch someone whose main weapon is the gear change.$hl$,
+    $hl$Tyrese Haliburton$hl$, 23
   ),
   (
-    'Haliburton: Reading the Big',
-    'advanced', array['ball_handling', 'shooting'], array['point_guard', 'combo_guard'],
+    $hl$Haliburton: Reading the Big$hl$,
+    $hl$advanced$hl$, array[$hl$ball_handling$hl$, $hl$shooting$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$],
     array[
-      'Where the defending big is sitting as he comes off the screen',
-      'Big drops deep, he takes the pull-up — the coverage decided that, not him',
-      'Big steps up, the roller is open behind him',
-      'The decision being made before the catch rather than after'
+      $hl$Where the defending big is sitting as he comes off the screen$hl$,
+      $hl$Big drops deep, he takes the pull-up — the coverage decided that, not him$hl$,
+      $hl$Big steps up, the roller is open behind him$hl$,
+      $hl$The decision being made before the catch rather than after$hl$
     ],
-    'The pull-up you practise exists because of what the defence gives you. This is what reading it looks like.',
-    'Tyrese Haliburton', 24
+    $hl$The pull-up you practise exists because of what the defence gives you. This is what reading it looks like.$hl$,
+    $hl$Tyrese Haliburton$hl$, 24
   ),
 
   -- ---- Jalen Brunson ----
   (
-    'Brunson: Winning With Footwork, Not Speed',
-    'advanced', array['ball_handling'], array['point_guard', 'combo_guard', 'shooting_guard'],
+    $hl$Brunson: Winning With Footwork, Not Speed$hl$,
+    $hl$advanced$hl$, array[$hl$ball_handling$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$, $hl$shooting_guard$hl$],
     array[
-      'Stopping as the weapon — deceleration creates more space than acceleration',
-      'How low he stays, and how that lets him change direction without gathering',
-      'Pivots and step-throughs to get to a shot without needing separation',
-      'Using his shoulder and hip to shield the ball instead of protecting it with his hands'
+      $hl$Stopping as the weapon — deceleration creates more space than acceleration$hl$,
+      $hl$How low he stays, and how that lets him change direction without gathering$hl$,
+      $hl$Pivots and step-throughs to get to a shot without needing separation$hl$,
+      $hl$Using his shoulder and hip to shield the ball instead of protecting it with his hands$hl$
     ],
-    'The best film in the league for a smaller guard. He is not beating anyone with speed or hops.',
-    'Jalen Brunson', 25
+    $hl$The best film in the league for a smaller guard. He is not beating anyone with speed or hops.$hl$,
+    $hl$Jalen Brunson$hl$, 25
   ),
   (
-    'Brunson: Scoring Through Contact in the Paint',
-    'advanced', array['ball_handling', 'athleticism'], array['point_guard', 'combo_guard'],
+    $hl$Brunson: Scoring Through Contact in the Paint$hl$,
+    $hl$advanced$hl$, array[$hl$ball_handling$hl$, $hl$athleticism$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$],
     array[
-      'Absorbing contact and still finishing on balance',
-      'Getting to the same handful of angles over and over',
-      'Changing the finish based on where the help came from',
-      'Never leaving his feet without knowing what he is doing'
+      $hl$Absorbing contact and still finishing on balance$hl$,
+      $hl$Getting to the same handful of angles over and over$hl$,
+      $hl$Changing the finish based on where the help came from$hl$,
+      $hl$Never leaving his feet without knowing what he is doing$hl$
     ],
-    'A guard who lives in the paint without being big or explosive. Angles and balance do the work.',
-    'Jalen Brunson', 26
+    $hl$A guard who lives in the paint without being big or explosive. Angles and balance do the work.$hl$,
+    $hl$Jalen Brunson$hl$, 26
   ),
 
   -- ---- Nikola Jokic ----
   (
-    'Jokic: Seeing the Floor From the Post',
-    'advanced', array['athleticism'], array['power_forward', 'center'],
+    $hl$Jokic: Seeing the Floor From the Post$hl$,
+    $hl$advanced$hl$, array[$hl$athleticism$hl$], array[$hl$power_forward$hl$, $hl$center$hl$],
     array[
-      'Catching and immediately looking, before deciding to score',
-      'How the threat of his passing creates his own scoring chances',
-      'Footwork that is slow and deliberate rather than quick',
-      'Reading where help comes from, then punishing where it left'
+      $hl$Catching and immediately looking, before deciding to score$hl$,
+      $hl$How the threat of his passing creates his own scoring chances$hl$,
+      $hl$Footwork that is slow and deliberate rather than quick$hl$,
+      $hl$Reading where help comes from, then punishing where it left$hl$
     ],
-    'Best film there is for a big who wants to be more than a finisher. Almost nothing about it is athletic.',
-    'Nikola Jokic', 27
+    $hl$Best film there is for a big who wants to be more than a finisher. Almost nothing about it is athletic.$hl$,
+    $hl$Nikola Jokic$hl$, 27
   ),
 
   -- ---- Anthony Edwards ----
   (
-    'Edwards: Getting Downhill',
-    'intermediate', array['athleticism', 'ball_handling'], array['shooting_guard', 'small_forward'],
+    $hl$Edwards: Getting Downhill$hl$,
+    $hl$intermediate$hl$, array[$hl$athleticism$hl$, $hl$ball_handling$hl$], array[$hl$shooting_guard$hl$, $hl$small_forward$hl$],
     array[
-      'The first step being a genuine attack, not a probe',
-      'Straight-line drives rather than dancing with the ball',
-      'Playing off two feet near the rim so he has options',
-      'How he uses the threat of the drive to get his jumper'
+      $hl$The first step being a genuine attack, not a probe$hl$,
+      $hl$Straight-line drives rather than dancing with the ball$hl$,
+      $hl$Playing off two feet near the rim so he has options$hl$,
+      $hl$How he uses the threat of the drive to get his jumper$hl$
     ],
-    'For a player whose game is built on pressure and force. Watch how direct it is.',
-    'Anthony Edwards', 28
+    $hl$For a player whose game is built on pressure and force. Watch how direct it is.$hl$,
+    $hl$Anthony Edwards$hl$, 28
   ),
 
   -- ---- Jrue Holiday ----
   (
-    'Holiday: Guarding the Best Player on the Floor',
-    'advanced', array['defense'], array['point_guard', 'combo_guard', 'shooting_guard'],
+    $hl$Holiday: Guarding the Best Player on the Floor$hl$,
+    $hl$advanced$hl$, array[$hl$defense$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$, $hl$shooting_guard$hl$],
     array[
-      'Feet and chest doing the work, hands mostly quiet',
-      'Beating the ballhandler to the spot instead of reacting to the move',
-      'Taking away the strong hand and living with the other one',
-      'Staying down on shot fakes — he almost never leaves his feet first'
+      $hl$Feet and chest doing the work, hands mostly quiet$hl$,
+      $hl$Beating the ballhandler to the spot instead of reacting to the move$hl$,
+      $hl$Taking away the strong hand and living with the other one$hl$,
+      $hl$Staying down on shot fakes — he almost never leaves his feet first$hl$
     ],
-    'The best on-ball defensive film in the league. Almost none of it is about stealing the ball.',
-    'Jrue Holiday', 29
+    $hl$The best on-ball defensive film in the league. Almost none of it is about stealing the ball.$hl$,
+    $hl$Jrue Holiday$hl$, 29
   ),
 
   -- ---- Sabrina Ionescu ----
   (
-    'Ionescu: Pull-Up Range and Balance',
-    'advanced', array['shooting'], array['point_guard', 'combo_guard', 'shooting_guard'],
+    $hl$Ionescu: Pull-Up Range and Balance$hl$,
+    $hl$advanced$hl$, array[$hl$shooting$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$, $hl$shooting_guard$hl$],
     array[
-      'Footwork into deep pull-ups — set before she rises, every time',
-      'Same mechanics at thirty feet as at fifteen',
-      'Creating just enough space rather than as much as possible',
-      'Shot selection: range used as a weapon, not as a highlight'
+      $hl$Footwork into deep pull-ups — set before she rises, every time$hl$,
+      $hl$Same mechanics at thirty feet as at fifteen$hl$,
+      $hl$Creating just enough space rather than as much as possible$hl$,
+      $hl$Shot selection: range used as a weapon, not as a highlight$hl$
     ],
-    'As clean a pull-up as exists at any level. The footwork is what to steal.',
-    'Sabrina Ionescu', 30
+    $hl$As clean a pull-up as exists at any level. The footwork is what to steal.$hl$,
+    $hl$Sabrina Ionescu$hl$, 30
   ),
 
   -- ---- Caitlin Clark ----
   (
-    'Clark: Passing Off the Dribble',
-    'advanced', array['ball_handling'], array['point_guard', 'combo_guard'],
+    $hl$Clark: Passing Off the Dribble$hl$,
+    $hl$advanced$hl$, array[$hl$ball_handling$hl$], array[$hl$point_guard$hl$, $hl$combo_guard$hl$],
     array[
-      'Throwing passes off the live dribble without gathering first',
-      'Eyes manipulating the defence before the ball moves',
-      'Hitting shooters in rhythm, so they can shoot without resetting',
-      'How the deep-range threat opens everything else up'
+      $hl$Throwing passes off the live dribble without gathering first$hl$,
+      $hl$Eyes manipulating the defence before the ball moves$hl$,
+      $hl$Hitting shooters in rhythm, so they can shoot without resetting$hl$,
+      $hl$How the deep-range threat opens everything else up$hl$
     ],
-    'Study the passing before the shooting. The range is what people talk about; the vision is what makes the team better.',
-    'Caitlin Clark', 31
+    $hl$Study the passing before the shooting. The range is what people talk about; the vision is what makes the team better.$hl$,
+    $hl$Caitlin Clark$hl$, 31
   )
 ) as v(title, difficulty, skill_tags, position_tags, watch_for, notes, pro_player_name, sort_order)
 where not exists (
