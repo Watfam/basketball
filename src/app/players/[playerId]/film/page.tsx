@@ -87,6 +87,36 @@ export default async function FilmRoomPage({
   );
   const watchedIds = new Set(viewsByFilmId.keys());
 
+  const { data: sessionRows } = await supabase
+    .schema("hoops")
+    .from("film_sessions")
+    .select("id, name, description, outcome, skill_tags, position_tags, difficulty, sort_order")
+    .order("sort_order", { ascending: true });
+
+  const studySessions = sessionRows ?? [];
+
+  const { data: sessionItemRows } = studySessions.length
+    ? await supabase
+        .schema("hoops")
+        .from("film_session_items")
+        .select("film_session_id")
+    : { data: [] as { film_session_id: string }[] };
+
+  const itemCountBySession = new Map<string, number>();
+  (sessionItemRows ?? []).forEach((r) => {
+    itemCountBySession.set(r.film_session_id, (itemCountBySession.get(r.film_session_id) ?? 0) + 1);
+  });
+
+  const { data: sessionProgressRows } = await supabase
+    .schema("hoops")
+    .from("film_session_progress")
+    .select("film_session_id, completed_at")
+    .eq("player_id", playerId);
+
+  const completedSessionIds = new Map(
+    (sessionProgressRows ?? []).map((p) => [p.film_session_id, p.completed_at])
+  );
+
   const film = (filmRows ?? []) as FilmResource[];
   const ranked = rankFilm(playerType, film, watchedIds, WEAKNESS_THRESHOLD);
 
@@ -167,6 +197,64 @@ export default async function FilmRoomPage({
             )}
           </div>
         </section>
+
+        {/* Directly under the hero, not below two dozen film cards — it was
+            unreachable down there without scrolling the whole library. */}
+        {player.household_id && (
+          <AddFilmForm householdId={player.household_id} playerId={playerId} />
+        )}
+
+        {/* Above the individual lessons: a guided course is the better
+            entry point than a library, especially for the IQ side where a
+            player doesn't yet know what to look for. */}
+        {studySessions.length > 0 && (
+          <section>
+            <SectionHeading title="Study Sessions" caption="Guided, in order" />
+            <div className="space-y-2.5">
+              {studySessions.map((s) => {
+                const finished = Boolean(completedSessionIds.get(s.id));
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/players/${playerId}/film/sessions/${s.id}`}
+                    className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {(s.skill_tags ?? []).map((t: string) => (
+                            <span
+                              key={t}
+                              className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent"
+                            >
+                              {SKILL_LABELS[t] ?? t}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="font-display mt-1.5 text-xl uppercase leading-[1.02] tracking-tight text-foreground">
+                          {s.name}
+                        </p>
+                        {s.outcome && (
+                          <p className="mt-1.5 text-xs leading-relaxed text-foreground-dim">
+                            {s.outcome}
+                          </p>
+                        )}
+                      </div>
+                      {finished && (
+                        <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
+                          Done
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-3 border-t border-line pt-2.5 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+                      {itemCountBySession.get(s.id) ?? 0} clips
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {film.length === 0 ? (
           <EmptyState
@@ -272,12 +360,6 @@ export default async function FilmRoomPage({
               </section>
             )}
           </>
-        )}
-
-        {player.household_id && (
-          <section>
-            <AddFilmForm householdId={player.household_id} playerId={playerId} />
-          </section>
         )}
 
         {trainers.length > 0 && (

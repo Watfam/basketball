@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -16,6 +15,7 @@ import {
   BLOCK_LABELS,
   type LevelTarget,
 } from "@/lib/basketball/prescription";
+import { isWatchableUrl } from "@/lib/basketball/film";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
 
@@ -316,7 +316,6 @@ export function SessionPlayer({
               drill={drill}
               level={level}
               volumeStep={volumeStep}
-              playerId={playerId}
               onProgress={(fraction) => setProgressByIndex((prev) => ({ ...prev, [i]: fraction }))}
               onComplete={(log) => handleDrillComplete(i, log)}
             />
@@ -382,14 +381,12 @@ function DrillCard({
   drill,
   level,
   volumeStep,
-  playerId,
   onProgress,
   onComplete,
 }: {
   drill: SessionDrill;
   level: SkillLevel;
   volumeStep: number;
-  playerId: string;
   onProgress: (fraction: number) => void;
   onComplete: (log: DrillLog) => void;
 }) {
@@ -425,13 +422,20 @@ function DrillCard({
       {drill.drills && (
         <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
           <DrillInstructions drill={drill.drills} />
-          {film && (
-            <Link
-              href={`/players/${playerId}/film`}
+          {/* Only ever an external link, never in-app navigation. Routing a
+              player to the Film Room mid-set dumped them in a library with
+              no way back to the workout. The cues below are the lesson;
+              this is just the footage, and it opens in a new tab so the
+              session is still sitting here when they come back. */}
+          {film && isWatchableUrl(film.url) && (
+            <a
+              href={film.url as string}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)] transition-colors hover:opacity-80"
             >
-              Film: {film.title} →
-            </Link>
+              Watch film ↗
+            </a>
           )}
         </div>
       )}

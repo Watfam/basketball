@@ -482,6 +482,61 @@ export async function logFilmView(playerId: string, filmResourceId: string, take
   return { error: null };
 }
 
+/**
+ * Finishes a film study session. Marks every lesson in it studied too —
+ * a player who has worked through the whole course has, by definition,
+ * studied its parts, and making them mark each one again is busywork.
+ */
+export async function completeFilmSession(
+  playerId: string,
+  filmSessionId: string,
+  takeaway: string,
+  filmResourceIds: string[]
+) {
+  if (!playerId || !filmSessionId) return { error: "Missing player or session." };
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_session_progress")
+    .upsert(
+      {
+        player_id: playerId,
+        film_session_id: filmSessionId,
+        completed_at: new Date().toISOString(),
+        takeaway: takeaway.trim() || null,
+      },
+      { onConflict: "player_id,film_session_id" }
+    );
+
+  if (error) return { error: error.message };
+
+  if (filmResourceIds.length > 0) {
+    // Existing views are left alone so a takeaway a player already wrote
+    // on an individual lesson isn't overwritten by finishing the course.
+    const { data: existing } = await supabase
+      .schema("hoops")
+      .from("film_views")
+      .select("film_resource_id")
+      .eq("player_id", playerId)
+      .in("film_resource_id", filmResourceIds);
+
+    const already = new Set((existing ?? []).map((v) => v.film_resource_id));
+    const toInsert = filmResourceIds
+      .filter((id) => !already.has(id))
+      .map((id) => ({ player_id: playerId, film_resource_id: id }));
+
+    if (toInsert.length > 0) {
+      await supabase.schema("hoops").from("film_views").insert(toInsert);
+    }
+  }
+
+  revalidatePath(`/players/${playerId}/film`);
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
 export async function removeFilmView(playerId: string, filmResourceId: string) {
   if (!playerId || !filmResourceId) return { error: "Missing player or film." };
 
