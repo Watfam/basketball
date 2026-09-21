@@ -200,7 +200,7 @@ from (values
   ('Guard Ball-Handling Foundations', 'Cone Crossover Attack',       4, 'main',     'Between the legs, both hands', array['intermediate','advanced']::text[], '{"intermediate":{"sets":3,"reps":6},"advanced":{"sets":3,"reps":8}}'::jsonb, 3, 6, null),
   ('Guard Ball-Handling Foundations', 'Agility Ladder + Reaction Drill', 5, 'finisher', 'Reaction sprint', '{}'::text[], '{}'::jsonb, null, null, 60),
 
-  -- Shooter's Workshop
+  -- Shooter’s Workshop
   ('Shooter''s Workshop', 'Form Shooting Progression',      0, 'warmup',   'Shooting hand',     '{}'::text[], '{"beginner":{"sets":4,"reps":10},"intermediate":{"sets":4,"reps":12},"advanced":{"sets":4,"reps":15}}'::jsonb, 4, 12, null),
   ('Shooter''s Workshop', 'Off-the-Dribble Pull-Up Series',  1, 'main',     'Right side',        '{}'::text[], '{"beginner":{"sets":3,"reps":6},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
   ('Shooter''s Workshop', 'Off-the-Dribble Pull-Up Series',  2, 'main',     'Left side',         '{}'::text[], '{"beginner":{"sets":3,"reps":6},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
@@ -241,7 +241,7 @@ update hoops.workouts set estimated_minutes = 35 where name = 'Post Player Packa
 -- 3. A second program
 --
 -- Ball-handling focused, so a guard finishing Shot Builder has somewhere
--- to go that isn't the block they just finished. Same shape: five weeks
+-- to go that isn’t the block they just finished. Same shape: five weeks
 -- building, one deload.
 -- ----------------------------------------------------------------------------
 insert into hoops.programs (name, description, focus_areas, player_type_tags, level, week_count, days_per_week)

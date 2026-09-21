@@ -37,6 +37,9 @@ export type FilmResource = {
   title: string;
   url: string | null;
   kind: string | null;
+  // Set on pro film study. A lesson has either a trainer (someone
+  // teaching it) or a pro player (someone doing it), never both.
+  pro_player_name?: string | null;
   difficulty: string | null;
   skill_tags: string[] | null;
   position_tags: string[] | null;
@@ -101,6 +104,43 @@ export function rankFilm<T extends FilmResource>(
         a.index - b.index
     )
     .map((s) => s.film);
+}
+
+/**
+ * Groups pro film by the player it studies, ordered so the pros whose
+ * film is tagged for this player's position come first.
+ *
+ * The point is to answer "who should I be watching?" — a 5'10" guard
+ * being pointed at Brunson and Haliburton rather than at Durant is worth
+ * more than any single clip.
+ */
+export function groupProFilm<T extends FilmResource>(
+  film: T[],
+  position: string | null
+): { player: string; matchesPosition: boolean; items: T[] }[] {
+  const byPlayer = new Map<string, T[]>();
+
+  film.forEach((f) => {
+    const name = f.pro_player_name;
+    if (!name) return;
+    const list = byPlayer.get(name) ?? [];
+    list.push(f);
+    byPlayer.set(name, list);
+  });
+
+  return [...byPlayer.entries()]
+    .map(([player, items]) => ({
+      player,
+      matchesPosition: Boolean(
+        position && items.some((i) => (i.position_tags ?? []).includes(position))
+      ),
+      items: items.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.matchesPosition) - Number(a.matchesPosition) ||
+        (a.items[0]?.sort_order ?? 0) - (b.items[0]?.sort_order ?? 0)
+    );
 }
 
 /** "12 min" — only when a duration was recorded. */

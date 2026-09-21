@@ -117,10 +117,18 @@ export function FilmCard({
               {film.title}
             </p>
 
-            {trainer && (
-              <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
-                {trainer.name}
+            {/* Pro film names the player being studied; trainer film names
+                the coach teaching it. Never both. */}
+            {film.pro_player_name ? (
+              <p className="mt-1 text-[11px] font-extrabold uppercase tracking-wider text-[var(--data-cyan)]">
+                {film.pro_player_name}
               </p>
+            ) : (
+              trainer && (
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
+                  {trainer.name}
+                </p>
+              )
             )}
           </div>
 
@@ -164,10 +172,16 @@ export function FilmCard({
                 <h3 className="font-display mt-1 text-2xl uppercase leading-[0.98] tracking-tight text-foreground">
                   {film.title}
                 </h3>
-                {trainer && (
-                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
-                    {trainer.name}
+                {film.pro_player_name ? (
+                  <p className="mt-1 text-[11px] font-extrabold uppercase tracking-wider text-[var(--data-cyan)]">
+                    {film.pro_player_name}
                   </p>
+                ) : (
+                  trainer && (
+                    <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
+                      {trainer.name}
+                    </p>
+                  )
                 )}
               </div>
               <button
@@ -226,9 +240,11 @@ export function FilmCard({
                 <div className="rounded-xl border border-dashed border-line px-4 py-3.5 text-center">
                   <p className="text-xs leading-relaxed text-foreground-dim">
                     No link on this one yet — the lesson above stands on its own.
-                    {trainer?.youtube_url
-                      ? " Find the footage on the trainer's channel, then add it with “Add film”."
-                      : " Add a link with “Add film” once you find one you rate."}
+                    {film.pro_player_name
+                      ? ` Find a ${film.pro_player_name} clip that shows it, then add it with “Add film”.`
+                      : trainer?.youtube_url
+                        ? " Find the footage on the trainer's channel, then add it with “Add film”."
+                        : " Add a link with “Add film” once you find one you rate."}
                   </p>
                   {trainer?.youtube_url && (
                     <a

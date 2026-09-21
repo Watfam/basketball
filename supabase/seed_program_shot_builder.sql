@@ -191,7 +191,7 @@ on conflict do nothing;
 -- whole point of the migration. "Elbow Pull-Up / Right side" and
 -- "Elbow Pull-Up / Left side" are two entries pointing at one drill.
 --
--- levels = '{}' means every level runs it. A non-empty levels array is the
+-- levels = ’{}’ means every level runs it. A non-empty levels array is the
 -- swap: beginners get the simpler variation, advanced players get the
 -- harder one in the same slot.
 -- ----------------------------------------------------------------------------

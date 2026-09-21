@@ -3,18 +3,18 @@
 -- Lives in its own Postgres schema ("hoops") inside the shared Supabase
 -- project (same project as Cardlocity). Auth stays shared at the project
 -- level (auth.users); everything below is namespaced under hoops.* so it
--- can never collide with Cardlocity's tables.
+-- can never collide with Cardlocity’s tables.
 -- ============================================================================
 
 create schema if not exists hoops;
 
--- Make the schema visible to PostgREST (Supabase's auto API layer).
+-- Make the schema visible to PostgREST (Supabase’s auto API layer).
 -- After running this once, add "hoops" to:
 --   Project Settings -> API -> Exposed schemas
--- in the Supabase dashboard, or the API won't serve it.
+-- in the Supabase dashboard, or the API won’t serve it.
 --
 -- That dashboard toggle alone is NOT enough, though — unlike "public",
--- a custom schema has no default grants for PostgREST's own Postgres
+-- a custom schema has no default grants for PostgREST’s own Postgres
 -- roles. Without the USAGE/table grants below, every request fails with
 -- "permission denied for schema hoops" regardless of RLS. RLS still does
 -- all the actual per-row authorization; these grants just clear the
@@ -79,10 +79,10 @@ create index players_household_id_idx on hoops.players (household_id);
 
 -- ----------------------------------------------------------------------------
 -- teams / team_members
--- A team a player belongs to (their real team, e.g. the user's squad).
+-- A team a player belongs to (their real team, e.g. the user’s squad).
 -- Coaches are household owners (or any auth.users) granted a coach role
 -- on a team, independent of the household model above — this is what
--- lets the app expand to teammates' families later without merging
+-- lets the app expand to teammates’ families later without merging
 -- households.
 -- ----------------------------------------------------------------------------
 create table hoops.teams (
@@ -92,7 +92,7 @@ create table hoops.teams (
 
   -- Fixed taxonomy with an escape hatch: offense/defense schemes pick
   -- from a known list (seeded below) or fall back to custom freeform
-  -- text captured in *_scheme_custom when scheme = 'custom'.
+  -- text captured in *_scheme_custom when scheme = ’custom’.
   offensive_scheme text,
   offensive_scheme_custom text,
   defensive_scheme text,
@@ -110,7 +110,7 @@ create table hoops.team_members (
   id uuid primary key default gen_random_uuid(),
   team_id uuid not null references hoops.teams (id) on delete cascade,
   player_id uuid references hoops.players (id) on delete cascade,
-  -- A coach entry (role='coach') may not correspond to a player row.
+  -- A coach entry (role=’coach’) may not correspond to a player row.
   user_id uuid references auth.users (id) on delete cascade,
   role text not null default 'player' check (role in ('player', 'coach', 'assistant_coach')),
   jersey_number text,
@@ -316,7 +316,7 @@ create policy players_household_owner_all on hoops.players
     )
   );
 
--- Teams: visible to the owner (coach) and to any member (player's
+-- Teams: visible to the owner (coach) and to any member (player’s
 -- household, or a coach/assistant coach user) of the team.
 create policy teams_owner_all on hoops.teams
   for all using (owner_id = auth.uid()) with check (owner_id = auth.uid());
@@ -352,7 +352,7 @@ create policy team_members_self_select on hoops.team_members
   );
 
 -- Assessments / workout_sessions / session_logs: scoped through the
--- owning player's household (same rule shape as players).
+-- owning player’s household (same rule shape as players).
 create policy assessments_household_all on hoops.assessments
   for all using (
     exists (
@@ -444,7 +444,7 @@ create policy film_resources_read_all on hoops.film_resources for select using (
 -- ============================================================================
 -- Grants
 -- RLS above controls per-row access; these grants clear the SQL-level
--- permission check that PostgREST's roles need in front of that (see the
+-- permission check that PostgREST’s roles need in front of that (see the
 -- note by "create schema" above). Table grants are broad on purpose —
 -- RLS is still the real gate on every row.
 -- ============================================================================
@@ -462,8 +462,8 @@ alter default privileges in schema hoops grant all on routines to anon, authenti
 
 -- ============================================================================
 -- Seed data: scheme taxonomy is enforced app-side (a simple constant list
--- in the app, with 'custom' as the escape hatch), not a DB check
+-- in the app, with ’custom’ as the escape hatch), not a DB check
 -- constraint — this keeps adding a new named scheme a one-line app change
--- rather than a migration. Run and Jump should be one of the app's
+-- rather than a migration. Run and Jump should be one of the app’s
 -- defensive_scheme options out of the box.
 -- ============================================================================

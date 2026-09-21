@@ -5,8 +5,8 @@
 --
 -- The design premise: passively watching clips teaches very little. What
 -- teaches is (a) knowing what to look for before you press play, (b)
--- seeing the film at the moment you're about to do the drill, and (c)
--- writing down what you're taking into the session. The schema is built
+-- seeing the film at the moment you’re about to do the drill, and (c)
+-- writing down what you’re taking into the session. The schema is built
 -- around those three, not around storing links.
 --
 -- Notably `url` becomes nullable. A curated lesson is worth having before
@@ -26,9 +26,9 @@ create table if not exists hoops.trainers (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
   handle text,
-  -- Every link here must be a verified, real channel. If a trainer's
-  -- channel can't be confirmed, the column stays null and the UI simply
-  -- doesn't offer a link.
+  -- Every link here must be a verified, real channel. If a trainer’s
+  -- channel can’t be confirmed, the column stays null and the UI simply
+  -- doesn’t offer a link.
   youtube_url text,
   instagram_url text,
   tiktok_url text,
@@ -60,14 +60,14 @@ alter table hoops.film_resources add column if not exists difficulty text
 alter table hoops.film_resources add column if not exists duration_seconds int;
 
 -- The lesson itself: what to actually look for. This is what separates
--- study from scrolling, and it's useful even before a link exists.
+-- study from scrolling, and it’s useful even before a link exists.
 alter table hoops.film_resources add column if not exists watch_for text[] not null default '{}';
 
 alter table hoops.film_resources add column if not exists sort_order int not null default 0;
 
 -- Null = curated library content, visible to everyone. Set = added by
 -- that household and visible only to them. Lets a parent add their own
--- film without it leaking into anyone else's library, and without giving
+-- film without it leaking into anyone else’s library, and without giving
 -- the app write access to the curated set.
 alter table hoops.film_resources add column if not exists added_by_household_id uuid
   references hoops.households (id) on delete cascade;
@@ -93,7 +93,7 @@ create table if not exists hoops.film_views (
 
 create index if not exists film_views_player_idx on hoops.film_views (player_id);
 
--- Film attached to a scheduled day — "watch this before today's
+-- Film attached to a scheduled day — "watch this before today’s
 -- session." Ties study to the training plan instead of leaving it as a
 -- separate thing a kid has to remember to go and do.
 alter table hoops.program_days add column if not exists film_resource_id uuid

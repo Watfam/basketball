@@ -17,7 +17,7 @@
 -- costs a kid their trust in everything else in it. What ships instead is
 -- the part that carries the actual teaching: the topic, the skill it
 -- belongs to, the drill it maps to, and what to watch for. Attach links
--- through the app's "Add film" flow as you find the ones you rate.
+-- through the app’s "Add film" flow as you find the ones you rate.
 --
 -- The watch_for arrays are the lesson. They are worth reading even with
 -- no video attached, and they are what turns watching into studying.

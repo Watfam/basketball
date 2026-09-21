@@ -12,8 +12,8 @@
 -- video, per the project brief.
 --
 -- skill_tags / focus_areas deliberately reuse the same four categories as
--- the onboarding assessment's ratings (ball_handling, shooting, defense,
--- athleticism) so a player's self-rated weak spots can drive curation
+-- the onboarding assessment’s ratings (ball_handling, shooting, defense,
+-- athleticism) so a player’s self-rated weak spots can drive curation
 -- directly — see src/lib/basketball/workout-matching.ts.
 -- ============================================================================
 

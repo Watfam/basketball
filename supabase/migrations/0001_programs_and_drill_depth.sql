@@ -2,7 +2,7 @@
 -- Hardwood Lab — migration 0001: program model + real drill depth
 --
 -- Run this once in the Supabase SQL Editor, after schema.sql. It is
--- additive except for one deliberate change: workout_drills' primary key
+-- additive except for one deliberate change: workout_drills’ primary key
 -- moves from (workout_id, drill_id) to a surrogate id, so the same drill
 -- can appear in a workout more than once. That composite key made
 -- "3x10 right side, 3x10 left side" literally unrepresentable — the single
@@ -48,13 +48,13 @@ alter table hoops.workout_drills add column if not exists levels text[] not null
 -- The "scale" half: per-level sets/reps/duration, e.g.
 --   {"beginner":{"sets":3,"reps":8},"advanced":{"sets":4,"reps":15}}
 -- Falls back to the flat target_sets/target_reps/target_duration_seconds
--- columns when a level isn't listed, so existing rows keep working.
+-- columns when a level isn’t listed, so existing rows keep working.
 alter table hoops.workout_drills add column if not exists level_targets jsonb not null default '{}'::jsonb;
 
 create index if not exists workout_drills_workout_id_idx on hoops.workout_drills (workout_id);
 
 -- Now that a drill can appear twice in one workout, a log that only knows
--- its drill_id can't say WHICH entry it satisfied — logging the right-side
+-- its drill_id can’t say WHICH entry it satisfied — logging the right-side
 -- pull-up would mark the left side done too. Logs point at the specific
 -- workout_drills entry instead. Nullable so existing logs stay valid.
 alter table hoops.session_logs
@@ -104,7 +104,7 @@ create table if not exists hoops.program_days (
 
 create index if not exists program_days_program_id_idx on hoops.program_days (program_id);
 
--- A player's enrollment. Only one program should be active at a time per
+-- A player’s enrollment. Only one program should be active at a time per
 -- player; enforced by a partial unique index rather than app logic.
 create table if not exists hoops.player_programs (
   id uuid primary key default gen_random_uuid(),

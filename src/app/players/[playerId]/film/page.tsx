@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import {
   rankFilm,
+  groupProFilm,
   FILM_KINDS,
   SKILL_LABELS,
   type FilmResource,
@@ -54,7 +55,7 @@ export default async function FilmRoomPage({
     .schema("hoops")
     .from("film_resources")
     .select(
-      "id, title, url, kind, difficulty, skill_tags, position_tags, watch_for, notes, duration_seconds, drill_id, trainer_id, added_by_household_id, sort_order"
+      "id, title, url, kind, difficulty, skill_tags, position_tags, watch_for, notes, duration_seconds, drill_id, trainer_id, pro_player_name, added_by_household_id, sort_order"
     );
 
   if (filmError) console.error("[film] fetch failed:", filmError);
@@ -95,10 +96,24 @@ export default async function FilmRoomPage({
   // Grouped by lesson type rather than by skill: a player browsing film is
   // usually after a kind of learning ("show me game IQ") more than a
   // category, and the weak-skill ordering already handles the rest.
-  const byKind = FILM_KINDS.map((kind) => ({
-    kind,
-    items: rest.filter((f) => f.kind === kind.value),
-  })).filter((g) => g.items.length > 0);
+  // Pro film is pulled out of the kind grouping and organised by player
+  // instead — "who should I be watching" is the question a kid actually
+  // has, and it's answerable in a way "here are 12 clips" isn't.
+  // From `rest`, not `ranked` — whatever won the "Start Here" slot is
+  // already rendered above, and pulling from the full list would show it
+  // a second time down here.
+  const proFilm = groupProFilm(
+    rest.filter((f) => f.kind === "pro_study"),
+    playerType.primary_position ?? null
+  );
+  const matchedPros = proFilm.filter((g) => g.matchesPosition).map((g) => g.player);
+
+  const byKind = FILM_KINDS.filter((k) => k.value !== "pro_study")
+    .map((kind) => ({
+      kind,
+      items: rest.filter((f) => f.kind === kind.value),
+    }))
+    .filter((g) => g.items.length > 0);
 
   const untyped = rest.filter((f) => !f.kind);
 
@@ -171,6 +186,53 @@ export default async function FilmRoomPage({
                   playerId={playerId}
                   drillName={upNext.drill_id ? drillNameById.get(upNext.drill_id) ?? null : null}
                 />
+              </section>
+            )}
+
+            {proFilm.length > 0 && (
+              <section>
+                <SectionHeading title="Pro Film" caption="Steal something specific" />
+
+                {matchedPros.length > 0 && (
+                  <p className="mb-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-4 py-2.5 text-xs leading-relaxed text-foreground-dim">
+                    Built like you:{" "}
+                    <span className="font-bold text-[var(--data-cyan)]">
+                      {matchedPros.join(", ")}
+                    </span>
+                    . Start there.
+                  </p>
+                )}
+
+                <div className="space-y-4">
+                  {proFilm.map((group) => (
+                    <div key={group.player}>
+                      <div className="mb-2 flex items-baseline justify-between gap-3">
+                        <p className="font-display text-lg uppercase leading-none tracking-wide text-foreground">
+                          {group.player}
+                        </p>
+                        {group.matchesPosition && (
+                          <span className="shrink-0 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[var(--data-cyan)]">
+                            Your position
+                          </span>
+                        )}
+                      </div>
+                      <div className="space-y-2.5">
+                        {group.items.map((f) => (
+                          <FilmCard
+                            key={f.id}
+                            film={f}
+                            trainer={null}
+                            view={viewsByFilmId.get(f.id) ?? null}
+                            playerId={playerId}
+                            drillName={
+                              f.drill_id ? drillNameById.get(f.drill_id) ?? null : null
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </section>
             )}
 
