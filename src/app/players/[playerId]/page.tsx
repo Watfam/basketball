@@ -278,13 +278,18 @@ export default async function PlayerHubPage({
 
   const filmWatchedIds = new Set((filmViewRows ?? []).map((v) => v.film_resource_id));
   const filmStudiedCount = filmWatchedIds.size;
-  const filmUpNextTitle =
+  // Both the title and the id: naming a lesson on the card and then
+  // dropping the player into the whole library to go find it is exactly
+  // the bait-and-switch this card was guilty of.
+  const filmUpNext =
     rankFilm(
       playerType,
       (filmRows ?? []) as Parameters<typeof rankFilm>[1],
       filmWatchedIds,
       WEAKNESS_THRESHOLD
-    )[0]?.title ?? null;
+    )[0] ?? null;
+  const filmUpNextTitle = filmUpNext?.title ?? null;
+  const filmUpNextId = filmUpNext?.id ?? null;
 
   const milestones = buildMilestones(totalCompleted, streakWeeks);
   const quote = randomQuote();
@@ -458,7 +463,11 @@ export default async function PlayerHubPage({
         <section className="animate-rise" style={{ animationDelay: "180ms" }}>
           <SectionHeading title="Film Room" caption={`${filmStudiedCount} studied`} />
           <Link
-            href={`/players/${playerId}/film`}
+            href={
+              filmUpNextId
+                ? `/players/${playerId}/film?lesson=${filmUpNextId}`
+                : `/players/${playerId}/film`
+            }
             className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
           >
             <div className="flex items-center justify-between gap-3">

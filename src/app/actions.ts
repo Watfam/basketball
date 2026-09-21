@@ -605,6 +605,69 @@ export async function addFilmResource(
   return { error: null };
 }
 
+/**
+ * Attaches a household's own video link to a curated lesson.
+ *
+ * Curated rows are service-role only and shared across everyone, so this
+ * stores the URL alongside rather than editing the lesson. The app
+ * prefers the override when rendering. Previously the only option was to
+ * create a whole second entry, which left a duplicate sitting next to the
+ * lesson it was meant to complete.
+ */
+export async function setFilmLink(
+  householdId: string,
+  filmResourceId: string,
+  url: string,
+  playerId: string
+) {
+  if (!householdId || !filmResourceId) return { error: "Missing household or film." };
+
+  let parsed: URL;
+  try {
+    parsed = new URL(url.trim());
+  } catch {
+    return { error: "That doesn't look like a link. Paste the full URL, starting with https://" };
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return { error: "Links have to start with https://" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_links")
+    .upsert(
+      { household_id: householdId, film_resource_id: filmResourceId, url: parsed.toString() },
+      { onConflict: "household_id,film_resource_id" }
+    );
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/film`);
+  return { error: null };
+}
+
+export async function removeFilmLink(
+  householdId: string,
+  filmResourceId: string,
+  playerId: string
+) {
+  if (!householdId || !filmResourceId) return { error: "Missing household or film." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_links")
+    .delete()
+    .eq("household_id", householdId)
+    .eq("film_resource_id", filmResourceId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/film`);
+  return { error: null };
+}
+
 export async function deleteFilmResource(filmResourceId: string, playerId: string) {
   if (!filmResourceId) return { error: "Missing film." };
 

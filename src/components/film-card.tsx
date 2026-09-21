@@ -2,7 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { logFilmView, removeFilmView, deleteFilmResource } from "@/app/actions";
+import {
+  logFilmView,
+  removeFilmView,
+  deleteFilmResource,
+  setFilmLink,
+} from "@/app/actions";
 import {
   FILM_KIND_LABELS,
   SKILL_LABELS,
@@ -31,21 +36,56 @@ export function FilmCard({
   view,
   playerId,
   drillName,
+  householdId = null,
+  linkOverride = null,
+  autoOpen = false,
 }: {
   film: FilmResource;
   trainer: Trainer | null;
   view: FilmView | null;
   playerId: string;
   drillName: string | null;
+  householdId?: string | null;
+  // A link this household attached to a curated lesson. Curated rows are
+  // shared and service-role only, so the URL lives alongside rather than
+  // on the lesson itself.
+  linkOverride?: string | null;
+  // Opened straight from a deep link, so the player lands on the lesson
+  // they were promised rather than on the library with a hunt ahead.
+  autoOpen?: boolean;
 }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(autoOpen);
   const [takeaway, setTakeaway] = useState(view?.takeaway ?? "");
+  const [linkDraft, setLinkDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const effectiveUrl = film.url ?? linkOverride;
   const watched = Boolean(view);
-  const watchable = isWatchableUrl(film.url);
+  const watchable = isWatchableUrl(effectiveUrl);
+
+  // Somewhere to actually go and find footage, rather than being told to
+  // come back when you have some.
+  const searchUrl = trainer?.youtube_url
+    ? trainer.youtube_url
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(
+        film.pro_player_name ? `${film.pro_player_name} ${film.title}` : film.title
+      )}`;
+
+  function saveLink() {
+    if (!householdId) return;
+    haptic("tap");
+    startTransition(async () => {
+      const result = await setFilmLink(householdId, film.id, linkDraft, playerId);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      setLinkDraft("");
+      router.refresh();
+    });
+  }
   const duration = durationLabel(film.duration_seconds);
   const isOwn = Boolean(film.added_by_household_id);
 
@@ -229,7 +269,7 @@ export function FilmCard({
             <div className="mt-5 border-t border-line pt-4">
               {watchable ? (
                 <a
-                  href={film.url as string}
+                  href={effectiveUrl as string}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
@@ -237,24 +277,43 @@ export function FilmCard({
                   Watch film ↗
                 </a>
               ) : (
-                <div className="rounded-xl border border-dashed border-line px-4 py-3.5 text-center">
-                  <p className="text-xs leading-relaxed text-foreground-dim">
+                <div className="rounded-xl border border-dashed border-line px-4 py-3.5">
+                  <p className="text-center text-xs leading-relaxed text-foreground-dim">
                     No link on this one yet — the lesson above stands on its own.
-                    {film.pro_player_name
-                      ? ` Find a ${film.pro_player_name} clip that shows it, then add it with “Add film”.`
-                      : trainer?.youtube_url
-                        ? " Find the footage on the trainer's channel, then add it with “Add film”."
-                        : " Add a link with “Add film” once you find one you rate."}
                   </p>
-                  {trainer?.youtube_url && (
+
+                  {searchUrl && (
                     <a
-                      href={trainer.youtube_url}
+                      href={searchUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-block text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+                      className="mt-2 block text-center text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
                     >
-                      {trainer.name}&rsquo;s channel ↗
+                      {trainer?.youtube_url ? `${trainer.name}'s channel ↗` : "Search YouTube ↗"}
                     </a>
+                  )}
+
+                  {/* The link goes straight onto THIS lesson. It used to
+                      point at "Add film", which created a separate entry
+                      beside the lesson instead of completing it. */}
+                  {householdId && (
+                    <div className="mt-3 border-t border-line pt-3">
+                      <input
+                        value={linkDraft}
+                        onChange={(e) => setLinkDraft(e.target.value)}
+                        inputMode="url"
+                        placeholder="Paste a YouTube link for this lesson"
+                        className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={saveLink}
+                        disabled={pending || !linkDraft.trim()}
+                        className="mt-2 w-full rounded-lg border border-accent py-2 text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:bg-accent/10 disabled:opacity-40"
+                      >
+                        {pending ? "Saving…" : "Attach link"}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
