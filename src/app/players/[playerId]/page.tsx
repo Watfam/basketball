@@ -26,6 +26,7 @@ import {
   type PlayerType,
 } from "@/lib/basketball/workout-matching";
 import { randomQuote } from "@/lib/basketball/quotes";
+import { rankFilm } from "@/lib/basketball/film";
 import {
   computeStreakWeeks,
   weeklyVolume,
@@ -261,6 +262,30 @@ export default async function PlayerHubPage({
     programReasons[p.id] = explainProgram(playerType, p, WEAKNESS_THRESHOLD);
   });
 
+  // --- Film ------------------------------------------------------------
+  // Just enough to show what's next on the hub; the Film Room itself does
+  // the full ranking.
+  const { data: filmRows } = await supabase
+    .schema("hoops")
+    .from("film_resources")
+    .select("id, title, kind, skill_tags, position_tags, sort_order");
+
+  const { data: filmViewRows } = await supabase
+    .schema("hoops")
+    .from("film_views")
+    .select("film_resource_id")
+    .eq("player_id", playerId);
+
+  const filmWatchedIds = new Set((filmViewRows ?? []).map((v) => v.film_resource_id));
+  const filmStudiedCount = filmWatchedIds.size;
+  const filmUpNextTitle =
+    rankFilm(
+      playerType,
+      (filmRows ?? []) as Parameters<typeof rankFilm>[1],
+      filmWatchedIds,
+      WEAKNESS_THRESHOLD
+    )[0]?.title ?? null;
+
   const milestones = buildMilestones(totalCompleted, streakWeeks);
   const quote = randomQuote();
 
@@ -428,6 +453,30 @@ export default async function PlayerHubPage({
             thisWeekCount={thisWeekCount}
             weeklyTarget={WEEKLY_TARGET}
           />
+        </section>
+
+        <section className="animate-rise" style={{ animationDelay: "180ms" }}>
+          <SectionHeading title="Film Room" caption={`${filmStudiedCount} studied`} />
+          <Link
+            href={`/players/${playerId}/film`}
+            className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
+                  {filmUpNextTitle ?? "Study the game"}
+                </p>
+                <p className="mt-1.5 text-xs text-foreground-dim">
+                  {filmUpNextTitle
+                    ? "Next lesson, picked for your weak spots"
+                    : "Lessons that tell you what to look for"}
+                </p>
+              </div>
+              <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
+                Open →
+              </span>
+            </div>
+          </Link>
         </section>
 
         <section className="animate-rise" style={{ animationDelay: "200ms" }}>

@@ -23,7 +23,7 @@ export default async function SessionPage({
     .schema("hoops")
     .from("workout_sessions")
     .select(
-      "id, status, program_days(volume_step, week_number, day_number, is_deload), workouts(id, name, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, setup, cues, common_mistakes, equipment)))"
+      "id, status, program_days(volume_step, week_number, day_number, is_deload), workouts(id, name, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, setup, cues, common_mistakes, equipment, film_resources(id, title, watch_for, url, notes))))"
     )
     .eq("id", sessionId)
     .eq("player_id", playerId)

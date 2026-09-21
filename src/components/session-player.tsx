@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -28,6 +29,16 @@ type Drill = {
   cues: string[] | null;
   common_mistakes: string[] | null;
   equipment: string[] | null;
+  // Film that teaches this drill. Film at the moment of doing is the
+  // highest-value place it can appear — a cue you read thirty seconds
+  // before the rep is a cue you might actually apply.
+  film_resources?: {
+    id: string;
+    title: string;
+    watch_for: string[] | null;
+    url: string | null;
+    notes: string | null;
+  }[];
 };
 
 export type SessionDrill = {
@@ -305,6 +316,7 @@ export function SessionPlayer({
               drill={drill}
               level={level}
               volumeStep={volumeStep}
+              playerId={playerId}
               onProgress={(fraction) => setProgressByIndex((prev) => ({ ...prev, [i]: fraction }))}
               onComplete={(log) => handleDrillComplete(i, log)}
             />
@@ -370,18 +382,21 @@ function DrillCard({
   drill,
   level,
   volumeStep,
+  playerId,
   onProgress,
   onComplete,
 }: {
   drill: SessionDrill;
   level: SkillLevel;
   volumeStep: number;
+  playerId: string;
   onProgress: (fraction: number) => void;
   onComplete: (log: DrillLog) => void;
 }) {
   const prescription = resolvePrescription(drill, level, volumeStep);
   const isTimed = Boolean(prescription.durationSeconds);
   const blockLabel = drill.block ? BLOCK_LABELS[drill.block] : null;
+  const film = drill.drills?.film_resources?.[0] ?? null;
 
   return (
     <div className="panel-lit rounded-3xl border border-line bg-surface p-6 sm:p-7">
@@ -408,8 +423,34 @@ function DrillCard({
       )}
 
       {drill.drills && (
-        <div className="mt-2.5">
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
           <DrillInstructions drill={drill.drills} />
+          {film && (
+            <Link
+              href={`/players/${playerId}/film`}
+              className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)] transition-colors hover:opacity-80"
+            >
+              Film: {film.title} →
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* The lesson itself, inline. Sending a player off to the Film Room
+          mid-set would cost them the set; one cue read here is worth more
+          than a link they won't follow. */}
+      {film && (film.watch_for ?? []).length > 0 && (
+        <div className="mt-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-3.5 py-3">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
+            Watch for
+          </p>
+          <ul className="mt-1.5 space-y-1">
+            {(film.watch_for ?? []).slice(0, 2).map((item) => (
+              <li key={item} className="text-xs leading-relaxed text-foreground-dim">
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

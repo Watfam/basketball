@@ -452,6 +452,123 @@ export async function startProgramDay(playerId: string, programDayId: string) {
 }
 
 /**
+ * Marks a film watched and saves the takeaway. The takeaway is the whole
+ * point of the interaction — watching without writing down what you're
+ * taking into the next session is scrolling, not studying — so this
+ * upserts rather than inserting: a player can come back and change what
+ * they wrote.
+ */
+export async function logFilmView(playerId: string, filmResourceId: string, takeaway: string) {
+  if (!playerId || !filmResourceId) return { error: "Missing player or film." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_views")
+    .upsert(
+      {
+        player_id: playerId,
+        film_resource_id: filmResourceId,
+        watched_at: new Date().toISOString(),
+        takeaway: takeaway.trim() || null,
+      },
+      { onConflict: "player_id,film_resource_id" }
+    );
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/film`);
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
+export async function removeFilmView(playerId: string, filmResourceId: string) {
+  if (!playerId || !filmResourceId) return { error: "Missing player or film." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_views")
+    .delete()
+    .eq("player_id", playerId)
+    .eq("film_resource_id", filmResourceId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/film`);
+  return { error: null };
+}
+
+/**
+ * Adds a household's own film link.
+ *
+ * The curated library ships without video URLs on purpose — inventing
+ * plausible-looking links would be worse than having none — so this is
+ * how real links actually get in. Rows created here carry the household
+ * id, which is what keeps them out of everyone else's library (see the
+ * film_resources RLS policies in migration 0004).
+ */
+export async function addFilmResource(
+  householdId: string,
+  playerId: string,
+  input: { title: string; url: string; kind: string; skillTags: string[]; notes: string }
+) {
+  if (!householdId) return { error: "Missing household." };
+
+  const title = input.title.trim();
+  const url = input.url.trim();
+  if (!title) return { error: "Give it a title." };
+
+  // Only http(s) — a javascript: or data: URL pasted in here would
+  // otherwise be rendered as a link for the player to tap.
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return { error: "That doesn't look like a link. Paste the full URL, starting with https://" };
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return { error: "Links have to start with https://" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_resources")
+    .insert({
+      title,
+      url: parsed.toString(),
+      kind: input.kind || null,
+      skill_tags: input.skillTags,
+      notes: input.notes.trim() || null,
+      added_by_household_id: householdId,
+    });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/film`);
+  return { error: null };
+}
+
+export async function deleteFilmResource(filmResourceId: string, playerId: string) {
+  if (!filmResourceId) return { error: "Missing film." };
+
+  const supabase = await createClient();
+  // RLS (film_resources_own_write) already restricts this to rows the
+  // caller's household added — curated rows can't be deleted here.
+  const { error } = await supabase
+    .schema("hoops")
+    .from("film_resources")
+    .delete()
+    .eq("id", filmResourceId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/film`);
+  return { error: null };
+}
+
+/**
  * Overrides the level the assessment suggested. Stored inside the same
  * player_type JSONB bag rather than a new column — consistent with how
  * every other player-type signal is stored, and needs no migration.
