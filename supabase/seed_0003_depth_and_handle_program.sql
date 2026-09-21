@@ -182,7 +182,7 @@ using hoops.workouts w
 where wd.workout_id = w.id
   and w.name in (
     'Guard Ball-Handling Foundations',
-    'Shooter''s Workshop',
+    $hl$Shooter's Workshop$hl$,
     'Lockdown Defender Circuit',
     'Athletic Development Block',
     'Post Player Package'
@@ -201,11 +201,11 @@ from (values
   ('Guard Ball-Handling Foundations', 'Agility Ladder + Reaction Drill', 5, 'finisher', 'Reaction sprint', '{}'::text[], '{}'::jsonb, null, null, 60),
 
   -- Shooter’s Workshop
-  ('Shooter''s Workshop', 'Form Shooting Progression',      0, 'warmup',   'Shooting hand',     '{}'::text[], '{"beginner":{"sets":4,"reps":10},"intermediate":{"sets":4,"reps":12},"advanced":{"sets":4,"reps":15}}'::jsonb, 4, 12, null),
-  ('Shooter''s Workshop', 'Off-the-Dribble Pull-Up Series',  1, 'main',     'Right side',        '{}'::text[], '{"beginner":{"sets":3,"reps":6},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
-  ('Shooter''s Workshop', 'Off-the-Dribble Pull-Up Series',  2, 'main',     'Left side',         '{}'::text[], '{"beginner":{"sets":3,"reps":6},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
-  ('Shooter''s Workshop', 'Off-the-Dribble Pull-Up Series',  3, 'main',     'Top of the key, off 2 dribbles', array['intermediate','advanced']::text[], '{"intermediate":{"sets":3,"reps":8},"advanced":{"sets":4,"reps":10}}'::jsonb, 3, 8, null),
-  ('Shooter''s Workshop', 'Form Shooting Progression',       4, 'finisher', 'Free throws',       '{}'::text[], '{}'::jsonb, 2, 5, null),
+  ($hl$Shooter's Workshop$hl$, 'Form Shooting Progression',      0, 'warmup',   'Shooting hand',     '{}'::text[], '{"beginner":{"sets":4,"reps":10},"intermediate":{"sets":4,"reps":12},"advanced":{"sets":4,"reps":15}}'::jsonb, 4, 12, null),
+  ($hl$Shooter's Workshop$hl$, 'Off-the-Dribble Pull-Up Series',  1, 'main',     'Right side',        '{}'::text[], '{"beginner":{"sets":3,"reps":6},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
+  ($hl$Shooter's Workshop$hl$, 'Off-the-Dribble Pull-Up Series',  2, 'main',     'Left side',         '{}'::text[], '{"beginner":{"sets":3,"reps":6},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
+  ($hl$Shooter's Workshop$hl$, 'Off-the-Dribble Pull-Up Series',  3, 'main',     'Top of the key, off 2 dribbles', array['intermediate','advanced']::text[], '{"intermediate":{"sets":3,"reps":8},"advanced":{"sets":4,"reps":10}}'::jsonb, 3, 8, null),
+  ($hl$Shooter's Workshop$hl$, 'Form Shooting Progression',       4, 'finisher', 'Free throws',       '{}'::text[], '{}'::jsonb, 2, 5, null),
 
   -- Lockdown Defender Circuit
   ('Lockdown Defender Circuit', 'Agility Ladder + Reaction Drill', 0, 'warmup',   'Quick feet',      '{}'::text[], '{}'::jsonb, null, null, 45),
@@ -232,7 +232,7 @@ join hoops.drills d on d.name = v.drill_name;
 
 -- Estimated minutes were written for two-drill sessions.
 update hoops.workouts set estimated_minutes = 35 where name = 'Guard Ball-Handling Foundations';
-update hoops.workouts set estimated_minutes = 40 where name = 'Shooter''s Workshop';
+update hoops.workouts set estimated_minutes = 40 where name = $hl$Shooter's Workshop$hl$;
 update hoops.workouts set estimated_minutes = 30 where name = 'Lockdown Defender Circuit';
 update hoops.workouts set estimated_minutes = 30 where name = 'Athletic Development Block';
 update hoops.workouts set estimated_minutes = 35 where name = 'Post Player Package';

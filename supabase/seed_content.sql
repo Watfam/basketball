@@ -67,7 +67,7 @@ d_1on1_mirror as (
   insert into hoops.drills (name, description, skill_tags, difficulty)
   values (
     '1-on-1 Defensive Mirror Drill',
-    'Mirror an attacker''s hips and shoulders in a live 1-on-1 shell, no ball.',
+    $hl$Mirror an attacker's hips and shoulders in a live 1-on-1 shell, no ball.$hl$,
     array['defense'], 'intermediate'
   )
   returning id
@@ -113,7 +113,7 @@ w_guard_handles as (
 w_shooters_workshop as (
   insert into hoops.workouts (name, description, player_type_tags, focus_areas, estimated_minutes)
   values (
-    'Shooter''s Workshop',
+    $hl$Shooter's Workshop$hl$,
     'Form shooting into live-dribble pull-ups — build a repeatable, game-speed shot.',
     jsonb_build_object('style_tags', array['shooter']),
     array['shooting'], 35

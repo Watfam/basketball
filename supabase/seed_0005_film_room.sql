@@ -59,7 +59,7 @@ values
     'https://www.instagram.com/micahlancaster',
     null,
     'https://possibletraining.com',
-    'Founder of I''m Possible Training and an NBA skills coach. A trainer of trainers — known for inventing skill-development methods and tools rather than just teaching moves.',
+    $hl$Founder of I'm Possible Training and an NBA skills coach. A trainer of trainers — known for inventing skill-development methods and tools rather than just teaching moves.$hl$,
     array['ball_handling', 'shooting'],
     2
   ),
@@ -134,7 +134,7 @@ from (values
       'How the drive is sold before the step-back — the defender has to believe it',
       'The push off the front foot, and landing balanced on two',
       'Shoulders staying square while the feet create the space',
-      'The chin staying over the ball so the shot doesn''t fade'
+      $hl$The chin staying over the ball so the shot doesn't fade$hl$
     ],
     'Separation is footwork and timing, not athleticism. Watch the feet, not the ball.',
     'Ryan Jones', 'Wing Step-Back', 2
@@ -195,7 +195,7 @@ from (values
     'Guarding the Ball: Hips, Not Hands',
     'iq', 'intermediate', array['defense'], array[]::text[],
     array[
-      'Watching the attacker''s hips, not the ball or the shoulders',
+      $hl$Watching the attacker's hips, not the ball or the shoulders$hl$,
       'Beating them to the spot rather than reacting after the move',
       'Hands active but late — feet solving the problem first',
       'What they do after getting beaten once'
