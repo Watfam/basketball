@@ -14,6 +14,8 @@ import { ProgramPanel } from "@/components/program-panel";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
 import {
   computeProgramProgress,
+  rankPrograms,
+  explainProgram,
   type ProgramDay,
   type ProgramProgress,
 } from "@/lib/basketball/program";
@@ -33,6 +35,7 @@ import {
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import {
   suggestSkillLevel,
+  WEAKNESS_THRESHOLD,
   type ComputedPlayerType,
   type SkillLevel,
 } from "@/lib/basketball/assessment";
@@ -244,7 +247,19 @@ export default async function PlayerHubPage({
     : await supabase
         .schema("hoops")
         .from("programs")
-        .select("id, name, description, focus_areas, level, week_count, days_per_week");
+        .select(
+          "id, name, description, focus_areas, player_type_tags, level, week_count, days_per_week"
+        );
+
+  // Ordered toward the player's genuine weak spots, same principle as the
+  // workout feed — nothing is hidden, it's just not arbitrary.
+  const rankedPrograms = offeredPrograms
+    ? rankPrograms(playerType, currentLevel, offeredPrograms, WEAKNESS_THRESHOLD)
+    : [];
+  const programReasons: Record<string, string> = {};
+  rankedPrograms.forEach((p) => {
+    programReasons[p.id] = explainProgram(playerType, p, WEAKNESS_THRESHOLD);
+  });
 
   const milestones = buildMilestones(totalCompleted, streakWeeks);
   const quote = randomQuote();
@@ -335,10 +350,14 @@ export default async function PlayerHubPage({
           </section>
         )}
 
-        {!activeProgram && offeredPrograms && offeredPrograms.length > 0 && (
+        {!activeProgram && rankedPrograms.length > 0 && (
           <section className="animate-rise" style={{ animationDelay: "40ms" }}>
             <SectionHeading title="Programs" caption="Commit to a block" />
-            <ProgramOffer playerId={playerId} programs={offeredPrograms as OfferedProgram[]} />
+            <ProgramOffer
+              playerId={playerId}
+              programs={rankedPrograms as OfferedProgram[]}
+              reasons={programReasons}
+            />
           </section>
         )}
 

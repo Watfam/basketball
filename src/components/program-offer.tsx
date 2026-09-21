@@ -30,9 +30,11 @@ export type OfferedProgram = {
 export function ProgramOffer({
   playerId,
   programs,
+  reasons,
 }: {
   playerId: string;
   programs: OfferedProgram[];
+  reasons: Record<string, string>;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +79,12 @@ export function ProgramOffer({
             <h3 className="font-display mt-2 text-2xl uppercase leading-[0.98] tracking-tight text-foreground">
               {program.name}
             </h3>
+            {reasons[program.id] && (
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-accent">
+                <span className="inline-block h-1 w-1 shrink-0 rounded-full bg-accent" />
+                {reasons[program.id]}
+              </p>
+            )}
             {program.description && (
               <p className="mt-1.5 text-xs leading-relaxed text-foreground-dim">
                 {program.description}

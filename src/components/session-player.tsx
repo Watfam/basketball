@@ -63,6 +63,11 @@ type Props = {
   level: SkillLevel;
   // Week-over-week progression when this session is part of a program.
   volumeStep: number;
+  // "Week 3 · Day 2" when this session came from a program schedule.
+  programLabel?: string | null;
+  // A planned lighter day. Said out loud so a shorter session reads as
+  // the plan working rather than something being wrong.
+  isDeload?: boolean;
   alreadyCompleted: boolean;
   // workout_drills entry ids already logged in a previous visit to this
   // session — lets a player leave mid-workout and pick back up later
@@ -90,6 +95,8 @@ export function SessionPlayer({
   drills,
   level,
   volumeStep,
+  programLabel = null,
+  isDeload = false,
   alreadyCompleted,
   initialLoggedEntryIds,
 }: Props) {
@@ -251,9 +258,15 @@ export function SessionPlayer({
           {completed.size === 0 ? "← Cancel" : "← Save & exit"}
         </button>
         <span className="truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
-          {workoutName}
+          {programLabel ?? workoutName}
         </span>
       </div>
+
+      {isDeload && (
+        <p className="mb-3 rounded-lg border border-[var(--data-cyan)]/40 bg-[var(--data-cyan)]/10 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--data-cyan)]">
+          Deload week — lighter on purpose
+        </p>
+      )}
 
       <div className="mb-3 flex items-center gap-1.5">
         {drills.map((_, i) => {

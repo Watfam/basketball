@@ -17,6 +17,95 @@ export type ProgramDay = {
   note: string | null;
 };
 
+export type ProgramForRanking = {
+  id: string;
+  focus_areas: string[] | null;
+  player_type_tags: { positions?: string[]; style_tags?: string[] } | null;
+  level: string | null;
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ball_handling: "Ball Handling",
+  shooting: "Shooting",
+  defense: "Defense",
+  athleticism: "Athleticism",
+};
+
+/**
+ * Reorders (never filters) the programs on offer, on the same principle
+ * as the workout feed: a block aimed at a genuine weak spot outranks one
+ * that isn't, but a player who wants to work on something else can still
+ * pick it.
+ */
+export function rankPrograms<T extends ProgramForRanking>(
+  playerType: {
+    primary_position?: string | null;
+    style_tags?: string[];
+    ratings?: Partial<Record<string, number>>;
+  },
+  level: string | null,
+  programs: T[],
+  weaknessThreshold: number
+): T[] {
+  const ratings = playerType.ratings ?? {};
+  const styleTags = new Set(playerType.style_tags ?? []);
+  const position = playerType.primary_position ?? null;
+
+  return [...programs]
+    .map((program, index) => {
+      let score = 0;
+
+      for (const area of program.focus_areas ?? []) {
+        const value = ratings[area];
+        if (value !== undefined && value < weaknessThreshold) score += 3;
+      }
+
+      const tags = program.player_type_tags ?? {};
+      if (position && tags.positions?.includes(position)) score += 2;
+      for (const tag of tags.style_tags ?? []) {
+        if (styleTags.has(tag)) score += 1;
+      }
+      if (level && program.level === level) score += 1;
+
+      return { program, index, score };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((s) => s.program);
+}
+
+/** The one-line "why this block" shown on an offered program. */
+export function explainProgram(
+  playerType: {
+    primary_position?: string | null;
+    style_tags?: string[];
+    ratings?: Partial<Record<string, number>>;
+  },
+  program: ProgramForRanking,
+  weaknessThreshold: number
+): string {
+  const ratings = playerType.ratings ?? {};
+
+  const weakestFocus = (program.focus_areas ?? [])
+    .filter((area) => {
+      const value = ratings[area];
+      return value !== undefined && value < weaknessThreshold;
+    })
+    .sort((a, b) => (ratings[a] ?? 0) - (ratings[b] ?? 0))[0];
+
+  if (weakestFocus) {
+    return `Built around ${CATEGORY_LABELS[weakestFocus] ?? weakestFocus} — your focus area`;
+  }
+
+  const tags = program.player_type_tags ?? {};
+  const position = playerType.primary_position ?? null;
+  if (position && tags.positions?.includes(position)) return "Written for your position";
+
+  const styleTags = new Set(playerType.style_tags ?? []);
+  if ((tags.style_tags ?? []).some((t) => styleTags.has(t))) return "Matches how you play";
+
+  return "Rounds out your game";
+}
+
 export type ProgramProgress = {
   /** The next unfinished day, or null once every day is done. */
   nextDay: ProgramDay | null;
