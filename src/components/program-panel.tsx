@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { startProgramDay } from "@/app/actions";
+import { startProgramDay, completeProgram, leaveProgram } from "@/app/actions";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { haptic } from "@/lib/haptics";
 import type { ProgramProgress } from "@/lib/basketball/program";
@@ -29,10 +29,38 @@ export function ProgramPanel({
 }) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const [leaveConfirming, setLeaveConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const next = progress.nextDay;
+
+  // Closing out the block and retesting are one action on purpose: the
+  // point of finishing is finding out what moved, and a "done" button
+  // that just clears the card wastes the moment.
+  function finishBlockAndRetest() {
+    haptic("success");
+    startTransition(async () => {
+      const result = await completeProgram(playerId);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      router.push(`/players/${playerId}/assessment`);
+    });
+  }
+
+  function leave() {
+    haptic("tap");
+    startTransition(async () => {
+      const result = await leaveProgram(playerId);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
 
   function start() {
     if (!next) return;
@@ -82,9 +110,19 @@ export function ProgramPanel({
           <p className="font-display text-gradient-accent text-4xl uppercase leading-none">
             Block Complete
           </p>
-          <p className="mt-2 text-sm text-foreground-dim">
-            Every day logged. Retake the assessment to see what moved.
+          <p className="mt-2 text-sm leading-relaxed text-foreground-dim">
+            All {progress.totalCount} days logged. Rate yourself again — your old numbers stay on
+            the chart so you can see exactly what moved.
           </p>
+          <button
+            type="button"
+            onClick={finishBlockAndRetest}
+            disabled={pending}
+            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
+          >
+            {pending ? "Finishing…" : "Finish block & retest"}
+          </button>
+          {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
         </div>
       ) : (
         next && (
@@ -161,6 +199,42 @@ export function ProgramPanel({
                 </div>
               </div>
             ))}
+
+            {!progress.isComplete &&
+              (leaveConfirming ? (
+                <div className="rounded-xl border border-line bg-[var(--raised)] px-4 py-3 text-center">
+                  <p className="text-xs leading-relaxed text-foreground-dim">
+                    Leave this program? The {progress.completedCount}{" "}
+                    {progress.completedCount === 1 ? "session" : "sessions"} you&rsquo;ve already
+                    logged stay in your history and still count.
+                  </p>
+                  <div className="mt-2.5 flex justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={leave}
+                      disabled={pending}
+                      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover disabled:opacity-50"
+                    >
+                      {pending ? "Leaving…" : "Leave program"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLeaveConfirming(false)}
+                      className="text-[11px] font-bold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
+                    >
+                      Stay on it
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setLeaveConfirming(true)}
+                  className="w-full pt-1 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-foreground-mute transition-colors hover:text-foreground-dim"
+                >
+                  Leave this program
+                </button>
+              ))}
           </div>
         )}
       </div>

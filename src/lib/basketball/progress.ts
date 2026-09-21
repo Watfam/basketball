@@ -31,6 +31,16 @@ export function computeStreakWeeks(completedDates: Date[], now: Date = new Date(
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+/** "Rated 12d ago" — how stale a player's self-assessment is. */
+export function lastAssessedLabel(iso: string | null | undefined): string {
+  if (!iso) return "From your assessment";
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / MS_PER_DAY);
+  if (days < 1) return "Rated today";
+  if (days === 1) return "Rated yesterday";
+  if (days < 30) return `Rated ${days}d ago`;
+  return `Rated ${Math.floor(days / 30)}mo ago`;
+}
+
 function startOfDay(d: Date): Date {
   const copy = new Date(d);
   copy.setHours(0, 0, 0, 0);

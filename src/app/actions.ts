@@ -268,7 +268,13 @@ export async function discardWorkoutSession(sessionId: string) {
  * assessments.computed_player_type and players.player_type — the latter is
  * what curated content actually matches against.
  */
-export async function submitAssessment(playerId: string, answers: AssessmentAnswers) {
+export async function submitAssessment(
+  playerId: string,
+  answers: AssessmentAnswers,
+  // Retests record as "checkin" so the history stays readable — and so
+  // the hub can tell a genuine re-measure from the original baseline.
+  kind: "onboarding" | "checkin" | "annual" = "onboarding"
+) {
   if (!playerId) return { error: "Missing player." };
 
   const supabase = await createClient();
@@ -279,18 +285,32 @@ export async function submitAssessment(playerId: string, answers: AssessmentAnsw
     .from("assessments")
     .insert({
       player_id: playerId,
-      kind: "onboarding",
+      kind,
       answers,
       computed_player_type: computed,
     });
 
   if (assessmentError) return { error: assessmentError.message };
 
+  // Merged into the existing player_type rather than replacing it. The
+  // computed snapshot doesn't carry preferred_level, so overwriting
+  // wholesale would silently reset a player's chosen training level every
+  // time they retested — and anything else later stored in this bag would
+  // go the same way.
+  const { data: existing } = await supabase
+    .schema("hoops")
+    .from("players")
+    .select("player_type")
+    .eq("id", playerId)
+    .maybeSingle();
+
+  const nextPlayerType = { ...(existing?.player_type ?? {}), ...computed };
+
   const { error: playerError } = await supabase
     .schema("hoops")
     .from("players")
     .update({
-      player_type: computed,
+      player_type: nextPlayerType,
       primary_position: answers.primary_position || null,
       updated_at: new Date().toISOString(),
     })
@@ -299,6 +319,7 @@ export async function submitAssessment(playerId: string, answers: AssessmentAnsw
   if (playerError) return { error: playerError.message };
 
   revalidatePath("/");
+  revalidatePath(`/players/${playerId}`);
   return { error: null, computed };
 }
 
@@ -326,6 +347,52 @@ export async function enrollInProgram(playerId: string, programId: string) {
     .schema("hoops")
     .from("player_programs")
     .insert({ player_id: playerId, program_id: programId, status: "active" });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
+/**
+ * Closes out a finished block. Kept as an explicit action rather than
+ * flipping the row the moment the last day is logged: the enrollment
+ * staying active is what keeps the "Block Complete" state on screen, and
+ * a player should get to see they finished before the app moves on. It
+ * also frees the one-active-program slot so a new block can start.
+ */
+export async function completeProgram(playerId: string) {
+  if (!playerId) return { error: "Missing player." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("player_programs")
+    .update({ status: "completed", completed_at: new Date().toISOString() })
+    .eq("player_id", playerId)
+    .eq("status", "active");
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
+/**
+ * Steps off a program mid-block. Sessions already logged against it stay
+ * — the work happened, and it still counts toward totals and streaks
+ * even though the plan was abandoned.
+ */
+export async function leaveProgram(playerId: string) {
+  if (!playerId) return { error: "Missing player." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("player_programs")
+    .update({ status: "abandoned" })
+    .eq("player_id", playerId)
+    .eq("status", "active");
 
   if (error) return { error: error.message };
 

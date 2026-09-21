@@ -24,9 +24,25 @@ type Props = {
   playerId: string;
   playerName: string;
   initialPosition: string | null;
+  // A retest carries the previous answers in as the starting point, so
+  // the player adjusts what changed instead of re-entering everything
+  // from zero — which is both less work and a more honest comparison,
+  // since a blank slate invites a different anchor every time.
+  isRetest?: boolean;
+  previousRatings?: Record<RatingCategoryValue, number> | null;
+  previousStyleTags?: StyleTagValue[] | null;
+  previousGoal?: string | null;
 };
 
-export function AssessmentFlow({ playerId, playerName, initialPosition }: Props) {
+export function AssessmentFlow({
+  playerId,
+  playerName,
+  initialPosition,
+  isRetest = false,
+  previousRatings = null,
+  previousStyleTags = null,
+  previousGoal = null,
+}: Props) {
   const router = useRouter();
 
   // Position is often already answered during "Set up your family" — skip
@@ -46,14 +62,16 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
   const [pending, startTransition] = useTransition();
 
   const [primaryPosition, setPrimaryPosition] = useState(initialPosition ?? "");
-  const [styleTags, setStyleTags] = useState<StyleTagValue[]>([]);
-  const [ratings, setRatings] = useState<Record<RatingCategoryValue, number>>({
-    ball_handling: 0,
-    shooting: 0,
-    defense: 0,
-    athleticism: 0,
-  });
-  const [goal, setGoal] = useState("");
+  const [styleTags, setStyleTags] = useState<StyleTagValue[]>(previousStyleTags ?? []);
+  const [ratings, setRatings] = useState<Record<RatingCategoryValue, number>>(
+    previousRatings ?? {
+      ball_handling: 0,
+      shooting: 0,
+      defense: 0,
+      athleticism: 0,
+    }
+  );
+  const [goal, setGoal] = useState(previousGoal ?? "");
 
   const currentStep = steps[step];
 
@@ -83,7 +101,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
     // Final step — submit.
     const answers: AssessmentAnswers = { primary_position: primaryPosition, style_tags: styleTags, ratings, goal };
     startTransition(async () => {
-      const result = await submitAssessment(playerId, answers);
+      const result = await submitAssessment(playerId, answers, isRetest ? "checkin" : "onboarding");
       if (result?.error) {
         setError(result.error);
         return;
@@ -108,7 +126,10 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
         primaryPosition={primaryPosition}
         styleTags={styleTags}
         ratings={ratings}
-        onContinue={() => router.push("/")}
+        // A retest lands back on the hub, where the attribute radar draws
+        // the previous values underneath the new ones — that before/after
+        // is the whole point of retesting.
+        onContinue={() => router.push(isRetest ? `/players/${playerId}` : "/")}
       />
     );
   }
@@ -144,7 +165,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
         >
           {currentStep === "position" && (
             <StepShell
-              eyebrow={`${playerName}'s assessment`}
+              eyebrow={isRetest ? "Retest" : `${playerName}'s assessment`}
               title="What position do you play most?"
             >
               <div className="grid grid-cols-2 gap-2.5">
@@ -165,7 +186,7 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
 
           {currentStep === "style" && (
             <StepShell
-              eyebrow={`${playerName}'s assessment`}
+              eyebrow={isRetest ? "Retest" : `${playerName}'s assessment`}
               title="How would you describe your game?"
               subtitle="Pick up to 2 — this shapes your Player Card and every workout we curate."
             >
@@ -193,7 +214,11 @@ export function AssessmentFlow({ playerId, playerName, initialPosition }: Props)
           )}
 
           {currentStep === "ratings" && (
-            <StepShell eyebrow="Self-scout" title="Rate yourself, honestly">
+            <StepShell
+              eyebrow={isRetest ? "Retest · Self-scout" : "Self-scout"}
+              title={isRetest ? "Rate yourself again" : "Rate yourself, honestly"}
+              subtitle={isRetest ? "These start where you left them. Move only what actually changed." : undefined}
+            >
               <div className="space-y-5">
                 {RATING_CATEGORIES.map((cat) => (
                   <RatingRow

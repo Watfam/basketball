@@ -24,7 +24,12 @@ import {
   type PlayerType,
 } from "@/lib/basketball/workout-matching";
 import { randomQuote } from "@/lib/basketball/quotes";
-import { computeStreakWeeks, weeklyVolume, dailyActivity } from "@/lib/basketball/progress";
+import {
+  computeStreakWeeks,
+  weeklyVolume,
+  dailyActivity,
+  lastAssessedLabel,
+} from "@/lib/basketball/progress";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import {
   suggestSkillLevel,
@@ -91,6 +96,8 @@ export default async function PlayerHubPage({
 
   const previousRatings =
     (assessments?.[1]?.computed_player_type as ComputedPlayerType | undefined)?.ratings ?? null;
+
+  const assessedLabel = lastAssessedLabel(assessments?.[0]?.completed_at);
 
   // Every unfinished session, not just the newest. Showing only the most
   // recent one silently stranded older ones: a player who starts A, drifts
@@ -366,8 +373,14 @@ export default async function PlayerHubPage({
         </section>
 
         <section className="animate-rise" style={{ animationDelay: "120ms" }}>
-          <SectionHeading title="Your Game" caption="From your assessment" />
+          <SectionHeading title="Your Game" caption={assessedLabel} />
           <AttributePanel ratings={ratings} previousRatings={previousRatings as Ratings | null} />
+          <Link
+            href={`/players/${playerId}/assessment`}
+            className="mt-2.5 inline-block text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+          >
+            Rate yourself again →
+          </Link>
         </section>
 
         <section className="animate-rise" style={{ animationDelay: "160ms" }}>
