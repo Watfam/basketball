@@ -32,6 +32,7 @@ import {
   weeklyVolume,
   dailyActivity,
   lastAssessedLabel,
+  isAssessmentStale,
 } from "@/lib/basketball/progress";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import {
@@ -102,6 +103,7 @@ export default async function PlayerHubPage({
     (assessments?.[1]?.computed_player_type as ComputedPlayerType | undefined)?.ratings ?? null;
 
   const assessedLabel = lastAssessedLabel(assessments?.[0]?.completed_at);
+  const assessmentStale = isAssessmentStale(assessments?.[0]?.completed_at);
 
   // Every unfinished session, not just the newest. Showing only the most
   // recent one silently stranded older ones: a player who starts A, drifts
@@ -442,12 +444,44 @@ export default async function PlayerHubPage({
         <section className="animate-rise" style={{ animationDelay: "120ms" }}>
           <SectionHeading title="Your Game" caption={assessedLabel} />
           <AttributePanel ratings={ratings} previousRatings={previousRatings as Ratings | null} />
-          <Link
-            href={`/players/${playerId}/assessment`}
-            className="mt-2.5 inline-block text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
-          >
-            Rate yourself again →
-          </Link>
+          {/* Escalates past four weeks instead of staying a passive label.
+              Every recommendation in the app keys off these ratings, so
+              letting them quietly go stale costs the player accuracy
+              everywhere without ever telling them. */}
+          {assessmentStale ? (
+            <Link
+              href={`/players/${playerId}/assessment`}
+              className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-accent bg-accent/10 px-4 py-3 transition-colors hover:bg-accent/20"
+            >
+              <div className="min-w-0">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                  Time to re-rate
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-foreground-dim">
+                  {assessedLabel}. Your card drives every workout and film pick — move it and
+                  everything else follows.
+                </p>
+              </div>
+              <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
+                Go →
+              </span>
+            </Link>
+          ) : (
+            <div className="mt-2.5 flex items-center gap-4">
+              <Link
+                href={`/players/${playerId}/assessment`}
+                className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+              >
+                Rate yourself again →
+              </Link>
+              <Link
+                href={`/players/${playerId}/assessments`}
+                className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
+              >
+                History
+              </Link>
+            </div>
+          )}
         </section>
 
         <section className="animate-rise" style={{ animationDelay: "160ms" }}>

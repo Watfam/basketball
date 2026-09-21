@@ -34,11 +34,28 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 /** "Rated 12d ago" — how stale a player's self-assessment is. */
 export function lastAssessedLabel(iso: string | null | undefined): string {
   if (!iso) return "From your assessment";
-  const days = Math.floor((Date.now() - new Date(iso).getTime()) / MS_PER_DAY);
+  const days = daysSinceAssessment(iso);
+  if (days === null) return "From your assessment";
   if (days < 1) return "Rated today";
   if (days === 1) return "Rated yesterday";
   if (days < 30) return `Rated ${days}d ago`;
   return `Rated ${Math.floor(days / 30)}mo ago`;
+}
+
+export function daysSinceAssessment(iso: string | null | undefined): number | null {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / MS_PER_DAY);
+}
+
+// Four weeks. Long enough that a player isn't nagged mid-block, short
+// enough that ratings driving every recommendation in the app don't go
+// stale for a whole season. A block is six weeks, so a player following a
+// program gets prompted by finishing it before this ever fires.
+export const ASSESSMENT_STALE_DAYS = 28;
+
+export function isAssessmentStale(iso: string | null | undefined): boolean {
+  const days = daysSinceAssessment(iso);
+  return days !== null && days >= ASSESSMENT_STALE_DAYS;
 }
 
 function startOfDay(d: Date): Date {
