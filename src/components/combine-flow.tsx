@@ -9,6 +9,7 @@ import {
   scoreUnit,
   formatScore,
   ratingsFromResults,
+  BAND_LABELS,
   type CombineDrill,
 } from "@/lib/basketball/combine";
 import { RATING_CATEGORIES } from "@/lib/basketball/assessment";
@@ -36,11 +37,17 @@ export function CombineFlow({
   playerName,
   drills,
   currentRatings,
+  band,
+  bandKnown,
 }: {
   playerId: string;
   playerName: string;
   drills: CombineDrill[];
   currentRatings: Ratings;
+  // Which benchmark table these scores are measured against.
+  band: string;
+  // False when age or gender was missing and the middle band was assumed.
+  bandKnown: boolean;
 }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
@@ -52,7 +59,7 @@ export function CombineFlow({
   const atReview = index >= drills.length;
   const drill = drills[index];
 
-  const { ratings, perDrill } = ratingsFromResults(drills, scores, currentRatings);
+  const { ratings, perDrill } = ratingsFromResults(drills, scores, currentRatings, band);
   const recordedCount = Object.keys(scores).length;
 
   function record() {
@@ -188,7 +195,7 @@ export function CombineFlow({
   }
 
   const preview = parseScore(draft);
-  const previewRating = preview !== null ? scoreToRating(drill, preview) : null;
+  const previewRating = preview !== null ? scoreToRating(drill, preview, band) : null;
 
   return (
     <div className="mx-auto w-full max-w-md">
@@ -215,6 +222,13 @@ export function CombineFlow({
           />
         ))}
       </div>
+
+      {/* Named explicitly: a rating only means something if you know what
+          it was measured against. */}
+      <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        Scored against {BAND_LABELS[band] ?? band}
+        {bandKnown ? "" : " — set age and gender for a closer match"}
+      </p>
 
       <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">

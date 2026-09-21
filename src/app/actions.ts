@@ -324,6 +324,44 @@ export async function submitAssessment(
 }
 
 /**
+ * Sets the two fields the combine needs to pick a benchmark band.
+ *
+ * There is no player edit screen, so without this an existing player
+ * could never supply them and would be measured against the middle band
+ * forever. Both are optional and independent — supplying only one still
+ * narrows the band.
+ */
+export async function setPlayerProfile(
+  playerId: string,
+  input: { gender?: string | null; birthYear?: number | null }
+) {
+  if (!playerId) return { error: "Missing player." };
+
+  const patch: Record<string, unknown> = {};
+  if (input.gender === "male" || input.gender === "female") patch.gender = input.gender;
+  if (typeof input.birthYear === "number" && Number.isFinite(input.birthYear)) {
+    const year = Math.round(input.birthYear);
+    // Anything outside this is a typo, and storing it would silently pick
+    // the wrong benchmark band.
+    if (year < 1990 || year > new Date().getFullYear()) {
+      return { error: "That birth year doesn't look right." };
+    }
+    patch.birth_year = year;
+  }
+
+  if (Object.keys(patch).length === 0) return { error: "Nothing to save." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("players").update(patch).eq("id", playerId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}/combine`);
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
+/**
  * Records a measured combine.
  *
  * Writes an assessment of kind "combine" so it flows through the same

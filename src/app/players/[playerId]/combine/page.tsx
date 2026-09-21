@@ -2,8 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CombineFlow } from "@/components/combine-flow";
+import { BenchmarkSetup } from "@/components/benchmark-setup";
 import { EmptyState } from "@/components/empty-state";
-import type { CombineDrill } from "@/lib/basketball/combine";
+import { benchmarkBand, type CombineDrill } from "@/lib/basketball/combine";
 import type { Ratings } from "@/lib/basketball/rating";
 
 const EMPTY_RATINGS: Ratings = { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 };
@@ -24,7 +25,7 @@ export default async function CombinePage({
   const { data: player } = await supabase
     .schema("hoops")
     .from("players")
-    .select("id, display_name, player_type")
+    .select("id, display_name, birth_year, gender, player_type")
     .eq("id", playerId)
     .maybeSingle();
 
@@ -43,6 +44,11 @@ export default async function CombinePage({
   if (drillError) console.error("[combine] fetch failed:", drillError);
 
   const drills = (drillRows ?? []) as unknown as CombineDrill[];
+  const band = benchmarkBand(player.birth_year, player.gender);
+  // Only truly calibrated when both inputs were known — otherwise the
+  // player is being measured against the middle band and deserves to be
+  // told, not left to assume.
+  const bandKnown = Boolean(player.birth_year) && Boolean(player.gender);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -68,12 +74,23 @@ export default async function CombinePage({
             subtitle="Run supabase/seed_0011_combine_drills.sql to load the tests."
           />
         ) : (
-          <CombineFlow
+          <>
+            {!bandKnown && (
+              <BenchmarkSetup
+                playerId={playerId}
+                currentBirthYear={player.birth_year}
+                currentGender={player.gender}
+              />
+            )}
+            <CombineFlow
             playerId={playerId}
             playerName={player.display_name}
             drills={drills}
             currentRatings={playerType.ratings ?? EMPTY_RATINGS}
-          />
+              band={band}
+              bandKnown={bandKnown}
+            />
+          </>
         )}
       </main>
     </div>

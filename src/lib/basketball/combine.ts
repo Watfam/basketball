@@ -24,6 +24,45 @@ export type CombineDrill = {
   sort_order: number;
 };
 
+export const DEFAULT_BAND = "u16_m";
+
+/**
+ * Picks which benchmark table a score is measured against.
+ *
+ * A 12-year-old and a 17-year-old scored against the same thresholds
+ * produces a number that means almost nothing for either of them, so age
+ * comes from birth_year and the table is chosen from it. Where either
+ * input is missing this falls back to u16_m — the middle of the range —
+ * and the UI says so rather than letting the player assume the number was
+ * calibrated for them.
+ */
+export function benchmarkBand(
+  birthYear: number | null | undefined,
+  gender: string | null | undefined,
+  now: Date = new Date()
+): string {
+  const g = gender === "female" ? "f" : "m";
+  if (!birthYear || !Number.isFinite(birthYear)) return `u16_${g}`;
+
+  const age = now.getFullYear() - birthYear;
+  // Wide guard: a birth_year that produces a nonsense age is a typo, and
+  // guessing off it would be worse than using the middle band.
+  if (age < 5 || age > 25) return `u16_${g}`;
+
+  if (age <= 12) return `u13_${g}`;
+  if (age <= 15) return `u16_${g}`;
+  return `u19_${g}`;
+}
+
+export const BAND_LABELS: Record<string, string> = {
+  u13_m: "Under 13 · Boys",
+  u16_m: "Under 16 · Boys",
+  u19_m: "16 and over · Boys",
+  u13_f: "Under 13 · Girls",
+  u16_f: "Under 16 · Girls",
+  u19_f: "16 and over · Girls",
+};
+
 /**
  * Converts a raw score to 1-10 against the drill's thresholds.
  *
