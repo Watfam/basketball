@@ -11,6 +11,7 @@ import { MilestoneRail, buildMilestones } from "@/components/milestone-rail";
 import { LevelPicker } from "@/components/level-picker";
 import { EmptyState } from "@/components/empty-state";
 import { ProgramPanel } from "@/components/program-panel";
+import { CombinePrompt } from "@/components/combine-prompt";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
 import {
   computeProgramProgress,
@@ -33,6 +34,7 @@ import {
   dailyActivity,
   lastAssessedLabel,
   isAssessmentStale,
+  daysSinceAssessment,
 } from "@/lib/basketball/progress";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import {
@@ -94,10 +96,29 @@ export default async function PlayerHubPage({
   const { data: assessments } = await supabase
     .schema("hoops")
     .from("assessments")
-    .select("computed_player_type, completed_at")
+    .select("kind, computed_player_type, completed_at")
     .eq("player_id", playerId)
     .order("completed_at", { ascending: false })
     .limit(2);
+
+  // The combine is the measured assessment, and it is the one that makes
+  // every rating in the app mean something. It stays outstanding until it
+  // has actually been done — snoozing pushes it out, it never dismisses.
+  const { data: lastCombine } = await supabase
+    .schema("hoops")
+    .from("assessments")
+    .select("completed_at")
+    .eq("player_id", playerId)
+    .eq("kind", "combine")
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const snoozedAt = (playerType as { combine_snoozed_at?: string }).combine_snoozed_at ?? null;
+  const snoozeDays = daysSinceAssessment(snoozedAt);
+  const combineDue =
+    !lastCombine || isAssessmentStale(lastCombine.completed_at as string | null);
+  const showCombinePrompt = combineDue && (snoozeDays === null || snoozeDays >= 7);
 
   const previousRatings =
     (assessments?.[1]?.computed_player_type as ComputedPlayerType | undefined)?.ratings ?? null;
@@ -368,6 +389,13 @@ export default async function PlayerHubPage({
             totalSessions={totalCompleted}
           />
         </div>
+
+        {showCombinePrompt && (
+          <CombinePrompt
+            playerId={playerId}
+            hasEverDone={Boolean(lastCombine)}
+          />
+        )}
 
         {/* Directly under the hero rather than buried at the bottom of the
             page. A quote nobody scrolls to isn't doing anything. */}

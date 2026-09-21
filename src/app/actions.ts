@@ -324,6 +324,114 @@ export async function submitAssessment(
 }
 
 /**
+ * Records a measured combine.
+ *
+ * Writes an assessment of kind "combine" so it flows through the same
+ * history, charts and rankings as a self-rating, plus one result row per
+ * test holding the raw score and the rating it converted to. The derived
+ * rating is stored rather than recomputed on read, so recalibrating the
+ * benchmarks later never silently rewrites a player's history.
+ */
+export async function submitCombine(
+  playerId: string,
+  ratings: Record<string, number>,
+  results: { drillId: string; rawScore: number; derivedRating: number }[]
+) {
+  if (!playerId) return { error: "Missing player." };
+  if (results.length === 0) return { error: "Record at least one test." };
+
+  const supabase = await createClient();
+
+  const { data: player, error: playerFetchError } = await supabase
+    .schema("hoops")
+    .from("players")
+    .select("player_type")
+    .eq("id", playerId)
+    .maybeSingle();
+
+  if (playerFetchError) return { error: playerFetchError.message };
+
+  const existing = (player?.player_type ?? {}) as Record<string, unknown>;
+  // Keeps archetype, style tags, goal and preferred_level — a combine
+  // measures the four ratings and nothing else, so it must not clear the
+  // parts of the card it never looked at.
+  const nextPlayerType = { ...existing, ratings };
+
+  const { data: assessment, error: assessmentError } = await supabase
+    .schema("hoops")
+    .from("assessments")
+    .insert({
+      player_id: playerId,
+      kind: "combine",
+      answers: { measured: true },
+      computed_player_type: nextPlayerType,
+    })
+    .select("id")
+    .single();
+
+  if (assessmentError) return { error: assessmentError.message };
+
+  const { error: resultsError } = await supabase
+    .schema("hoops")
+    .from("assessment_results")
+    .insert(
+      results.map((r) => ({
+        assessment_id: assessment.id,
+        assessment_drill_id: r.drillId,
+        raw_score: r.rawScore,
+        derived_rating: r.derivedRating,
+      }))
+    );
+
+  if (resultsError) return { error: resultsError.message };
+
+  const { error: updateError } = await supabase
+    .schema("hoops")
+    .from("players")
+    .update({ player_type: nextPlayerType, updated_at: new Date().toISOString() })
+    .eq("id", playerId);
+
+  if (updateError) return { error: updateError.message };
+
+  revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/assessments`);
+  return { error: null };
+}
+
+/**
+ * Pushes the combine prompt out without dismissing it for good. The
+ * combine is the measurement everything else depends on, so "not now"
+ * has to mean not now rather than never.
+ */
+export async function snoozeCombine(playerId: string) {
+  if (!playerId) return { error: "Missing player." };
+
+  const supabase = await createClient();
+  const { data: player } = await supabase
+    .schema("hoops")
+    .from("players")
+    .select("player_type")
+    .eq("id", playerId)
+    .maybeSingle();
+
+  const nextPlayerType = {
+    ...((player?.player_type ?? {}) as Record<string, unknown>),
+    combine_snoozed_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase
+    .schema("hoops")
+    .from("players")
+    .update({ player_type: nextPlayerType })
+    .eq("id", playerId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
+/**
  * Puts a player on a program. One active program at a time — a partial
  * unique index enforces that at the database level, so any previously
  * active one is stood down first rather than relying on this being the
