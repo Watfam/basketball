@@ -15,6 +15,7 @@ import {
   type RatingCategoryValue,
   type StyleTagValue,
 } from "@/lib/basketball/assessment";
+import { attributeTier } from "@/lib/basketball/rating";
 import { haptic } from "@/lib/haptics";
 import { PlayerCard } from "@/components/player-card";
 
@@ -136,12 +137,21 @@ export function AssessmentFlow({
 
   return (
     <div className="mx-auto w-full max-w-md">
-      <div className="mb-6 flex items-center gap-2">
+      <div className="mb-3 flex items-baseline justify-between">
+        <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
+          {isRetest ? "Retest" : playerName}
+        </p>
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          Step {step + 1} of {STEP_COUNT}
+        </span>
+      </div>
+
+      <div className="mb-5 flex items-center gap-1.5">
         {Array.from({ length: STEP_COUNT }).map((_, i) => (
           <div
             key={i}
-            className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i <= step ? "bg-accent" : "bg-line"
+            className={`h-1 flex-1 rounded-full transition-colors ${
+              i <= step ? "bg-accent" : "bg-[var(--data-dim)]"
             }`}
           />
         ))}
@@ -161,11 +171,11 @@ export function AssessmentFlow({
         initial={{ opacity: 0, x: direction * 24 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.22, ease: "easeOut" }}
-        className="court-glow rounded-3xl border border-line bg-surface p-6 sm:p-8"
+        className="panel-lit rounded-3xl border border-line bg-surface p-6 shadow-[var(--shadow-panel)] sm:p-7"
         >
           {currentStep === "position" && (
             <StepShell
-              eyebrow={isRetest ? "Retest" : `${playerName}'s assessment`}
+              eyebrow="Position"
               title="What position do you play most?"
             >
               <div className="grid grid-cols-2 gap-2.5">
@@ -186,7 +196,7 @@ export function AssessmentFlow({
 
           {currentStep === "style" && (
             <StepShell
-              eyebrow={isRetest ? "Retest" : `${playerName}'s assessment`}
+              eyebrow="Your game"
               title="How would you describe your game?"
               subtitle="Pick up to 2 — this shapes your Player Card and every workout we curate."
             >
@@ -215,7 +225,7 @@ export function AssessmentFlow({
 
           {currentStep === "ratings" && (
             <StepShell
-              eyebrow={isRetest ? "Retest · Self-scout" : "Self-scout"}
+              eyebrow="Self-scout"
               title={isRetest ? "Rate yourself again" : "Rate yourself, honestly"}
               subtitle={isRetest ? "These start where you left them. Move only what actually changed." : undefined}
             >
@@ -257,12 +267,12 @@ export function AssessmentFlow({
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
-      <div className="mt-5 flex gap-3">
+      <div className="mt-4 flex gap-3">
         {step > 0 && (
           <button
             type="button"
             onClick={goBack}
-            className="rounded-xl px-4 py-3 text-sm font-semibold text-foreground-dim hover:text-foreground"
+            className="rounded-xl border border-line px-5 py-3.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
           >
             Back
           </button>
@@ -271,9 +281,15 @@ export function AssessmentFlow({
           type="button"
           disabled={!canAdvance || pending}
           onClick={goNext}
-          className="flex-1 rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex-1 rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
         >
-          {pending ? "Building your card…" : step === STEP_COUNT - 1 ? "Reveal my Player Card" : "Next"}
+          {pending
+            ? "Building your card…"
+            : step === STEP_COUNT - 1
+              ? isRetest
+                ? "See what moved"
+                : "Reveal my Player Card"
+              : "Next"}
         </button>
       </div>
     </div>
@@ -293,9 +309,11 @@ function StepShell({
 }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{eyebrow}</p>
-      <h2 className="mt-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">{title}</h2>
-      {subtitle && <p className="mt-1 text-sm text-foreground-dim">{subtitle}</p>}
+      <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">{eyebrow}</p>
+      <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
+        {title}
+      </h2>
+      {subtitle && <p className="mt-2 text-sm leading-relaxed text-foreground-dim">{subtitle}</p>}
       <div className="mt-6">{children}</div>
     </div>
   );
@@ -318,19 +336,34 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-xl border px-3.5 py-3 text-left transition-colors ${
+      className={`relative rounded-xl border px-3.5 py-3 text-left transition-colors ${
         wide ? "w-full" : ""
       } ${
         selected
-          ? "border-accent bg-accent/15 text-foreground"
-          : "border-line bg-elevated text-foreground-dim hover:border-accent/50 hover:text-foreground"
+          ? "border-accent bg-accent/10"
+          : "border-line bg-[var(--raised)] hover:border-accent/50"
       }`}
     >
-      <p className="text-sm font-semibold">{label}</p>
-      {blurb && <p className="mt-0.5 text-xs text-foreground-dim">{blurb}</p>}
+      <p
+        className={`text-sm font-bold leading-tight ${
+          selected ? "text-accent" : "text-foreground"
+        }`}
+      >
+        {label}
+      </p>
+      {blurb && (
+        <p className="mt-1 text-xs leading-snug text-foreground-dim">{blurb}</p>
+      )}
     </button>
   );
 }
+
+const TIER_COPY: Record<ReturnType<typeof attributeTier>, string> = {
+  elite: "Elite",
+  high: "Strong",
+  mid: "Solid",
+  low: "Building",
+};
 
 function RatingRow({
   label,
@@ -343,17 +376,39 @@ function RatingRow({
 }) {
   return (
     <div>
-      <p className="text-sm font-semibold text-foreground">{label}</p>
-      <div className="mt-2 grid grid-cols-5 gap-1.5">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
+          {label}
+        </span>
+        <span className="flex items-baseline gap-1.5">
+          {/* The word matters more than the number to a kid deciding
+              between a 6 and a 7 — "Solid" vs "Strong" is a judgement
+              they can actually make. */}
+          {value > 0 && (
+            <span className="text-[10px] font-extrabold uppercase tracking-wide text-accent">
+              {TIER_COPY[attributeTier(value)]}
+            </span>
+          )}
+          <span className="font-display text-2xl leading-none text-foreground">
+            {value > 0 ? value : "—"}
+          </span>
+          <span className="text-[10px] font-bold text-foreground-mute">/{RATING_SCALE_MAX}</span>
+        </span>
+      </div>
+
+      {/* One row of ten rather than a 5-wide grid wrapping to two rows:
+          a 1-10 scale should look like a single scale. */}
+      <div className="mt-2 flex gap-1">
         {Array.from({ length: RATING_SCALE_MAX }, (_, i) => i + 1).map((n) => (
           <button
             key={n}
             type="button"
+            aria-label={`${label} ${n} out of ${RATING_SCALE_MAX}`}
             onClick={() => onChange(n)}
-            className={`h-8 rounded-lg border text-xs font-bold transition-colors ${
+            className={`h-9 flex-1 rounded-md border text-[10px] font-extrabold transition-colors ${
               n <= value
                 ? "border-accent bg-accent text-white"
-                : "border-line bg-elevated text-foreground-dim hover:border-accent/50"
+                : "border-line bg-[var(--raised)] text-foreground-mute hover:border-accent/50"
             }`}
           >
             {n}
@@ -401,9 +456,10 @@ function PlayerCardReveal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-5 text-center text-sm text-foreground-dim"
+        className="mt-5 text-center text-sm leading-relaxed text-foreground-dim"
       >
-        Your Player Card evolves as you train — workouts and film below are matched to it.
+        Every workout, program and film lesson gets matched to this card — and it moves when you
+        rate yourself again.
       </motion.p>
 
       <motion.button
@@ -412,7 +468,7 @@ function PlayerCardReveal({
         transition={{ delay: 0.6 }}
         type="button"
         onClick={onContinue}
-        className="mt-4 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+        className="mt-4 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99]"
       >
         Enter Hardwood Lab
       </motion.button>
