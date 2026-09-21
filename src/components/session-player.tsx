@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { completeWorkoutSession, logDrillProgress } from "@/app/actions";
+import {
+  completeWorkoutSession,
+  discardWorkoutSession,
+  logDrillProgress,
+} from "@/app/actions";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { DrillInstructions } from "@/components/drill-instructions";
 import {
@@ -188,6 +192,18 @@ export function SessionPlayer({
     finishSession();
   }
 
+  // Leaving without having logged anything throws the session away
+  // instead of saving an empty one. An empty session isn't progress, and
+  // keeping it clutters history and inflates every stat built on session
+  // counts. Anything already logged means we keep it and just exit.
+  function exitSession() {
+    haptic("tap");
+    startTransition(async () => {
+      if (completed.size === 0) await discardWorkoutSession(sessionId);
+      router.push(`/players/${playerId}`);
+    });
+  }
+
   function skipActiveDrill() {
     if (completed.has(activeIndex)) return;
     haptic("tap");
@@ -223,14 +239,16 @@ export function SessionPlayer({
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <button
           type="button"
-          onClick={() => router.push(`/players/${playerId}`)}
-          className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+          onClick={exitSession}
+          disabled={pending}
+          className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground disabled:opacity-50"
         >
-          {/* Not "Finish" — this just leaves. Nothing special needs to
-              happen on the way out since every drill is already saved as
-              it's logged; the hub's "Continue where you left off" banner
-              is what actually brings you back to this exact session. */}
-          ← Save &amp; exit
+          {/* Two different exits behind one control, because the right
+              behaviour depends on whether any work happened. Nothing
+              logged: the session is discarded outright. Something logged:
+              it stays resumable from the hub's Continue banner, since
+              every drill is saved the moment it's finished. */}
+          {completed.size === 0 ? "← Cancel" : "← Save & exit"}
         </button>
         <span className="truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {workoutName}
@@ -292,39 +310,45 @@ export function SessionPlayer({
         {completed.has(activeIndex) ? "Drill logged" : "Skip this drill"}
       </button>
 
-      {finishConfirming ? (
-        <div className="mt-3 rounded-xl border border-line bg-surface px-4 py-3 text-center">
-          <p className="text-sm text-foreground">
-            Finish now with {completed.size} of {drills.length} drills logged? You can pick this
-            workout back up later — whatever you&rsquo;ve done so far is already saved.
-          </p>
-          <div className="mt-3 flex justify-center gap-4">
-            <button
-              type="button"
-              onClick={finishSession}
-              disabled={pending}
-              className="text-xs font-bold uppercase tracking-wide text-accent hover:text-accent-hover disabled:opacity-50"
-            >
-              {pending ? "Finishing…" : "Finish now"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setFinishConfirming(false)}
-              className="text-xs font-semibold text-foreground-dim hover:text-foreground"
-            >
-              Keep going
-            </button>
+      {/* Only offered once something has actually been logged. Finishing
+          a session with nothing done used to mark it completed, which fed
+          the streak, the session count and the milestones with sessions
+          where no work happened — the "0 of 2 drills · DONE" rows. With
+          nothing logged the only way out is Cancel, which discards. */}
+      {completed.size > 0 &&
+        (finishConfirming ? (
+          <div className="mt-3 rounded-xl border border-line bg-surface px-4 py-3 text-center">
+            <p className="text-sm text-foreground">
+              Finish now with {completed.size} of {drills.length} drills logged? Whatever
+              you&rsquo;ve done is already saved.
+            </p>
+            <div className="mt-3 flex justify-center gap-4">
+              <button
+                type="button"
+                onClick={finishSession}
+                disabled={pending}
+                className="text-xs font-bold uppercase tracking-wide text-accent hover:text-accent-hover disabled:opacity-50"
+              >
+                {pending ? "Finishing…" : "Finish now"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFinishConfirming(false)}
+                className="text-xs font-semibold text-foreground-dim hover:text-foreground"
+              >
+                Keep going
+              </button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setFinishConfirming(true)}
-          className="mt-3 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground"
-        >
-          Finish workout now
-        </button>
-      )}
+        ) : (
+          <button
+            type="button"
+            onClick={() => setFinishConfirming(true)}
+            className="mt-3 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground"
+          >
+            Finish workout now
+          </button>
+        ))}
     </div>
   );
 }

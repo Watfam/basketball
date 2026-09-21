@@ -225,6 +225,44 @@ export async function completeWorkoutSession(sessionId: string) {
 }
 
 /**
+ * Throws away a session that recorded no work.
+ *
+ * A session row is created the moment a workout is opened, so opening one
+ * and backing out used to leave an empty session behind forever — and
+ * "Finish workout now" would mark that same empty session *completed*,
+ * which counted toward the streak, the session total, the milestones and
+ * the training-load charts despite nothing having been done.
+ *
+ * Deliberately refuses to delete a session that has logs: once a player
+ * has actually done a drill, leaving is "save and come back," never
+ * "discard."
+ */
+export async function discardWorkoutSession(sessionId: string) {
+  if (!sessionId) return { error: "Missing session." };
+
+  const supabase = await createClient();
+
+  const { count, error: countError } = await supabase
+    .schema("hoops")
+    .from("session_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("session_id", sessionId);
+
+  if (countError) return { error: countError.message };
+  if ((count ?? 0) > 0) return { error: null, kept: true };
+
+  const { error } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .delete()
+    .eq("id", sessionId);
+
+  if (error) return { error: error.message };
+
+  return { error: null, kept: false };
+}
+
+/**
  * Onboarding (or periodic re-) assessment submit. Writes the raw answers to
  * hoops.assessments and the derived snapshot to both
  * assessments.computed_player_type and players.player_type — the latter is
@@ -262,6 +300,88 @@ export async function submitAssessment(playerId: string, answers: AssessmentAnsw
 
   revalidatePath("/");
   return { error: null, computed };
+}
+
+/**
+ * Puts a player on a program. One active program at a time — a partial
+ * unique index enforces that at the database level, so any previously
+ * active one is stood down first rather than relying on this being the
+ * only code path that ever enrolls.
+ */
+export async function enrollInProgram(playerId: string, programId: string) {
+  if (!playerId || !programId) return { error: "Missing player or program." };
+
+  const supabase = await createClient();
+
+  const { error: standDownError } = await supabase
+    .schema("hoops")
+    .from("player_programs")
+    .update({ status: "abandoned" })
+    .eq("player_id", playerId)
+    .eq("status", "active");
+
+  if (standDownError) return { error: standDownError.message };
+
+  const { error } = await supabase
+    .schema("hoops")
+    .from("player_programs")
+    .insert({ player_id: playerId, program_id: programId, status: "active" });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/players/${playerId}`);
+  return { error: null };
+}
+
+/**
+ * Starts the scheduled session for a specific program day, rather than
+ * for a freely chosen workout. Resumes an existing unfinished session for
+ * that same day instead of stacking up duplicates, matching
+ * startWorkoutSession's behaviour.
+ */
+export async function startProgramDay(playerId: string, programDayId: string) {
+  if (!playerId || !programDayId) return { error: "Missing player or day." };
+
+  const supabase = await createClient();
+
+  const { data: day, error: dayError } = await supabase
+    .schema("hoops")
+    .from("program_days")
+    .select("id, workout_id")
+    .eq("id", programDayId)
+    .single();
+
+  if (dayError) return { error: dayError.message };
+
+  const { data: existing } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .select("id")
+    .eq("player_id", playerId)
+    .eq("program_day_id", programDayId)
+    .eq("status", "in_progress")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) return { error: null, sessionId: existing.id as string };
+
+  const { data: session, error } = await supabase
+    .schema("hoops")
+    .from("workout_sessions")
+    .insert({
+      player_id: playerId,
+      workout_id: day.workout_id,
+      program_day_id: programDayId,
+      status: "in_progress",
+      started_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  return { error: null, sessionId: session.id as string };
 }
 
 /**

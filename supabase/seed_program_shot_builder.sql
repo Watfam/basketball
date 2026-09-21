@@ -27,9 +27,9 @@ insert into hoops.drills (name, description, skill_tags, position_tags, difficul
 values
   (
     'One-Hand Form Shooting',
-    'Close-range one-hand shooting to isolate the shooting hand and clean up release mechanics.',
+    'Close-range one-hand shooting with the shooting hand only, to clean up release mechanics.',
     array['shooting'], array[]::text[], 'beginner', array['ball', 'hoop'], 'Reid Ouse',
-    'Start three feet from the rim, directly in front. Guide hand behind your back or resting on your hip.',
+    'Shooting hand only — never the off hand. Start three feet from the rim, directly in front. Guide hand behind your back or resting on your hip.',
     array[
       'Ball on the pads of your fingers, not the palm',
       'Elbow under the ball, wrist cocked back before you go up',
@@ -201,8 +201,12 @@ select w.id, d.id, v.sort_order, v.block, v.variant_label, v.levels, v.level_tar
 from (values
   -- Day 1 — Form & Footwork
   ('Shot Builder — Form & Footwork', 'Pound Dribble Series',             0, 'warmup',   'Both hands',        '{}'::text[], '{}'::jsonb, null::int, null::int, 60::int),
-  ('Shot Builder — Form & Footwork', 'One-Hand Form Shooting',           1, 'warmup',   'Right hand',        '{}'::text[], '{"beginner":{"sets":3,"reps":10},"intermediate":{"sets":3,"reps":12},"advanced":{"sets":3,"reps":15}}'::jsonb, 3, 12, null),
-  ('Shot Builder — Form & Footwork', 'One-Hand Form Shooting',           2, 'warmup',   'Left hand',         '{}'::text[], '{"beginner":{"sets":2,"reps":8},"intermediate":{"sets":3,"reps":10},"advanced":{"sets":3,"reps":12}}'::jsonb, 3, 10, null),
+  -- Shooting hand only. Form shooting is about grooving ONE release; a
+  -- "left hand" version would be teaching a shot the player will never
+  -- take. Handedness variants belong on dribbling, layups and floaters,
+  -- not here. (Right side / left side on the pull-ups below is floor
+  -- position, not shooting hand — that one is worth drilling both ways.)
+  ('Shot Builder — Form & Footwork', 'One-Hand Form Shooting',           1, 'warmup',   'Shooting hand',     '{}'::text[], '{"beginner":{"sets":3,"reps":10},"intermediate":{"sets":3,"reps":12},"advanced":{"sets":3,"reps":15}}'::jsonb, 3, 12, null),
   ('Shot Builder — Form & Footwork', 'Catch-and-Shoot off the Pin-Down', 3, 'main',     'Right wing',        '{}'::text[], '{"beginner":{"sets":3,"reps":8},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
   ('Shot Builder — Form & Footwork', 'Catch-and-Shoot off the Pin-Down', 4, 'main',     'Left wing',         '{}'::text[], '{"beginner":{"sets":3,"reps":8},"intermediate":{"sets":4,"reps":10},"advanced":{"sets":4,"reps":12}}'::jsonb, 4, 10, null),
   ('Shot Builder — Form & Footwork', 'Free Throw Reset',                 5, 'main',     null,                '{}'::text[], '{}'::jsonb, 2, 2, null),

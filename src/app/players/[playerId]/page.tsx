@@ -10,6 +10,13 @@ import { WorkoutRail } from "@/components/workout-rail";
 import { MilestoneRail, buildMilestones } from "@/components/milestone-rail";
 import { LevelPicker } from "@/components/level-picker";
 import { EmptyState } from "@/components/empty-state";
+import { ProgramPanel } from "@/components/program-panel";
+import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
+import {
+  computeProgramProgress,
+  type ProgramDay,
+  type ProgramProgress,
+} from "@/lib/basketball/program";
 import {
   rankWorkouts,
   explainMatch,
@@ -113,13 +120,29 @@ export default async function PlayerHubPage({
   // Every completed session, most recent first — drives the progress stats,
   // both charts, and the ranking's "sink this down, you just did it" signal,
   // instead of several near-identical queries.
-  const { data: allCompletedSessions } = await supabase
+  const { data: completedRows } = await supabase
     .schema("hoops")
     .from("workout_sessions")
-    .select("workout_id, completed_at")
+    .select("id, workout_id, completed_at")
     .eq("player_id", playerId)
     .eq("status", "completed")
     .order("completed_at", { ascending: false });
+
+  // A session only counts once actual work was logged against it. Without
+  // this a session finished with nothing done would feed the streak, the
+  // totals, the milestones and both charts — the app no longer creates
+  // those, but this keeps the numbers honest for any that already exist.
+  const completedIds = (completedRows ?? []).map((s) => s.id);
+  const { data: logRows } = completedIds.length
+    ? await supabase
+        .schema("hoops")
+        .from("session_logs")
+        .select("session_id")
+        .in("session_id", completedIds)
+    : { data: [] as { session_id: string }[] };
+
+  const sessionsWithWork = new Set((logRows ?? []).map((l) => l.session_id));
+  const allCompletedSessions = (completedRows ?? []).filter((s) => sessionsWithWork.has(s.id));
 
   const completedDates = (allCompletedSessions ?? [])
     .map((s) => (s.completed_at ? new Date(s.completed_at) : null))
@@ -154,6 +177,67 @@ export default async function PlayerHubPage({
       lastCompletedIso: lastCompletedByWorkoutId[w.id],
     });
   });
+
+  // --- Program ---------------------------------------------------------
+  // A player on a program has their next session decided by the schedule
+  // rather than by ranking, so the program panel takes over the primary
+  // action and "Up Next" drops to a secondary "extra work" rail.
+  const { data: enrollment } = await supabase
+    .schema("hoops")
+    .from("player_programs")
+    .select("id, program_id, programs(id, name, description, week_count, days_per_week)")
+    .eq("player_id", playerId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  const activeProgram = enrollment?.programs as unknown as
+    | { id: string; name: string; week_count: number; days_per_week: number }
+    | null
+    | undefined;
+
+  let programProgress: ProgramProgress | null = null;
+  let nextWorkoutName: string | null = null;
+
+  if (activeProgram) {
+    const { data: days } = await supabase
+      .schema("hoops")
+      .from("program_days")
+      .select("id, week_number, day_number, workout_id, volume_step, is_deload, note")
+      .eq("program_id", activeProgram.id)
+      .order("week_number", { ascending: true })
+      .order("day_number", { ascending: true });
+
+    // Only days whose session actually recorded work count as done, for
+    // the same reason the stats above filter on logged work.
+    const { data: programSessions } = await supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select("program_day_id")
+      .eq("player_id", playerId)
+      .eq("status", "completed")
+      .not("program_day_id", "is", null)
+      .in("id", completedIds.length ? completedIds : ["00000000-0000-0000-0000-000000000000"]);
+
+    const completedDayIds = (programSessions ?? [])
+      .map((s) => s.program_day_id)
+      .filter((id): id is string => Boolean(id));
+
+    programProgress = computeProgramProgress((days ?? []) as ProgramDay[], completedDayIds);
+
+    if (programProgress.nextDay) {
+      nextWorkoutName =
+        (workouts ?? []).find((w) => w.id === programProgress?.nextDay?.workout_id)?.name ?? null;
+    }
+  }
+
+  // Only offered when the player isn't already on one — committing to a
+  // block is a real decision, not something to nag about mid-program.
+  const { data: offeredPrograms } = activeProgram
+    ? { data: null }
+    : await supabase
+        .schema("hoops")
+        .from("programs")
+        .select("id, name, description, focus_areas, level, week_count, days_per_week");
 
   const milestones = buildMilestones(totalCompleted, streakWeeks);
   const quote = randomQuote();
@@ -231,8 +315,31 @@ export default async function PlayerHubPage({
           />
         </div>
 
+        {activeProgram && programProgress && (
+          <section className="animate-rise" style={{ animationDelay: "40ms" }}>
+            <ProgramPanel
+              playerId={playerId}
+              programName={activeProgram.name}
+              weekCount={activeProgram.week_count}
+              daysPerWeek={activeProgram.days_per_week}
+              progress={programProgress}
+              nextWorkoutName={nextWorkoutName}
+            />
+          </section>
+        )}
+
+        {!activeProgram && offeredPrograms && offeredPrograms.length > 0 && (
+          <section className="animate-rise" style={{ animationDelay: "40ms" }}>
+            <SectionHeading title="Programs" caption="Commit to a block" />
+            <ProgramOffer playerId={playerId} programs={offeredPrograms as OfferedProgram[]} />
+          </section>
+        )}
+
         <section className="animate-rise" style={{ animationDelay: "60ms" }}>
-          <SectionHeading title="Up Next" caption="Picked for you today" />
+          <SectionHeading
+            title={activeProgram ? "Extra Work" : "Up Next"}
+            caption={activeProgram ? "On top of the program" : "Picked for you today"}
+          />
           {featured ? (
             <div className="space-y-3">
               <FeaturedWorkout
