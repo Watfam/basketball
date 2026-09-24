@@ -11,6 +11,8 @@ import {
   parsePastedList,
   matchDrillName,
   generateSkeleton,
+  tagGroups,
+  groupOptions,
   PRACTICE_SHAPES,
   type PracticeBlock,
   type PracticeShapeKey,
@@ -107,20 +109,20 @@ export function PracticePlanForm({
     }
   }
 
-  /** Fills the current empty row (or adds a new one) and moves on — same
-      rhythm as typing it, minus the typing. */
-  function insertQuickName(name: string) {
+  /** Fills a specific blank row in place and opens a fresh blank row
+      right after it — same rhythm as typing it, minus the typing. Tied
+      to the row's own index rather than "whichever row is last," so
+      tapping a quick name under Warmup's blank row fills Warmup, not
+      whatever group happens to be at the bottom of the plan. */
+  function fillBlankRow(index: number, name: string) {
     haptic("tap");
     setBlocks((prev) => {
-      const lastIndex = prev.length - 1;
-      if (prev[lastIndex]?.label === "" && !prev[lastIndex].isSection) {
-        const next = [...prev];
-        next[lastIndex] = { ...next[lastIndex], label: name };
-        return [...next, emptyBlock()];
-      }
-      return [...prev, { label: name }, emptyBlock()];
+      const next = [...prev];
+      next[index] = { ...next[index], label: name };
+      next.splice(index + 1, 0, emptyBlock());
+      return next;
     });
-    focusRow(blocks.length);
+    focusRow(index + 1);
   }
 
   function addSection() {
@@ -148,6 +150,10 @@ export function PracticePlanForm({
     setExpandedRow(null);
   }
 
+  /** Swaps a row with its immediate neighbor. Carries the expanded
+      panel along with the moved row — without this, the panel stays
+      pinned to the old index, so after one tap it silently shows a
+      different row and Up/Down looks like it stopped working. */
   function moveBlock(index: number, dir: -1 | 1) {
     haptic("tap");
     setBlocks((prev) => {
@@ -157,6 +163,29 @@ export function PracticePlanForm({
       [next[index], next[target]] = [next[target], next[index]];
       return next;
     });
+    setExpandedRow((prev) => (prev === index ? index + dir : prev));
+  }
+
+  /** Relocates a row directly into another group, as its last row —
+      the fix for moving a drill any real distance, where Up/Down one
+      step at a time is unusable. */
+  function moveBlockToGroup(index: number, targetGroupId: number) {
+    haptic("tap");
+    setBlocks((prev) => {
+      const block = prev[index];
+      const withoutBlock = prev.filter((_, i) => i !== index);
+      const tagged = tagGroups(withoutBlock);
+      let insertAt = withoutBlock.length;
+      for (let i = 0; i < tagged.length; i++) {
+        const gid = tagged[i].groupId;
+        if (gid === targetGroupId) insertAt = i + 1;
+        else if (gid > targetGroupId) break;
+      }
+      const next = [...withoutBlock];
+      next.splice(insertAt, 0, block);
+      return next;
+    });
+    setExpandedRow(null);
   }
 
   /** Replaces the whole list with a named, timed skeleton for the chosen
@@ -355,26 +384,6 @@ export function PracticePlanForm({
           </button>
         </div>
 
-        {quickNames.length > 0 && !pasteOpen && (
-          <div className="mb-3">
-            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
-              Your most-used drills — tap to add
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {quickNames.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  onClick={() => insertQuickName(name)}
-                  className="rounded-full border border-line bg-[var(--raised)] px-3 py-1.5 text-xs font-bold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {pasteOpen && (
           <div className="mb-3 rounded-2xl border border-accent/40 bg-accent/5 p-3.5">
             <p className="mb-2 text-xs leading-relaxed text-foreground-dim">
@@ -415,13 +424,8 @@ export function PracticePlanForm({
             // heading), not the rows above — so group totals are attributed
             // by group id, tagged in one pass and summed in a second.
             type RowMeta = { rowNumber: number | null; rollingMinutes: number; groupTotal: number };
-            const tagged = blocks.reduce(
-              (acc, block) => {
-                const groupId = block.isSection ? acc.groupId + 1 : acc.groupId;
-                return { groupId, entries: [...acc.entries, { block, groupId }] };
-              },
-              { groupId: 0, entries: [] as { block: PracticeBlock; groupId: number }[] }
-            ).entries;
+            const tagged = tagGroups(blocks);
+            const groups = groupOptions(blocks);
             const groupTotals = tagged.reduce(
               (totals, { block, groupId }) =>
                 block.isSection ? totals : { ...totals, [groupId]: (totals[groupId] ?? 0) + (block.minutes || 0) },
@@ -498,6 +502,7 @@ export function PracticePlanForm({
                 ? matchDrillName(block.label, availableDrills)
                 : null;
             const expanded = expandedRow === i;
+            const currentGroupId = tagged[i].groupId;
 
             return (
               <div key={i} className={i > 0 ? "border-t border-line" : ""}>
@@ -537,6 +542,21 @@ export function PracticePlanForm({
                     ···
                   </button>
                 </div>
+
+                {block.label === "" && quickNames.length > 0 && !pasteOpen && (
+                  <div className="ml-8 mb-1.5 flex flex-wrap gap-1.5">
+                    {quickNames.map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => fillBlankRow(i, name)}
+                        className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-1 text-[11px] font-bold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {suggestion && (
                   <button
@@ -603,6 +623,30 @@ export function PracticePlanForm({
                         className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-xs text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                       />
                     </div>
+                    {groups.length > 1 && (
+                      <div className="flex items-center gap-2">
+                        <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                          Move to
+                        </label>
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value === "") return;
+                            moveBlockToGroup(i, Number(e.target.value));
+                          }}
+                          className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-xs text-foreground focus:border-accent focus:outline-none"
+                        >
+                          <option value="">Choose a group…</option>
+                          {groups
+                            .filter((g) => g.groupId !== currentGroupId)
+                            .map((g) => (
+                              <option key={g.groupId} value={g.groupId}>
+                                {g.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
                     <textarea
                       value={block.notes ?? ""}
                       onChange={(e) => updateBlock(i, { notes: e.target.value })}

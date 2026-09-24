@@ -202,6 +202,49 @@ export function generateSkeleton(shape: PracticeShapeKey, totalMinutes: number):
   return blocks;
 }
 
+export type TaggedBlock = { block: PracticeBlock; groupId: number };
+
+/**
+ * Assigns every block a groupId, incremented at each header — so a
+ * header and the rows that follow it (up to the next header) share one
+ * id, and any rows before the very first header share id 0 ("ungrouped").
+ * The one source of truth for "which group is this row in," shared by
+ * rendering, the fill-a-blank-row quick-add, and the move-to-group
+ * action — all three need to agree on where a group starts and ends.
+ */
+export function tagGroups(blocks: PracticeBlock[]): TaggedBlock[] {
+  return blocks.reduce(
+    (acc, block) => {
+      const groupId = block.isSection ? acc.groupId + 1 : acc.groupId;
+      return { groupId, entries: [...acc.entries, { block, groupId }] };
+    },
+    { groupId: 0, entries: [] as TaggedBlock[] }
+  ).entries;
+}
+
+export type GroupOption = { groupId: number; name: string };
+
+/**
+ * One entry per group that actually exists in the plan, in document
+ * order — "Ungrouped" for any leading rows before a first header (only
+ * if there are any), then one per header, named after it. Powers the
+ * "Move to group" picker: a coach relocating a drill needs the list of
+ * real destinations, not the raw groupId numbers.
+ */
+export function groupOptions(blocks: PracticeBlock[]): GroupOption[] {
+  const tagged = tagGroups(blocks);
+  const options: GroupOption[] = [];
+  if (tagged.some((t) => t.groupId === 0 && !t.block.isSection)) {
+    options.push({ groupId: 0, name: "Ungrouped" });
+  }
+  tagged.forEach(({ block, groupId }) => {
+    if (block.isSection) {
+      options.push({ groupId, name: block.label.trim() || `Group ${options.length + 1}` });
+    }
+  });
+  return options;
+}
+
 export type RunnableStep = {
   label: string;
   minutes?: number;
