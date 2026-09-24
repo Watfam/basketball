@@ -49,14 +49,16 @@ export default async function TeamPage({
 
   const isOwner = team.owner_id === user.id;
 
-  const { data: memberRows } = await supabase
+  const { data: memberRows, error: memberError } = await supabase
     .schema("hoops")
     .from("team_members")
     .select(
-      "id, role, jersey_number, player_id, roster_name, roster_position, roster_linked_player_id, players(id, display_name, primary_position)"
+      "id, role, jersey_number, player_id, roster_name, roster_position, roster_linked_player_id, players!player_id(id, display_name, primary_position)"
     )
     .eq("team_id", teamId)
     .eq("role", "player");
+
+  if (memberError) console.error("Failed to load roster:", memberError.message);
 
   const roster = sortRoster((memberRows ?? []) as unknown as RosterMember[]);
   const linkedPlayerIds = new Set(
@@ -177,7 +179,13 @@ export default async function TeamPage({
             Roster
           </h2>
 
-          {roster.length === 0 ? (
+          {memberError ? (
+            <EmptyState
+              eyebrow="Couldn't load roster"
+              title="Something went wrong"
+              subtitle="Try refreshing the page."
+            />
+          ) : roster.length === 0 ? (
             <EmptyState
               eyebrow="No one yet"
               title="Empty roster"
