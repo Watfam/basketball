@@ -305,13 +305,37 @@ export function PracticePlanForm({
             // through the array would count dividers too, and skipping
             // 5 and 9 in a numbered list reads as "where did those go,"
             // not as "that's a section break."
-            let drillNumber = 0;
+            //
+            // Computed as a plain pass up front, rather than mutated
+            // inline while building the JSX below, so each row's numbers
+            // are fixed before render instead of depending on render order.
+            type RowMeta = { rowNumber: number | null; rollingMinutes: number; groupTotal: number };
+            const { entries: rowMeta } = blocks.reduce(
+              (acc, block) => {
+                if (block.isSection) {
+                  const entry: RowMeta = { rowNumber: null, rollingMinutes: 0, groupTotal: acc.groupMinutes };
+                  return { ...acc, groupMinutes: 0, entries: [...acc.entries, entry] };
+                }
+                const drillNumber = acc.drillNumber + 1;
+                const rollingMinutes = acc.rollingMinutes + (block.minutes || 0);
+                const groupMinutes = acc.groupMinutes + (block.minutes || 0);
+                const entry: RowMeta = { rowNumber: drillNumber, rollingMinutes, groupTotal: 0 };
+                return { drillNumber, rollingMinutes, groupMinutes, entries: [...acc.entries, entry] };
+              },
+              { drillNumber: 0, rollingMinutes: 0, groupMinutes: 0, entries: [] as RowMeta[] }
+            );
+
             return blocks.map((block, i) => {
-            const rowNumber = block.isSection ? null : ++drillNumber;
+            const { rowNumber, rollingMinutes, groupTotal } = rowMeta[i];
             if (block.isSection) {
               return (
                 <div key={i} className="group flex items-center gap-2 px-2 py-2.5">
                   <div className="h-px flex-1 bg-line" />
+                  {groupTotal > 0 && (
+                    <span className="shrink-0 text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                      {groupTotal} min
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeBlock(i)}
@@ -350,6 +374,11 @@ export function PracticePlanForm({
                       {block.minutes}m
                     </span>
                   ) : null}
+                  {minutes > 0 && (
+                    <span className="shrink-0 text-[9px] font-bold text-foreground-mute/70">
+                      @{rollingMinutes}m
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
