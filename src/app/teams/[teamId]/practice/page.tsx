@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
+import { DuplicatePlanButton } from "@/components/duplicate-plan-button";
 import { totalMinutes, type PracticeBlock } from "@/lib/basketball/practice";
 
 export default async function PracticePlansPage({
@@ -74,26 +75,38 @@ export default async function PracticePlansPage({
                 })
               : null;
             return (
-              <Link
+              <div
                 key={plan.id}
-                href={`/teams/${teamId}/practice/${plan.id}`}
-                className="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+                className="rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                    {plan.title}
+                <Link href={`/teams/${teamId}/practice/${plan.id}`} className="block">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
+                      {plan.title}
+                    </p>
+                    {dateLabel && (
+                      <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                        {dateLabel}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
+                    {(() => {
+                      const drillCount = blocks.filter((b) => !b.isSection).length;
+                      const minutes = totalMinutes(blocks);
+                      return [
+                        `${drillCount} ${drillCount === 1 ? "drill" : "drills"}`,
+                        minutes > 0 ? `${minutes} min` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ");
+                    })()}
                   </p>
-                  {dateLabel && (
-                    <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
-                      {dateLabel}
-                    </span>
-                  )}
+                  <DuplicatePlanButton planId={plan.id} teamId={teamId} />
                 </div>
-                <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
-                  {blocks.length} {blocks.length === 1 ? "block" : "blocks"} ·{" "}
-                  {totalMinutes(blocks)} min
-                </p>
-              </Link>
+              </div>
             );
           })
         )}

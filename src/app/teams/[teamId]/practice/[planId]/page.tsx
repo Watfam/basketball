@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PracticePlanForm } from "@/components/practice-plan-form";
+import { frequentDrillNames, type PracticeBlock as PB } from "@/lib/basketball/practice";
 import type { PracticeBlock } from "@/lib/basketball/practice";
 
 export default async function EditPracticePlanPage({
@@ -27,6 +28,15 @@ export default async function EditPracticePlanPage({
 
   if (!plan) notFound();
 
+  const { data: drills } = await supabase.schema("hoops").from("drills").select("id, name");
+
+  const { data: pastPlans } = await supabase
+    .schema("hoops")
+    .from("practice_plans")
+    .select("blocks")
+    .eq("team_id", teamId);
+  const quickNames = frequentDrillNames(((pastPlans ?? []).map((p) => p.blocks ?? [])) as PB[][]);
+
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
@@ -43,6 +53,8 @@ export default async function EditPracticePlanPage({
         <PracticePlanForm
           teamId={teamId}
           existing={{ ...plan, blocks: (plan.blocks ?? []) as PracticeBlock[] }}
+          availableDrills={drills ?? []}
+          quickNames={quickNames}
         />
       </main>
     </div>

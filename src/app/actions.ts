@@ -705,6 +705,45 @@ export async function savePracticePlan(
   return { error: null, planId: data.id as string };
 }
 
+/**
+ * Duplicates a practice plan — same blocks and focus areas, a fresh
+ * title and no date, since a coach running a similar practice most
+ * weeks shouldn't have to retype the whole thing every time. Lands on
+ * the edit page for the copy so today's tweaks (swap a block, change
+ * the date) happen on the duplicate, never on the original.
+ */
+export async function duplicatePracticePlan(planId: string, teamId: string) {
+  if (!planId) return { error: "Missing plan." };
+
+  const supabase = await createClient();
+  const { data: original, error: fetchError } = await supabase
+    .schema("hoops")
+    .from("practice_plans")
+    .select("title, focus_areas, blocks")
+    .eq("id", planId)
+    .single();
+
+  if (fetchError) return { error: fetchError.message };
+
+  const { data: copy, error } = await supabase
+    .schema("hoops")
+    .from("practice_plans")
+    .insert({
+      team_id: teamId,
+      title: `${original.title} (copy)`,
+      focus_areas: original.focus_areas,
+      blocks: original.blocks,
+      practice_date: null,
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/practice`);
+  return { error: null, planId: copy.id as string };
+}
+
 export async function deletePracticePlan(planId: string, teamId: string) {
   if (!planId) return { error: "Missing plan." };
 
