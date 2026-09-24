@@ -18,11 +18,16 @@ export function TrendChart({
   labels,
   max,
   height = 160,
+  // A constant target to hold a series against — e.g. a drill's goal
+  // score. Drawn as a dashed reference line rather than another series,
+  // since it doesn't vary by point the way real data does.
+  goalLine,
 }: {
   series: TrendSeries[];
   labels: string[];
   max: number;
   height?: number;
+  goalLine?: number;
 }) {
   const width = 320;
   const padX = 8;
@@ -53,6 +58,28 @@ export function TrendChart({
             strokeWidth={1}
           />
         ))}
+
+        {goalLine !== undefined && goalLine <= max && (
+          <g>
+            <line
+              x1={padX}
+              x2={width - padX}
+              y1={y(goalLine)}
+              y2={y(goalLine)}
+              stroke="var(--line-strong)"
+              strokeWidth={1.5}
+              strokeDasharray="4,4"
+            />
+            <text
+              x={width - padX}
+              y={y(goalLine) - 4}
+              textAnchor="end"
+              className="fill-[var(--foreground-mute)] text-[9px] font-bold"
+            >
+              goal {goalLine}
+            </text>
+          </g>
+        )}
 
         {series.map((s) => {
           // Gaps are skipped rather than drawn through — a category that

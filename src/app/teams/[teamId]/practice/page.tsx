@@ -45,12 +45,20 @@ export default async function PracticePlansPage({
           >
             ← {team.name}
           </Link>
-          <Link
-            href={`/teams/${teamId}/practice/new`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
-          >
-            + New plan
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/teams/${teamId}/practice/history`}
+              className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+            >
+              History
+            </Link>
+            <Link
+              href={`/teams/${teamId}/practice/new`}
+              className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
+            >
+              + New plan
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -110,6 +118,12 @@ export default async function PracticePlansPage({
                       className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
                     >
                       Run
+                    </Link>
+                    <Link
+                      href={`/teams/${teamId}/practice/${plan.id}/log`}
+                      className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
+                    >
+                      Log Results
                     </Link>
                     <DuplicatePlanButton planId={plan.id} teamId={teamId} />
                   </div>

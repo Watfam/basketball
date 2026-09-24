@@ -555,6 +555,12 @@ export function PracticePlanForm({
                     Linked to drill library
                   </p>
                 )}
+                {block.goal?.target ? (
+                  <p className="ml-8 mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--data-positive)]">
+                    Goal: {block.goal.target}
+                    {block.goal.unit ? ` ${block.goal.unit}` : ""}
+                  </p>
+                ) : null}
 
                 {expanded && (
                   <div className="mb-2 ml-8 mr-2 space-y-2 rounded-lg border border-line bg-[var(--raised)] p-2.5">
@@ -568,6 +574,33 @@ export function PracticePlanForm({
                         onChange={(e) => updateBlock(i, { minutes: Number(e.target.value) || undefined })}
                         placeholder="—"
                         className="w-16 rounded-md border border-line bg-surface px-2 py-1 text-center text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                        Goal
+                      </label>
+                      <input
+                        type="number"
+                        value={block.goal?.target || ""}
+                        onChange={(e) =>
+                          updateBlock(i, {
+                            goal: { target: Number(e.target.value) || 0, unit: block.goal?.unit },
+                          })
+                        }
+                        placeholder="—"
+                        className="w-16 rounded-md border border-line bg-surface px-2 py-1 text-center text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={block.goal?.unit ?? ""}
+                        onChange={(e) =>
+                          updateBlock(i, {
+                            goal: { target: block.goal?.target ?? 0, unit: e.target.value },
+                          })
+                        }
+                        placeholder="unit — pts, makes, reps"
+                        className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-xs text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                       />
                     </div>
                     <textarea

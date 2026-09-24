@@ -756,6 +756,89 @@ export async function deletePracticePlan(planId: string, teamId: string) {
   return { error: null };
 }
 
+export type DrillResultInput = {
+  label: string;
+  goalTarget: number | null;
+  goalUnit: string | null;
+  actual: number | null;
+};
+
+/**
+ * Logs that a practice actually happened — notes plus a numeric result
+ * for whichever drills carry a goal. Works the same whether it's called
+ * right after Run Practice (scores already entered live) or on its own
+ * from the plan list to back-fill a practice that was never run through
+ * the live screen at all.
+ *
+ * Re-saving an existing session (sessionId given) replaces its results
+ * wholesale rather than diffing them — a session's results are only ever
+ * edited as the one screen's worth of rows, never independently.
+ */
+export async function saveSessionResults(input: {
+  sessionId?: string;
+  teamId: string;
+  planId: string | null;
+  planTitle: string;
+  runDate: string;
+  notes: string | null;
+  results: DrillResultInput[];
+}) {
+  if (!input.teamId) return { error: "Missing team." };
+
+  const supabase = await createClient();
+  let sessionId = input.sessionId ?? null;
+
+  if (sessionId) {
+    const { error } = await supabase
+      .schema("hoops")
+      .from("practice_sessions")
+      .update({ plan_title: input.planTitle, run_date: input.runDate, notes: input.notes })
+      .eq("id", sessionId);
+    if (error) return { error: error.message };
+
+    const { error: deleteError } = await supabase
+      .schema("hoops")
+      .from("practice_drill_results")
+      .delete()
+      .eq("session_id", sessionId);
+    if (deleteError) return { error: deleteError.message };
+  } else {
+    const { data, error } = await supabase
+      .schema("hoops")
+      .from("practice_sessions")
+      .insert({
+        team_id: input.teamId,
+        plan_id: input.planId,
+        plan_title: input.planTitle,
+        run_date: input.runDate,
+        notes: input.notes,
+      })
+      .select("id")
+      .single();
+    if (error) return { error: error.message };
+    sessionId = data.id as string;
+  }
+
+  const rows = input.results
+    .filter((r) => r.goalTarget !== null || r.actual !== null)
+    .map((r) => ({
+      session_id: sessionId,
+      team_id: input.teamId,
+      label: r.label,
+      goal_target: r.goalTarget,
+      goal_unit: r.goalUnit,
+      actual: r.actual,
+    }));
+
+  if (rows.length > 0) {
+    const { error } = await supabase.schema("hoops").from("practice_drill_results").insert(rows);
+    if (error) return { error: error.message };
+  }
+
+  revalidatePath(`/teams/${input.teamId}/practice`);
+  return { error: null, sessionId };
+}
+
 /**
  * Creates or updates a scouting note for one opponent. notes is a small
  * fixed-shape JSONB object (tendencies / personnel / game_plan) rather

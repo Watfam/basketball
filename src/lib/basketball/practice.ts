@@ -14,6 +14,11 @@
  * and move to the next line, not fill out a form per drill.
  */
 
+export type PracticeGoal = {
+  target: number;
+  unit?: string;
+};
+
 export type PracticeBlock = {
   label: string;
   minutes?: number;
@@ -26,6 +31,10 @@ export type PracticeBlock = {
   // timed block — rendered differently, never counted in minutes or the
   // block count.
   isSection?: boolean;
+  // A number to hit within this drill's minutes — "96 pts" for Olympic
+  // Shooting in 3:00. Optional and free-standing from minutes: a goal
+  // without a time limit is still a real goal (makes out of 10 attempts).
+  goal?: PracticeGoal;
 };
 
 export function totalMinutes(blocks: PracticeBlock[]): number {
@@ -51,6 +60,7 @@ export function cleanBlocks(blocks: PracticeBlock[]): PracticeBlock[] {
       ...(b.notes?.trim() ? { notes: b.notes.trim() } : {}),
       ...(b.drillId ? { drillId: b.drillId } : {}),
       ...(b.isSection ? { isSection: true } : {}),
+      ...(b.goal?.target ? { goal: { target: b.goal.target, ...(b.goal.unit?.trim() ? { unit: b.goal.unit.trim() } : {}) } } : {}),
     }));
 }
 
@@ -197,6 +207,7 @@ export type RunnableStep = {
   minutes?: number;
   notes?: string;
   groupName: string | null;
+  goal?: PracticeGoal;
 };
 
 /**
@@ -216,6 +227,7 @@ export function toRunnableSteps(blocks: PracticeBlock[]): RunnableStep[] {
         minutes: block.minutes,
         notes: block.notes,
         groupName: acc.groupName,
+        goal: block.goal,
       };
       return { groupName: acc.groupName, steps: [...acc.steps, step] };
     },
