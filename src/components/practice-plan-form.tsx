@@ -70,9 +70,14 @@ export function PracticePlanForm({
   const [deleting, startDeleteTransition] = useTransition();
 
   const rowRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const sectionRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   function focusRow(index: number) {
     requestAnimationFrame(() => rowRefs.current[index]?.focus());
+  }
+
+  function focusSection(index: number) {
+    requestAnimationFrame(() => sectionRefs.current[index]?.focus());
   }
 
   function updateBlock(index: number, patch: Partial<PracticeBlock>) {
@@ -121,6 +126,20 @@ export function PracticePlanForm({
   function addSection() {
     haptic("tap");
     setBlocks((prev) => [...prev, { label: "", isSection: true }]);
+  }
+
+  /** Drops a new group header directly above an existing row — the fix
+      for a plan built flat that now needs structure retrofitted onto it,
+      without touching any of the rows already there. */
+  function insertGroupAbove(index: number) {
+    haptic("tap");
+    setBlocks((prev) => {
+      const next = [...prev];
+      next.splice(index, 0, { label: "", isSection: true });
+      return next;
+    });
+    setExpandedRow(null);
+    focusSection(index);
   }
 
   function removeBlock(index: number) {
@@ -431,6 +450,9 @@ export function PracticePlanForm({
                   className={`group flex items-center gap-2 rounded-lg bg-[var(--raised)] px-2.5 py-2 ${i > 0 ? "mt-2" : ""}`}
                 >
                   <input
+                    ref={(el) => {
+                      sectionRefs.current[i] = el;
+                    }}
                     value={block.label}
                     onChange={(e) => updateBlock(i, { label: e.target.value })}
                     placeholder="Group name (optional)"
@@ -553,6 +575,13 @@ export function PracticePlanForm({
                           className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
                         >
                           ↓ Down
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertGroupAbove(i)}
+                          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
+                        >
+                          + Group above
                         </button>
                       </div>
                       <button
