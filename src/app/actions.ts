@@ -470,6 +470,308 @@ export async function snoozeCombine(playerId: string) {
 }
 
 /**
+ * Creates a team. The caller becomes owner_id — no separate coach
+ * team_members row is written for them, since RLS grants the owner full
+ * access to their own team directly through teams.owner_id.
+ */
+export async function createTeam(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Team name is required." };
+
+  const defensiveScheme = String(formData.get("defensive_scheme") ?? "").trim();
+  const defensiveSchemeCustom = String(formData.get("defensive_scheme_custom") ?? "").trim();
+  const offensiveScheme = String(formData.get("offensive_scheme") ?? "").trim();
+  const offensiveSchemeCustom = String(formData.get("offensive_scheme_custom") ?? "").trim();
+  const focusAreas = formData.getAll("focus_areas").map(String);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const { data: team, error } = await supabase
+    .schema("hoops")
+    .from("teams")
+    .insert({
+      owner_id: user.id,
+      name,
+      defensive_scheme: defensiveScheme || null,
+      defensive_scheme_custom: defensiveScheme === "custom" ? defensiveSchemeCustom || null : null,
+      offensive_scheme: offensiveScheme || null,
+      offensive_scheme_custom: offensiveScheme === "custom" ? offensiveSchemeCustom || null : null,
+      focus_areas: focusAreas,
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null, teamId: team.id as string };
+}
+
+export async function updateTeam(teamId: string, formData: FormData) {
+  if (!teamId) return { error: "Missing team." };
+
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Team name is required." };
+
+  const defensiveScheme = String(formData.get("defensive_scheme") ?? "").trim();
+  const defensiveSchemeCustom = String(formData.get("defensive_scheme_custom") ?? "").trim();
+  const offensiveScheme = String(formData.get("offensive_scheme") ?? "").trim();
+  const offensiveSchemeCustom = String(formData.get("offensive_scheme_custom") ?? "").trim();
+  const focusAreas = formData.getAll("focus_areas").map(String);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("teams")
+    .update({
+      name,
+      defensive_scheme: defensiveScheme || null,
+      defensive_scheme_custom: defensiveScheme === "custom" ? defensiveSchemeCustom || null : null,
+      offensive_scheme: offensiveScheme || null,
+      offensive_scheme_custom: offensiveScheme === "custom" ? offensiveSchemeCustom || null : null,
+      focus_areas: focusAreas,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", teamId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}`);
+  return { error: null };
+}
+
+/**
+ * Deletes a team and everything under it (roster, practice plans,
+ * scouting notes — all cascade via FK). Mirrors deleteHousehold: RLS
+ * already scopes this to teams the caller owns.
+ */
+export async function deleteTeam(teamId: string) {
+  if (!teamId) return { error: "Missing team." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("teams").delete().eq("id", teamId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null };
+}
+
+/**
+ * Adds a roster entry — either linked to a real Hardwood Lab player, or
+ * a bare name for a kid whose family isn't in the app. Exactly one of
+ * playerId / rosterName must be given; the DB check constraint enforces
+ * this too, but failing fast here gives a clearer message than a
+ * constraint-violation error would.
+ */
+export async function addRosterPlayer(
+  teamId: string,
+  input: { playerId?: string; rosterName?: string; rosterPosition?: string; jerseyNumber?: string }
+) {
+  if (!teamId) return { error: "Missing team." };
+
+  const playerId = input.playerId?.trim() || null;
+  const rosterName = input.rosterName?.trim() || null;
+  if (!playerId && !rosterName) return { error: "Pick a player or enter a name." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("team_members")
+    .insert({
+      team_id: teamId,
+      role: "player",
+      player_id: playerId,
+      roster_name: playerId ? null : rosterName,
+      roster_position: playerId ? null : input.rosterPosition?.trim() || null,
+      jersey_number: input.jerseyNumber?.trim() || null,
+    });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}`);
+  return { error: null };
+}
+
+export async function updateRosterPlayer(
+  teamMemberId: string,
+  teamId: string,
+  input: { jerseyNumber?: string; rosterPosition?: string }
+) {
+  if (!teamMemberId) return { error: "Missing roster entry." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("team_members")
+    .update({
+      jersey_number: input.jerseyNumber?.trim() || null,
+      roster_position: input.rosterPosition?.trim() || null,
+    })
+    .eq("id", teamMemberId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}`);
+  return { error: null };
+}
+
+export async function removeRosterPlayer(teamMemberId: string, teamId: string) {
+  if (!teamMemberId) return { error: "Missing roster entry." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("team_members")
+    .delete()
+    .eq("id", teamMemberId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}`);
+  return { error: null };
+}
+
+/**
+ * Upgrades a roster-only entry once that family joins Hardwood Lab —
+ * links the real player row rather than deleting and recreating the
+ * roster row, so the jersey number and any plan history tied to this
+ * team_members row survive.
+ */
+export async function linkRosterPlayer(teamMemberId: string, teamId: string, playerId: string) {
+  if (!teamMemberId || !playerId) return { error: "Missing roster entry or player." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("team_members")
+    .update({ player_id: playerId, roster_name: null, roster_position: null })
+    .eq("id", teamMemberId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}`);
+  return { error: null };
+}
+
+/**
+ * Creates or updates a practice plan. One action handles both — a plan
+ * that doesn't exist yet is inserted, otherwise updated — since the
+ * builder UI is the same form either way and the caller already knows
+ * which case it is from whether planId was passed in.
+ */
+export async function savePracticePlan(
+  teamId: string,
+  planId: string | null,
+  input: { title: string; practiceDate: string | null; focusAreas: string[]; blocks: unknown }
+) {
+  if (!teamId) return { error: "Missing team." };
+  const title = input.title.trim();
+  if (!title) return { error: "Give the plan a title." };
+
+  const supabase = await createClient();
+  const payload = {
+    team_id: teamId,
+    title,
+    practice_date: input.practiceDate || null,
+    focus_areas: input.focusAreas,
+    blocks: input.blocks,
+  };
+
+  if (planId) {
+    const { error } = await supabase
+      .schema("hoops")
+      .from("practice_plans")
+      .update(payload)
+      .eq("id", planId);
+    if (error) return { error: error.message };
+    revalidatePath(`/teams/${teamId}/practice`);
+    return { error: null, planId };
+  }
+
+  const { data, error } = await supabase
+    .schema("hoops")
+    .from("practice_plans")
+    .insert(payload)
+    .select("id")
+    .single();
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/practice`);
+  return { error: null, planId: data.id as string };
+}
+
+export async function deletePracticePlan(planId: string, teamId: string) {
+  if (!planId) return { error: "Missing plan." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("practice_plans").delete().eq("id", planId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/practice`);
+  return { error: null };
+}
+
+/**
+ * Creates or updates a scouting note for one opponent. notes is a small
+ * fixed-shape JSONB object (tendencies / personnel / game_plan) rather
+ * than fully freeform — enough structure that re-reading an old note
+ * before a rematch is fast, without a schema rigid enough to fight a
+ * coach's actual notes.
+ */
+export async function saveScoutingNote(
+  teamId: string,
+  noteId: string | null,
+  input: { opponentName: string; notes: Record<string, string> }
+) {
+  if (!teamId) return { error: "Missing team." };
+  const opponentName = input.opponentName.trim();
+  if (!opponentName) return { error: "Name the opponent." };
+
+  const supabase = await createClient();
+  const payload = { team_id: teamId, opponent_name: opponentName, notes: input.notes };
+
+  if (noteId) {
+    const { error } = await supabase
+      .schema("hoops")
+      .from("scouting_notes")
+      .update(payload)
+      .eq("id", noteId);
+    if (error) return { error: error.message };
+    revalidatePath(`/teams/${teamId}/scouting`);
+    return { error: null, noteId };
+  }
+
+  const { data, error } = await supabase
+    .schema("hoops")
+    .from("scouting_notes")
+    .insert(payload)
+    .select("id")
+    .single();
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/scouting`);
+  return { error: null, noteId: data.id as string };
+}
+
+export async function deleteScoutingNote(noteId: string, teamId: string) {
+  if (!noteId) return { error: "Missing note." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("scouting_notes").delete().eq("id", noteId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/scouting`);
+  return { error: null };
+}
+
+/**
  * Puts a player on a program. One active program at a time — a partial
  * unique index enforces that at the database level, so any previously
  * active one is stood down first rather than relying on this being the

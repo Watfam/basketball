@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SetupFamilyForm } from "@/components/setup-family-form";
@@ -6,7 +7,7 @@ import { PlayerRow } from "@/components/player-row";
 import { HouseholdSettings } from "@/components/household-settings";
 import { EmptyState } from "@/components/empty-state";
 import { SignOutButton } from "@/components/sign-out-button";
-import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
+import { PRIMARY_POSITIONS, DEFENSIVE_SCHEMES } from "@/lib/basketball/taxonomy";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { computeStreakWeeks } from "@/lib/basketball/progress";
 
@@ -90,6 +91,15 @@ export default async function Home() {
     if (name) programByPlayer.set(e.player_id, name);
   });
 
+  // Independent of household — a coach who hasn't set up a family yet
+  // (or ever will) still gets to their teams.
+  const { data: teams } = await supabase
+    .schema("hoops")
+    .from("teams")
+    .select("id, name, defensive_scheme")
+    .eq("owner_id", user.id)
+    .order("created_at", { ascending: true });
+
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
@@ -106,7 +116,7 @@ export default async function Home() {
         <SignOutButton />
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-5 sm:py-8">
         {!household ? (
           <SetupFamilyForm />
         ) : (
@@ -165,6 +175,56 @@ export default async function Home() {
             <HouseholdSettings householdId={household.id} householdName={household.name} />
           </div>
         )}
+
+        <div>
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
+              Coaching
+            </h2>
+            <Link
+              href="/teams/new"
+              className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+            >
+              + New team
+            </Link>
+          </div>
+
+          <div className="mt-3 space-y-2.5">
+            {(teams ?? []).length === 0 ? (
+              <Link
+                href="/teams/new"
+                className="block rounded-2xl border border-dashed border-line px-4 py-4 text-center text-sm font-semibold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
+              >
+                Set up a team — roster, scheme, practice plans
+              </Link>
+            ) : (
+              (teams ?? []).map((team) => {
+                const scheme = DEFENSIVE_SCHEMES.find((s) => s.value === team.defensive_scheme);
+                return (
+                  <Link
+                    key={team.id}
+                    href={`/teams/${team.id}`}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-[var(--line-strong)]"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
+                        {team.name}
+                      </p>
+                      {scheme && (
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+                          {scheme.label}
+                        </p>
+                      )}
+                    </div>
+                    <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
+                      Open →
+                    </span>
+                  </Link>
+                );
+              })
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
