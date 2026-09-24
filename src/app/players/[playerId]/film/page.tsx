@@ -69,7 +69,7 @@ export default async function FilmRoomPage({
     .schema("hoops")
     .from("trainers")
     .select(
-      "id, name, handle, youtube_url, instagram_url, tiktok_url, website_url, bio, specialty, sort_order"
+      "id, name, handle, youtube_url, instagram_url, website_url, bio, specialty, sort_order"
     )
     .order("sort_order", { ascending: true });
 
@@ -324,7 +324,6 @@ export default async function FilmRoomPage({
                 channel shows fewer of these rather than a guessed URL. */}
             <TrainerLink href={trainer.youtube_url} label="YouTube" />
             <TrainerLink href={trainer.instagram_url} label="Instagram" />
-            <TrainerLink href={trainer.tiktok_url} label="TikTok" />
             <TrainerLink href={trainer.website_url} label="Website" />
           </div>
         </div>

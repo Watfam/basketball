@@ -26,7 +26,6 @@ export type Trainer = {
   handle: string | null;
   youtube_url: string | null;
   instagram_url: string | null;
-  tiktok_url: string | null;
   website_url: string | null;
   bio: string | null;
   specialty: string[] | null;
