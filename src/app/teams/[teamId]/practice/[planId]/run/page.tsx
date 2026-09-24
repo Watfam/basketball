@@ -16,27 +16,29 @@ export default async function RunPracticePage({
 
   if (!user) redirect("/login");
 
-  const { data: plan } = await supabase
-    .schema("hoops")
-    .from("practice_plans")
-    .select("id, title, blocks")
-    .eq("id", planId)
-    .eq("team_id", teamId)
-    .maybeSingle();
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: plan }, { data: history }] = await Promise.all([
+    supabase
+      .schema("hoops")
+      .from("practice_plans")
+      .select("id, title, blocks")
+      .eq("id", planId)
+      .eq("team_id", teamId)
+      .maybeSingle(),
+    // Most recent logged score per drill name, team-wide — the "last
+    // time" hint while scoring live. First occurrence wins since this is
+    // ordered newest first, same matching frequentDrillNames already uses.
+    supabase
+      .schema("hoops")
+      .from("practice_drill_results")
+      .select("label, actual, created_at")
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (!plan) notFound();
 
   const blocks = (plan.blocks ?? []) as PracticeBlock[];
-
-  // Most recent logged score per drill name, team-wide — the "last
-  // time" hint while scoring live. First occurrence wins since this is
-  // ordered newest first, same matching frequentDrillNames already uses.
-  const { data: history } = await supabase
-    .schema("hoops")
-    .from("practice_drill_results")
-    .select("label, actual, created_at")
-    .eq("team_id", teamId)
-    .order("created_at", { ascending: false });
 
   const lastResults: Record<string, number> = {};
   (history ?? []).forEach((r) => {

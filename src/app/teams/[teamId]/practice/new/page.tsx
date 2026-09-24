@@ -17,24 +17,18 @@ export default async function NewPracticePlanPage({
 
   if (!user) redirect("/login");
 
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id, name")
-    .eq("id", teamId)
-    .maybeSingle();
+  // None of these three depend on each other — parallel instead of
+  // three sequential round trips.
+  const [{ data: team }, { data: drills }, { data: pastPlans }] = await Promise.all([
+    supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
+    // Fed into the fast-entry list as an optional link suggestion — cheap,
+    // the whole library is a couple dozen rows.
+    supabase.schema("hoops").from("drills").select("id, name"),
+    supabase.schema("hoops").from("practice_plans").select("blocks").eq("team_id", teamId),
+  ]);
 
   if (!team) notFound();
 
-  // Fed into the fast-entry list as an optional link suggestion — cheap,
-  // the whole library is a couple dozen rows.
-  const { data: drills } = await supabase.schema("hoops").from("drills").select("id, name");
-
-  const { data: pastPlans } = await supabase
-    .schema("hoops")
-    .from("practice_plans")
-    .select("blocks")
-    .eq("team_id", teamId);
   const quickNames = frequentDrillNames(((pastPlans ?? []).map((p) => p.blocks ?? [])) as PB[][]);
 
   return (

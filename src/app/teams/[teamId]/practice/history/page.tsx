@@ -31,21 +31,18 @@ export default async function PracticeHistoryPage({
 
   if (!user) redirect("/login");
 
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id, name")
-    .eq("id", teamId)
-    .maybeSingle();
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: team }, { data: labelRows }] = await Promise.all([
+    supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("practice_drill_results")
+      .select("label, created_at")
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (!team) notFound();
-
-  const { data: labelRows } = await supabase
-    .schema("hoops")
-    .from("practice_drill_results")
-    .select("label, created_at")
-    .eq("team_id", teamId)
-    .order("created_at", { ascending: false });
 
   const labels = [...new Set((labelRows ?? []).map((r) => r.label))];
   const selectedLabel = drill && labels.includes(drill) ? drill : labels[0];

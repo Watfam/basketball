@@ -16,21 +16,18 @@ export default async function ScoutingNotesPage({
 
   if (!user) redirect("/login");
 
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id, name")
-    .eq("id", teamId)
-    .maybeSingle();
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: team }, { data: notes }] = await Promise.all([
+    supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("scouting_notes")
+      .select("id, opponent_name, notes, created_at")
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (!team) notFound();
-
-  const { data: notes } = await supabase
-    .schema("hoops")
-    .from("scouting_notes")
-    .select("id, opponent_name, notes, created_at")
-    .eq("team_id", teamId)
-    .order("created_at", { ascending: false });
 
   return (
     <div className="flex flex-1 flex-col">

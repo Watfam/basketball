@@ -36,27 +36,41 @@ export default async function TeamPage({
 
   if (!user) redirect("/login");
 
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select(
-      "id, owner_id, name, defensive_scheme, defensive_scheme_custom, offensive_scheme, offensive_scheme_custom, focus_areas"
-    )
-    .eq("id", teamId)
-    .maybeSingle();
+  // These three don't depend on each other's results, only on teamId
+  // (already known from params) — running them in parallel instead of
+  // one after another turns three network round trips into one.
+  const [
+    { data: team },
+    { data: memberRows, error: memberError },
+    { data: ownPlayers },
+  ] = await Promise.all([
+    supabase
+      .schema("hoops")
+      .from("teams")
+      .select(
+        "id, owner_id, name, defensive_scheme, defensive_scheme_custom, offensive_scheme, offensive_scheme_custom, focus_areas"
+      )
+      .eq("id", teamId)
+      .maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("team_members")
+      .select(
+        "id, role, jersey_number, player_id, roster_name, roster_position, roster_linked_player_id, players!player_id(id, display_name, primary_position)"
+      )
+      .eq("team_id", teamId)
+      .eq("role", "player"),
+    // Only surfaces players in a household this coach owns — see
+    // add-roster-form's own note on why that's the realistic scope.
+    // RLS already scopes this correctly for a non-owner, so fetching it
+    // unconditionally and just not rendering it is cheaper than an
+    // extra sequential round trip gated on isOwner.
+    supabase.schema("hoops").from("players").select("id, display_name"),
+  ]);
 
   if (!team) notFound();
 
   const isOwner = team.owner_id === user.id;
-
-  const { data: memberRows, error: memberError } = await supabase
-    .schema("hoops")
-    .from("team_members")
-    .select(
-      "id, role, jersey_number, player_id, roster_name, roster_position, roster_linked_player_id, players!player_id(id, display_name, primary_position)"
-    )
-    .eq("team_id", teamId)
-    .eq("role", "player");
 
   if (memberError) console.error("Failed to load roster:", memberError.message);
 
@@ -64,12 +78,6 @@ export default async function TeamPage({
   const linkedPlayerIds = new Set(
     roster.map((m) => m.player_id).filter((id): id is string => Boolean(id))
   );
-
-  // Only surfaces players in a household this coach owns — see
-  // add-roster-form's own note on why that's the realistic scope.
-  const { data: ownPlayers } = isOwner
-    ? await supabase.schema("hoops").from("players").select("id, display_name")
-    : { data: [] as { id: string; display_name: string }[] };
 
   const defensiveLabel = schemeLabel(
     DEFENSIVE_SCHEMES,

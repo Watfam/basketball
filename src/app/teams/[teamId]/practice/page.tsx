@@ -18,22 +18,19 @@ export default async function PracticePlansPage({
 
   if (!user) redirect("/login");
 
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id, name")
-    .eq("id", teamId)
-    .maybeSingle();
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: team }, { data: plans }] = await Promise.all([
+    supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("practice_plans")
+      .select("id, title, practice_date, focus_areas, blocks")
+      .eq("team_id", teamId)
+      .order("practice_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (!team) notFound();
-
-  const { data: plans } = await supabase
-    .schema("hoops")
-    .from("practice_plans")
-    .select("id, title, practice_date, focus_areas, blocks")
-    .eq("team_id", teamId)
-    .order("practice_date", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false });
 
   return (
     <div className="flex flex-1 flex-col">
