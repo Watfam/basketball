@@ -25,10 +25,22 @@ export const OFFENSIVE_SCHEMES = [
   { value: "pick_and_roll_heavy", label: "Pick-and-Roll Heavy" },
   { value: "five_out", label: "Five-Out" },
   { value: "horns", label: "Horns" },
+  // A team built to score before the defense sets — the natural offensive
+  // partner to a pressing scheme like Run and Jump, which is designed to
+  // create the live-ball turnovers this offense is built to punish.
+  { value: "fast_break", label: "Transition / Fast Break" },
   { value: "custom", label: "Custom / Other" },
 ] as const;
 
 export const TEAM_FOCUS_AREAS = [
+  // Full-court pressure, the jump-switch mechanic, and forcing turnovers
+  // are the three teachable pieces of Run and Jump specifically — general
+  // "transition defense" below is about getting back, which is close to
+  // the opposite skill.
+  { value: "full_court_pressure", label: "Full-Court Pressure" },
+  { value: "jump_switch_traps", label: "Jump-Switches & Traps" },
+  { value: "forcing_turnovers", label: "Forcing Turnovers" },
+  { value: "transition_offense", label: "Transition Offense / Quick Scoring" },
   { value: "transition_defense", label: "Transition Defense" },
   { value: "half_court_defense", label: "Half-Court Defense" },
   { value: "ball_handling", label: "Ball Handling / Press Break" },
