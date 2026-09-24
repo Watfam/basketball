@@ -10,7 +10,10 @@ import {
   cleanBlocks,
   parsePastedList,
   matchDrillName,
+  generateSkeleton,
+  PRACTICE_SHAPES,
   type PracticeBlock,
+  type PracticeShapeKey,
 } from "@/lib/basketball/practice";
 import { haptic } from "@/lib/haptics";
 
@@ -59,6 +62,8 @@ export function PracticePlanForm({
   );
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
+  const [shape, setShape] = useState<PracticeShapeKey>("standard");
+  const [skeletonMinutes, setSkeletonMinutes] = useState(90);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -133,6 +138,14 @@ export function PracticePlanForm({
       [next[index], next[target]] = [next[target], next[index]];
       return next;
     });
+  }
+
+  /** Replaces the whole list with a named, timed skeleton for the chosen
+      shape — a starting structure, never a finished plan. */
+  function applySkeleton() {
+    haptic("success");
+    setBlocks(generateSkeleton(shape, skeletonMinutes));
+    setPasteOpen(false);
   }
 
   function importPaste() {
@@ -237,6 +250,75 @@ export function PracticePlanForm({
         </div>
       </section>
 
+      <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          Quick Start
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-1.5">
+          {(Object.entries(PRACTICE_SHAPES) as [PracticeShapeKey, (typeof PRACTICE_SHAPES)[PracticeShapeKey]][]).map(
+            ([key, s]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  haptic("tap");
+                  setShape(key);
+                }}
+                className={`rounded-xl border px-3 py-2 text-left transition-colors ${
+                  shape === key
+                    ? "border-accent bg-accent/10"
+                    : "border-line bg-[var(--raised)]"
+                }`}
+              >
+                <span
+                  className={`block text-xs font-extrabold ${shape === key ? "text-accent" : "text-foreground"}`}
+                >
+                  {s.label}
+                </span>
+                <span className="mt-0.5 block text-[10px] leading-snug text-foreground-mute">
+                  {s.description}
+                </span>
+              </button>
+            )
+          )}
+        </div>
+        <div className="mt-3 flex items-center gap-1.5">
+          {[60, 75, 90, 120].map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                setSkeletonMinutes(m);
+              }}
+              className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
+                skeletonMinutes === m
+                  ? "border-accent bg-accent text-white"
+                  : "border-line bg-[var(--raised)] text-foreground-dim"
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+          <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+            min
+          </span>
+        </div>
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={applySkeleton}
+            className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+          >
+            Generate skeleton
+          </button>
+          <p className="text-[10.5px] leading-snug text-foreground-mute">
+            Names and times only, sized to fit — replaces the drills below. Blank
+            rows stay blank until you fill them.
+          </p>
+        </div>
+      </section>
+
       <section>
         <div className="mb-2.5 flex items-baseline justify-between">
           <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
@@ -309,37 +391,60 @@ export function PracticePlanForm({
             // Computed as a plain pass up front, rather than mutated
             // inline while building the JSX below, so each row's numbers
             // are fixed before render instead of depending on render order.
+            //
+            // A header names and totals the group that FOLLOWS it (like any
+            // heading), not the rows above — so group totals are attributed
+            // by group id, tagged in one pass and summed in a second.
             type RowMeta = { rowNumber: number | null; rollingMinutes: number; groupTotal: number };
-            const { entries: rowMeta } = blocks.reduce(
+            const tagged = blocks.reduce(
               (acc, block) => {
+                const groupId = block.isSection ? acc.groupId + 1 : acc.groupId;
+                return { groupId, entries: [...acc.entries, { block, groupId }] };
+              },
+              { groupId: 0, entries: [] as { block: PracticeBlock; groupId: number }[] }
+            ).entries;
+            const groupTotals = tagged.reduce(
+              (totals, { block, groupId }) =>
+                block.isSection ? totals : { ...totals, [groupId]: (totals[groupId] ?? 0) + (block.minutes || 0) },
+              {} as Record<number, number>
+            );
+            const { entries: rowMeta } = tagged.reduce(
+              (acc, { block, groupId }) => {
                 if (block.isSection) {
-                  const entry: RowMeta = { rowNumber: null, rollingMinutes: 0, groupTotal: acc.groupMinutes };
-                  return { ...acc, groupMinutes: 0, entries: [...acc.entries, entry] };
+                  const entry: RowMeta = { rowNumber: null, rollingMinutes: 0, groupTotal: groupTotals[groupId] ?? 0 };
+                  return { ...acc, entries: [...acc.entries, entry] };
                 }
                 const drillNumber = acc.drillNumber + 1;
                 const rollingMinutes = acc.rollingMinutes + (block.minutes || 0);
-                const groupMinutes = acc.groupMinutes + (block.minutes || 0);
                 const entry: RowMeta = { rowNumber: drillNumber, rollingMinutes, groupTotal: 0 };
-                return { drillNumber, rollingMinutes, groupMinutes, entries: [...acc.entries, entry] };
+                return { drillNumber, rollingMinutes, entries: [...acc.entries, entry] };
               },
-              { drillNumber: 0, rollingMinutes: 0, groupMinutes: 0, entries: [] as RowMeta[] }
+              { drillNumber: 0, rollingMinutes: 0, entries: [] as RowMeta[] }
             );
 
             return blocks.map((block, i) => {
             const { rowNumber, rollingMinutes, groupTotal } = rowMeta[i];
             if (block.isSection) {
               return (
-                <div key={i} className="group flex items-center gap-2 px-2 py-2.5">
-                  <div className="h-px flex-1 bg-line" />
+                <div
+                  key={i}
+                  className={`group flex items-center gap-2 rounded-lg bg-[var(--raised)] px-2.5 py-2 ${i > 0 ? "mt-2" : ""}`}
+                >
+                  <input
+                    value={block.label}
+                    onChange={(e) => updateBlock(i, { label: e.target.value })}
+                    placeholder="Group name (optional)"
+                    className="min-w-0 flex-1 bg-transparent text-[10.5px] font-extrabold uppercase tracking-wide text-foreground-dim placeholder:text-foreground-mute placeholder:font-bold focus:text-foreground focus:outline-none"
+                  />
                   {groupTotal > 0 && (
-                    <span className="shrink-0 text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                    <span className="shrink-0 text-[10px] font-extrabold text-foreground-mute">
                       {groupTotal} min
                     </span>
                   )}
                   <button
                     type="button"
                     onClick={() => removeBlock(i)}
-                    className="text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute opacity-0 transition-opacity group-hover:opacity-100"
+                    className="shrink-0 text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     Remove
                   </button>

@@ -40,12 +40,18 @@ export default async function EditPracticePlanPage({
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
+        <div className="mx-auto flex w-full max-w-md items-center justify-between">
           <Link
             href={`/teams/${teamId}/practice`}
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
             ← Practice Plans
+          </Link>
+          <Link
+            href={`/teams/${teamId}/practice/${planId}/run`}
+            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
+          >
+            Run practice →
           </Link>
         </div>
       </header>

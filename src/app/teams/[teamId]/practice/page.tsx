@@ -104,7 +104,15 @@ export default async function PracticePlansPage({
                         .join(" · ");
                     })()}
                   </p>
-                  <DuplicatePlanButton planId={plan.id} teamId={teamId} />
+                  <div className="flex shrink-0 items-center gap-3">
+                    <Link
+                      href={`/teams/${teamId}/practice/${plan.id}/run`}
+                      className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+                    >
+                      Run
+                    </Link>
+                    <DuplicatePlanButton planId={plan.id} teamId={teamId} />
+                  </div>
                 </div>
               </div>
             );

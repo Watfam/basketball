@@ -36,10 +36,15 @@ export function emptyBlock(): PracticeBlock {
   return { label: "" };
 }
 
-/** Strips rows with no label — an empty line left in the list shouldn't save. */
+/**
+ * Strips rows with no label — an empty line left in the list shouldn't
+ * save. Group headers are exempt: a header names the group that follows
+ * it (see toRunnableSteps), not the row itself, so it's kept even blank
+ * — dropping it would silently merge two groups back together.
+ */
 export function cleanBlocks(blocks: PracticeBlock[]): PracticeBlock[] {
   return blocks
-    .filter((b) => b.label.trim().length > 0)
+    .filter((b) => b.isSection || b.label.trim().length > 0)
     .map((b) => ({
       label: b.label.trim(),
       ...(b.minutes ? { minutes: b.minutes } : {}),
@@ -101,6 +106,122 @@ export function frequentDrillNames(pastBlocks: PracticeBlock[][], limit = 8): st
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, limit)
     .map(([name]) => name);
+}
+
+export type PracticeShapeKey = "standard" | "install" | "gameprep" | "recovery";
+
+/**
+ * Named percentage splits for the "Generate skeleton" quick-start. These
+ * are structural shapes only — no drill names — because matching a
+ * generic shape to a real drill needs the shared drill library tagged by
+ * scheme concept (press, transition, half-court), and it isn't yet. A
+ * wrong guess mid-practice is worse than a blank row, so the skeleton
+ * only ever commits to names and minutes.
+ */
+export const PRACTICE_SHAPES: Record<
+  PracticeShapeKey,
+  { label: string; description: string; groups: { name: string; pct: number }[] }
+> = {
+  standard: {
+    label: "Standard",
+    description: "Warmup, skill work, team concepts, scrimmage",
+    groups: [
+      { name: "Warmup", pct: 0.1 },
+      { name: "Ballhandling & Finishing", pct: 0.2 },
+      { name: "Team Defense", pct: 0.25 },
+      { name: "Team Offense", pct: 0.2 },
+      { name: "Scrimmage", pct: 0.2 },
+      { name: "Free Throws", pct: 0.05 },
+    ],
+  },
+  install: {
+    label: "Install Day",
+    description: "Heavy on teaching one new concept",
+    groups: [
+      { name: "Warmup", pct: 0.1 },
+      { name: "New Concept Walkthrough", pct: 0.35 },
+      { name: "Team Defense Reps", pct: 0.25 },
+      { name: "Live Reps", pct: 0.2 },
+      { name: "Conditioning", pct: 0.1 },
+    ],
+  },
+  gameprep: {
+    label: "Game Prep",
+    description: "Scouting-driven, ends live",
+    groups: [
+      { name: "Warmup", pct: 0.1 },
+      { name: "Scout Defense", pct: 0.25 },
+      { name: "Scout Offense", pct: 0.2 },
+      { name: "Scrimmage — Game Situations", pct: 0.35 },
+      { name: "Free Throws", pct: 0.1 },
+    ],
+  },
+  recovery: {
+    label: "Recovery",
+    description: "Lighter load, shooting-heavy",
+    groups: [
+      { name: "Warmup", pct: 0.15 },
+      { name: "Shooting", pct: 0.3 },
+      { name: "Skill Stations", pct: 0.3 },
+      { name: "Free Throws", pct: 0.15 },
+      { name: "Cool-Down", pct: 0.1 },
+    ],
+  },
+};
+
+/**
+ * Names + times only, generated instantly from a chosen shape and total
+ * duration. Each group becomes a header row (its name) followed by one
+ * blank timed row sized to that group's share of the total — a fast
+ * starting skeleton the coach fills in or splits further, never a
+ * finished plan.
+ */
+export function generateSkeleton(shape: PracticeShapeKey, totalMinutes: number): PracticeBlock[] {
+  const groups = PRACTICE_SHAPES[shape].groups;
+  const { blocks } = groups.reduce(
+    (acc, group, i) => {
+      const minutes =
+        i === groups.length - 1 ? totalMinutes - acc.allocated : Math.round(group.pct * totalMinutes);
+      return {
+        allocated: acc.allocated + minutes,
+        blocks: [...acc.blocks, { label: group.name, isSection: true }, { label: "", minutes }],
+      };
+    },
+    { allocated: 0, blocks: [] as PracticeBlock[] }
+  );
+  return blocks;
+}
+
+export type RunnableStep = {
+  label: string;
+  minutes?: number;
+  notes?: string;
+  groupName: string | null;
+};
+
+/**
+ * Flattens blocks into the steps Run Practice actually steps through —
+ * group headers become context on the drills that follow them rather
+ * than steps of their own, and empty rows drop out.
+ */
+export function toRunnableSteps(blocks: PracticeBlock[]): RunnableStep[] {
+  const { steps } = blocks.reduce(
+    (acc, block) => {
+      if (block.isSection) {
+        return { groupName: block.label.trim() || null, steps: acc.steps };
+      }
+      if (!block.label.trim()) return acc;
+      const step: RunnableStep = {
+        label: block.label,
+        minutes: block.minutes,
+        notes: block.notes,
+        groupName: acc.groupName,
+      };
+      return { groupName: acc.groupName, steps: [...acc.steps, step] };
+    },
+    { groupName: null as string | null, steps: [] as RunnableStep[] }
+  );
+  return steps;
 }
 
 /** Matches typed text against the shared drill library for the link suggestion. */
