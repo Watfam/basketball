@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SessionWrapup, type WrapupRow } from "@/components/session-wrapup";
@@ -38,26 +37,14 @@ export default async function LogResultsPage({
     }));
 
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href={`/teams/${teamId}/practice`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Practice Plans
-          </Link>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
-        <SessionWrapup
-          teamId={teamId}
-          planId={planId}
-          planTitle={plan.title}
-          initialRunDate={plan.practice_date ?? new Date().toISOString().slice(0, 10)}
-          initialResults={results}
-        />
-      </main>
+    <div className="min-h-[100dvh] px-4 py-5 sm:py-8">
+      <SessionWrapup
+        teamId={teamId}
+        planId={planId}
+        planTitle={plan.title}
+        initialRunDate={plan.practice_date ?? new Date().toISOString().slice(0, 10)}
+        initialResults={results}
+      />
     </div>
   );
 }

@@ -71,6 +71,17 @@ export function SessionWrapup({
 
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
+      <button
+        type="button"
+        onClick={() => {
+          haptic("tap");
+          router.push(`/teams/${teamId}/practice`);
+        }}
+        className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+      >
+        ← Cancel, don&rsquo;t save
+      </button>
+
       <section className="rounded-3xl border border-line bg-surface p-6">
         <div className="flex items-baseline justify-between gap-3">
           <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
