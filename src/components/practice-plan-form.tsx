@@ -447,7 +447,7 @@ export function PracticePlanForm({
               return (
                 <div
                   key={i}
-                  className={`group flex items-center gap-2 rounded-lg bg-[var(--raised)] px-2.5 py-2 ${i > 0 ? "mt-2" : ""}`}
+                  className={`flex items-center gap-1 rounded-lg bg-[var(--raised)] px-2.5 py-2 ${i > 0 ? "mt-2" : ""}`}
                 >
                   <input
                     ref={(el) => {
@@ -465,10 +465,29 @@ export function PracticePlanForm({
                   )}
                   <button
                     type="button"
-                    onClick={() => removeBlock(i)}
-                    className="shrink-0 text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute opacity-0 transition-opacity group-hover:opacity-100"
+                    onClick={() => moveBlock(i, -1)}
+                    disabled={i === 0}
+                    aria-label="Move group up"
+                    className="shrink-0 rounded-md px-1.5 py-1 text-[11px] font-bold leading-none text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
                   >
-                    Remove
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveBlock(i, 1)}
+                    disabled={i === blocks.length - 1}
+                    aria-label="Move group down"
+                    className="shrink-0 rounded-md px-1.5 py-1 text-[11px] font-bold leading-none text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeBlock(i)}
+                    aria-label="Remove group"
+                    className="shrink-0 rounded-md px-1.5 py-1 text-[13px] font-bold leading-none text-foreground-mute transition-colors hover:text-red-400"
+                  >
+                    ✕
                   </button>
                 </div>
               );
