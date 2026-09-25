@@ -836,6 +836,7 @@ export async function saveSessionResults(input: {
   }
 
   revalidatePath(`/teams/${input.teamId}/practice`);
+  revalidatePath(`/teams/${input.teamId}/practice/history`);
   return { error: null, sessionId };
 }
 
