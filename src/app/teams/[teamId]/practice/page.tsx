@@ -19,7 +19,7 @@ export default async function PracticePlansPage({
   if (!user) redirect("/login");
 
   // Independent of each other — parallel instead of sequential.
-  const [{ data: team }, { data: plans }] = await Promise.all([
+  const [{ data: team }, { data: plans }, { data: sessions }] = await Promise.all([
     supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
     supabase
       .schema("hoops")
@@ -28,9 +28,44 @@ export default async function PracticePlansPage({
       .eq("team_id", teamId)
       .order("practice_date", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false }),
+    // Every logged session for the team, newest first — reduced below to
+    // the most recent one per plan for the "Last run" line on each card.
+    supabase
+      .schema("hoops")
+      .from("practice_sessions")
+      .select("id, plan_id, run_date, created_at")
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: false }),
   ]);
 
   if (!team) notFound();
+
+  const lastSessionByPlan = new Map<string, { id: string; run_date: string }>();
+  (sessions ?? []).forEach((s) => {
+    if (s.plan_id && !lastSessionByPlan.has(s.plan_id)) {
+      lastSessionByPlan.set(s.plan_id, { id: s.id, run_date: s.run_date });
+    }
+  });
+
+  // Depends on which sessions are actually "most recent per plan," so
+  // this one has to wait for the map above rather than joining the
+  // parallel batch.
+  const lastSessionIds = [...lastSessionByPlan.values()].map((s) => s.id);
+  const { data: lastResults } =
+    lastSessionIds.length > 0
+      ? await supabase
+          .schema("hoops")
+          .from("practice_drill_results")
+          .select("session_id, actual")
+          .in("session_id", lastSessionIds)
+      : { data: [] };
+
+  const scoreCountBySession = new Map<string, number>();
+  (lastResults ?? []).forEach((r) => {
+    if (r.actual !== null) {
+      scoreCountBySession.set(r.session_id, (scoreCountBySession.get(r.session_id) ?? 0) + 1);
+    }
+  });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -125,6 +160,22 @@ export default async function PracticePlansPage({
                     <DuplicatePlanButton planId={plan.id} teamId={teamId} />
                   </div>
                 </div>
+                {(() => {
+                  const lastSession = lastSessionByPlan.get(plan.id);
+                  if (!lastSession) return null;
+                  const scoreCount = scoreCountBySession.get(lastSession.id) ?? 0;
+                  const runDateLabel = new Date(
+                    lastSession.run_date + "T00:00:00"
+                  ).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+                  return (
+                    <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-[var(--data-positive)]">
+                      Last run: {runDateLabel}
+                      {scoreCount > 0
+                        ? ` · ${scoreCount} ${scoreCount === 1 ? "score" : "scores"} logged`
+                        : ""}
+                    </p>
+                  );
+                })()}
               </div>
             );
           })
