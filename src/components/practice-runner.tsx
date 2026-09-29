@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { haptic } from "@/lib/haptics";
+import { primeAlerts, beepWarning, beepDone } from "@/lib/alerts";
+import { useWakeLock } from "@/lib/use-wake-lock";
 import type { RunnableStep } from "@/lib/basketball/practice";
 import { SessionWrapup, type WrapupRow } from "@/components/session-wrapup";
 
@@ -45,43 +47,121 @@ export function PracticeRunner({
 }) {
   const [mode, setMode] = useState<"running" | "wrapup">("running");
   const [index, setIndex] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState<number | null>(
-    steps[0]?.minutes ? steps[0].minutes * 60 : null
-  );
-  const [paused, setPaused] = useState(false);
   const [scores, setScores] = useState<Record<number, string>>({});
 
   const step = steps[index];
   const next = steps[index + 1];
   const isLastStep = index === steps.length - 1;
+  const stepSeconds = step?.minutes ? Math.round(step.minutes * 60) : null;
 
-  // Resetting the clock when the coach moves to a new drill is "state
-  // that depends on a changed value," not a sync with anything external —
-  // React's own guidance is to adjust it during render, by comparing
-  // against the last index seen, rather than in an effect.
-  const [seenIndex, setSeenIndex] = useState(index);
-  if (index !== seenIndex) {
-    setSeenIndex(index);
-    setSecondsLeft(step?.minutes ? step.minutes * 60 : null);
-    setPaused(false);
-  }
+  // The clock is a deadline, not a counter.
+  //
+  // It used to be a self-chaining setTimeout decrementing a number, which
+  // is wrong on a phone in two ways: setTimeout drifts (a "3:00" drill ran
+  // several seconds long), and mobile browsers throttle or suspend timers
+  // outright the moment the page is hidden — so locking the screen froze
+  // the count and it resumed under-counted. Storing when the drill *ends*
+  // and deriving the display makes both problems disappear: the number is
+  // simply correct whenever it's read, including after the screen has been
+  // off, because nothing had to keep ticking.
+  const [deadline, setDeadline] = useState<number | null>(() =>
+    stepSeconds !== null ? Date.now() + stepSeconds * 1000 : null
+  );
+  const [frozenSeconds, setFrozenSeconds] = useState<number | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
+  const paused = deadline === null && frozenSeconds !== null;
+  const secondsLeft =
+    deadline !== null
+      ? Math.max(0, Math.ceil((deadline - nowMs) / 1000))
+      : frozenSeconds;
+
+  // Four ticks a second so the displayed second flips promptly after a
+  // boundary; the value itself comes from the clock, so the interval's
+  // own accuracy doesn't matter.
   useEffect(() => {
-    if (paused || secondsLeft === null || secondsLeft <= 0) return;
-    const id = setTimeout(() => {
-      setSecondsLeft((s) => (s === null ? s : s - 1));
-    }, 1000);
-    return () => clearTimeout(id);
-  }, [paused, secondsLeft]);
+    if (deadline === null) return;
+    const id = setInterval(() => setNowMs(Date.now()), 250);
+    return () => clearInterval(id);
+  }, [deadline]);
 
+  // Coming back from a locked screen or the app switcher: recompute at
+  // once rather than waiting up to 250ms for the next tick.
   useEffect(() => {
-    if (secondsLeft === 10) haptic("tap");
-    if (secondsLeft === 0) haptic("success");
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setNowMs(Date.now());
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
+  // Fallback for landing on this URL directly (a refresh, or a bookmark)
+  // rather than tapping through RunPracticeLink: unlock audio on the very
+  // first touch anywhere, since that is the only kind of event mobile
+  // browsers accept for it.
+  useEffect(() => {
+    const unlock = () => primeAlerts();
+    document.addEventListener("pointerdown", unlock, { once: true });
+    document.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      document.removeEventListener("pointerdown", unlock);
+      document.removeEventListener("keydown", unlock);
+    };
+  }, []);
+
+  // Keep the screen awake while a drill is actually counting down — a web
+  // page gets no background execution on iOS, so this is what lets the
+  // timer keep running on a phone set down on the scorer's table.
+  useWakeLock(mode === "running" && deadline !== null);
+
+  // Alerts fire on *crossing* a threshold, tracked against the previous
+  // rendered second. A plain equality check (secondsLeft === 10) silently
+  // misses whenever the screen was off across the boundary, which is
+  // exactly when the coach most needs to hear it.
+  const lastSecondRef = useRef<number | null>(secondsLeft);
+  useEffect(() => {
+    const previous = lastSecondRef.current;
+    lastSecondRef.current = secondsLeft;
+    if (previous === null || secondsLeft === null || secondsLeft >= previous) return;
+
+    if (secondsLeft === 0) {
+      haptic("alarm");
+      beepDone();
+    } else if (previous > 10 && secondsLeft <= 10) {
+      haptic("warning");
+      beepWarning();
+    }
   }, [secondsLeft]);
 
+  /** Moves to a drill and starts its clock. The reset lives here rather
+      than in render or an effect because changing drills is only ever a
+      user action, and an event handler is the one place reading the wall
+      clock is unambiguously safe. */
   function goTo(i: number) {
     haptic("tap");
-    setIndex(Math.max(0, Math.min(steps.length - 1, i)));
+    const clamped = Math.max(0, Math.min(steps.length - 1, i));
+    const target = steps[clamped];
+    const targetSeconds = target?.minutes ? Math.round(target.minutes * 60) : null;
+    setIndex(clamped);
+    setDeadline(targetSeconds !== null ? Date.now() + targetSeconds * 1000 : null);
+    setFrozenSeconds(null);
+    setNowMs(Date.now());
+  }
+
+  /** Pausing banks the remaining seconds; resuming turns them back into
+      a fresh deadline, so a paused drill never loses time. */
+  function togglePause() {
+    haptic("tap");
+    if (deadline !== null) {
+      setFrozenSeconds(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
+      setDeadline(null);
+      return;
+    }
+    if (frozenSeconds !== null) {
+      setDeadline(Date.now() + frozenSeconds * 1000);
+      setFrozenSeconds(null);
+      setNowMs(Date.now());
+    }
   }
 
   function finishOrAdvance() {
@@ -203,7 +283,10 @@ export function PracticeRunner({
                   )}
                   <button
                     type="button"
-                    onClick={() => haptic("success")}
+                    onClick={() => {
+                      primeAlerts();
+                      haptic("success");
+                    }}
                     className="ml-auto shrink-0 rounded-lg bg-accent px-3.5 py-2 text-[10.5px] font-extrabold uppercase tracking-wide text-white"
                   >
                     Save
@@ -239,10 +322,7 @@ export function PracticeRunner({
               {secondsLeft !== null && (
                 <button
                   type="button"
-                  onClick={() => {
-                    haptic("tap");
-                    setPaused((p) => !p);
-                  }}
+                  onClick={togglePause}
                   className="flex-[1.4] rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-white"
                 >
                   {paused ? "Resume" : "Pause"}

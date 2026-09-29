@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
 import { DuplicatePlanButton } from "@/components/duplicate-plan-button";
+import { RunPracticeLink } from "@/components/run-practice-link";
 import { totalMinutes, type PracticeBlock } from "@/lib/basketball/practice";
 
 export default async function PracticePlansPage({
@@ -142,12 +143,12 @@ export default async function PracticePlansPage({
                     })()}
                   </p>
                   <div className="flex shrink-0 items-center gap-3">
-                    <Link
+                    <RunPracticeLink
                       href={`/teams/${teamId}/practice/${plan.id}/run`}
                       className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
                     >
                       Run
-                    </Link>
+                    </RunPracticeLink>
                     <Link
                       href={`/teams/${teamId}/practice/${plan.id}/log`}
                       className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"

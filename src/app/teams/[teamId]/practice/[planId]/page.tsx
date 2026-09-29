@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PracticePlanForm } from "@/components/practice-plan-form";
+import { RunPracticeLink } from "@/components/run-practice-link";
 import { frequentDrillNames, type PracticeBlock as PB } from "@/lib/basketball/practice";
 import type { PracticeBlock } from "@/lib/basketball/practice";
 
@@ -43,12 +44,12 @@ export default async function EditPracticePlanPage({
           >
             ← Practice Plans
           </Link>
-          <Link
+          <RunPracticeLink
             href={`/teams/${teamId}/practice/${planId}/run`}
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
           >
             Run practice →
-          </Link>
+          </RunPracticeLink>
         </div>
       </header>
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
