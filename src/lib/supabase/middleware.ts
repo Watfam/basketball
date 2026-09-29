@@ -31,11 +31,19 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: Avoid writing logic between createServerClient and
-  // getUser(). A simple mistake could make it very hard to debug
+  // getClaims(). A simple mistake could make it very hard to debug
   // sessions randomly logging users out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  //
+  // getClaims() rather than getUser(): this runs before every single
+  // navigation, and getUser() always makes a network round trip to the
+  // Auth server. getClaims() verifies the JWT signature locally when the
+  // project uses asymmetric signing keys (falling back to the same server
+  // check as getUser() when it doesn't, so it is never slower). It still
+  // refreshes an expiring session. The tradeoff is that a revoked session
+  // stays valid until its access token expires (an hour by default),
+  // which is fine here - pages still enforce ownership through RLS.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims ?? null;
 
   // Redirect unauthenticated users away from protected routes. Only the
   // login page and the auth callback (email confirmation / magic link
