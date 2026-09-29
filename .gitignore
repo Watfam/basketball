@@ -2,3 +2,15 @@ node_modules/
 .next/
 .env.local
 tsconfig.tsbuildinfo
+
+# Footage and training data of minors must never be committed. Clips,
+# extracted frames and labels live outside git; only code and small
+# config belong in the repo.
+/shot-data/
+*.mov
+*.MOV
+*.mp4
+*.MP4
+*.m4v
+*.heic
+*.HEIC
