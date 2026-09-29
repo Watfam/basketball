@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ProgramPanel } from "@/components/program-panel";
 import { CombinePrompt } from "@/components/combine-prompt";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
+import { PlayerHubTabs } from "@/components/player-hub-tabs";
 import {
   computeProgramProgress,
   rankPrograms,
@@ -391,6 +392,9 @@ export default async function PlayerHubPage({
           />
         </div>
 
+        <PlayerHubTabs
+          today={
+            <div className="space-y-4">
         {showCombinePrompt && (
           <CombinePrompt
             playerId={playerId}
@@ -470,6 +474,10 @@ export default async function PlayerHubPage({
           )}
         </section>
 
+            </div>
+          }
+          progress={
+            <div className="space-y-4">
         <section className="animate-rise" style={{ animationDelay: "120ms" }}>
           <SectionHeading title="Your Game" caption={assessedLabel} />
           <AttributePanel ratings={ratings} previousRatings={previousRatings as Ratings | null} />
@@ -523,48 +531,9 @@ export default async function PlayerHubPage({
           />
         </section>
 
-        <section className="animate-rise" style={{ animationDelay: "180ms" }}>
-          <SectionHeading title="Film Room" caption={`${filmStudiedCount} studied`} />
-          <Link
-            href={
-              filmUpNextId
-                ? `/players/${playerId}/film?lesson=${filmUpNextId}`
-                : `/players/${playerId}/film`
-            }
-            className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                  {filmUpNextTitle ?? "Study the game"}
-                </p>
-                <p className="mt-1.5 text-xs text-foreground-dim">
-                  {filmUpNextTitle
-                    ? "Next lesson, picked for your weak spots"
-                    : "Lessons that tell you what to look for"}
-                </p>
-              </div>
-              <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
-                Open →
-              </span>
-            </div>
-          </Link>
-        </section>
-
         <section className="animate-rise" style={{ animationDelay: "200ms" }}>
           <SectionHeading title="Milestones" caption={`${milestones.filter((m) => m.current >= m.target).length} of ${milestones.length} unlocked`} />
           <MilestoneRail milestones={milestones} />
-        </section>
-
-        <section className="animate-rise" style={{ animationDelay: "240ms" }}>
-          <SectionHeading title="Training Level" caption="Sets how hard your sessions run" />
-          <div className="rounded-2xl border border-line bg-surface p-4">
-            <LevelPicker
-              playerId={playerId}
-              currentLevel={currentLevel}
-              isSuggested={!playerType.preferred_level}
-            />
-          </div>
         </section>
 
         {recentSessions && recentSessions.length > 0 && (
@@ -606,7 +575,54 @@ export default async function PlayerHubPage({
             </Link>
           </section>
         )}
-
+            </div>
+          }
+          film={
+            <div className="space-y-4">
+        <section className="animate-rise" style={{ animationDelay: "180ms" }}>
+          <SectionHeading title="Film Room" caption={`${filmStudiedCount} studied`} />
+          <Link
+            href={
+              filmUpNextId
+                ? `/players/${playerId}/film?lesson=${filmUpNextId}`
+                : `/players/${playerId}/film`
+            }
+            className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
+                  {filmUpNextTitle ?? "Study the game"}
+                </p>
+                <p className="mt-1.5 text-xs text-foreground-dim">
+                  {filmUpNextTitle
+                    ? "Next lesson, picked for your weak spots"
+                    : "Lessons that tell you what to look for"}
+                </p>
+              </div>
+              <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
+                Open →
+              </span>
+            </div>
+          </Link>
+        </section>
+            </div>
+          }
+          profile={
+            <div className="space-y-4">
+        <section className="animate-rise" style={{ animationDelay: "240ms" }}>
+          <SectionHeading title="Training Level" caption="Sets how hard your sessions run" />
+          <div className="rounded-2xl border border-line bg-surface p-4">
+            <LevelPicker
+              playerId={playerId}
+              currentLevel={currentLevel}
+              isSuggested={!playerType.preferred_level}
+            />
+          </div>
+        </section>
+            </div>
+          }
+        />
       </main>
     </div>
   );

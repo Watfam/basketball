@@ -66,6 +66,10 @@ export function PracticePlanForm({
   const [pasteText, setPasteText] = useState("");
   const [shape, setShape] = useState<PracticeShapeKey>("standard");
   const [skeletonMinutes, setSkeletonMinutes] = useState(90);
+  // Open on a brand-new plan (picking a shape is the natural first move)
+  // and closed when editing one that already exists (the drills are what
+  // you came back for).
+  const [setupOpen, setSetupOpen] = useState(!existing);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -251,6 +255,13 @@ export function PracticePlanForm({
 
   const minutes = totalMinutes(cleanBlocks(blocks));
 
+  // What the collapsed Setup row says, so it's worth collapsing: the
+  // state you'd otherwise have to open it to check.
+  const setupSummary =
+    focusAreas.length > 0
+      ? `${focusAreas.length} focus ${focusAreas.length === 1 ? "area" : "areas"} · ${PRACTICE_SHAPES[shape].label} · ${skeletonMinutes} min`
+      : "Set focus areas, or generate a skeleton";
+
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
@@ -278,8 +289,40 @@ export function PracticePlanForm({
         </div>
       </section>
 
-      <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Focus</p>
+      {/* Focus areas and Quick Start collapse into one line. Both are
+          things you set once at the start; leaving them expanded pushed
+          the drill list — the actual plan — most of a screen down. */}
+      <section className="panel-lit overflow-hidden rounded-3xl border border-line bg-surface">
+        <button
+          type="button"
+          onClick={() => {
+            haptic("tap");
+            setSetupOpen((v) => !v);
+          }}
+          aria-expanded={setupOpen}
+          aria-controls="practice-setup"
+          className="flex w-full items-center gap-3 px-6 py-4 text-left"
+        >
+          <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+            Setup
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-foreground-dim">
+            {setupSummary}
+          </span>
+          <span
+            className={`shrink-0 text-[13px] leading-none text-foreground-mute transition-transform ${
+              setupOpen ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          >
+            ⌄
+          </span>
+        </button>
+
+        <div id="practice-setup" hidden={!setupOpen} className="px-6 pb-6">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
+          Focus
+        </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {TEAM_FOCUS_AREAS.map((f) => (
             <button
@@ -296,10 +339,8 @@ export function PracticePlanForm({
             </button>
           ))}
         </div>
-      </section>
 
-      <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="mt-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
           Quick Start
         </p>
         <div className="mt-3 grid grid-cols-2 gap-1.5">
@@ -364,6 +405,7 @@ export function PracticePlanForm({
             Names and times only, sized to fit — replaces the drills below. Blank
             rows stay blank until you fill them.
           </p>
+        </div>
         </div>
       </section>
 

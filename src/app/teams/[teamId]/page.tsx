@@ -157,38 +157,6 @@ export default async function TeamPage({
           </div>
         </section>
 
-        {isOwner && (
-          <section className="grid grid-cols-2 gap-2.5">
-            <Link
-              href={`/teams/${teamId}/practice`}
-              className="rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-            >
-              <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                Practice
-              </p>
-              <p className="mt-1 text-[11px] text-foreground-dim">Plan the next one</p>
-            </Link>
-            <Link
-              href={`/teams/${teamId}/scouting`}
-              className="rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-            >
-              <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                Scouting
-              </p>
-              <p className="mt-1 text-[11px] text-foreground-dim">Notes on opponents</p>
-            </Link>
-            <Link
-              href={`/teams/${teamId}/games`}
-              className="col-span-2 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-            >
-              <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                Games
-              </p>
-              <p className="mt-1 text-[11px] text-foreground-dim">Schedule, scores and notes</p>
-            </Link>
-          </section>
-        )}
-
         <section>
           <h2 className="mb-2.5 font-display text-xl uppercase leading-none tracking-wide text-foreground">
             Roster
