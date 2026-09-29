@@ -6,6 +6,9 @@ import { AddRosterForm } from "@/components/add-roster-form";
 import { EmptyState } from "@/components/empty-state";
 import { DEFENSIVE_SCHEMES, OFFENSIVE_SCHEMES, TEAM_FOCUS_AREAS } from "@/lib/basketball/taxonomy";
 import { sortRoster, type RosterMember } from "@/lib/basketball/team";
+import { CoachToday } from "@/components/coach-today";
+import { buildCoachToday, type TodayGame, type TodayPlan } from "@/lib/basketball/today";
+import { totalMinutes, type PracticeBlock } from "@/lib/basketball/practice";
 
 function schemeLabel(
   options: readonly { value: string; label: string }[],
@@ -39,6 +42,8 @@ export default async function TeamPage({
     { data: team },
     { data: memberRows, error: memberError },
     { data: ownPlayers },
+    { data: gameRows },
+    { data: datedPlanRows },
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase
@@ -63,6 +68,19 @@ export default async function TeamPage({
     // unconditionally and just not rendering it is cheaper than an
     // extra sequential round trip gated on isOwner.
     supabase.schema("hoops").from("players").select("id, display_name"),
+    // Feeds the Today card. Both are small per team and independent of
+    // everything else here, so they ride along in the same round trip.
+    supabase
+      .schema("hoops")
+      .from("games")
+      .select("id, opponent, is_tbd, game_date, game_time, location, team_score, opponent_score, notes")
+      .eq("team_id", teamId),
+    supabase
+      .schema("hoops")
+      .from("practice_plans")
+      .select("id, title, practice_date, blocks")
+      .eq("team_id", teamId)
+      .not("practice_date", "is", null),
   ]);
 
   if (!user) redirect("/login");
@@ -71,6 +89,22 @@ export default async function TeamPage({
   const isOwner = team.owner_id === user.id;
 
   if (memberError) console.error("Failed to load roster:", memberError.message);
+
+  const today = buildCoachToday({
+    games: (gameRows ?? []) as TodayGame[],
+    plans: ((datedPlanRows ?? []) as { id: string; title: string; practice_date: string | null; blocks: unknown }[]).map(
+      (row): TodayPlan => {
+        const blocks = (row.blocks ?? []) as PracticeBlock[];
+        return {
+          id: row.id,
+          title: row.title,
+          practice_date: row.practice_date,
+          drillCount: blocks.filter((b) => !b.isSection).length,
+          minutes: totalMinutes(blocks),
+        };
+      }
+    ),
+  });
 
   const roster = sortRoster((memberRows ?? []) as unknown as RosterMember[]);
   const linkedPlayerIds = new Set(
@@ -156,6 +190,15 @@ export default async function TeamPage({
             </div>
           </div>
         </section>
+
+        {isOwner && (
+          <CoachToday
+            teamId={teamId}
+            next={today.next}
+            then={today.then}
+            needsResult={today.needsResult}
+          />
+        )}
 
         <section>
           <h2 className="mb-2.5 font-display text-xl uppercase leading-none tracking-wide text-foreground">

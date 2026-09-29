@@ -1,10 +1,14 @@
 /**
  * The team area's bottom-bar destinations.
  *
- * Five tabs, matching how a coach actually thinks about a team: who's on
- * it, what we're running, when we play, how it's going, and who we're
- * playing. Replaces the tile grid that used to sit on the team hub —
- * with a bar, every destination is one tap from anywhere instead of two.
+ * Five tabs, matching how a coach actually thinks about a team: what is
+ * happening next, what we are running, when we play, how it is going, and
+ * who we are playing. Replaces the tile grid that used to sit on the team
+ * hub — with a bar, every destination is one tap from anywhere.
+ *
+ * The first tab keeps the key "roster" (its route is still the team hub,
+ * which still holds the roster) but reads "Today", because that hub now
+ * leads with the next practice or game rather than the roster.
  */
 export type TeamTab = {
   key: "roster" | "practice" | "games" | "history" | "scouting";
@@ -13,7 +17,7 @@ export type TeamTab = {
 };
 
 export const TEAM_TABS: TeamTab[] = [
-  { key: "roster", label: "Roster", href: (id) => `/teams/${id}` },
+  { key: "roster", label: "Today", href: (id) => `/teams/${id}` },
   { key: "practice", label: "Practice", href: (id) => `/teams/${id}/practice` },
   { key: "games", label: "Games", href: (id) => `/teams/${id}/games` },
   { key: "history", label: "History", href: (id) => `/teams/${id}/practice/history` },

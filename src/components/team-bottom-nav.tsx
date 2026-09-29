@@ -20,9 +20,8 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
     case "roster":
       return (
         <svg {...common}>
-          <circle cx="9" cy="8" r="3" />
-          <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
-          <path d="M16 5.5a3 3 0 0 1 0 5M18 14.5c2 .7 3 2.6 3 5.5" />
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M12 7.5V12l3 2" />
         </svg>
       );
     case "practice":
