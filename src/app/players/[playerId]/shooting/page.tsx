@@ -192,6 +192,12 @@ export default async function ShootingPage({
           suggestedLabels={labels.filter((l) => l !== UNLABELED)}
         >
           {history}
+          <Link
+            href="/lab/detector"
+            className="block text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
+          >
+            Camera lab (experimental)
+          </Link>
         </ShootingHub>
       </main>
     </div>

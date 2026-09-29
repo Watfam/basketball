@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated on install by scripts/copy-ort.mjs: vendored, minified
+    // third-party runtime files, not our code.
+    "public/ort/**",
   ]),
 ]);
 

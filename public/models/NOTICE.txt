@@ -1,0 +1,2 @@
+yolox_nano.onnx is the YOLOX-Nano model from https://github.com/Megvii-BaseDetection/YOLOX
+released under the Apache License 2.0 (text in YOLOX-LICENSE.txt).
