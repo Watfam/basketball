@@ -93,3 +93,16 @@ export function beepWarning() {
 export function beepDone() {
   beep(2, { frequency: 620, duration: 0.3, gap: 0.38, volume: 0.35 });
 }
+
+/**
+ * A very short tick for logging a shot, distinct for a make and a miss.
+ * For a shooter watching the rim rather than the phone: a high blip
+ * confirms a make, a low one a miss, so a tap can be trusted unseen.
+ */
+export function blipShot(made: boolean) {
+  beep(1, {
+    frequency: made ? 1040 : 330,
+    duration: made ? 0.08 : 0.12,
+    volume: 0.2,
+  });
+}

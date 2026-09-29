@@ -14,6 +14,7 @@ import { ProgramPanel } from "@/components/program-panel";
 import { CombinePrompt } from "@/components/combine-prompt";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
 import { PlayerHubTabs } from "@/components/player-hub-tabs";
+import { formatPercentage, percentage } from "@/lib/basketball/shooting";
 import {
   computeProgramProgress,
   rankPrograms,
@@ -76,6 +77,7 @@ export default async function PlayerHubPage({
     { data: offeredProgramsRaw },
     { data: filmRows },
     { data: filmViewRows },
+    { data: lastShotRows },
   ] = await Promise.all([
     supabase.auth.getUser(),
     // RLS scopes this to players in the current user's household — see
@@ -156,6 +158,17 @@ export default async function PlayerHubPage({
     // the full ranking.
     supabase.schema("hoops").from("film_resources").select("id, title, kind, skill_tags, position_tags, sort_order"),
     supabase.schema("hoops").from("film_views").select("film_resource_id").eq("player_id", playerId),
+    // The most recent finished shooting session, for the hub card. A
+    // missing table (migration not run) just yields no rows here.
+    supabase
+      .schema("hoops")
+      .from("shot_sessions")
+      .select("label, started_at, makes, attempts")
+      .eq("player_id", playerId)
+      .not("ended_at", "is", null)
+      .gt("attempts", 0)
+      .order("started_at", { ascending: false })
+      .limit(1),
   ]);
 
   if (!user) redirect("/login");
@@ -316,6 +329,10 @@ export default async function PlayerHubPage({
   const filmUpNextTitle = filmUpNext?.title ?? null;
   const filmUpNextId = filmUpNext?.id ?? null;
 
+  const lastShot = (lastShotRows ?? [])[0] as
+    | { label: string | null; started_at: string; makes: number; attempts: number }
+    | undefined;
+
   const milestones = buildMilestones(totalCompleted, streakWeeks);
   const quote = randomQuote();
 
@@ -472,6 +489,42 @@ export default async function PlayerHubPage({
               subtitle="The workout library hasn't been seeded for this project yet — see supabase/seed_content.sql."
             />
           )}
+        </section>
+
+        <section className="animate-rise" style={{ animationDelay: "90ms" }}>
+          <SectionHeading title="Shooting" caption="Just shoot" />
+          <Link
+            href={`/players/${playerId}/shooting`}
+            className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                {lastShot ? (
+                  <>
+                    <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
+                      {lastShot.makes}/{lastShot.attempts} ·{" "}
+                      {formatPercentage(percentage(lastShot.makes, lastShot.attempts))}
+                    </p>
+                    <p className="mt-1.5 text-xs text-foreground-dim">
+                      Last: {lastShot.label?.trim() || "Shooting session"}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
+                      Count your shots
+                    </p>
+                    <p className="mt-1.5 text-xs text-foreground-dim">
+                      Makes and misses, tracked over time
+                    </p>
+                  </>
+                )}
+              </div>
+              <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
+                Shoot →
+              </span>
+            </div>
+          </Link>
         </section>
 
             </div>

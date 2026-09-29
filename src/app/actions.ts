@@ -1380,3 +1380,152 @@ export async function deleteGame(gameId: string, teamId: string) {
   revalidatePath(`/teams/${teamId}/games`);
   return { error: null };
 }
+
+export type ShotSyncInput = {
+  playerId: string;
+  sessionId: string | null;
+  label: string | null;
+  startedAt: string;
+  ended: boolean;
+  shots: {
+    seq: number;
+    made: boolean;
+    zone: string | null;
+    source: string;
+    detectedMade: boolean | null;
+  }[];
+};
+
+const VALID_ZONES = new Set([
+  "free_throw",
+  "paint",
+  "left_corner",
+  "left_wing",
+  "top",
+  "right_wing",
+  "right_corner",
+]);
+
+/**
+ * Pushes a shooting session's full snapshot to the database.
+ *
+ * The phone owns the session while it is being shot and sends the whole
+ * list each time, rather than one write per tap. That makes every sync
+ * idempotent: shots are upserted on (session_id, seq), then anything past
+ * the current length is deleted, so replaying a sync after a dropped
+ * connection can never double-count or lose a shot. The order matters —
+ * upsert first, trim second — so there is never a moment where the
+ * stored session holds fewer shots than the phone does.
+ *
+ * Mid-session syncs deliberately skip revalidatePath: it would re-render
+ * the page the player is standing on. Only ending a session purges the
+ * cached history and hub.
+ */
+export async function syncShotSession(input: ShotSyncInput) {
+  if (!input.playerId) return { error: "Missing player." };
+  // 1000 matches the API's per-request row cap, so a saved session can
+  // always be read back whole. No real session comes near it.
+  if (input.shots.length > 1000) return { error: "That is more shots than one session can hold." };
+
+  // A malformed snapshot shouldn't reach the database half-applied.
+  for (const [i, s] of input.shots.entries()) {
+    if (s.seq !== i + 1) return { error: "Shot order is out of sequence." };
+    if (s.zone !== null && !VALID_ZONES.has(s.zone)) return { error: "Unknown shot zone." };
+    if (s.source !== "manual" && s.source !== "camera") return { error: "Unknown shot source." };
+  }
+
+  const supabase = await createClient();
+  const label = input.label?.trim().slice(0, 60) || null;
+  const source = input.shots.some((s) => s.source === "camera") ? "camera" : "manual";
+  const endedAt = input.ended ? new Date().toISOString() : null;
+  const makes = input.shots.filter((s) => s.made).length;
+  const attempts = input.shots.length;
+
+  let sessionId = input.sessionId;
+
+  if (sessionId) {
+    const { data: updated, error } = await supabase
+      .schema("hoops")
+      .from("shot_sessions")
+      .update({ label, source, ended_at: endedAt, makes, attempts })
+      .eq("id", sessionId)
+      .eq("player_id", input.playerId)
+      .select("id");
+    if (error) return { error: error.message };
+    // The row is gone (deleted from another device, say). Start a fresh
+    // one from this snapshot instead of failing a session that is intact
+    // on the phone.
+    if (!updated || updated.length === 0) sessionId = null;
+  }
+
+  if (!sessionId) {
+    const { data, error } = await supabase
+      .schema("hoops")
+      .from("shot_sessions")
+      .insert({
+        player_id: input.playerId,
+        label,
+        source,
+        started_at: input.startedAt,
+        ended_at: endedAt,
+        makes,
+        attempts,
+      })
+      .select("id")
+      .single();
+    if (error) return { error: error.message };
+    sessionId = data.id as string;
+  }
+
+  if (input.shots.length > 0) {
+    const { error } = await supabase
+      .schema("hoops")
+      .from("shots")
+      .upsert(
+        input.shots.map((s) => ({
+          session_id: sessionId,
+          player_id: input.playerId,
+          seq: s.seq,
+          made: s.made,
+          zone: s.zone,
+          source: s.source,
+          detected_made: s.detectedMade,
+        })),
+        { onConflict: "session_id,seq" }
+      );
+    if (error) return { error: error.message };
+  }
+
+  const { error: trimError } = await supabase
+    .schema("hoops")
+    .from("shots")
+    .delete()
+    .eq("session_id", sessionId)
+    .gt("seq", input.shots.length);
+  if (trimError) return { error: trimError.message };
+
+  if (input.ended) {
+    revalidatePath("/players/[playerId]/shooting", "page");
+    revalidatePath("/players/[playerId]", "page");
+  }
+
+  return { error: null, sessionId };
+}
+
+export async function deleteShotSession(sessionId: string, playerId: string) {
+  if (!sessionId || !playerId) return { error: "Missing session." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("shot_sessions")
+    .delete()
+    .eq("id", sessionId)
+    .eq("player_id", playerId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/players/[playerId]/shooting", "page");
+  revalidatePath("/players/[playerId]", "page");
+  return { error: null };
+}

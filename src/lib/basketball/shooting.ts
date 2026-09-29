@@ -1,0 +1,152 @@
+/**
+ * Shooting session domain logic.
+ *
+ * Everything here is a pure function over a list of shots, so the same
+ * code drives the live counter, the saved-session summary, and later the
+ * camera tracker's scoring — one definition of "a make" and "a streak"
+ * for all of them.
+ */
+
+export type ZoneKey =
+  | "free_throw"
+  | "paint"
+  | "left_corner"
+  | "left_wing"
+  | "top"
+  | "right_wing"
+  | "right_corner";
+
+/** Order is the order chips are shown and breakdowns are listed. */
+export const ZONES: { key: ZoneKey; label: string }[] = [
+  { key: "free_throw", label: "Free throw" },
+  { key: "paint", label: "Paint" },
+  { key: "left_corner", label: "Left corner" },
+  { key: "left_wing", label: "Left wing" },
+  { key: "top", label: "Top" },
+  { key: "right_wing", label: "Right wing" },
+  { key: "right_corner", label: "Right corner" },
+];
+
+export type ShotSource = "manual" | "camera";
+
+export type Shot = {
+  seq: number;
+  /** The final, human-confirmed result. */
+  made: boolean;
+  zone: ZoneKey | null;
+  source: ShotSource;
+  /**
+   * What the camera decided before any correction. Null for a tapped shot.
+   * Kept so detector accuracy can be measured from real use.
+   */
+  detectedMade: boolean | null;
+};
+
+/** Seq is always 1..n with no gaps, so a snapshot can be upserted on it. */
+function renumber(shots: Shot[]): Shot[] {
+  return shots.map((s, i) => (s.seq === i + 1 ? s : { ...s, seq: i + 1 }));
+}
+
+export function addShot(
+  shots: Shot[],
+  made: boolean,
+  zone: ZoneKey | null,
+  source: ShotSource = "manual",
+  detectedMade: boolean | null = null
+): Shot[] {
+  return [...shots, { seq: shots.length + 1, made, zone, source, detectedMade }];
+}
+
+export function undoLastShot(shots: Shot[]): Shot[] {
+  return shots.slice(0, -1);
+}
+
+/** Flips one shot's result — the correction path for a mis-tap or a mis-call. */
+export function toggleShot(shots: Shot[], seq: number): Shot[] {
+  return shots.map((s) => (s.seq === seq ? { ...s, made: !s.made } : s));
+}
+
+export function removeShot(shots: Shot[], seq: number): Shot[] {
+  return renumber(shots.filter((s) => s.seq !== seq));
+}
+
+/** Null when there are no attempts — 0/0 is "no data", not 0%. */
+export function percentage(makes: number, attempts: number): number | null {
+  if (attempts <= 0) return null;
+  return Math.round((makes / attempts) * 1000) / 10;
+}
+
+export function formatPercentage(pct: number | null): string {
+  if (pct === null) return "—";
+  return Number.isInteger(pct) ? `${pct}%` : `${pct.toFixed(1)}%`;
+}
+
+export type ShotSummary = {
+  makes: number;
+  attempts: number;
+  pct: number | null;
+  /** Length of the run at the end of the session; positive = makes, negative = misses. */
+  currentStreak: number;
+  longestMakeStreak: number;
+  longestMissStreak: number;
+};
+
+export function summarize(shots: Shot[]): ShotSummary {
+  const makes = shots.filter((s) => s.made).length;
+
+  let longestMake = 0;
+  let longestMiss = 0;
+  let run = 0; // signed: >0 make run, <0 miss run
+
+  for (const s of shots) {
+    if (s.made) run = run > 0 ? run + 1 : 1;
+    else run = run < 0 ? run - 1 : -1;
+    longestMake = Math.max(longestMake, run);
+    longestMiss = Math.max(longestMiss, -run);
+  }
+
+  return {
+    makes,
+    attempts: shots.length,
+    pct: percentage(makes, shots.length),
+    currentStreak: run,
+    longestMakeStreak: longestMake,
+    longestMissStreak: longestMiss,
+  };
+}
+
+export type ZoneBreakdown = {
+  zone: ZoneKey;
+  label: string;
+  makes: number;
+  attempts: number;
+  pct: number | null;
+};
+
+/** Only zones that saw at least one attempt, in court order. */
+export function byZone(shots: Shot[]): ZoneBreakdown[] {
+  return ZONES.map(({ key, label }) => {
+    const inZone = shots.filter((s) => s.zone === key);
+    const makes = inZone.filter((s) => s.made).length;
+    return { zone: key, label, makes, attempts: inZone.length, pct: percentage(makes, inZone.length) };
+  }).filter((z) => z.attempts > 0);
+}
+
+/**
+ * How often the camera's call survived review, over the camera shots that
+ * have a recorded call. This is the accuracy number that matters, and the
+ * only honest way to get it is from corrections made in real use.
+ */
+export function detectorAgreement(shots: Shot[]): { agreed: number; total: number; pct: number | null } {
+  const judged = shots.filter((s) => s.source === "camera" && s.detectedMade !== null);
+  const agreed = judged.filter((s) => s.detectedMade === s.made).length;
+  return { agreed, total: judged.length, pct: percentage(agreed, judged.length) };
+}
+
+/** Elapsed minutes, for "20 shots in 6 min". Null if either end is missing. */
+export function durationMinutes(startedAt: string | null, endedAt: string | null): number | null {
+  if (!startedAt || !endedAt) return null;
+  const ms = new Date(endedAt).getTime() - new Date(startedAt).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return null;
+  return Math.max(1, Math.round(ms / 60000));
+}
