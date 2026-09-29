@@ -16,32 +16,31 @@ export default async function CombinePage({
 }) {
   const { playerId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: player }, { data: drillRows, error: drillError }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .schema("hoops")
+      .from("players")
+      .select("id, display_name, birth_year, gender, player_type")
+      .eq("id", playerId)
+      .maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("assessment_drills")
+      .select(
+        "id, key, name, category, setup, cues, equipment, metric, attempts, lower_is_better, benchmarks, sort_order"
+      )
+      .order("sort_order", { ascending: true }),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name, birth_year, gender, player_type")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
 
-  const playerType = (player.player_type ?? {}) as { ratings?: Ratings };
-
-  const { data: drillRows, error: drillError } = await supabase
-    .schema("hoops")
-    .from("assessment_drills")
-    .select(
-      "id, key, name, category, setup, cues, equipment, metric, attempts, lower_is_better, benchmarks, sort_order"
-    )
-    .order("sort_order", { ascending: true });
-
   if (drillError) console.error("[combine] fetch failed:", drillError);
+
+  const playerType = (player.player_type ?? {}) as { ratings?: Ratings };
 
   const drills = (drillRows ?? []) as unknown as CombineDrill[];
   const band = benchmarkBand(player.birth_year, player.gender);

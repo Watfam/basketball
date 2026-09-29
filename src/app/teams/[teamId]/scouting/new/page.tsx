@@ -10,19 +10,14 @@ export default async function NewScoutingNotePage({
 }) {
   const { teamId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: team }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.schema("hoops").from("teams").select("id").eq("id", teamId).maybeSingle(),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id")
-    .eq("id", teamId)
-    .maybeSingle();
-
   if (!team) notFound();
 
   return (

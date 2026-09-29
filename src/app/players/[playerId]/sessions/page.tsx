@@ -11,31 +11,25 @@ export default async function SessionHistoryPage({
 }) {
   const { playerId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: player }, { data: sessions }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.schema("hoops").from("players").select("id, display_name").eq("id", playerId).maybeSingle(),
+    // Every session regardless of status — this is the "nothing is lost"
+    // view. The hub only ever surfaces the single most recent in-progress
+    // session as a "continue" banner; anything older than that (or already
+    // completed) is only reachable from here.
+    supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select("id, status, started_at, completed_at, workouts(name, workout_drills(drill_id))")
+      .eq("player_id", playerId)
+      .order("started_at", { ascending: false }),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
-
-  // Every session regardless of status — this is the "nothing is lost"
-  // view. The hub only ever surfaces the single most recent in-progress
-  // session as a "continue" banner; anything older than that (or already
-  // completed) is only reachable from here.
-  const { data: sessions } = await supabase
-    .schema("hoops")
-    .from("workout_sessions")
-    .select("id, status, started_at, completed_at, workouts(name, workout_drills(drill_id))")
-    .eq("player_id", playerId)
-    .order("started_at", { ascending: false });
 
   const sessionIds = (sessions ?? []).map((s) => s.id);
   const { data: logs } = sessionIds.length

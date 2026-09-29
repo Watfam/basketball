@@ -10,20 +10,20 @@ export default async function LogResultsPage({
 }) {
   const { teamId, planId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: plan }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .schema("hoops")
+      .from("practice_plans")
+      .select("id, title, practice_date, blocks")
+      .eq("id", planId)
+      .eq("team_id", teamId)
+      .maybeSingle(),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: plan } = await supabase
-    .schema("hoops")
-    .from("practice_plans")
-    .select("id, title, practice_date, blocks")
-    .eq("id", planId)
-    .eq("team_id", teamId)
-    .maybeSingle();
-
   if (!plan) notFound();
 
   const blocks = (plan.blocks ?? []) as PracticeBlock[];

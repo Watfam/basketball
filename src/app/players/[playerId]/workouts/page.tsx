@@ -13,41 +13,39 @@ export default async function PlayerWorkoutsPage({
 }) {
   const { playerId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — all four just need playerId (already
+  // known from params) — parallel instead of stacked one after another.
+  const [
+    { data: { user } },
+    { data: player },
+    { data: workouts, error: workoutsError },
+    { data: allCompletedSessions },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    // RLS scopes this to players in the current user's household — see
+    // players_household_owner_all in supabase/schema.sql.
+    supabase.schema("hoops").from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
+    // Content library is readable by any signed-in user (see the
+    // "Content libraries" RLS policies) — it's seeded via supabase/seed_content.sql,
+    // not written through the app.
+    supabase
+      .schema("hoops")
+      .from("workouts")
+      .select(
+        "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, difficulty))"
+      ),
+    supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select("workout_id, completed_at")
+      .eq("player_id", playerId)
+      .eq("status", "completed")
+      .order("completed_at", { ascending: false }),
+  ]);
 
   if (!user) redirect("/login");
-
-  // RLS scopes this to players in the current user's household — see
-  // players_household_owner_all in supabase/schema.sql.
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name, player_type")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
-
-  const playerType = (player.player_type ?? {}) as ComputedPlayerType &
-    PlayerType & { preferred_level?: SkillLevel };
-  if (!playerType.archetype) redirect(`/players/${playerId}/assessment`);
-
-  const suggestedLevel = suggestSkillLevel(
-    playerType.ratings ?? { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 }
-  );
-  const currentLevel = playerType.preferred_level ?? suggestedLevel;
-
-  // Content library is readable by any signed-in user (see the
-  // "Content libraries" RLS policies) — it's seeded via supabase/seed_content.sql,
-  // not written through the app.
-  const { data: workouts, error: workoutsError } = await supabase
-    .schema("hoops")
-    .from("workouts")
-    .select(
-      "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, difficulty))"
-    );
 
   if (workoutsError) {
     // Surfaced instead of silently falling back to an empty feed — a
@@ -57,13 +55,14 @@ export default async function PlayerWorkoutsPage({
     console.error("[workouts] fetch failed:", workoutsError);
   }
 
-  const { data: allCompletedSessions } = await supabase
-    .schema("hoops")
-    .from("workout_sessions")
-    .select("workout_id, completed_at")
-    .eq("player_id", playerId)
-    .eq("status", "completed")
-    .order("completed_at", { ascending: false });
+  const playerType = (player.player_type ?? {}) as ComputedPlayerType &
+    PlayerType & { preferred_level?: SkillLevel };
+  if (!playerType.archetype) redirect(`/players/${playerId}/assessment`);
+
+  const suggestedLevel = suggestSkillLevel(
+    playerType.ratings ?? { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 }
+  );
+  const currentLevel = playerType.preferred_level ?? suggestedLevel;
 
   const lastCompletedByWorkoutId: Record<string, string> = {};
   (allCompletedSessions ?? []).forEach((s) => {

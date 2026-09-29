@@ -10,19 +10,19 @@ export default async function EditTeamPage({
 }) {
   const { teamId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: team }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .schema("hoops")
+      .from("teams")
+      .select("id, name, defensive_scheme, defensive_scheme_custom, offensive_scheme, offensive_scheme_custom, focus_areas")
+      .eq("id", teamId)
+      .maybeSingle(),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: team } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id, name, defensive_scheme, defensive_scheme_custom, offensive_scheme, offensive_scheme_custom, focus_areas")
-    .eq("id", teamId)
-    .maybeSingle();
-
   if (!team) notFound();
 
   return (

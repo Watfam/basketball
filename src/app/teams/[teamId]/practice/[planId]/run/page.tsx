@@ -10,14 +10,10 @@ export default async function RunPracticePage({
 }) {
   const { teamId, planId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
 
   // Independent of each other — parallel instead of sequential.
-  const [{ data: plan }, { data: history }] = await Promise.all([
+  const [{ data: { user } }, { data: plan }, { data: history }] = await Promise.all([
+    supabase.auth.getUser(),
     supabase
       .schema("hoops")
       .from("practice_plans")
@@ -36,6 +32,7 @@ export default async function RunPracticePage({
       .order("created_at", { ascending: false }),
   ]);
 
+  if (!user) redirect("/login");
   if (!plan) notFound();
 
   const blocks = (plan.blocks ?? []) as PracticeBlock[];

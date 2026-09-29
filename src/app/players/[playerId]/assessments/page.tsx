@@ -15,28 +15,22 @@ export default async function AssessmentHistoryPage({
 }) {
   const { playerId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: player }, { data: rows }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.schema("hoops").from("players").select("id, display_name").eq("id", playerId).maybeSingle(),
+    // Oldest first — a progression chart reads left to right.
+    supabase
+      .schema("hoops")
+      .from("assessments")
+      .select("id, kind, computed_player_type, completed_at")
+      .eq("player_id", playerId)
+      .order("completed_at", { ascending: true }),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
-
-  // Oldest first — a progression chart reads left to right.
-  const { data: rows } = await supabase
-    .schema("hoops")
-    .from("assessments")
-    .select("id, kind, computed_player_type, completed_at")
-    .eq("player_id", playerId)
-    .order("completed_at", { ascending: true });
 
   const assessments = (rows ?? []).map((r) => {
     const computed = r.computed_player_type as ComputedPlayerType | null;

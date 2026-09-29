@@ -39,85 +39,76 @@ export default async function FilmRoomPage({
   const { playerId } = await params;
   const { lesson: deepLinkId, tab } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — none of these eight depend on one
+  // another's result, only on playerId — parallel instead of stacked.
+  const [
+    { data: { user } },
+    { data: player },
+    { data: filmRows, error: filmError },
+    { data: trainerRows },
+    { data: viewRows },
+    { data: sessionRows },
+    { data: sessionItemRows },
+    { data: sessionProgressRows },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .schema("hoops")
+      .from("players")
+      .select("id, display_name, household_id, player_type")
+      .eq("id", playerId)
+      .maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("film_resources")
+      .select(
+        "id, title, url, kind, difficulty, skill_tags, position_tags, watch_for, notes, duration_seconds, drill_id, trainer_id, pro_player_name, added_by_household_id, sort_order"
+      ),
+    supabase
+      .schema("hoops")
+      .from("trainers")
+      .select("id, name, handle, youtube_url, instagram_url, website_url, bio, specialty, sort_order")
+      .order("sort_order", { ascending: true }),
+    supabase.schema("hoops").from("film_views").select("film_resource_id, takeaway, watched_at").eq("player_id", playerId),
+    supabase
+      .schema("hoops")
+      .from("film_sessions")
+      .select("id, name, description, outcome, skill_tags, position_tags, difficulty, sort_order")
+      .order("sort_order", { ascending: true }),
+    supabase.schema("hoops").from("film_session_items").select("film_session_id"),
+    supabase.schema("hoops").from("film_session_progress").select("film_session_id, completed_at").eq("player_id", playerId),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name, household_id, player_type")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
-
-  const playerType = (player.player_type ?? {}) as ComputedPlayerType & PlayerType;
-
-  const { data: filmRows, error: filmError } = await supabase
-    .schema("hoops")
-    .from("film_resources")
-    .select(
-      "id, title, url, kind, difficulty, skill_tags, position_tags, watch_for, notes, duration_seconds, drill_id, trainer_id, pro_player_name, added_by_household_id, sort_order"
-    );
 
   if (filmError) console.error("[film] fetch failed:", filmError);
 
-  const { data: trainerRows } = await supabase
-    .schema("hoops")
-    .from("trainers")
-    .select(
-      "id, name, handle, youtube_url, instagram_url, website_url, bio, specialty, sort_order"
-    )
-    .order("sort_order", { ascending: true });
+  const playerType = (player.player_type ?? {}) as ComputedPlayerType & PlayerType;
 
-  const { data: viewRows } = await supabase
-    .schema("hoops")
-    .from("film_views")
-    .select("film_resource_id, takeaway, watched_at")
-    .eq("player_id", playerId);
-
-  // Links this household attached to curated lessons (migration 0009).
-  const { data: linkRows } = player.household_id
-    ? await supabase
-        .schema("hoops")
-        .from("film_links")
-        .select("film_resource_id, url")
-        .eq("household_id", player.household_id)
-    : { data: [] as { film_resource_id: string; url: string }[] };
+  // These two depend on the batch above (player.household_id, the drill
+  // ids referenced by filmRows) — one more round trip apiece, still
+  // parallel with each other rather than sequential.
+  const drillIds = [...new Set((filmRows ?? []).map((f) => f.drill_id).filter(Boolean))];
+  const [{ data: linkRows }, { data: drillRows }] = await Promise.all([
+    // Links this household attached to curated lessons (migration 0009).
+    player.household_id
+      ? supabase.schema("hoops").from("film_links").select("film_resource_id, url").eq("household_id", player.household_id)
+      : Promise.resolve({ data: [] as { film_resource_id: string; url: string }[] }),
+    drillIds.length
+      ? supabase.schema("hoops").from("drills").select("id, name").in("id", drillIds)
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+  ]);
 
   const linkByFilmId = new Map((linkRows ?? []).map((l) => [l.film_resource_id, l.url]));
 
-  const drillIds = [...new Set((filmRows ?? []).map((f) => f.drill_id).filter(Boolean))];
-  const { data: drillRows } = drillIds.length
-    ? await supabase.schema("hoops").from("drills").select("id, name").in("id", drillIds)
-    : { data: [] as { id: string; name: string }[] };
-
-  const { data: sessionRows } = await supabase
-    .schema("hoops")
-    .from("film_sessions")
-    .select("id, name, description, outcome, skill_tags, position_tags, difficulty, sort_order")
-    .order("sort_order", { ascending: true });
-
   const studySessions = sessionRows ?? [];
-
-  const { data: sessionItemRows } = await supabase
-    .schema("hoops")
-    .from("film_session_items")
-    .select("film_session_id");
 
   const itemCountBySession = new Map<string, number>();
   (sessionItemRows ?? []).forEach((r) => {
     itemCountBySession.set(r.film_session_id, (itemCountBySession.get(r.film_session_id) ?? 0) + 1);
   });
-
-  const { data: sessionProgressRows } = await supabase
-    .schema("hoops")
-    .from("film_session_progress")
-    .select("film_session_id, completed_at")
-    .eq("player_id", playerId);
 
   const completedSessionIds = new Map(
     (sessionProgressRows ?? []).map((p) => [p.film_session_id, p.completed_at])

@@ -23,33 +23,40 @@ export default async function ProgramDetailPage({
 }) {
   const { playerId, programId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — all need only params, not one another's
+  // results — parallel instead of stacked.
+  const [{ data: { user } }, { data: program }, { data: days }, { data: activeEnrollment }] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .schema("hoops")
+      .from("programs")
+      .select("id, name, description, focus_areas, level, week_count, days_per_week")
+      .eq("id", programId)
+      .maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("program_days")
+      .select("id, week_number, day_number, workout_id, is_deload, note")
+      .eq("program_id", programId)
+      .order("week_number", { ascending: true })
+      .order("day_number", { ascending: true }),
+    supabase
+      .schema("hoops")
+      .from("player_programs")
+      .select("id, program_id")
+      .eq("player_id", playerId)
+      .eq("status", "active")
+      .maybeSingle(),
+  ]);
 
   if (!user) redirect("/login");
-
-  const { data: program } = await supabase
-    .schema("hoops")
-    .from("programs")
-    .select("id, name, description, focus_areas, level, week_count, days_per_week")
-    .eq("id", programId)
-    .maybeSingle();
-
   if (!program) notFound();
-
-  const { data: days } = await supabase
-    .schema("hoops")
-    .from("program_days")
-    .select("id, week_number, day_number, workout_id, is_deload, note")
-    .eq("program_id", programId)
-    .order("week_number", { ascending: true })
-    .order("day_number", { ascending: true });
 
   // The distinct workouts this program draws on — a six-week block cycles
   // a handful of sessions rather than using eighteen different ones, so
   // listing every day's workout would repeat the same three cards six
-  // times over.
+  // times over. Depends on `days` above, so it waits for that batch.
   const workoutIds = [...new Set((days ?? []).map((d) => d.workout_id))];
   const { data: workouts } = workoutIds.length
     ? await supabase
@@ -64,14 +71,6 @@ export default async function ProgramDetailPage({
   const workoutsById = new Map(
     ((workouts ?? []) as unknown as Workout[]).map((w) => [w.id, w])
   );
-
-  const { data: activeEnrollment } = await supabase
-    .schema("hoops")
-    .from("player_programs")
-    .select("id, program_id")
-    .eq("player_id", playerId)
-    .eq("status", "active")
-    .maybeSingle();
 
   const isEnrolledHere = activeEnrollment?.program_id === programId;
   const isOnAnotherProgram = Boolean(activeEnrollment) && !isEnrolledHere;

@@ -21,13 +21,20 @@ export default async function Home() {
     redirect("/login");
   }
 
-  // A user owns at most one household in this model (see supabase/schema.sql).
-  const { data: household } = await supabase
-    .schema("hoops")
-    .from("households")
-    .select("id, name")
-    .eq("owner_id", user.id)
-    .maybeSingle();
+  // Independent of each other — both just need user.id — so they run
+  // together instead of teams waiting behind the whole household chain.
+  const [{ data: household }, { data: teams }] = await Promise.all([
+    // A user owns at most one household in this model (see supabase/schema.sql).
+    supabase.schema("hoops").from("households").select("id, name").eq("owner_id", user.id).maybeSingle(),
+    // Independent of household — a coach who hasn't set up a family yet
+    // (or ever will) still gets to their teams.
+    supabase
+      .schema("hoops")
+      .from("teams")
+      .select("id, name, defensive_scheme")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: true }),
+  ]);
 
   const { data: players } = household
     ? await supabase
@@ -43,17 +50,28 @@ export default async function Home() {
 
   // Everything the rows need, fetched across all players at once rather
   // than per row — a household is small, but one query per player per
-  // stat would be four round trips per kid.
+  // stat would be four round trips per kid. The two below are independent
+  // of each other (both just need playerIds), so they run together.
   const playerIds = (players ?? []).map((p) => p.id);
 
-  const { data: sessionRows } = playerIds.length
-    ? await supabase
-        .schema("hoops")
-        .from("workout_sessions")
-        .select("id, player_id, completed_at")
-        .in("player_id", playerIds)
-        .eq("status", "completed")
-    : { data: [] as { id: string; player_id: string; completed_at: string | null }[] };
+  const [{ data: sessionRows }, { data: enrollments }] = await Promise.all([
+    playerIds.length
+      ? supabase
+          .schema("hoops")
+          .from("workout_sessions")
+          .select("id, player_id, completed_at")
+          .in("player_id", playerIds)
+          .eq("status", "completed")
+      : Promise.resolve({ data: [] as { id: string; player_id: string; completed_at: string | null }[] }),
+    playerIds.length
+      ? supabase
+          .schema("hoops")
+          .from("player_programs")
+          .select("player_id, programs(name)")
+          .in("player_id", playerIds)
+          .eq("status", "active")
+      : Promise.resolve({ data: [] as { player_id: string; programs: unknown }[] }),
+  ]);
 
   // Same rule as the hub: a session only counts once work was logged
   // against it, so an opened-and-abandoned workout never inflates a
@@ -76,29 +94,11 @@ export default async function Home() {
     datesByPlayer.set(s.player_id, list);
   });
 
-  const { data: enrollments } = playerIds.length
-    ? await supabase
-        .schema("hoops")
-        .from("player_programs")
-        .select("player_id, programs(name)")
-        .in("player_id", playerIds)
-        .eq("status", "active")
-    : { data: [] as { player_id: string; programs: unknown }[] };
-
   const programByPlayer = new Map<string, string>();
   (enrollments ?? []).forEach((e) => {
     const name = (e.programs as unknown as { name: string } | null)?.name;
     if (name) programByPlayer.set(e.player_id, name);
   });
-
-  // Independent of household — a coach who hasn't set up a family yet
-  // (or ever will) still gets to their teams.
-  const { data: teams } = await supabase
-    .schema("hoops")
-    .from("teams")
-    .select("id, name, defensive_scheme")
-    .eq("owner_id", user.id)
-    .order("created_at", { ascending: true });
 
   return (
     <div className="flex flex-1 flex-col">

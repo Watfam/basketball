@@ -10,21 +10,21 @@ export default async function AssessmentPage({
 }) {
   const { playerId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Independent of each other — parallel instead of sequential.
+  const [{ data: { user } }, { data: player }] = await Promise.all([
+    supabase.auth.getUser(),
+    // RLS scopes this to players in the current user's household — see
+    // players_household_owner_all in supabase/schema.sql.
+    supabase
+      .schema("hoops")
+      .from("players")
+      .select("id, display_name, primary_position, player_type")
+      .eq("id", playerId)
+      .maybeSingle(),
+  ]);
 
   if (!user) redirect("/login");
-
-  // RLS scopes this to players in the current user's household — see
-  // players_household_owner_all in supabase/schema.sql.
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name, primary_position, player_type")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
 
   // Anyone who already has a computed archetype is retesting, not being

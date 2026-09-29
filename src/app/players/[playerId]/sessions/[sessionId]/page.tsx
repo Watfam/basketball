@@ -11,32 +11,38 @@ export default async function SessionPage({
 }) {
   const { playerId, sessionId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // All four are independent of each other — each needs only playerId
+  // and/or sessionId, both already known from params — parallel instead
+  // of stacked one after another.
+  const [
+    { data: { user } },
+    { data: session, error },
+    { data: player },
+    { data: existingLogs },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    // RLS (workout_sessions_household_all) scopes this to sessions for
+    // players in the caller's own household.
+    supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select(
+        "id, status, program_days(volume_step, week_number, day_number, is_deload), workouts(id, name, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, setup, cues, common_mistakes, equipment, film_resources(id, title, watch_for, url, notes))))"
+      )
+      .eq("id", sessionId)
+      .eq("player_id", playerId)
+      .maybeSingle(),
+    // The player's training level decides both which variation of each slot
+    // they get and how the sets/reps scale.
+    supabase.schema("hoops").from("players").select("player_type").eq("id", playerId).maybeSingle(),
+    // Entries already logged in a previous visit — lets the player resume
+    // where they left off instead of redoing everything or losing progress
+    // if they closed the app mid-workout.
+    supabase.schema("hoops").from("session_logs").select("workout_drill_id").eq("session_id", sessionId),
+  ]);
 
   if (!user) redirect("/login");
-
-  // RLS (workout_sessions_household_all) scopes this to sessions for
-  // players in the caller's own household.
-  const { data: session, error } = await supabase
-    .schema("hoops")
-    .from("workout_sessions")
-    .select(
-      "id, status, program_days(volume_step, week_number, day_number, is_deload), workouts(id, name, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, setup, cues, common_mistakes, equipment, film_resources(id, title, watch_for, url, notes))))"
-    )
-    .eq("id", sessionId)
-    .eq("player_id", playerId)
-    .maybeSingle();
-
-  // The player's training level decides both which variation of each slot
-  // they get and how the sets/reps scale.
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("player_type")
-    .eq("id", playerId)
-    .maybeSingle();
 
   const playerType = (player?.player_type ?? {}) as {
     ratings?: Record<string, number>;
@@ -79,15 +85,6 @@ export default async function SessionPage({
     is_deload: boolean;
   } | null;
   const volumeStep = programDay?.volume_step ?? 0;
-
-  // Entries already logged in a previous visit — lets the player resume
-  // where they left off instead of redoing everything or losing progress
-  // if they closed the app mid-workout.
-  const { data: existingLogs } = await supabase
-    .schema("hoops")
-    .from("session_logs")
-    .select("workout_drill_id")
-    .eq("session_id", sessionId);
 
   return (
     // The session screen goes fully dark while the app shell stays light:

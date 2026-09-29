@@ -57,21 +57,107 @@ export default async function PlayerHubPage({
 }) {
   const { playerId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+
+  // Everything in this first batch depends only on playerId (already
+  // known from params), not on each other or on the auth check — so the
+  // auth check runs alongside them instead of blocking them. This page
+  // used to pay for up to a dozen sequential round trips; now it's one.
+  const [
+    { data: { user } },
+    { data: player },
+    { data: workouts },
+    { data: assessments },
+    { data: lastCombine },
+    { data: inProgressSessions },
+    { data: recentSessions },
+    { data: completedRows },
+    { data: enrollment },
+    { data: offeredProgramsRaw },
+    { data: filmRows },
+    { data: filmViewRows },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    // RLS scopes this to players in the current user's household — see
+    // players_household_owner_all in supabase/schema.sql.
+    supabase.schema("hoops").from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("workouts")
+      .select(
+        "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, difficulty))"
+      ),
+    // The two most recent assessments: the previous one turns the attribute
+    // radar into a before/after instead of a static snapshot. Most players
+    // will only ever have one, which the panel handles as "Baseline."
+    supabase
+      .schema("hoops")
+      .from("assessments")
+      .select("kind, computed_player_type, completed_at")
+      .eq("player_id", playerId)
+      .order("completed_at", { ascending: false })
+      .limit(2),
+    // The combine is the measured assessment, and it is the one that makes
+    // every rating in the app mean something. It stays outstanding until it
+    // has actually been done — snoozing pushes it out, it never dismisses.
+    supabase
+      .schema("hoops")
+      .from("assessments")
+      .select("completed_at")
+      .eq("player_id", playerId)
+      .eq("kind", "combine")
+      .order("completed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    // Every unfinished session, not just the newest. Showing only the most
+    // recent one silently stranded older ones: a player who starts A, drifts
+    // off, then starts B had no way back to A except the history page.
+    supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select("id, workout_id, started_at, workouts(name)")
+      .eq("player_id", playerId)
+      .eq("status", "in_progress")
+      .order("started_at", { ascending: false }),
+    supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select("id, completed_at, workouts(name)")
+      .eq("player_id", playerId)
+      .eq("status", "completed")
+      .order("completed_at", { ascending: false })
+      .limit(4),
+    // Every completed session, most recent first — drives the progress stats,
+    // both charts, and the ranking's "sink this down, you just did it" signal,
+    // instead of several near-identical queries.
+    supabase
+      .schema("hoops")
+      .from("workout_sessions")
+      .select("id, workout_id, completed_at")
+      .eq("player_id", playerId)
+      .eq("status", "completed")
+      .order("completed_at", { ascending: false }),
+    supabase
+      .schema("hoops")
+      .from("player_programs")
+      .select("id, program_id, programs(id, name, description, week_count, days_per_week)")
+      .eq("player_id", playerId)
+      .eq("status", "active")
+      .maybeSingle(),
+    // Fetched unconditionally even though it's only shown when the player
+    // isn't already enrolled — a blanket read with no player-specific
+    // filter, so fetching it up front and ignoring it when unused is
+    // cheaper than a second sequential round trip gated on enrollment.
+    supabase
+      .schema("hoops")
+      .from("programs")
+      .select("id, name, description, focus_areas, player_type_tags, level, week_count, days_per_week"),
+    // Just enough to show what's next on the hub; the Film Room itself does
+    // the full ranking.
+    supabase.schema("hoops").from("film_resources").select("id, title, kind, skill_tags, position_tags, sort_order"),
+    supabase.schema("hoops").from("film_views").select("film_resource_id").eq("player_id", playerId),
+  ]);
 
   if (!user) redirect("/login");
-
-  // RLS scopes this to players in the current user's household — see
-  // players_household_owner_all in supabase/schema.sql.
-  const { data: player } = await supabase
-    .schema("hoops")
-    .from("players")
-    .select("id, display_name, player_type")
-    .eq("id", playerId)
-    .maybeSingle();
-
   if (!player) notFound();
 
   const playerType = (player.player_type ?? {}) as ComputedPlayerType &
@@ -82,37 +168,6 @@ export default async function PlayerHubPage({
   const suggestedLevel = suggestSkillLevel(ratings);
   const currentLevel = playerType.preferred_level ?? suggestedLevel;
   const overall = computeOverall(ratings);
-
-  const { data: workouts } = await supabase
-    .schema("hoops")
-    .from("workouts")
-    .select(
-      "id, name, description, focus_areas, estimated_minutes, player_type_tags, workout_drills(id, drill_id, sort_order, block, variant_label, levels, level_targets, target_sets, target_reps, target_duration_seconds, drills(id, name, description, video_url, source_trainer, difficulty))"
-    );
-
-  // The two most recent assessments: the previous one turns the attribute
-  // radar into a before/after instead of a static snapshot. Most players
-  // will only ever have one, which the panel handles as "Baseline."
-  const { data: assessments } = await supabase
-    .schema("hoops")
-    .from("assessments")
-    .select("kind, computed_player_type, completed_at")
-    .eq("player_id", playerId)
-    .order("completed_at", { ascending: false })
-    .limit(2);
-
-  // The combine is the measured assessment, and it is the one that makes
-  // every rating in the app mean something. It stays outstanding until it
-  // has actually been done — snoozing pushes it out, it never dismisses.
-  const { data: lastCombine } = await supabase
-    .schema("hoops")
-    .from("assessments")
-    .select("completed_at")
-    .eq("player_id", playerId)
-    .eq("kind", "combine")
-    .order("completed_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
 
   const snoozedAt = (playerType as { combine_snoozed_at?: string }).combine_snoozed_at ?? null;
   const snoozeDays = daysSinceAssessment(snoozedAt);
@@ -126,54 +181,48 @@ export default async function PlayerHubPage({
   const assessedLabel = lastAssessedLabel(assessments?.[0]?.completed_at);
   const assessmentStale = isAssessmentStale(assessments?.[0]?.completed_at);
 
-  // Every unfinished session, not just the newest. Showing only the most
-  // recent one silently stranded older ones: a player who starts A, drifts
-  // off, then starts B had no way back to A except the history page.
-  const { data: inProgressSessions } = await supabase
-    .schema("hoops")
-    .from("workout_sessions")
-    .select("id, workout_id, started_at, workouts(name)")
-    .eq("player_id", playerId)
-    .eq("status", "in_progress")
-    .order("started_at", { ascending: false });
-
   const unfinished = inProgressSessions ?? [];
   const unfinishedWorkoutIds = new Set(
     unfinished.map((s) => s.workout_id).filter((id): id is string => Boolean(id))
   );
-
-  const { data: recentSessions } = await supabase
-    .schema("hoops")
-    .from("workout_sessions")
-    .select("id, completed_at, workouts(name)")
-    .eq("player_id", playerId)
-    .eq("status", "completed")
-    .order("completed_at", { ascending: false })
-    .limit(4);
-
-  // Every completed session, most recent first — drives the progress stats,
-  // both charts, and the ranking's "sink this down, you just did it" signal,
-  // instead of several near-identical queries.
-  const { data: completedRows } = await supabase
-    .schema("hoops")
-    .from("workout_sessions")
-    .select("id, workout_id, completed_at")
-    .eq("player_id", playerId)
-    .eq("status", "completed")
-    .order("completed_at", { ascending: false });
 
   // A session only counts once actual work was logged against it. Without
   // this a session finished with nothing done would feed the streak, the
   // totals, the milestones and both charts — the app no longer creates
   // those, but this keeps the numbers honest for any that already exist.
   const completedIds = (completedRows ?? []).map((s) => s.id);
-  const { data: logRows } = completedIds.length
-    ? await supabase
-        .schema("hoops")
-        .from("session_logs")
-        .select("session_id")
-        .in("session_id", completedIds)
-    : { data: [] as { session_id: string }[] };
+  const activeProgram = enrollment?.programs as unknown as
+    | { id: string; name: string; week_count: number; days_per_week: number }
+    | null
+    | undefined;
+
+  // This stage's two branches only depend on results from the batch
+  // above (completedIds, activeProgram) — still one round trip apiece,
+  // just no longer stacked after everything else too.
+  const [{ data: logRows }, { data: days }, { data: programSessions }] = await Promise.all([
+    completedIds.length
+      ? supabase.schema("hoops").from("session_logs").select("session_id").in("session_id", completedIds)
+      : Promise.resolve({ data: [] as { session_id: string }[] }),
+    activeProgram
+      ? supabase
+          .schema("hoops")
+          .from("program_days")
+          .select("id, week_number, day_number, workout_id, volume_step, is_deload, note")
+          .eq("program_id", activeProgram.id)
+          .order("week_number", { ascending: true })
+          .order("day_number", { ascending: true })
+      : Promise.resolve({ data: null }),
+    activeProgram
+      ? supabase
+          .schema("hoops")
+          .from("workout_sessions")
+          .select("program_day_id")
+          .eq("player_id", playerId)
+          .eq("status", "completed")
+          .not("program_day_id", "is", null)
+          .in("id", completedIds.length ? completedIds : ["00000000-0000-0000-0000-000000000000"])
+      : Promise.resolve({ data: null }),
+  ]);
 
   const sessionsWithWork = new Set((logRows ?? []).map((l) => l.session_id));
   const allCompletedSessions = (completedRows ?? []).filter((s) => sessionsWithWork.has(s.id));
@@ -215,43 +264,15 @@ export default async function PlayerHubPage({
   // --- Program ---------------------------------------------------------
   // A player on a program has their next session decided by the schedule
   // rather than by ranking, so the program panel takes over the primary
-  // action and "Up Next" drops to a secondary "extra work" rail.
-  const { data: enrollment } = await supabase
-    .schema("hoops")
-    .from("player_programs")
-    .select("id, program_id, programs(id, name, description, week_count, days_per_week)")
-    .eq("player_id", playerId)
-    .eq("status", "active")
-    .maybeSingle();
-
-  const activeProgram = enrollment?.programs as unknown as
-    | { id: string; name: string; week_count: number; days_per_week: number }
-    | null
-    | undefined;
-
+  // action and "Up Next" drops to a secondary "extra work" rail. The
+  // fetches for this section already happened in the two batches above —
+  // this is just the computation.
   let programProgress: ProgramProgress | null = null;
   let nextWorkoutName: string | null = null;
 
   if (activeProgram) {
-    const { data: days } = await supabase
-      .schema("hoops")
-      .from("program_days")
-      .select("id, week_number, day_number, workout_id, volume_step, is_deload, note")
-      .eq("program_id", activeProgram.id)
-      .order("week_number", { ascending: true })
-      .order("day_number", { ascending: true });
-
     // Only days whose session actually recorded work count as done, for
     // the same reason the stats above filter on logged work.
-    const { data: programSessions } = await supabase
-      .schema("hoops")
-      .from("workout_sessions")
-      .select("program_day_id")
-      .eq("player_id", playerId)
-      .eq("status", "completed")
-      .not("program_day_id", "is", null)
-      .in("id", completedIds.length ? completedIds : ["00000000-0000-0000-0000-000000000000"]);
-
     const completedDayIds = (programSessions ?? [])
       .map((s) => s.program_day_id)
       .filter((id): id is string => Boolean(id));
@@ -266,14 +287,7 @@ export default async function PlayerHubPage({
 
   // Only offered when the player isn't already on one — committing to a
   // block is a real decision, not something to nag about mid-program.
-  const { data: offeredPrograms } = activeProgram
-    ? { data: null }
-    : await supabase
-        .schema("hoops")
-        .from("programs")
-        .select(
-          "id, name, description, focus_areas, player_type_tags, level, week_count, days_per_week"
-        );
+  const offeredPrograms = activeProgram ? null : offeredProgramsRaw;
 
   // Ordered toward the player's genuine weak spots, same principle as the
   // workout feed — nothing is hidden, it's just not arbitrary.
@@ -286,19 +300,6 @@ export default async function PlayerHubPage({
   });
 
   // --- Film ------------------------------------------------------------
-  // Just enough to show what's next on the hub; the Film Room itself does
-  // the full ranking.
-  const { data: filmRows } = await supabase
-    .schema("hoops")
-    .from("film_resources")
-    .select("id, title, kind, skill_tags, position_tags, sort_order");
-
-  const { data: filmViewRows } = await supabase
-    .schema("hoops")
-    .from("film_views")
-    .select("film_resource_id")
-    .eq("player_id", playerId);
-
   const filmWatchedIds = new Set((filmViewRows ?? []).map((v) => v.film_resource_id));
   const filmStudiedCount = filmWatchedIds.size;
   // Both the title and the id: naming a lesson on the card and then

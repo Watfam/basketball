@@ -12,14 +12,10 @@ export default async function PracticePlansPage({
 }) {
   const { teamId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
 
   // Independent of each other — parallel instead of sequential.
-  const [{ data: team }, { data: plans }, { data: sessions }] = await Promise.all([
+  const [{ data: { user } }, { data: team }, { data: plans }, { data: sessions }] = await Promise.all([
+    supabase.auth.getUser(),
     supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
     supabase
       .schema("hoops")
@@ -38,6 +34,7 @@ export default async function PracticePlansPage({
       .order("created_at", { ascending: false }),
   ]);
 
+  if (!user) redirect("/login");
   if (!team) notFound();
 
   const lastSessionByPlan = new Map<string, { id: string; run_date: string }>();

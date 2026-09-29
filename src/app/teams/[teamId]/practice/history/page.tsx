@@ -25,14 +25,10 @@ export default async function PracticeHistoryPage({
   const { teamId } = await params;
   const { drill } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
 
   // Independent of each other — parallel instead of sequential.
-  const [{ data: team }, { data: labelRows }] = await Promise.all([
+  const [{ data: { user } }, { data: team }, { data: labelRows }] = await Promise.all([
+    supabase.auth.getUser(),
     supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
     supabase
       .schema("hoops")
@@ -42,6 +38,7 @@ export default async function PracticeHistoryPage({
       .order("created_at", { ascending: false }),
   ]);
 
+  if (!user) redirect("/login");
   if (!team) notFound();
 
   const labels = [...new Set((labelRows ?? []).map((r) => r.label))];

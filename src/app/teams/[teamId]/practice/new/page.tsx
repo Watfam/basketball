@@ -11,15 +11,11 @@ export default async function NewPracticePlanPage({
 }) {
   const { teamId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
-
-  // None of these three depend on each other — parallel instead of
-  // three sequential round trips.
-  const [{ data: team }, { data: drills }, { data: pastPlans }] = await Promise.all([
+  // None of these four depend on each other — parallel instead of
+  // sequential round trips.
+  const [{ data: { user } }, { data: team }, { data: drills }, { data: pastPlans }] = await Promise.all([
+    supabase.auth.getUser(),
     supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
     // Fed into the fast-entry list as an optional link suggestion — cheap,
     // the whole library is a couple dozen rows.
@@ -27,6 +23,7 @@ export default async function NewPracticePlanPage({
     supabase.schema("hoops").from("practice_plans").select("blocks").eq("team_id", teamId),
   ]);
 
+  if (!user) redirect("/login");
   if (!team) notFound();
 
   const quickNames = frequentDrillNames(((pastPlans ?? []).map((p) => p.blocks ?? [])) as PB[][]);

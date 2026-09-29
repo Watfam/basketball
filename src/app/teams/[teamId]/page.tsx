@@ -30,20 +30,17 @@ export default async function TeamPage({
 }) {
   const { teamId } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
-
-  // These three don't depend on each other's results, only on teamId
-  // (already known from params) — running them in parallel instead of
-  // one after another turns three network round trips into one.
+  // None of these four depend on each other's results, only on teamId
+  // (already known from params) — running them in parallel, auth check
+  // included, instead of one after another.
   const [
+    { data: { user } },
     { data: team },
     { data: memberRows, error: memberError },
     { data: ownPlayers },
   ] = await Promise.all([
+    supabase.auth.getUser(),
     supabase
       .schema("hoops")
       .from("teams")
@@ -68,6 +65,7 @@ export default async function TeamPage({
     supabase.schema("hoops").from("players").select("id, display_name"),
   ]);
 
+  if (!user) redirect("/login");
   if (!team) notFound();
 
   const isOwner = team.owner_id === user.id;
