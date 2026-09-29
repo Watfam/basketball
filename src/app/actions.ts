@@ -1306,3 +1306,77 @@ export async function setPreferredLevel(playerId: string, level: SkillLevel) {
   revalidatePath(`/players/${playerId}`);
   return { error: null };
 }
+
+/**
+ * Adds a game to the schedule — for filling in a reschedule or a game
+ * the imported MaxPreps schedule didn't have yet. Score and notes come
+ * later, through saveGameResult, once the game's actually been played.
+ */
+export async function addGame(
+  teamId: string,
+  input: { opponent: string; gameDate: string; gameTime?: string; location?: string }
+) {
+  if (!teamId || !input.opponent.trim() || !input.gameDate) {
+    return { error: "Opponent and date are required." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .schema("hoops")
+    .from("games")
+    .insert({
+      team_id: teamId,
+      opponent: input.opponent.trim(),
+      game_date: input.gameDate,
+      game_time: input.gameTime?.trim() || null,
+      location: input.location || null,
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/games`);
+  return { error: null, gameId: data.id as string };
+}
+
+/**
+ * Records the final score and/or post-game notes. Both optional and
+ * independent — a coach might jot notes the night of but not know the
+ * final tournament-bracket score until later, or vice versa.
+ */
+export async function saveGameResult(
+  gameId: string,
+  teamId: string,
+  input: { teamScore: number | null; opponentScore: number | null; notes: string | null }
+) {
+  if (!gameId) return { error: "Missing game." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("games")
+    .update({
+      team_score: input.teamScore,
+      opponent_score: input.opponentScore,
+      notes: input.notes?.trim() || null,
+    })
+    .eq("id", gameId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/games`);
+  return { error: null };
+}
+
+export async function deleteGame(gameId: string, teamId: string) {
+  if (!gameId) return { error: "Missing game." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("games").delete().eq("id", gameId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/teams/${teamId}/games`);
+  return { error: null };
+}
