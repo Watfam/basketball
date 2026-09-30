@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COCO_SPORTS_BALL, createDetector, yieldToMain, type Backend, type Detector } from "@/lib/vision/detector";
+import { COCO_SPORTS_BALL, createDetector, nextVideoFrame, yieldToMain, type Backend, type Detector } from "@/lib/vision/detector";
 import { haptic } from "@/lib/haptics";
-import { useWakeLock } from "@/lib/use-wake-lock";
+import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 
 /**
@@ -25,6 +25,13 @@ const DURATIONS = [
 const WORK_WIDTH = 640;
 
 type Source = "camera" | "file";
+/** What a run exercises: lets a crash be pinned on the camera or the model. */
+type TestMode = "all" | "camera" | "model";
+const TEST_MODES: { id: TestMode; label: string }[] = [
+  { id: "all", label: "Everything" },
+  { id: "camera", label: "Camera only" },
+  { id: "model", label: "Model only" },
+];
 type Phase = "idle" | "loading" | "running" | "done" | "error";
 
 type Segment = { label: string; fps: number; totalMs: number; inferMs: number; ballPct: number };
@@ -33,6 +40,9 @@ type Report = {
   at: string;
   /** Saved while the run was still going; the run never finished. */
   partial?: boolean;
+  test?: TestMode;
+  /** How the screen was kept awake (or not) during the run. */
+  screen?: string;
   backend: Backend;
   source: Source;
   video: string;
@@ -79,13 +89,14 @@ function upsertRun(report: Report) {
 
 function reportText(report: Report) {
   return [
-    `Detector lab — ${report.backend} — ${report.source} — ${new Date(report.at).toLocaleString()}${
+    `Detector lab — ${report.backend} — ${report.source} — test: ${report.test ?? "all"} — ${new Date(report.at).toLocaleString()}${
       report.partial ? " — CUT OFF before finishing" : ""
     }`,
     `Device: ${navigator.userAgent}`,
     `Video: ${report.video}   Model load: ${fmt(report.loadMs, 0)} ms`,
     `Frames: ${report.frames}   Average: ${fmt(report.avgFps)} fps   Slowest 5%: ${fmt(report.p95Ms, 0)} ms`,
     `Frames with a ball: ${fmt(report.ballPct, 0)}%`,
+    `Screen: ${report.screen ?? "not recorded"}`,
     "",
     "Segment      fps    ms/frame  infer ms  ball%",
     ...report.segments.map(
@@ -105,7 +116,10 @@ function reportText(report: Report) {
  */
 const TRAIL_KEY = "hl:lab-trail";
 const markStep = (backend: Backend, source: Source, step: string) =>
-  writeDraft(TRAIL_KEY, JSON.stringify({ at: new Date().toISOString(), backend, source, step }));
+  writeDraft(
+    TRAIL_KEY,
+    JSON.stringify({ at: new Date().toISOString(), backend, source, step: `${step} · ${describeWake(getWakeStatus())}` })
+  );
 
 function percentile(values: number[], p: number) {
   if (values.length === 0) return 0;
@@ -123,6 +137,7 @@ export function DetectorLab() {
   const [durationIdx, setDurationIdx] = useState(1);
   const [backend, setBackend] = useState<Backend>("webgpu");
   const [source, setSource] = useState<Source>("camera");
+  const [testMode, setTestMode] = useState<TestMode>("all");
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [live, setLive] = useState<{ fps: number; ms: number; ball: boolean; elapsed: number } | null>(null);
@@ -141,7 +156,9 @@ export function DetectorLab() {
     if (report) reportRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [report]);
 
-  useWakeLock(phase === "running");
+  const busy = phase === "loading" || phase === "running";
+  useWakeLock(busy);
+  const wake = useWakeStatus();
 
   const teardown = useCallback(() => {
     stopRef.current?.();
@@ -182,7 +199,8 @@ export function DetectorLab() {
     setMessage(null);
     setLive(null);
     setPhase("loading");
-    markStep(backend, source, "Starting");
+    const mark = (step: string) => markStep(backend, source, `${testMode}: ${step}`);
+    mark("Starting");
 
     const video = videoRef.current;
     const overlay = overlayRef.current;
@@ -190,14 +208,18 @@ export function DetectorLab() {
     const runSeconds = DURATIONS[durationIdx].seconds;
     const segmentSeconds = DURATIONS[durationIdx].segment;
 
+    const useCamera = testMode !== "model";
+    const useModel = testMode !== "camera";
+
     let detector: Detector | null = null;
     try {
       const loadStart = performance.now();
-      detector = await createDetector(backend, (step) => markStep(backend, source, step));
+      if (useModel) detector = await createDetector(backend, (step) => mark(step));
       const loadMs = performance.now() - loadStart;
 
+      if (useCamera) {
       if (source === "camera") {
-        markStep(backend, source, "Opening the camera");
+        mark("Opening the camera");
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: "environment" },
@@ -217,13 +239,16 @@ export function DetectorLab() {
       }
       video.muted = true;
       video.playsInline = true;
-      markStep(backend, source, "Starting the video");
+      mark("Starting the video");
       await video.play();
       if (video.videoWidth === 0) throw new Error("The video has no picture to read.");
+      }
 
       const work = document.createElement("canvas");
       work.width = WORK_WIDTH;
-      work.height = Math.round((WORK_WIDTH * video.videoHeight) / video.videoWidth);
+      work.height = useCamera
+        ? Math.round((WORK_WIDTH * video.videoHeight) / video.videoWidth)
+        : Math.round((WORK_WIDTH * 9) / 16);
       const wctx = work.getContext("2d", { willReadFrequently: true });
       const octx = overlay.getContext("2d");
       if (!wctx || !octx) throw new Error("Canvas isn't available in this browser.");
@@ -231,7 +256,25 @@ export function DetectorLab() {
       overlay.height = work.height;
 
       const runAt = new Date().toISOString();
-      const videoLabel = `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`;
+      const videoLabel = useCamera
+        ? `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`
+        : `no camera: a fixed ${work.width}×${work.height} picture`;
+
+      // Model-only runs feed the same still picture every frame, so any
+      // problem found can't be blamed on the camera.
+      let still: ImageData | null = null;
+      if (!useCamera) {
+        const grad = wctx.createLinearGradient(0, 0, work.width, work.height);
+        grad.addColorStop(0, "#345");
+        grad.addColorStop(1, "#c84");
+        wctx.fillStyle = grad;
+        wctx.fillRect(0, 0, work.width, work.height);
+        wctx.fillStyle = "#e8761c";
+        wctx.beginPath();
+        wctx.arc(work.width / 2, work.height / 2, 40, 0, Math.PI * 2);
+        wctx.fill();
+        still = wctx.getImageData(0, 0, work.width, work.height);
+      }
       const startedAt = performance.now();
       const frameMs: number[] = [];
       const inferMs: number[] = [];
@@ -263,6 +306,7 @@ export function DetectorLab() {
       const buildReport = (now: number, partial: boolean): Report => ({
         at: runAt,
         partial,
+        test: testMode,
         backend,
         source,
         video: videoLabel,
@@ -272,6 +316,7 @@ export function DetectorLab() {
         p95Ms: percentile(frameMs, 0.95),
         ballPct: (ballFrames.filter(Boolean).length / Math.max(1, ballFrames.length)) * 100,
         loadMs,
+        screen: describeWake(getWakeStatus()),
       });
 
       stopRef.current = () => {
@@ -279,7 +324,7 @@ export function DetectorLab() {
       };
 
       setPhase("running");
-      markStep(backend, source, "Running, first frame");
+      mark("Running, first frame");
       let lastMark = 0;
 
       while (!stopped) {
@@ -287,9 +332,16 @@ export function DetectorLab() {
         const elapsed = (frameStart - startedAt) / 1000;
         if (elapsed >= runSeconds) break;
 
-        wctx.drawImage(video, 0, 0, work.width, work.height);
-        const img = wctx.getImageData(0, 0, work.width, work.height);
-        const { detections, timings } = await detector.detect(img);
+        let img: ImageData;
+        if (useCamera) {
+          wctx.drawImage(video, 0, 0, work.width, work.height);
+          img = wctx.getImageData(0, 0, work.width, work.height);
+        } else {
+          img = still as ImageData;
+        }
+        const { detections, timings } = detector
+          ? await detector.detect(img)
+          : { detections: [], timings: { prepMs: 0, inferMs: 0, postMs: 0 } };
 
         const total = performance.now() - frameStart;
         const hasBall = detections.some((d) => d.classId === COCO_SPORTS_BALL);
@@ -304,7 +356,7 @@ export function DetectorLab() {
         const now = performance.now();
         if (now - lastMark > 1000) {
           lastMark = now;
-          markStep(backend, source, `Running, ${Math.floor(elapsed)}s in, ${frameMs.length} frames done`);
+          mark(`Running, ${Math.floor(elapsed)}s in, ${frameMs.length} frames done`);
           // Saved as it goes, so a page the phone closes mid-run still
           // leaves everything measured up to that moment.
           upsertRun(buildReport(now, true));
@@ -326,8 +378,9 @@ export function DetectorLab() {
           setLive({ fps: 1000 / avg, ms: avg, ball: hasBall, elapsed });
         }
 
-        // Let the page paint and take taps between frames.
-        await yieldToMain();
+        // Wait for the next new picture (which also lets the page paint and
+        // take taps); with no camera, just hand control back.
+        await (useCamera ? nextVideoFrame(video) : yieldToMain());
       }
 
       const endedAt = performance.now();
@@ -382,7 +435,6 @@ export function DetectorLab() {
     }
   }
 
-  const busy = phase === "loading" || phase === "running";
   const firstFps = report?.segments[0]?.fps ?? 0;
   const lastFps = report?.segments[report.segments.length - 1]?.fps ?? 0;
   const dropPct = firstFps > 0 ? ((firstFps - lastFps) / firstFps) * 100 : 0;
@@ -550,7 +602,24 @@ export function DetectorLab() {
           ))}
         </div>
 
-        {source === "file" && !busy && (
+        <div className="grid grid-cols-3 gap-2">
+          {TEST_MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              disabled={busy}
+              onClick={() => setTestMode(m.id)}
+              aria-pressed={testMode === m.id}
+              className={`rounded-lg border px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                testMode === m.id ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        {source === "file" && testMode !== "model" && !busy && (
           <label className="block">
             <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
               Choose a video, then it runs for {DURATIONS[durationIdx].seconds}s
@@ -567,7 +636,7 @@ export function DetectorLab() {
           </label>
         )}
 
-        {source === "camera" && (
+        {(source === "camera" || testMode === "model") && (
           <button
             type="button"
             onClick={busy ? stop : () => void run()}
@@ -577,7 +646,7 @@ export function DetectorLab() {
             {phase === "loading" ? "Loading…" : phase === "running" ? "Stop" : "Start test"}
           </button>
         )}
-        {source === "file" && phase === "running" && (
+        {source === "file" && testMode !== "model" && phase === "running" && (
           <button
             type="button"
             onClick={stop}
@@ -596,6 +665,7 @@ export function DetectorLab() {
             : keepsData
               ? "runs are saved on this phone"
               : "this browser will not save runs"}
+          {busy ? ` · ${describeWake(wake)}` : ""}
         </p>
 
         {trail && phase === "idle" && (

@@ -142,4 +142,26 @@ export function yieldToMain(): Promise<void> {
   });
 }
 
+/**
+ * Resolves when the video has a new picture to read, or after maxWaitMs
+ * whichever comes first.
+ *
+ * Reading the same camera frame twice is wasted work, and a loop that never
+ * waits for anything real can starve the page's own rendering. requestVideoFrameCallback
+ * fires once per new frame, in step with painting. The timeout is the
+ * safety net: a paused, hidden or stalled video never calls back, and the
+ * loop must still be able to notice Stop.
+ */
+export function nextVideoFrame(video: HTMLVideoElement, maxWaitMs = 250): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, maxWaitMs);
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    if ("requestVideoFrameCallback" in video) video.requestVideoFrameCallback(done);
+    else requestAnimationFrame(done);
+  });
+}
+
 export { COCO_PERSON, COCO_SPORTS_BALL };
