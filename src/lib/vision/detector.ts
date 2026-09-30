@@ -1,5 +1,5 @@
 import type * as Ort from "onnxruntime-web";
-import { COCO_PERSON, COCO_SPORTS_BALL, decode, preprocess, type Detection, type Pixels } from "@/lib/vision/yolox";
+import { COCO_PERSON, COCO_SPORTS_BALL, PAD_VALUE, decode, preprocess, type Detection, type Pixels } from "@/lib/vision/yolox";
 
 /**
  * Runs a YOLOX model in the browser with ONNX Runtime Web.
@@ -66,18 +66,43 @@ export async function createDetector(
   const inputName = session.inputNames[0];
   const outputName = session.outputNames[0];
 
+  // GPU: one input buffer and tensor, reused for every frame of the same
+  // size. Allocating ~3 MB per frame at 20 fps is 60 MB/s of garbage,
+  // which a phone eventually answers by closing the page.
+  //
+  // CPU: not reused. That backend runs in a worker, and sending it a
+  // buffer hands ownership over (the page's copy becomes unusable), so
+  // every frame needs a fresh one.
+  const reuseInput = backend === "webgpu";
+  let scratch: Float32Array | null = null;
+  let scratchTensor: Ort.Tensor | null = null;
+  let scratchFor = "";
+
   return {
     backend,
     inputSize: INPUT_SIZE,
 
     async detect(frame) {
       const t0 = performance.now();
-      const { tensor, letterbox } = preprocess(frame, INPUT_SIZE);
+      let input: Ort.Tensor;
+      let letterbox;
+      if (reuseInput) {
+        const key = `${frame.width}x${frame.height}`;
+        if (!scratch || !scratchTensor || scratchFor !== key) {
+          scratch = new Float32Array(3 * INPUT_SIZE * INPUT_SIZE).fill(PAD_VALUE);
+          scratchTensor = new ort.Tensor("float32", scratch, [1, 3, INPUT_SIZE, INPUT_SIZE]);
+          scratchFor = key;
+        }
+        letterbox = preprocess(frame, INPUT_SIZE, scratch).letterbox;
+        input = scratchTensor;
+      } else {
+        const prepared = preprocess(frame, INPUT_SIZE);
+        letterbox = prepared.letterbox;
+        input = new ort.Tensor("float32", prepared.tensor, [1, 3, INPUT_SIZE, INPUT_SIZE]);
+      }
       const t1 = performance.now();
 
-      const out = await session.run({
-        [inputName]: new ort.Tensor("float32", tensor, [1, 3, INPUT_SIZE, INPUT_SIZE]),
-      });
+      const out = await session.run({ [inputName]: input });
       const raw = out[outputName].data as Float32Array;
       const t2 = performance.now();
 

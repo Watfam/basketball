@@ -37,7 +37,7 @@ export type Letterbox = {
 export const COCO_SPORTS_BALL = 32;
 export const COCO_PERSON = 0;
 
-const PAD_VALUE = 114;
+export const PAD_VALUE = 114;
 
 /**
  * Fit an image into a size x size input, keeping aspect ratio and padding
@@ -51,7 +51,11 @@ const PAD_VALUE = 114;
  * Nearest-neighbour resampling keeps this cheap enough to run every
  * frame; the canvas that feeds it is already downscaled by the browser.
  */
-export function preprocess(img: Pixels, size: number): { tensor: Float32Array; letterbox: Letterbox } {
+export function preprocess(
+  img: Pixels,
+  size: number,
+  reuse?: Float32Array
+): { tensor: Float32Array; letterbox: Letterbox } {
   const scale = Math.min(size / img.width, size / img.height);
   const newW = Math.round(img.width * scale);
   const newH = Math.round(img.height * scale);
@@ -59,7 +63,10 @@ export function preprocess(img: Pixels, size: number): { tensor: Float32Array; l
   const padY = Math.floor((size - newH) / 2);
 
   const plane = size * size;
-  const tensor = new Float32Array(3 * plane).fill(PAD_VALUE);
+  // A reused buffer must already be filled with the pad value for frames of
+  // this exact size: only the picture area is rewritten, so the borders
+  // stay valid without a 2 MB refill and a fresh allocation every frame.
+  const tensor = reuse ?? new Float32Array(3 * plane).fill(PAD_VALUE);
 
   for (let y = 0; y < newH; y += 1) {
     const srcY = Math.min(img.height - 1, Math.floor(y / scale));

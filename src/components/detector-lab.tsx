@@ -31,6 +31,8 @@ type Segment = { label: string; fps: number; totalMs: number; inferMs: number; b
 
 type Report = {
   at: string;
+  /** Saved while the run was still going; the run never finished. */
+  partial?: boolean;
   backend: Backend;
   source: Source;
   video: string;
@@ -57,9 +59,16 @@ function parseRuns(raw: string | null): Report[] {
   }
 }
 
+function upsertRun(report: Report) {
+  const others = parseRuns(readDraft(RUNS_KEY)).filter((r) => r.at !== report.at);
+  writeDraft(RUNS_KEY, JSON.stringify([report, ...others].slice(0, MAX_SAVED_RUNS)));
+}
+
 function reportText(report: Report) {
   return [
-    `Detector lab — ${report.backend} — ${report.source} — ${new Date(report.at).toLocaleString()}`,
+    `Detector lab — ${report.backend} — ${report.source} — ${new Date(report.at).toLocaleString()}${
+      report.partial ? " — CUT OFF before finishing" : ""
+    }`,
     `Device: ${navigator.userAgent}`,
     `Video: ${report.video}   Model load: ${fmt(report.loadMs, 0)} ms`,
     `Frames: ${report.frames}   Average: ${fmt(report.avgFps)} fps   Slowest 5%: ${fmt(report.p95Ms, 0)} ms`,
@@ -207,6 +216,8 @@ export function DetectorLab() {
       overlay.width = work.width;
       overlay.height = work.height;
 
+      const runAt = new Date().toISOString();
+      const videoLabel = `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`;
       const startedAt = performance.now();
       const frameMs: number[] = [];
       const inferMs: number[] = [];
@@ -234,6 +245,20 @@ export function DetectorLab() {
         segStart = now;
         segFrames = segTotal = segInfer = segBall = 0;
       };
+
+      const buildReport = (now: number, partial: boolean): Report => ({
+        at: runAt,
+        partial,
+        backend,
+        source,
+        video: videoLabel,
+        segments: [...segments],
+        frames: frameMs.length,
+        avgFps: frameMs.length / Math.max(0.001, (now - startedAt) / 1000),
+        p95Ms: percentile(frameMs, 0.95),
+        ballPct: (ballFrames.filter(Boolean).length / Math.max(1, ballFrames.length)) * 100,
+        loadMs,
+      });
 
       stopRef.current = () => {
         stopped = true;
@@ -266,6 +291,9 @@ export function DetectorLab() {
         if (now - lastMark > 1000) {
           lastMark = now;
           markStep(backend, source, `Running, ${Math.floor(elapsed)}s in, ${frameMs.length} frames done`);
+          // Saved as it goes, so a page the phone closes mid-run still
+          // leaves everything measured up to that moment.
+          upsertRun(buildReport(now, true));
         }
         if ((now - segStart) / 1000 >= segmentSeconds) closeSegment(now);
 
@@ -290,24 +318,9 @@ export function DetectorLab() {
 
       const endedAt = performance.now();
       closeSegment(endedAt);
-      const secs = (endedAt - startedAt) / 1000;
 
-      const finished: Report = {
-        at: new Date().toISOString(),
-        backend,
-        source,
-        video: `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`,
-        segments,
-        frames: frameMs.length,
-        avgFps: frameMs.length / secs,
-        p95Ms: percentile(frameMs, 0.95),
-        ballPct: (ballFrames.filter(Boolean).length / Math.max(1, ballFrames.length)) * 100,
-        loadMs,
-      };
-      writeDraft(
-        RUNS_KEY,
-        JSON.stringify([finished, ...parseRuns(readDraft(RUNS_KEY))].slice(0, MAX_SAVED_RUNS))
-      );
+      const finished = buildReport(endedAt, false);
+      upsertRun(finished);
       setReport(finished);
       octx.clearRect(0, 0, overlay.width, overlay.height);
       setLive(null);
@@ -430,6 +443,12 @@ export function DetectorLab() {
             Saved on this phone · {new Date(report.at).toLocaleString()} ·{" "}
             {report.backend === "webgpu" ? "GPU" : "CPU"}
           </p>
+          {report.partial && (
+            <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-red-400">
+              This run was cut off before it finished. These numbers cover the{" "}
+              {Math.round(report.frames / Math.max(0.001, report.avgFps))}s it got through.
+            </p>
+          )}
 
           <div className="flex gap-2">
             {canShare && (
@@ -561,8 +580,20 @@ export function DetectorLab() {
             The last run was cut off before it finished, probably because the
             browser closed the page. It had got as far as: <strong>{trail.step}</strong>.
             Setting: {trail.backend === "webgpu" ? "GPU" : "CPU"},{" "}
-            {trail.source === "camera" ? "live camera" : "saved clip"}. Screenshot
-            this and send it to me.
+            {trail.source === "camera" ? "live camera" : "saved clip"}.
+            {savedRuns[0]?.partial && (
+              <>
+                {" "}
+                What it measured before then was saved.{" "}
+                <button
+                  type="button"
+                  onClick={() => setReport(savedRuns[0])}
+                  className="font-extrabold uppercase text-accent underline"
+                >
+                  Show it
+                </button>
+              </>
+            )}
           </p>
         )}
       </section>
@@ -584,7 +615,7 @@ export function DetectorLab() {
                 {new Date(r.at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
               </span>
               <span className="tabular-nums text-foreground-dim">
-                {r.backend === "webgpu" ? "GPU" : "CPU"} · {fmt(r.avgFps)} fps · {Math.round(r.frames / r.avgFps)}s
+                {r.backend === "webgpu" ? "GPU" : "CPU"} · {fmt(r.avgFps)} fps · {Math.round(r.frames / r.avgFps)}s{r.partial ? " · cut off" : ""}
               </span>
             </button>
           ))}
