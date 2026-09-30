@@ -37,6 +37,12 @@ export default function DetectorLabPage() {
         >
           Run the GPU diagnostic tests
         </Link>
+        <Link
+          href="/lab/survival"
+          className="block rounded-xl border border-accent bg-surface px-4 py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-accent"
+        >
+          Survival test (repeated trials)
+        </Link>
       </main>
     </div>
   );

@@ -30,6 +30,12 @@ export default function GpuDiagnosticPage() {
           </p>
         </div>
         <GpuDiagnostic />
+        <Link
+          href="/lab/survival"
+          className="block rounded-xl border border-accent bg-surface px-4 py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-accent"
+        >
+          Go to the survival test (repeated trials)
+        </Link>
       </main>
     </div>
   );
