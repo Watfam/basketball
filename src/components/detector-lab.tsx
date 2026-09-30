@@ -23,6 +23,8 @@ const DURATIONS = [
   { label: "Full · 2 min", seconds: 120, segment: 15 },
 ] as const;
 const WORK_WIDTH = 640;
+/** How many frames one detector thread runs before a fresh one takes over. */
+const RECYCLE_FRAMES = 300;
 
 type Source = "camera" | "file";
 /** What a run exercises: lets a crash be pinned on the camera or the model. */
@@ -141,6 +143,7 @@ export function DetectorLab() {
   const [backend, setBackend] = useState<Backend>("webgpu");
   const [source, setSource] = useState<Source>("camera");
   const [testMode, setTestMode] = useState<TestMode>("all");
+  const [recycle, setRecycle] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [live, setLive] = useState<{ fps: number; ms: number; ball: boolean; elapsed: number } | null>(null);
@@ -217,7 +220,9 @@ export function DetectorLab() {
     let detector: Detector | null = null;
     try {
       const loadStart = performance.now();
-      if (useModel) detector = await createDetector(backend, (step) => mark(step));
+      if (useModel) detector = await createDetector(backend, (step) => mark(step), {
+          recycleAfter: recycle ? RECYCLE_FRAMES : 0,
+        });
       const loadMs = performance.now() - loadStart;
 
       if (useCamera) {
@@ -619,6 +624,26 @@ export function DetectorLab() {
               }`}
             >
               {m.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { on: true, label: `Fresh detector every ${RECYCLE_FRAMES} frames` },
+            { on: false, label: "Never refresh" },
+          ].map((o) => (
+            <button
+              key={String(o.on)}
+              type="button"
+              disabled={busy}
+              onClick={() => setRecycle(o.on)}
+              aria-pressed={recycle === o.on}
+              className={`rounded-lg border px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                recycle === o.on ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+              }`}
+            >
+              {o.label}
             </button>
           ))}
         </div>

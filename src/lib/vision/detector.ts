@@ -1,253 +1,202 @@
-import type * as Ort from "onnxruntime-web";
-import { COCO_PERSON, COCO_SPORTS_BALL, PAD_VALUE, decode, preprocess, type Detection, type Pixels } from "@/lib/vision/yolox";
+import { createEngine, COCO_PERSON, COCO_SPORTS_BALL } from "@/lib/vision/engine";
+import type { Backend, Detector, Timings } from "@/lib/vision/engine";
+import type { Detection, Pixels } from "@/lib/vision/yolox";
 
 /**
- * Runs a YOLOX model in the browser with ONNX Runtime Web.
+ * The detector as the rest of the app uses it.
  *
- * The runtime is loaded from /ort as a plain static file instead of being
- * bundled, and the bundler is told to leave the import alone. Bundling it
- * breaks the runtime's own worker and wasm loading, and it would drag
- * every runtime variant (~80 MB) into the app.
- *
- * Nothing here talks to a server after the model and runtime have loaded:
- * frames are processed on the device and never leave it.
+ * The model runs in a background worker, never on the page, for two
+ * reasons. The page stays responsive however long a frame takes. And a
+ * worker can be thrown away: on an iPhone, one GPU context doing
+ * hundreds of model runs piles up internal objects (about 160 bind groups
+ * per run) until Safari closes the page, at roughly 900 runs. Nothing on
+ * our side was leaking (buffer counts stay flat), so the dependable fix is
+ * never to let one context get that far. A replacement worker is started
+ * and warmed in the background a little before it is needed, then swapped
+ * in between two frames and the old one terminated, which frees
+ * everything it held. The swap costs no visible pause.
  */
 
-export type Backend = "webgpu" | "wasm";
+export type { Backend, Detector, Timings };
+export { COCO_PERSON, COCO_SPORTS_BALL };
 
-export type Timings = { prepMs: number; inferMs: number; postMs: number };
+type Result = { detections: Detection[]; timings: Timings; io: string; buffer: ArrayBuffer };
 
-export type Detector = {
-  backend: Backend;
-  inputSize: number;
-  /** Which buffer strategy is in use, for the report. */
-  describeIO(): string;
-  detect(frame: Pixels): Promise<{ detections: Detection[]; timings: Timings }>;
-  dispose(): Promise<void>;
+type Handle = {
+  io: string;
+  detect(width: number, height: number, buffer: ArrayBuffer): Promise<Result>;
+  terminate(): void;
 };
 
-const MODEL_URL = "/models/yolox_nano.onnx";
-const INPUT_SIZE = 416;
-const NUM_CLASSES = 80;
+/** Start a worker and wait until its model is loaded and ready. */
+function spawn(backend: Backend, onStep: (step: string) => void): Promise<Handle> {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL("./detector.worker.ts", import.meta.url), { type: "module" });
+    const pending = new Map<number, { resolve: (r: Result) => void; reject: (e: Error) => void }>();
+    let nextId = 1;
+    let settled = false;
 
-let ortPromise: Promise<typeof Ort> | null = null;
-
-async function loadOrt(backend: Backend): Promise<typeof Ort> {
-  // One runtime per page: switching backends means a reload, which is
-  // rare enough (a lab toggle) that supporting both at once isn't worth it.
-  if (!ortPromise) {
-    const entry = backend === "webgpu" ? "/ort/ort.webgpu.min.mjs" : "/ort/ort.wasm.min.mjs";
-    ortPromise = import(/* webpackIgnore: true */ /* turbopackIgnore: true */ entry) as Promise<typeof Ort>;
-  }
-  const ort = await ortPromise;
-  ort.env.wasm.wasmPaths = "/ort/";
-  // Threaded wasm needs cross-origin isolation, which the app doesn't opt
-  // into; one thread is the honest setting for the CPU fallback.
-  ort.env.wasm.numThreads = 1;
-  // The CPU backend runs on the page's own thread unless told otherwise,
-  // which janks every animation and tap while a frame is processing. A
-  // worker keeps the page responsive. WebGPU can't use one (it has to run
-  // where the GPU is), but it doesn't need to: its work is genuinely
-  // asynchronous.
-  ort.env.wasm.proxy = backend === "wasm";
-  return ort;
-}
-
-/**
- * Reusable GPU buffers for the model's input and output.
- *
- * By default each frame uploads its input and downloads its result through
- * brand-new GPU buffers that are destroyed straight after: about 3 MB of
- * create-and-destroy per frame, ~185 MB/s at 56 fps. On an iPhone the page
- * was being closed after roughly 800-900 frames of that. Here one input
- * buffer and one read-back buffer live for the whole run, so a frame
- * allocates nothing on the GPU.
- */
-type GpuBufferLike = {
-  mapAsync(mode: number): Promise<void>;
-  getMappedRange(): ArrayBuffer;
-  unmap(): void;
-  destroy(): void;
-};
-type GpuDeviceLike = {
-  createBuffer(d: { size: number; usage: number }): GpuBufferLike;
-  queue: { writeBuffer(b: GpuBufferLike, offset: number, data: Float32Array): void; submit(c: unknown[]): void };
-  createCommandEncoder(): {
-    copyBufferToBuffer(a: GpuBufferLike, ao: number, b: GpuBufferLike, bo: number, size: number): void;
-    finish(): unknown;
-  };
-};
-
-// Values from the WebGPU spec (GPUBufferUsage / GPUMapMode).
-const USAGE_MAP_READ = 0x1;
-const USAGE_COPY_SRC = 0x4;
-const USAGE_COPY_DST = 0x8;
-const USAGE_STORAGE = 0x80;
-const MAP_MODE_READ = 0x1;
-
-type GpuIO = {
-  run(session: Ort.InferenceSession, inputName: string, outputName: string, pixels: Float32Array): Promise<Float32Array>;
-  dispose(): void;
-};
-
-async function createGpuIO(ort: typeof Ort, size: number, numClasses: number): Promise<GpuIO> {
-  const device = (await ort.env.webgpu.device) as unknown as GpuDeviceLike;
-  const anchors = [8, 16, 32].reduce((n, stride) => n + (size / stride) ** 2, 0);
-  const outFloats = anchors * (5 + numClasses);
-
-  const inputBuffer = device.createBuffer({
-    size: 3 * size * size * 4,
-    usage: USAGE_STORAGE | USAGE_COPY_DST | USAGE_COPY_SRC,
-  });
-  const readBack = device.createBuffer({ size: outFloats * 4, usage: USAGE_MAP_READ | USAGE_COPY_DST });
-  const inputTensor = ort.Tensor.fromGpuBuffer(inputBuffer as never, {
-    dataType: "float32",
-    dims: [1, 3, size, size],
-  });
-  const host = new Float32Array(outFloats);
-
-  return {
-    async run(session, inputName, outputName, pixels) {
-      device.queue.writeBuffer(inputBuffer, 0, pixels);
-      const out = await session.run({ [inputName]: inputTensor });
-      const result = out[outputName];
-      try {
-        const count = result.dims.reduce((a, d) => a * d, 1);
-        if (count !== outFloats) throw new Error(`unexpected output size ${count}`);
-        const encoder = device.createCommandEncoder();
-        encoder.copyBufferToBuffer(result.gpuBuffer as never, 0, readBack, 0, outFloats * 4);
-        device.queue.submit([encoder.finish()]);
-        await readBack.mapAsync(MAP_MODE_READ);
-        host.set(new Float32Array(readBack.getMappedRange()));
-        readBack.unmap();
-      } finally {
-        result.dispose();
+    const failAll = (error: Error) => {
+      if (!settled) {
+        settled = true;
+        reject(error);
       }
-      return host;
-    },
-    dispose() {
-      inputBuffer.destroy();
-      readBack.destroy();
-    },
-  };
+      pending.forEach((p) => p.reject(error));
+      pending.clear();
+    };
+
+    const handle: Handle = {
+      io: "",
+      detect(width, height, buffer) {
+        return new Promise<Result>((res, rej) => {
+          const id = nextId;
+          nextId += 1;
+          pending.set(id, { resolve: res, reject: rej });
+          worker.postMessage({ type: "frame", id, width, height, buffer }, [buffer]);
+        });
+      },
+      terminate() {
+        worker.terminate();
+        failAll(new Error("The detector was stopped."));
+      },
+    };
+
+    worker.onmessage = (e: MessageEvent) => {
+      const msg = e.data;
+      if (msg.type === "step") onStep(msg.step);
+      else if (msg.type === "ready") {
+        handle.io = msg.io;
+        settled = true;
+        resolve(handle);
+      } else if (msg.type === "result") {
+        const p = pending.get(msg.id);
+        pending.delete(msg.id);
+        p?.resolve(msg);
+      } else if (msg.type === "error") {
+        const error = new Error(msg.message);
+        if (msg.id === undefined) failAll(error);
+        else {
+          const p = pending.get(msg.id);
+          pending.delete(msg.id);
+          p?.reject(error);
+        }
+      }
+    };
+    worker.onerror = (e) => failAll(new Error(e.message || "The detector thread failed."));
+    worker.onmessageerror = () => failAll(new Error("The detector thread sent something unreadable."));
+
+    worker.postMessage({ type: "init", backend });
+  });
 }
+
+/** Frames of lead time to give a replacement worker to load and warm up. */
+const WARMUP_LEAD_FRAMES = 120;
 
 export async function createDetector(
   backend: Backend,
-  onStep: (step: string) => void = () => {}
+  onStep: (step: string) => void = () => {},
+  options: { recycleAfter?: number } = {}
 ): Promise<Detector> {
-  onStep("Loading the runtime");
-  const ort = await loadOrt(backend);
+  let recycleAfter = options.recycleAfter ?? 0;
 
-  onStep("Loading the model and preparing the GPU or CPU");
-  const session = await ort.InferenceSession.create(MODEL_URL, {
-    executionProviders: [backend],
-    graphOptimizationLevel: "all",
-    // Results stay on the GPU so they can be read through gpuIO's single
-    // reusable buffer instead of a fresh download every frame.
-    ...(backend === "webgpu" ? { preferredOutputLocation: "gpu-buffer" as const } : {}),
-  });
-  const inputName = session.inputNames[0];
-  const outputName = session.outputNames[0];
-
-  let gpuIO: GpuIO | null = null;
-  let io = backend === "webgpu" ? "standard buffers" : "CPU";
-  if (backend === "webgpu") {
-    try {
-      gpuIO = await createGpuIO(ort, INPUT_SIZE, NUM_CLASSES);
-      io = "reused GPU buffers";
-    } catch (e) {
-      io = `standard buffers (reuse unavailable: ${e instanceof Error ? e.message : String(e)})`;
-    }
+  let active: Handle | null = null;
+  let onPage: Detector | null = null;
+  try {
+    active = await spawn(backend, onStep);
+  } catch (e) {
+    // No worker, or no GPU inside one: run on the page instead. If the
+    // trouble is real (no WebGPU at all) this fails the same way and the
+    // caller sees the real message.
+    onStep("Background thread unavailable, running on the page");
+    onPage = await createEngine(backend, onStep, false);
+    if (e instanceof Error) onStep(`(${e.message})`);
   }
 
-  // Input pixels are reused between frames on the GPU path (a fresh ~2 MB
-  // array per frame is 60 MB/s of garbage). The CPU path can't: it runs in
-  // a worker, and sending a buffer hands ownership over, leaving the
-  // page's copy unusable.
-  const reuseInput = backend === "webgpu";
-  let scratch: Float32Array | null = null;
-  let scratchTensor: Ort.Tensor | null = null;
-  let scratchFor = "";
+  let frames = 0;
+  let recycles = 0;
+  let standby: Promise<Handle | null> | null = null;
+  let standbyReady: Handle | null = null;
+  let recycleNote = "";
+  const pool: ArrayBuffer[] = [];
+
+  const describe = () => {
+    if (onPage) return `${onPage.describeIO()} · on the page`;
+    let text = `${active?.io ?? ""} · background thread`;
+    if (recycleAfter > 0) text += `, fresh GPU every ${recycleAfter} frames (${recycles} so far)`;
+    if (recycleNote) text += `, ${recycleNote}`;
+    return text;
+  };
+
+  /** Swap in the warmed replacement when one is due and ready. */
+  const maybeRecycle = () => {
+    if (!active || recycleAfter <= 0) return;
+
+    if (!standby && frames >= recycleAfter - Math.min(WARMUP_LEAD_FRAMES, recycleAfter / 2)) {
+      standby = spawn(backend, () => {})
+        .then((h) => {
+          standbyReady = h;
+          return h;
+        })
+        .catch((e) => {
+          // Keep running on the current worker rather than lose the run.
+          recycleNote = `replacement failed (${e instanceof Error ? e.message : String(e)}), recycling off`;
+          recycleAfter = 0;
+          return null;
+        });
+    }
+
+    if (standbyReady && frames >= recycleAfter) {
+      const old = active;
+      active = standbyReady;
+      standbyReady = null;
+      standby = null;
+      frames = 0;
+      recycles += 1;
+      old.terminate();
+    }
+  };
 
   return {
     backend,
-    inputSize: INPUT_SIZE,
-    describeIO: () => io,
+    inputSize: onPage?.inputSize ?? 416,
+    describeIO: describe,
 
-    async detect(frame) {
-      const t0 = performance.now();
-      let input: Ort.Tensor | null = null;
-      let letterbox;
-      let pixels: Float32Array | null = null;
-      if (reuseInput) {
-        const key = `${frame.width}x${frame.height}`;
-        if (!scratch || !scratchTensor || scratchFor !== key) {
-          scratch = new Float32Array(3 * INPUT_SIZE * INPUT_SIZE).fill(PAD_VALUE);
-          scratchTensor = new ort.Tensor("float32", scratch, [1, 3, INPUT_SIZE, INPUT_SIZE]);
-          scratchFor = key;
-        }
-        letterbox = preprocess(frame, INPUT_SIZE, scratch).letterbox;
-        input = scratchTensor;
-        pixels = scratch;
-      } else {
-        const prepared = preprocess(frame, INPUT_SIZE);
-        letterbox = prepared.letterbox;
-        input = new ort.Tensor("float32", prepared.tensor, [1, 3, INPUT_SIZE, INPUT_SIZE]);
-      }
-      const t1 = performance.now();
+    async detect(frame: Pixels) {
+      if (onPage) return onPage.detect(frame);
 
-      const runStandard = async () => {
-        const out = await session.run({ [inputName]: input as Ort.Tensor });
-        const result = out[outputName];
-        if (backend !== "webgpu") return result.data as Float32Array;
-        const data = (await result.getData()) as Float32Array;
-        result.dispose();
-        return data;
-      };
+      maybeRecycle();
+      const size = frame.data.byteLength;
+      const recycled = pool.pop();
+      const buffer = recycled && recycled.byteLength === size ? recycled : new ArrayBuffer(size);
+      new Uint8ClampedArray(buffer).set(frame.data);
 
-      let raw: Float32Array;
-      if (gpuIO && pixels) {
-        try {
-          raw = await gpuIO.run(session, inputName, outputName, pixels);
-        } catch (e) {
-          // Never lose the run over an optimisation: drop to the standard
-          // path and say so in the report.
-          io = `standard buffers (reuse failed: ${e instanceof Error ? e.message : String(e)})`;
-          gpuIO.dispose();
-          gpuIO = null;
-          raw = await runStandard();
-        }
-      } else {
-        raw = await runStandard();
-      }
-      const t2 = performance.now();
-
-      const detections = decode(raw, NUM_CLASSES, INPUT_SIZE, letterbox, frame, {
-        scoreThreshold: 0.25,
-        classes: [COCO_SPORTS_BALL, COCO_PERSON],
-      });
-      const t3 = performance.now();
-
-      return { detections, timings: { prepMs: t1 - t0, inferMs: t2 - t1, postMs: t3 - t2 } };
+      const current = active as Handle;
+      const result = await current.detect(frame.width, frame.height, buffer);
+      if (pool.length < 2) pool.push(result.buffer);
+      frames += 1;
+      return { detections: result.detections, timings: result.timings };
     },
 
     async dispose() {
-      gpuIO?.dispose();
-      await session.release();
+      if (onPage) {
+        await onPage.dispose();
+        return;
+      }
+      active?.terminate();
+      active = null;
+      standbyReady?.terminate();
+      const pendingStandby = standby as Promise<Handle | null> | null;
+      standby = null;
+      void pendingStandby?.then((h) => h?.terminate());
     },
   };
 }
 
 /**
  * Hands control back to the browser so it can paint, handle a tap, and
- * run its own timers before the next frame.
- *
- * Needed because the CPU backend runs the whole model as one
- * uninterrupted block: a loop that only ever awaits it never yields to
- * the event loop, so the screen freezes and Stop can't be pressed.
- * scheduler.yield is used where it exists; a MessageChannel hop is the
- * fallback, because unlike setTimeout it isn't clamped to 4 ms.
+ * run its own timers before the next frame. scheduler.yield is used where
+ * it exists; a MessageChannel hop is the fallback, because unlike
+ * setTimeout it isn't clamped to 4 ms.
  */
 const yieldChannel = typeof MessageChannel !== "undefined" ? new MessageChannel() : null;
 export function yieldToMain(): Promise<void> {
@@ -262,13 +211,9 @@ export function yieldToMain(): Promise<void> {
 
 /**
  * Resolves when the video has a new picture to read, or after maxWaitMs
- * whichever comes first.
- *
- * Reading the same camera frame twice is wasted work, and a loop that never
- * waits for anything real can starve the page's own rendering. requestVideoFrameCallback
- * fires once per new frame, in step with painting. The timeout is the
- * safety net: a paused, hidden or stalled video never calls back, and the
- * loop must still be able to notice Stop.
+ * whichever comes first. requestVideoFrameCallback fires once per new
+ * frame, in step with painting; the timeout is the safety net so a paused
+ * or stalled video can never stop the loop noticing Stop.
  */
 export function nextVideoFrame(video: HTMLVideoElement, maxWaitMs = 250): Promise<void> {
   return new Promise((resolve) => {
@@ -281,5 +226,3 @@ export function nextVideoFrame(video: HTMLVideoElement, maxWaitMs = 250): Promis
     else requestAnimationFrame(done);
   });
 }
-
-export { COCO_PERSON, COCO_SPORTS_BALL };
