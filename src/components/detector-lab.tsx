@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { COCO_SPORTS_BALL, createDetector, yieldToMain, type Backend, type Detector } from "@/lib/vision/detector";
 import { haptic } from "@/lib/haptics";
 import { useWakeLock } from "@/lib/use-wake-lock";
+import { useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 
 /**
  * A lab for one question: can this phone run the detector on live video
@@ -41,6 +42,18 @@ type Report = {
 };
 
 const fmt = (n: number, dp = 1) => n.toFixed(dp);
+
+/**
+ * A breadcrumb of where the last run got to, kept on the device.
+ *
+ * iOS closes a page that uses too much memory or crashes the GPU, and
+ * reloads it with nothing to say what happened. A normal finish or error
+ * clears the breadcrumb; one that is still there on the next visit means
+ * the run was cut off, and says where.
+ */
+const TRAIL_KEY = "hl:lab-trail";
+const markStep = (backend: Backend, source: Source, step: string) =>
+  writeDraft(TRAIL_KEY, JSON.stringify({ at: new Date().toISOString(), backend, source, step }));
 
 function percentile(values: number[], p: number) {
   if (values.length === 0) return 0;
@@ -81,7 +94,23 @@ export function DetectorLab() {
     }
   }, []);
 
-  useEffect(() => teardown, [teardown]);
+  const [trailRaw] = useLocalDraft(TRAIL_KEY);
+  const trail = (() => {
+    if (!trailRaw) return null;
+    try {
+      return JSON.parse(trailRaw) as { at: string; backend: Backend; source: Source; step: string };
+    } catch {
+      return null;
+    }
+  })();
+
+  useEffect(
+    () => () => {
+      teardown();
+      writeDraft(TRAIL_KEY, null);
+    },
+    [teardown]
+  );
 
   async function run(file?: File) {
     teardown();
@@ -89,6 +118,7 @@ export function DetectorLab() {
     setMessage(null);
     setLive(null);
     setPhase("loading");
+    markStep(backend, source, "Starting");
 
     const video = videoRef.current;
     const overlay = overlayRef.current;
@@ -99,10 +129,11 @@ export function DetectorLab() {
     let detector: Detector | null = null;
     try {
       const loadStart = performance.now();
-      detector = await createDetector(backend);
+      detector = await createDetector(backend, (step) => markStep(backend, source, step));
       const loadMs = performance.now() - loadStart;
 
       if (source === "camera") {
+        markStep(backend, source, "Opening the camera");
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: "environment" },
@@ -122,6 +153,7 @@ export function DetectorLab() {
       }
       video.muted = true;
       video.playsInline = true;
+      markStep(backend, source, "Starting the video");
       await video.play();
       if (video.videoWidth === 0) throw new Error("The video has no picture to read.");
 
@@ -167,6 +199,8 @@ export function DetectorLab() {
       };
 
       setPhase("running");
+      markStep(backend, source, "Running, first frame");
+      let lastMark = 0;
 
       while (!stopped) {
         const frameStart = performance.now();
@@ -188,6 +222,10 @@ export function DetectorLab() {
         if (hasBall) segBall += 1;
 
         const now = performance.now();
+        if (now - lastMark > 1000) {
+          lastMark = now;
+          markStep(backend, source, `Running, ${Math.floor(elapsed)}s in, ${frameMs.length} frames done`);
+        }
         if ((now - segStart) / 1000 >= segmentSeconds) closeSegment(now);
 
         // Paint and update the readout a few times a second, not every
@@ -237,6 +275,7 @@ export function DetectorLab() {
       );
       setPhase("error");
     } finally {
+      writeDraft(TRAIL_KEY, null);
       teardown();
       await detector?.dispose().catch(() => {});
     }
@@ -380,6 +419,16 @@ export function DetectorLab() {
         )}
 
         {message && <p className="text-xs leading-relaxed text-red-400">{message}</p>}
+
+        {trail && phase === "idle" && (
+          <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-foreground-dim">
+            The last run was cut off before it finished, probably because the
+            browser closed the page. It had got as far as: <strong>{trail.step}</strong>.
+            Setting: {trail.backend === "webgpu" ? "GPU" : "CPU"},{" "}
+            {trail.source === "camera" ? "live camera" : "saved clip"}. Screenshot
+            this and send it to me.
+          </p>
+        )}
       </section>
 
       {report && (

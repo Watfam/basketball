@@ -51,9 +51,14 @@ async function loadOrt(backend: Backend): Promise<typeof Ort> {
   return ort;
 }
 
-export async function createDetector(backend: Backend): Promise<Detector> {
+export async function createDetector(
+  backend: Backend,
+  onStep: (step: string) => void = () => {}
+): Promise<Detector> {
+  onStep("Loading the runtime");
   const ort = await loadOrt(backend);
 
+  onStep("Loading the model and preparing the GPU or CPU");
   const session = await ort.InferenceSession.create(MODEL_URL, {
     executionProviders: [backend],
     graphOptimizationLevel: "all",
