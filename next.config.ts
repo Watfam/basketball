@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
   // doesn't want those regenerated and clobbering hand-maintained docs.
   agentRules: false,
 
+  // Lets a page say which deploy it came from, so "is this phone running
+  // the latest code?" can be answered from a screenshot.
+  env: {
+    NEXT_PUBLIC_BUILD: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local",
+  },
+
   experimental: {
     // Next's client router cache defaults to 0s for dynamic pages, so
     // even tapping Back or flipping between two tabs you just visited

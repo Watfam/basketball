@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COCO_SPORTS_BALL, createDetector, yieldToMain, type Backend, type Detector } from "@/lib/vision/detector";
 import { haptic } from "@/lib/haptics";
 import { useWakeLock } from "@/lib/use-wake-lock";
@@ -45,6 +45,19 @@ type Report = {
 };
 
 const fmt = (n: number, dp = 1) => n.toFixed(dp);
+
+/** Whether this browser will actually keep data between visits. */
+function storageWorks() {
+  try {
+    window.localStorage.setItem("hl:probe", "1");
+    const ok = window.localStorage.getItem("hl:probe") === "1";
+    window.localStorage.removeItem("hl:probe");
+    return ok;
+  } catch {
+    return false;
+  }
+}
+const noSubscribe = () => () => {};
 
 const RUNS_KEY = "hl:lab-runs";
 const MAX_SAVED_RUNS = 12;
@@ -118,6 +131,7 @@ export function DetectorLab() {
   const [shared, setShared] = useState(false);
   const reportRef = useRef<HTMLElement>(null);
   const [runsRaw] = useLocalDraft(RUNS_KEY);
+  const keepsData = useSyncExternalStore(noSubscribe, storageWorks, () => null);
   const savedRuns = useMemo(() => parseRuns(runsRaw), [runsRaw]);
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
@@ -574,6 +588,15 @@ export function DetectorLab() {
         )}
 
         {message && <p className="text-xs leading-relaxed text-red-400">{message}</p>}
+
+        <p className="text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+          Version {process.env.NEXT_PUBLIC_BUILD} ·{" "}
+          {keepsData === null
+            ? "checking storage"
+            : keepsData
+              ? "runs are saved on this phone"
+              : "this browser will not save runs"}
+        </p>
 
         {trail && phase === "idle" && (
           <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-foreground-dim">
