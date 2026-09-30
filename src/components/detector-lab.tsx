@@ -43,6 +43,8 @@ type Report = {
   test?: TestMode;
   /** How the screen was kept awake (or not) during the run. */
   screen?: string;
+  /** Which GPU buffer strategy the detector used. */
+  io?: string;
   backend: Backend;
   source: Source;
   video: string;
@@ -97,6 +99,7 @@ function reportText(report: Report) {
     `Frames: ${report.frames}   Average: ${fmt(report.avgFps)} fps   Slowest 5%: ${fmt(report.p95Ms, 0)} ms`,
     `Frames with a ball: ${fmt(report.ballPct, 0)}%`,
     `Screen: ${report.screen ?? "not recorded"}`,
+    `GPU buffers: ${report.io ?? "not recorded"}`,
     "",
     "Segment      fps    ms/frame  infer ms  ball%",
     ...report.segments.map(
@@ -317,6 +320,7 @@ export function DetectorLab() {
         ballPct: (ballFrames.filter(Boolean).length / Math.max(1, ballFrames.length)) * 100,
         loadMs,
         screen: describeWake(getWakeStatus()),
+        io: detector?.describeIO() ?? "no model in this test",
       });
 
       stopRef.current = () => {

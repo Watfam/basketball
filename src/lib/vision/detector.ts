@@ -20,6 +20,8 @@ export type Timings = { prepMs: number; inferMs: number; postMs: number };
 export type Detector = {
   backend: Backend;
   inputSize: number;
+  /** Which buffer strategy is in use, for the report. */
+  describeIO(): string;
   detect(frame: Pixels): Promise<{ detections: Detection[]; timings: Timings }>;
   dispose(): Promise<void>;
 };
@@ -51,6 +53,85 @@ async function loadOrt(backend: Backend): Promise<typeof Ort> {
   return ort;
 }
 
+/**
+ * Reusable GPU buffers for the model's input and output.
+ *
+ * By default each frame uploads its input and downloads its result through
+ * brand-new GPU buffers that are destroyed straight after: about 3 MB of
+ * create-and-destroy per frame, ~185 MB/s at 56 fps. On an iPhone the page
+ * was being closed after roughly 800-900 frames of that. Here one input
+ * buffer and one read-back buffer live for the whole run, so a frame
+ * allocates nothing on the GPU.
+ */
+type GpuBufferLike = {
+  mapAsync(mode: number): Promise<void>;
+  getMappedRange(): ArrayBuffer;
+  unmap(): void;
+  destroy(): void;
+};
+type GpuDeviceLike = {
+  createBuffer(d: { size: number; usage: number }): GpuBufferLike;
+  queue: { writeBuffer(b: GpuBufferLike, offset: number, data: Float32Array): void; submit(c: unknown[]): void };
+  createCommandEncoder(): {
+    copyBufferToBuffer(a: GpuBufferLike, ao: number, b: GpuBufferLike, bo: number, size: number): void;
+    finish(): unknown;
+  };
+};
+
+// Values from the WebGPU spec (GPUBufferUsage / GPUMapMode).
+const USAGE_MAP_READ = 0x1;
+const USAGE_COPY_SRC = 0x4;
+const USAGE_COPY_DST = 0x8;
+const USAGE_STORAGE = 0x80;
+const MAP_MODE_READ = 0x1;
+
+type GpuIO = {
+  run(session: Ort.InferenceSession, inputName: string, outputName: string, pixels: Float32Array): Promise<Float32Array>;
+  dispose(): void;
+};
+
+async function createGpuIO(ort: typeof Ort, size: number, numClasses: number): Promise<GpuIO> {
+  const device = (await ort.env.webgpu.device) as unknown as GpuDeviceLike;
+  const anchors = [8, 16, 32].reduce((n, stride) => n + (size / stride) ** 2, 0);
+  const outFloats = anchors * (5 + numClasses);
+
+  const inputBuffer = device.createBuffer({
+    size: 3 * size * size * 4,
+    usage: USAGE_STORAGE | USAGE_COPY_DST | USAGE_COPY_SRC,
+  });
+  const readBack = device.createBuffer({ size: outFloats * 4, usage: USAGE_MAP_READ | USAGE_COPY_DST });
+  const inputTensor = ort.Tensor.fromGpuBuffer(inputBuffer as never, {
+    dataType: "float32",
+    dims: [1, 3, size, size],
+  });
+  const host = new Float32Array(outFloats);
+
+  return {
+    async run(session, inputName, outputName, pixels) {
+      device.queue.writeBuffer(inputBuffer, 0, pixels);
+      const out = await session.run({ [inputName]: inputTensor });
+      const result = out[outputName];
+      try {
+        const count = result.dims.reduce((a, d) => a * d, 1);
+        if (count !== outFloats) throw new Error(`unexpected output size ${count}`);
+        const encoder = device.createCommandEncoder();
+        encoder.copyBufferToBuffer(result.gpuBuffer as never, 0, readBack, 0, outFloats * 4);
+        device.queue.submit([encoder.finish()]);
+        await readBack.mapAsync(MAP_MODE_READ);
+        host.set(new Float32Array(readBack.getMappedRange()));
+        readBack.unmap();
+      } finally {
+        result.dispose();
+      }
+      return host;
+    },
+    dispose() {
+      inputBuffer.destroy();
+      readBack.destroy();
+    },
+  };
+}
+
 export async function createDetector(
   backend: Backend,
   onStep: (step: string) => void = () => {}
@@ -62,17 +143,28 @@ export async function createDetector(
   const session = await ort.InferenceSession.create(MODEL_URL, {
     executionProviders: [backend],
     graphOptimizationLevel: "all",
+    // Results stay on the GPU so they can be read through gpuIO's single
+    // reusable buffer instead of a fresh download every frame.
+    ...(backend === "webgpu" ? { preferredOutputLocation: "gpu-buffer" as const } : {}),
   });
   const inputName = session.inputNames[0];
   const outputName = session.outputNames[0];
 
-  // GPU: one input buffer and tensor, reused for every frame of the same
-  // size. Allocating ~3 MB per frame at 20 fps is 60 MB/s of garbage,
-  // which a phone eventually answers by closing the page.
-  //
-  // CPU: not reused. That backend runs in a worker, and sending it a
-  // buffer hands ownership over (the page's copy becomes unusable), so
-  // every frame needs a fresh one.
+  let gpuIO: GpuIO | null = null;
+  let io = backend === "webgpu" ? "standard buffers" : "CPU";
+  if (backend === "webgpu") {
+    try {
+      gpuIO = await createGpuIO(ort, INPUT_SIZE, NUM_CLASSES);
+      io = "reused GPU buffers";
+    } catch (e) {
+      io = `standard buffers (reuse unavailable: ${e instanceof Error ? e.message : String(e)})`;
+    }
+  }
+
+  // Input pixels are reused between frames on the GPU path (a fresh ~2 MB
+  // array per frame is 60 MB/s of garbage). The CPU path can't: it runs in
+  // a worker, and sending a buffer hands ownership over, leaving the
+  // page's copy unusable.
   const reuseInput = backend === "webgpu";
   let scratch: Float32Array | null = null;
   let scratchTensor: Ort.Tensor | null = null;
@@ -81,11 +173,13 @@ export async function createDetector(
   return {
     backend,
     inputSize: INPUT_SIZE,
+    describeIO: () => io,
 
     async detect(frame) {
       const t0 = performance.now();
-      let input: Ort.Tensor;
+      let input: Ort.Tensor | null = null;
       let letterbox;
+      let pixels: Float32Array | null = null;
       if (reuseInput) {
         const key = `${frame.width}x${frame.height}`;
         if (!scratch || !scratchTensor || scratchFor !== key) {
@@ -95,6 +189,7 @@ export async function createDetector(
         }
         letterbox = preprocess(frame, INPUT_SIZE, scratch).letterbox;
         input = scratchTensor;
+        pixels = scratch;
       } else {
         const prepared = preprocess(frame, INPUT_SIZE);
         letterbox = prepared.letterbox;
@@ -102,8 +197,30 @@ export async function createDetector(
       }
       const t1 = performance.now();
 
-      const out = await session.run({ [inputName]: input });
-      const raw = out[outputName].data as Float32Array;
+      const runStandard = async () => {
+        const out = await session.run({ [inputName]: input as Ort.Tensor });
+        const result = out[outputName];
+        if (backend !== "webgpu") return result.data as Float32Array;
+        const data = (await result.getData()) as Float32Array;
+        result.dispose();
+        return data;
+      };
+
+      let raw: Float32Array;
+      if (gpuIO && pixels) {
+        try {
+          raw = await gpuIO.run(session, inputName, outputName, pixels);
+        } catch (e) {
+          // Never lose the run over an optimisation: drop to the standard
+          // path and say so in the report.
+          io = `standard buffers (reuse failed: ${e instanceof Error ? e.message : String(e)})`;
+          gpuIO.dispose();
+          gpuIO = null;
+          raw = await runStandard();
+        }
+      } else {
+        raw = await runStandard();
+      }
       const t2 = performance.now();
 
       const detections = decode(raw, NUM_CLASSES, INPUT_SIZE, letterbox, frame, {
@@ -116,6 +233,7 @@ export async function createDetector(
     },
 
     async dispose() {
+      gpuIO?.dispose();
       await session.release();
     },
   };
