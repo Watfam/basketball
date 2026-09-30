@@ -22,7 +22,12 @@ scope.onmessage = async (e: MessageEvent) => {
 
   if (msg.type === "init") {
     try {
-      engine = await createEngine(msg.backend, (step) => scope.postMessage({ type: "step", step }), true);
+      engine = await createEngine(
+        msg.backend,
+        (step) => scope.postMessage({ type: "step", step }),
+        true,
+        (text) => scope.postMessage({ type: "event", text })
+      );
       scope.postMessage({ type: "ready", io: engine.describeIO() });
     } catch (err) {
       scope.postMessage({ type: "error", message: messageOf(err) });

@@ -25,6 +25,12 @@ const DURATIONS = [
 const WORK_WIDTH = 640;
 /** How many frames one detector thread runs before a fresh one takes over. */
 const RECYCLE_FRAMES = 300;
+/** Frame-rate limits. "No limit" runs the model back to back. */
+const FPS_CAPS = [
+  { label: "No limit", fps: 0 },
+  { label: "30 fps", fps: 30 },
+  { label: "20 fps", fps: 20 },
+] as const;
 
 type Source = "camera" | "file";
 /** What a run exercises: lets a crash be pinned on the camera or the model. */
@@ -43,6 +49,7 @@ type Report = {
   /** Saved while the run was still going; the run never finished. */
   partial?: boolean;
   test?: TestMode;
+  cap?: number;
   /** How the screen was kept awake (or not) during the run. */
   screen?: string;
   /** Which GPU buffer strategy the detector used. */
@@ -100,6 +107,7 @@ function reportText(report: Report) {
     `Video: ${report.video}   Model load: ${fmt(report.loadMs, 0)} ms`,
     `Frames: ${report.frames}   Average: ${fmt(report.avgFps)} fps   Slowest 5%: ${fmt(report.p95Ms, 0)} ms`,
     `Frames with a ball: ${fmt(report.ballPct, 0)}%`,
+    `Frame limit: ${report.cap ? `${report.cap} fps` : "none"}`,
     `Screen: ${report.screen ?? "not recorded"}`,
     `GPU buffers: ${report.io ?? "not recorded"}`,
     "",
@@ -108,7 +116,46 @@ function reportText(report: Report) {
       (s) =>
         `${s.label.padEnd(11)} ${fmt(s.fps).padStart(5)}  ${fmt(s.totalMs).padStart(8)}  ${fmt(s.inferMs).padStart(8)}  ${fmt(s.ballPct, 0).padStart(5)}`
     ),
+    ...(() => {
+      const lines = eventLines(report.at);
+      return lines.length ? ["", "Events during the run:", ...lines] : [];
+    })(),
   ].join("\n");
+}
+
+/**
+ * Things that happened around a run (GPU trouble, the page being hidden or
+ * frozen), kept on the device as they happen. A run that is cut off can't
+ * explain itself afterwards, so whatever the browser told us beforehand is
+ * the only evidence there will be.
+ */
+const EVENTS_KEY = "hl:lab-events";
+type LabEvents = { runAt: string; list: { t: number; text: string }[] };
+
+function readEvents(): LabEvents | null {
+  try {
+    const raw = readDraft(EVENTS_KEY);
+    return raw ? (JSON.parse(raw) as LabEvents) : null;
+  } catch {
+    return null;
+  }
+}
+
+function startEvents(runAt: string) {
+  writeDraft(EVENTS_KEY, JSON.stringify({ runAt, list: [] } satisfies LabEvents));
+}
+
+function logEvent(runStartedMs: number, text: string) {
+  const current = readEvents();
+  if (!current) return;
+  current.list.push({ t: (performance.now() - runStartedMs) / 1000, text });
+  writeDraft(EVENTS_KEY, JSON.stringify({ ...current, list: current.list.slice(-40) }));
+}
+
+function eventLines(runAt: string): string[] {
+  const events = readEvents();
+  if (!events || events.runAt !== runAt) return [];
+  return events.list.map((e) => `  +${e.t.toFixed(1)}s  ${e.text}`);
 }
 
 /**
@@ -143,7 +190,8 @@ export function DetectorLab() {
   const [backend, setBackend] = useState<Backend>("webgpu");
   const [source, setSource] = useState<Source>("camera");
   const [testMode, setTestMode] = useState<TestMode>("all");
-  const [recycle, setRecycle] = useState(true);
+  const [recycle, setRecycle] = useState(false);
+  const [capIdx, setCapIdx] = useState(1);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [live, setLive] = useState<{ fps: number; ms: number; ball: boolean; elapsed: number } | null>(null);
@@ -214,6 +262,22 @@ export function DetectorLab() {
     const runSeconds = DURATIONS[durationIdx].seconds;
     const segmentSeconds = DURATIONS[durationIdx].segment;
 
+    const runStartedMs = performance.now();
+    const runStartIso = new Date().toISOString();
+    startEvents(runStartIso);
+    const note = (text: string) => logEvent(runStartedMs, text);
+    const onHide = () => note(`page ${document.visibilityState}`);
+    const onPageHide = () => note("pagehide");
+    const onFreeze = () => note("page frozen by the browser");
+    const onError = (e: ErrorEvent) => note(`error: ${e.message}`);
+    const onRejection = (e: PromiseRejectionEvent) => note(`unhandled: ${String(e.reason)}`);
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("freeze", onFreeze);
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+    note("run started");
+
     const useCamera = testMode !== "model";
     const useModel = testMode !== "camera";
 
@@ -222,6 +286,7 @@ export function DetectorLab() {
       const loadStart = performance.now();
       if (useModel) detector = await createDetector(backend, (step) => mark(step), {
           recycleAfter: recycle ? RECYCLE_FRAMES : 0,
+          onEvent: (text) => logEvent(runStartedMs, text),
         });
       const loadMs = performance.now() - loadStart;
 
@@ -263,7 +328,7 @@ export function DetectorLab() {
       overlay.width = work.width;
       overlay.height = work.height;
 
-      const runAt = new Date().toISOString();
+      const runAt = runStartIso;
       const videoLabel = useCamera
         ? `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`
         : `no camera: a fixed ${work.width}×${work.height} picture`;
@@ -315,6 +380,7 @@ export function DetectorLab() {
         at: runAt,
         partial,
         test: testMode,
+        cap: FPS_CAPS[capIdx].fps,
         backend,
         source,
         video: videoLabel,
@@ -387,9 +453,20 @@ export function DetectorLab() {
           setLive({ fps: 1000 / avg, ms: avg, ball: hasBall, elapsed });
         }
 
-        // Wait for the next new picture (which also lets the page paint and
-        // take taps); with no camera, just hand control back.
-        await (useCamera ? nextVideoFrame(video) : yieldToMain());
+        // A frame limit leaves the GPU idle between frames instead of
+        // feeding it work back to back. With a camera, the wait is made of
+        // whole camera frames, so the limit lands on the pace asked for
+        // instead of overshooting it by up to a frame.
+        const capFps = FPS_CAPS[capIdx].fps;
+        const due = frameStart + (capFps > 0 ? 1000 / capFps : 0);
+        if (useCamera) {
+          do {
+            await nextVideoFrame(video);
+          } while (performance.now() < due - 6 && !stopped);
+        } else {
+          const spare = due - performance.now();
+          await (spare > 1 ? new Promise((r) => setTimeout(r, spare)) : yieldToMain());
+        }
       }
 
       const endedAt = performance.now();
@@ -411,6 +488,11 @@ export function DetectorLab() {
       );
       setPhase("error");
     } finally {
+      document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("freeze", onFreeze);
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
       writeDraft(TRAIL_KEY, null);
       teardown();
       await detector?.dispose().catch(() => {});
@@ -628,6 +710,23 @@ export function DetectorLab() {
           ))}
         </div>
 
+        <div className="grid grid-cols-3 gap-2">
+          {FPS_CAPS.map((c, i) => (
+            <button
+              key={c.label}
+              type="button"
+              disabled={busy}
+              onClick={() => setCapIdx(i)}
+              aria-pressed={capIdx === i}
+              className={`rounded-lg border px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                capIdx === i ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
           {[
             { on: true, label: `Fresh detector every ${RECYCLE_FRAMES} frames` },
@@ -716,6 +815,14 @@ export function DetectorLab() {
                 </button>
               </>
             )}
+            {(() => {
+              const lines = eventLines(savedRuns[0]?.at ?? "");
+              return lines.length ? (
+                <span className="mt-2 block whitespace-pre-wrap font-mono text-[10px]">
+                  {lines.slice(-8).join("\n")}
+                </span>
+              ) : null;
+            })()}
           </p>
         )}
       </section>

@@ -142,7 +142,8 @@ async function createGpuIO(ort: typeof Ort, size: number, numClasses: number): P
 export async function createEngine(
   backend: Backend,
   onStep: (step: string) => void = () => {},
-  inWorker = false
+  inWorker = false,
+  onEvent: (text: string) => void = () => {}
 ): Promise<Detector> {
   onStep("Loading the runtime");
   const ort = await loadOrt(backend, inWorker);
@@ -157,6 +158,21 @@ export async function createEngine(
   });
   const inputName = session.inputNames[0];
   const outputName = session.outputNames[0];
+
+  if (backend === "webgpu") {
+    // If the phone takes the GPU away, say so: a run that vanishes with no
+    // explanation is impossible to fix.
+    try {
+      const device = (await ort.env.webgpu.device) as unknown as {
+        lost: Promise<{ reason: string; message: string }>;
+        addEventListener(type: string, cb: (e: { error?: { message?: string } }) => void): void;
+      };
+      void device.lost.then((info) => onEvent(`GPU device lost (${info.reason}): ${info.message}`));
+      device.addEventListener("uncapturederror", (e) => onEvent(`GPU error: ${e.error?.message ?? "unknown"}`));
+    } catch {
+      // Not observable here; nothing to report.
+    }
+  }
 
   let gpuIO: GpuIO | null = null;
   let io = backend === "webgpu" ? "standard buffers" : "CPU";

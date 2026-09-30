@@ -29,7 +29,11 @@ type Handle = {
 };
 
 /** Start a worker and wait until its model is loaded and ready. */
-function spawn(backend: Backend, onStep: (step: string) => void): Promise<Handle> {
+function spawn(
+  backend: Backend,
+  onStep: (step: string) => void,
+  onEvent: (text: string) => void
+): Promise<Handle> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./detector.worker.ts", import.meta.url), { type: "module" });
     const pending = new Map<number, { resolve: (r: Result) => void; reject: (e: Error) => void }>();
@@ -51,7 +55,22 @@ function spawn(backend: Backend, onStep: (step: string) => void): Promise<Handle
         return new Promise<Result>((res, rej) => {
           const id = nextId;
           nextId += 1;
-          pending.set(id, { resolve: res, reject: rej });
+          // A worker the phone has killed never answers; without a limit
+          // the run would sit frozen forever instead of failing.
+          const timer = setTimeout(() => {
+            pending.delete(id);
+            rej(new Error("The detector stopped responding for 8 seconds."));
+          }, 8000);
+          pending.set(id, {
+            resolve: (r) => {
+              clearTimeout(timer);
+              res(r);
+            },
+            reject: (e) => {
+              clearTimeout(timer);
+              rej(e);
+            },
+          });
           worker.postMessage({ type: "frame", id, width, height, buffer }, [buffer]);
         });
       },
@@ -64,6 +83,7 @@ function spawn(backend: Backend, onStep: (step: string) => void): Promise<Handle
     worker.onmessage = (e: MessageEvent) => {
       const msg = e.data;
       if (msg.type === "step") onStep(msg.step);
+      else if (msg.type === "event") onEvent(msg.text);
       else if (msg.type === "ready") {
         handle.io = msg.io;
         settled = true;
@@ -95,20 +115,21 @@ const WARMUP_LEAD_FRAMES = 120;
 export async function createDetector(
   backend: Backend,
   onStep: (step: string) => void = () => {},
-  options: { recycleAfter?: number } = {}
+  options: { recycleAfter?: number; onEvent?: (text: string) => void } = {}
 ): Promise<Detector> {
   let recycleAfter = options.recycleAfter ?? 0;
+  const onEvent = options.onEvent ?? (() => {});
 
   let active: Handle | null = null;
   let onPage: Detector | null = null;
   try {
-    active = await spawn(backend, onStep);
+    active = await spawn(backend, onStep, onEvent);
   } catch (e) {
     // No worker, or no GPU inside one: run on the page instead. If the
     // trouble is real (no WebGPU at all) this fails the same way and the
     // caller sees the real message.
     onStep("Background thread unavailable, running on the page");
-    onPage = await createEngine(backend, onStep, false);
+    onPage = await createEngine(backend, onStep, false, onEvent);
     if (e instanceof Error) onStep(`(${e.message})`);
   }
 
@@ -132,7 +153,7 @@ export async function createDetector(
     if (!active || recycleAfter <= 0) return;
 
     if (!standby && frames >= recycleAfter - Math.min(WARMUP_LEAD_FRAMES, recycleAfter / 2)) {
-      standby = spawn(backend, () => {})
+      standby = spawn(backend, () => {}, onEvent)
         .then((h) => {
           standbyReady = h;
           return h;
