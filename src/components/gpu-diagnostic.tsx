@@ -3,6 +3,7 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 import { createDetector, nextVideoFrame } from "@/lib/vision/detector";
 import { probeRawGpu } from "@/lib/vision/gpu-probes";
+import { gradientFrame } from "@/lib/vision/test-frame";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { describeWake, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
 
@@ -161,24 +162,6 @@ function reportText(ladder: Ladder, results: Result[]) {
     else lines.push(`!  ${arm.label}: error after ${fmt(r.seconds)} s${tail}`);
   }
   return lines.join("\n");
-}
-
-function gradientFrame(width: number, height: number) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) throw new Error("Canvas isn't available");
-  const g = ctx.createLinearGradient(0, 0, width, height);
-  g.addColorStop(0, "#345");
-  g.addColorStop(1, "#c84");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = "#e8761c";
-  ctx.beginPath();
-  ctx.arc(width / 2, height / 2, 40, 0, Math.PI * 2);
-  ctx.fill();
-  return ctx.getImageData(0, 0, width, height);
 }
 
 export function GpuDiagnostic() {

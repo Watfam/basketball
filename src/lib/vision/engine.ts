@@ -21,6 +21,9 @@ import { COCO_PERSON, COCO_SPORTS_BALL, PAD_VALUE, decode, preprocess, type Dete
 
 export type Backend = "webgpu" | "wasm";
 
+/** How much the runtime rewrites the model before running it. */
+export type Optimization = "disabled" | "basic" | "extended" | "all";
+
 export type Timings = { prepMs: number; inferMs: number; postMs: number };
 
 export type Detector = {
@@ -143,7 +146,8 @@ export async function createEngine(
   backend: Backend,
   onStep: (step: string) => void = () => {},
   inWorker = false,
-  onEvent: (text: string) => void = () => {}
+  onEvent: (text: string) => void = () => {},
+  optimization: Optimization = "all"
 ): Promise<Detector> {
   onStep("Loading the runtime");
   const ort = await loadOrt(backend, inWorker);
@@ -151,7 +155,7 @@ export async function createEngine(
   onStep("Loading the model and preparing the GPU or CPU");
   const session = await ort.InferenceSession.create(MODEL_URL, {
     executionProviders: [backend],
-    graphOptimizationLevel: "all",
+    graphOptimizationLevel: optimization,
     // Results stay on the GPU so they can be read through gpuIO's single
     // reusable buffer instead of a fresh download every frame.
     ...(backend === "webgpu" ? { preferredOutputLocation: "gpu-buffer" as const } : {}),

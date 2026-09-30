@@ -1,4 +1,4 @@
-import { createEngine, type Backend, type Detector } from "@/lib/vision/engine";
+import { createEngine, type Backend, type Detector, type Optimization } from "@/lib/vision/engine";
 
 /**
  * The detector's own thread. Receives camera frames, replies with what was
@@ -17,7 +17,7 @@ const messageOf = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 scope.onmessage = async (e: MessageEvent) => {
   const msg = e.data as
-    | { type: "init"; backend: Backend }
+    | { type: "init"; backend: Backend; optimization?: Optimization }
     | { type: "frame"; id: number; width: number; height: number; buffer: ArrayBuffer };
 
   if (msg.type === "init") {
@@ -26,7 +26,8 @@ scope.onmessage = async (e: MessageEvent) => {
         msg.backend,
         (step) => scope.postMessage({ type: "step", step }),
         true,
-        (text) => scope.postMessage({ type: "event", text })
+        (text) => scope.postMessage({ type: "event", text }),
+        msg.optimization
       );
       scope.postMessage({ type: "ready", io: engine.describeIO() });
     } catch (err) {
