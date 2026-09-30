@@ -1,18 +1,18 @@
 import Link from "next/link";
-import { DetectorLab } from "@/components/detector-lab";
+import { GpuDiagnostic } from "@/components/gpu-diagnostic";
 
-export const metadata = { title: "Detector lab" };
+export const metadata = { title: "GPU diagnostic" };
 
-export default function DetectorLabPage() {
+export default function GpuDiagnosticPage() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="mx-auto w-full max-w-md">
           <Link
-            href="/"
+            href="/lab/detector"
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
-            ← Home
+            ← Detector lab
           </Link>
         </div>
       </header>
@@ -21,22 +21,15 @@ export default function DetectorLabPage() {
         <div>
           <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Experimental</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
-            Detector lab
+            GPU diagnostic
           </h1>
           <p className="mt-2 text-xs leading-relaxed text-foreground-dim">
-            Runs a ball-finding model on this phone&rsquo;s camera and measures how fast it goes and
-            whether it slows as the phone warms up. Everything happens on the device; nothing is
-            recorded or sent anywhere. This is a generic model, so it will miss balls a trained
-            one would catch — the speed is what this test is for.
+            A fixed sequence of tests, each one isolating one part of the camera-and-model
+            pipeline, to find exactly what makes the browser close the page. Nothing is recorded
+            or sent anywhere.
           </p>
         </div>
-        <DetectorLab />
-        <Link
-          href="/lab/diagnose"
-          className="block rounded-xl border border-line bg-surface px-4 py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim"
-        >
-          Run the GPU diagnostic tests
-        </Link>
+        <GpuDiagnostic />
       </main>
     </div>
   );

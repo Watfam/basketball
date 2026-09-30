@@ -39,6 +39,7 @@ function spawn(
     const pending = new Map<number, { resolve: (r: Result) => void; reject: (e: Error) => void }>();
     let nextId = 1;
     let settled = false;
+    let answered = false;
 
     const failAll = (error: Error) => {
       if (!settled) {
@@ -57,10 +58,13 @@ function spawn(
           nextId += 1;
           // A worker the phone has killed never answers; without a limit
           // the run would sit frozen forever instead of failing.
+          // The very first frame compiles the GPU programs, which can take
+          // far longer than any later one.
+          const limit = answered ? 8000 : 90000;
           const timer = setTimeout(() => {
             pending.delete(id);
-            rej(new Error("The detector stopped responding for 8 seconds."));
-          }, 8000);
+            rej(new Error(`The detector stopped responding for ${limit / 1000} seconds.`));
+          }, limit);
           pending.set(id, {
             resolve: (r) => {
               clearTimeout(timer);
@@ -89,6 +93,7 @@ function spawn(
         settled = true;
         resolve(handle);
       } else if (msg.type === "result") {
+        answered = true;
         const p = pending.get(msg.id);
         pending.delete(msg.id);
         p?.resolve(msg);
@@ -115,7 +120,7 @@ const WARMUP_LEAD_FRAMES = 120;
 export async function createDetector(
   backend: Backend,
   onStep: (step: string) => void = () => {},
-  options: { recycleAfter?: number; onEvent?: (text: string) => void } = {}
+  options: { recycleAfter?: number; onEvent?: (text: string) => void; forcePage?: boolean } = {}
 ): Promise<Detector> {
   let recycleAfter = options.recycleAfter ?? 0;
   const onEvent = options.onEvent ?? (() => {});
@@ -123,6 +128,7 @@ export async function createDetector(
   let active: Handle | null = null;
   let onPage: Detector | null = null;
   try {
+    if (options.forcePage) throw new Error("running on the page was requested");
     active = await spawn(backend, onStep, onEvent);
   } catch (e) {
     // No worker, or no GPU inside one: run on the page instead. If the
