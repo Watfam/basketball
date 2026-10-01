@@ -192,6 +192,7 @@ export function DetectorLab() {
   const [testMode, setTestMode] = useState<TestMode>("all");
   const [recycle, setRecycle] = useState(false);
   const [capIdx, setCapIdx] = useState(1);
+  const [threads, setThreads] = useState(1);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [live, setLive] = useState<{ fps: number; ms: number; ball: boolean; elapsed: number } | null>(null);
@@ -286,6 +287,7 @@ export function DetectorLab() {
       const loadStart = performance.now();
       if (useModel) detector = await createDetector(backend, (step) => mark(step), {
           recycleAfter: recycle ? RECYCLE_FRAMES : 0,
+          threads,
           onEvent: (text) => logEvent(runStartedMs, text),
         });
       const loadMs = performance.now() - loadStart;
@@ -709,6 +711,30 @@ export function DetectorLab() {
             </button>
           ))}
         </div>
+
+        {backend === "wasm" && (
+          <div>
+            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+              CPU threads
+            </p>
+            <div className="grid grid-cols-5 gap-2">
+              {[0, 1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setThreads(n)}
+                  aria-pressed={threads === n}
+                  className={`rounded-lg border px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                    threads === n ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+                  }`}
+                >
+                  {n === 0 ? "Auto" : n}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-2">
           {FPS_CAPS.map((c, i) => (

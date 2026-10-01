@@ -33,7 +33,8 @@ function spawn(
   backend: Backend,
   onStep: (step: string) => void,
   onEvent: (text: string) => void,
-  optimization?: Optimization
+  optimization?: Optimization,
+  threads?: number
 ): Promise<Handle> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./detector.worker.ts", import.meta.url), { type: "module" });
@@ -111,7 +112,7 @@ function spawn(
     worker.onerror = (e) => failAll(new Error(e.message || "The detector thread failed."));
     worker.onmessageerror = () => failAll(new Error("The detector thread sent something unreadable."));
 
-    worker.postMessage({ type: "init", backend, optimization });
+    worker.postMessage({ type: "init", backend, optimization, threads });
   });
 }
 
@@ -121,7 +122,7 @@ const WARMUP_LEAD_FRAMES = 120;
 export async function createDetector(
   backend: Backend,
   onStep: (step: string) => void = () => {},
-  options: { recycleAfter?: number; onEvent?: (text: string) => void; forcePage?: boolean; optimization?: Optimization } = {}
+  options: { recycleAfter?: number; onEvent?: (text: string) => void; forcePage?: boolean; optimization?: Optimization; threads?: number } = {}
 ): Promise<Detector> {
   let recycleAfter = options.recycleAfter ?? 0;
   const onEvent = options.onEvent ?? (() => {});
@@ -130,13 +131,18 @@ export async function createDetector(
   let onPage: Detector | null = null;
   try {
     if (options.forcePage) throw new Error("running on the page was requested");
-    active = await spawn(backend, onStep, onEvent, options.optimization);
+    active = await spawn(backend, onStep, onEvent, options.optimization, options.threads);
   } catch (e) {
     // No worker, or no GPU inside one: run on the page instead. If the
     // trouble is real (no WebGPU at all) this fails the same way and the
     // caller sees the real message.
     onStep("Background thread unavailable, running on the page");
-    onPage = await createEngine(backend, onStep, false, onEvent, options.optimization);
+    onPage = await createEngine(backend, {
+      onStep,
+      onEvent,
+      optimization: options.optimization,
+      threads: options.threads,
+    });
     if (e instanceof Error) onStep(`(${e.message})`);
   }
 
@@ -160,7 +166,7 @@ export async function createDetector(
     if (!active || recycleAfter <= 0) return;
 
     if (!standby && frames >= recycleAfter - Math.min(WARMUP_LEAD_FRAMES, recycleAfter / 2)) {
-      standby = spawn(backend, () => {}, onEvent, options.optimization)
+      standby = spawn(backend, () => {}, onEvent, options.optimization, options.threads)
         .then((h) => {
           standbyReady = h;
           return h;

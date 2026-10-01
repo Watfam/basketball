@@ -41,7 +41,27 @@ const NUM_CLASSES = 80;
 
 let ortPromise: Promise<typeof Ort> | null = null;
 
-async function loadOrt(backend: Backend, inWorker: boolean): Promise<typeof Ort> {
+/**
+ * How many CPU threads the model may use.
+ *
+ * More than one needs the page to be cross-origin isolated (see the headers
+ * in next.config.ts), because threads share memory through a
+ * SharedArrayBuffer and browsers only allow that on isolated pages. On a
+ * page that is not isolated, one thread is all that works, so a request for
+ * more quietly becomes one and the report says so.
+ */
+export function resolveThreads(requested?: number): { threads: number; isolated: boolean } {
+  const isolated = typeof crossOriginIsolated !== "undefined" && crossOriginIsolated;
+  if (!isolated) return { threads: 1, isolated };
+  const cores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency || 2 : 2;
+  // Left out means one thread, the setting every earlier phone test used.
+  // 0 means pick for me: leave a core free for the page and camera.
+  const auto = Math.min(4, Math.max(1, cores - 1));
+  const wanted = requested === undefined ? 1 : requested > 0 ? requested : auto;
+  return { threads: Math.max(1, Math.min(wanted, cores)), isolated };
+}
+
+async function loadOrt(backend: Backend, inWorker: boolean, threads: number): Promise<typeof Ort> {
   // One runtime per page: switching backends means a reload, which is
   // rare enough (a lab toggle) that supporting both at once isn't worth it.
   if (!ortPromise) {
@@ -50,9 +70,7 @@ async function loadOrt(backend: Backend, inWorker: boolean): Promise<typeof Ort>
   }
   const ort = await ortPromise;
   ort.env.wasm.wasmPaths = "/ort/";
-  // Threaded wasm needs cross-origin isolation, which the app doesn't opt
-  // into; one thread is the honest setting for the CPU fallback.
-  ort.env.wasm.numThreads = 1;
+  ort.env.wasm.numThreads = threads;
   // The CPU backend runs on the page's own thread unless told otherwise,
   // which janks every animation and tap while a frame is processing. A
   // worker keeps the page responsive. WebGPU can't use one (it has to run
@@ -142,15 +160,21 @@ async function createGpuIO(ort: typeof Ort, size: number, numClasses: number): P
   };
 }
 
-export async function createEngine(
-  backend: Backend,
-  onStep: (step: string) => void = () => {},
-  inWorker = false,
-  onEvent: (text: string) => void = () => {},
-  optimization: Optimization = "all"
-): Promise<Detector> {
+export type EngineOptions = {
+  onStep?: (step: string) => void;
+  /** Already running in our own worker, so no second one is needed. */
+  inWorker?: boolean;
+  onEvent?: (text: string) => void;
+  optimization?: Optimization;
+  /** CPU threads. Left out: 1. Zero: choose automatically. */
+  threads?: number;
+};
+
+export async function createEngine(backend: Backend, options: EngineOptions = {}): Promise<Detector> {
+  const { onStep = () => {}, inWorker = false, onEvent = () => {}, optimization = "all" } = options;
+  const { threads, isolated } = resolveThreads(options.threads);
   onStep("Loading the runtime");
-  const ort = await loadOrt(backend, inWorker);
+  const ort = await loadOrt(backend, inWorker, backend === "wasm" ? threads : 1);
 
   onStep("Loading the model and preparing the GPU or CPU");
   const session = await ort.InferenceSession.create(MODEL_URL, {
@@ -179,7 +203,12 @@ export async function createEngine(
   }
 
   let gpuIO: GpuIO | null = null;
-  let io = backend === "webgpu" ? "standard buffers" : "CPU";
+  let io =
+    backend === "webgpu"
+      ? "standard buffers"
+      : `CPU, ${threads} ${threads === 1 ? "thread" : "threads"}${
+          isolated ? "" : " (page not cross-origin isolated, so one)"
+        }`;
   if (backend === "webgpu") {
     try {
       gpuIO = await createGpuIO(ort, INPUT_SIZE, NUM_CLASSES);

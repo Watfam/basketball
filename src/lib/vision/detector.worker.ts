@@ -17,18 +17,18 @@ const messageOf = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 scope.onmessage = async (e: MessageEvent) => {
   const msg = e.data as
-    | { type: "init"; backend: Backend; optimization?: Optimization }
+    | { type: "init"; backend: Backend; optimization?: Optimization; threads?: number }
     | { type: "frame"; id: number; width: number; height: number; buffer: ArrayBuffer };
 
   if (msg.type === "init") {
     try {
-      engine = await createEngine(
-        msg.backend,
-        (step) => scope.postMessage({ type: "step", step }),
-        true,
-        (text) => scope.postMessage({ type: "event", text }),
-        msg.optimization
-      );
+      engine = await createEngine(msg.backend, {
+        onStep: (step) => scope.postMessage({ type: "step", step }),
+        inWorker: true,
+        onEvent: (text) => scope.postMessage({ type: "event", text }),
+        optimization: msg.optimization,
+        threads: msg.threads,
+      });
       scope.postMessage({ type: "ready", io: engine.describeIO() });
     } catch (err) {
       scope.postMessage({ type: "error", message: messageOf(err) });
