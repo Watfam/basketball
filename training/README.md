@@ -62,3 +62,14 @@ and the notebook.
   resting and rim-overlapping balls are missing from the "ball" side. The false-alarm side
   may include real but unlabelled balls. Next: look at where the false alarms are, then run on
   a fresh clip (chalk clip, kids).
+
+### Run 1 on a different clip (IMG_4826, chalk clip, 2026-10-01) - FAILED to generalise
+Hoop windows (416 px, native 1080p) sampled every 2 s from a clip with a new camera position,
+a lowered goal, low backlit sun, and a boy in a red shirt. 26 of 99 windows had a "ball"
+detection at confidence 0.25 (scores 0.6-0.87), almost all of them on the **red shirt**, with
+nobody shooting. The model learned "red-orange blob". Cause: the training clip had only a
+purple-shirted adult, so red clothing never appeared without a ball. Fix is data, not code:
+add ball-free windows with red/orange clothing and kids as hard negatives (IMG_4826 0-150 s is
+good for that, minus frames where the ball is visible), and add kids shooting in varied clothes,
+then retrain once. The tracker should also reject detections that move with a person rather
+than along an arc.
