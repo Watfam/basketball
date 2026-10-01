@@ -21,3 +21,6 @@ tsconfig.tsbuildinfo
 # Raw training footage of minors: never commit anything in here
 /Training Video/
 .DS_Store
+
+# Intermediate output of the footage tools (large, regenerable)
+/training/work/
