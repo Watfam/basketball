@@ -187,7 +187,7 @@ export function DetectorLab() {
   const fileUrlRef = useRef<string | null>(null);
 
   const [durationIdx, setDurationIdx] = useState(1);
-  const [backend, setBackend] = useState<Backend>("webgpu");
+  const [backend, setBackend] = useState<Backend>("wasm");
   const [source, setSource] = useState<Source>("camera");
   const [testMode, setTestMode] = useState<TestMode>("all");
   const [recycle, setRecycle] = useState(false);
@@ -654,7 +654,7 @@ export function DetectorLab() {
                 backend === b ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
               }`}
             >
-              {b === "webgpu" ? "GPU (WebGPU)" : "CPU (fallback)"}
+              {b === "webgpu" ? "GPU (unstable on iPhone)" : "CPU (reliable)"}
             </button>
           ))}
         </div>

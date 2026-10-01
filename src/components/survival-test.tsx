@@ -67,8 +67,8 @@ const CONFIGS: Cfg[] = [
   },
   {
     id: "raw",
-    label: "Raw GPU work, no model",
-    what: "Same pattern of GPU calls with none of the model. Shows whether it is the model or the GPU itself.",
+    label: "Raw GPU work with real load, no model",
+    what: "The model's pattern of GPU calls plus about 12 ms of genuine GPU computing per frame, with none of the model. Shows whether heavy GPU work alone is enough to get the page closed.",
     seconds: 45,
     trials: ROUNDS,
   },

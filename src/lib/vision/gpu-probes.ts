@@ -80,6 +80,7 @@ export async function probeRawGpu(kind: "tiny" | "ortlike", ctx: ProbeContext): 
   let calibrated = kind === "tiny";
   let frames = 0;
   let sample = 0;
+  let gpuMs = 0;
   const started = performance.now();
 
   try {
@@ -99,6 +100,7 @@ export async function probeRawGpu(kind: "tiny" | "ortlike", ctx: ProbeContext): 
         await device.queue.onSubmittedWorkDone();
       } else {
         params[0] = loops;
+        const gpuStart = performance.now();
         for (let s = 0; s < 11; s += 1) {
           const enc = device.createCommandEncoder();
           const pass = enc.beginComputePass();
@@ -111,6 +113,8 @@ export async function probeRawGpu(kind: "tiny" | "ortlike", ctx: ProbeContext): 
           pass.end();
           device.queue.submit([enc.finish()]);
         }
+        await device.queue.onSubmittedWorkDone();
+        gpuMs = performance.now() - gpuStart;
         const enc = device.createCommandEncoder();
         enc.copyBufferToBuffer(data, 0, readBack, 0, DATA_BYTES);
         device.queue.submit([enc.finish()]);
@@ -123,9 +127,12 @@ export async function probeRawGpu(kind: "tiny" | "ortlike", ctx: ProbeContext): 
       ctx.beat(frames);
       const took = performance.now() - frameStart;
 
-      // Find a per-dispatch loop count that keeps the GPU busy ~12 ms a frame.
+      // Find a per-dispatch loop count that keeps the GPU itself busy ~12 ms
+      // a frame. Timed from submit to completion, not the whole frame: an
+      // earlier version timed the frame, which is mostly CPU-side setup,
+      // so it stopped at the smallest job and the "load" was close to none.
       if (!calibrated) {
-        if (took < 10 && loops < 1 << 16) loops *= 2;
+        if (gpuMs < 12 && loops < 1 << 22) loops *= 2;
         else calibrated = true;
       }
 
@@ -136,5 +143,5 @@ export async function probeRawGpu(kind: "tiny" | "ortlike", ctx: ProbeContext): 
     device.destroy();
   }
 
-  return { frames, note: kind === "ortlike" ? `${loops} loops per dispatch, read-back value ${sample.toFixed(3)}` : "" };
+  return { frames, note: kind === "ortlike" ? `${loops} loops per dispatch, ${gpuMs.toFixed(1)} ms of GPU time per frame, read-back value ${sample.toFixed(3)}` : "" };
 }
