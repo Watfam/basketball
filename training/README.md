@@ -42,3 +42,23 @@ and the notebook.
   under-represented.
 - Test split is the last ~3 minutes: 4 shots only. Make / miss accuracy needs
   a fresh clip with 50+ shots.
+
+## Results log
+
+### Run 1 - 2026-10-01 - YOLOX-nano, 40 epochs, 3,207 train images from one 16-minute clip
+- Val (650-800 s of the clip): best AP 72.6 (IoU 0.5:0.95), AP at IoU 0.75 88.9, AR 76.1.
+- Test (last ~3 minutes of the clip, never trained on; 759 images, 534 with a ball):
+
+  | confidence | ball found when there (IoU >= 0.3) | ball-free pictures with a made-up ball |
+  |---|---|---|
+  | 0.05 | 533/534 = 100% | 44/225 = 20% |
+  | 0.25 | 531/534 = 99% | 32/225 = 14% |
+  | 0.40 | 528/534 = 99% | 27/225 = 12% |
+  | 0.60 | 520/534 = 97% | 18/225 = 8% |
+
+- Untrained generic model on the same kind of footage: ~0% (see git history / memory).
+- NOT independent evidence of generalisation: same person, hoop, lighting and afternoon; the
+  test positives are frames where a moving orange blob was found near the rim, so held,
+  resting and rim-overlapping balls are missing from the "ball" side. The false-alarm side
+  may include real but unlabelled balls. Next: look at where the false alarms are, then run on
+  a fresh clip (chalk clip, kids).
