@@ -1,0 +1,260 @@
+{
+ "video": "IMG_4824.MOV",
+ "fps": 29.97002997002997,
+ "rimPixel": [
+  975,
+  460
+ ],
+ "frame": [
+  1920,
+  1080
+ ],
+ "note": "Labels made by eye from frame strips by Claude on 2026-10-01; Matt has not verified them. Times are seconds from the start of the video at which the ball reaches the rim.",
+ "shots": [
+  {
+   "n": 1,
+   "t": 6.14,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 2,
+   "t": 17.92,
+   "label": "make",
+   "confidence": "medium",
+   "note": "bounced on the rim, then dropped through the net"
+  },
+  {
+   "n": 3,
+   "t": 30.06,
+   "label": "miss",
+   "confidence": "high",
+   "note": "bounced off the board to the right"
+  },
+  {
+   "n": 4,
+   "t": 33.67,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 5,
+   "t": 43.21,
+   "label": "exclude",
+   "confidence": "",
+   "note": "shooter jumping at the rim himself, not a normal shot"
+  },
+  {
+   "n": 6,
+   "t": 44.14,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "hit the front of the rim and went right"
+  },
+  {
+   "n": 7,
+   "t": 50.05,
+   "label": "make",
+   "confidence": "medium",
+   "note": "rim bounce, then in"
+  },
+  {
+   "n": 8,
+   "t": 52.79,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "rolled off the right edge of the rim"
+  },
+  {
+   "n": 9,
+   "t": 62.4,
+   "label": "make",
+   "confidence": "medium",
+   "note": "ball put up from underneath, dropped through"
+  },
+  {
+   "n": 10,
+   "t": 123.89,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 11,
+   "t": 145.08,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "dropped past the left side of the rim"
+  },
+  {
+   "n": 12,
+   "t": 378.31,
+   "label": "make",
+   "confidence": "medium",
+   "note": "ball hidden behind the net, then seen below"
+  },
+  {
+   "n": 13,
+   "t": 419.29,
+   "label": "make",
+   "confidence": "medium",
+   "note": "rim bounce, then in"
+  },
+  {
+   "n": 14,
+   "t": 435.23,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "rim shook, ball went right"
+  },
+  {
+   "n": 15,
+   "t": 445.65,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 16,
+   "t": 454.65,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "dropped past the left side"
+  },
+  {
+   "n": 17,
+   "t": 472.67,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "rolled off the right side"
+  },
+  {
+   "n": 18,
+   "t": 487.42,
+   "label": "exclude",
+   "confidence": "",
+   "note": "shooter jumping at the rim himself, not a normal shot"
+  },
+  {
+   "n": 19,
+   "t": 496.4,
+   "label": "make",
+   "confidence": "medium",
+   "note": "rim shook, ball seen below the net"
+  },
+  {
+   "n": 20,
+   "t": 500.33,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "went off the right edge"
+  },
+  {
+   "n": 21,
+   "t": 512.65,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "hit the right of the rim and bounced away"
+  },
+  {
+   "n": 22,
+   "t": 519.19,
+   "label": "exclude",
+   "confidence": "",
+   "note": "unclear: several bounces on the rim, ball tossed from below"
+  },
+  {
+   "n": 23,
+   "t": 534.03,
+   "label": "make",
+   "confidence": "medium",
+   "note": ""
+  },
+  {
+   "n": 24,
+   "t": 540.67,
+   "label": "make",
+   "confidence": "medium",
+   "note": "rolled around the rim, then dropped through"
+  },
+  {
+   "n": 25,
+   "t": 544.44,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 26,
+   "t": 555.56,
+   "label": "make",
+   "confidence": "medium",
+   "note": "board, then rim, then through"
+  },
+  {
+   "n": 27,
+   "t": 648.65,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "went off the right of the rim"
+  },
+  {
+   "n": 28,
+   "t": 689.72,
+   "label": "make",
+   "confidence": "low",
+   "note": "rim shaking, ball seen just below the net slightly right of centre"
+  },
+  {
+   "n": 29,
+   "t": 721.22,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 30,
+   "t": 726.69,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "off the right of the rim"
+  },
+  {
+   "n": 31,
+   "t": 751.15,
+   "label": "exclude",
+   "confidence": "",
+   "note": "a ball passing in front of the camera, not at the hoop"
+  },
+  {
+   "n": 32,
+   "t": 902.47,
+   "label": "make",
+   "confidence": "medium",
+   "note": ""
+  },
+  {
+   "n": 33,
+   "t": 922.49,
+   "label": "make",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "n": 34,
+   "t": 959.63,
+   "label": "miss",
+   "confidence": "high",
+   "note": "off the right of the rim"
+  },
+  {
+   "n": 35,
+   "t": 967.07,
+   "label": "make",
+   "confidence": "medium",
+   "note": "rim bounce, then in"
+  }
+ ]
+}
