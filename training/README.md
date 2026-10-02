@@ -73,3 +73,16 @@ add ball-free windows with red/orange clothing and kids as hard negatives (IMG_4
 good for that, minus frames where the ball is visible), and add kids shooting in varied clothes,
 then retrain once. The tracker should also reject detections that move with a person rather
 than along an arc.
+
+### Round two dataset (dataset3, built 2026-10-01 from IMG_4825 + IMG_4826) - NOT USED, failed the eye check
+Built with `1c-scan-motion` -> `3b-ballistic-tracks` -> `3c-filter-tracks` -> `8-build-dataset-v2`.
+Checked with `5c-check-dataset`. Findings from looking at 60 random pictures:
+- "No ball" pictures from IMG_4825 (people shooting): roughly a third visibly contain a ball
+  (held, resting, or in flight). Training on these teaches the model that balls are background.
+  Cause: the scanners only find a ball that is moving along an arc, so held and resting balls are
+  never excluded.
+- Ball boxes: most are on real balls, but some are on shirts, hands and heads, and some real
+  balls in the same pictures are unboxed.
+- "No ball" pictures from IMG_4826 (red shirt, backlit) look clean and are the useful part.
+Do not train on dataset3. Next: label positives and negatives with something that does not depend
+on motion (a person-aware filter, or reviewing candidates by eye in sheets), and only then retrain.
