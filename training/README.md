@@ -86,3 +86,15 @@ Checked with `5c-check-dataset`. Findings from looking at 60 random pictures:
 - "No ball" pictures from IMG_4826 (red shirt, backlit) look clean and are the useful part.
 Do not train on dataset3. Next: label positives and negatives with something that does not depend
 on motion (a person-aware filter, or reviewing candidates by eye in sheets), and only then retrain.
+
+### Re-boxing the accepted IMG_4825 flights (2026-10-02)
+- Round-one ball model as the re-boxer (`10-rebox-flights.mjs`): kept 44 of 744 points (6%). Useless;
+  it only fires on balls that look like clip one's.
+- Circle edge fit near the tracker point (`11-circle-rebox.mjs`): 580 of 744, but about 1 in 3 circles
+  were on nets, leaves or backboard marks. Requiring the circle centre to lie within one ball radius
+  of the tracker point (two independent methods agreeing) leaves 353 boxes. On a hand-judged random
+  sample of 48 from that set, about 44 were on the ball and tight.
+- Known gap: some frames hold a second ball (behind the net, on the backboard) that has no box.
+  Positive pictures built from these frames will teach the model that such a ball is background.
+  Keep windows small and centred on the boxed ball, and do not reuse these frames as negatives.
+- Saved as `labels/IMG_4825-ball-boxes.json` (rim-centred 600 px window coordinates).
