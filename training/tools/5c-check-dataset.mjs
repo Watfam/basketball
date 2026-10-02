@@ -3,7 +3,7 @@
 //   node 5c-check-dataset.mjs <out dir> [dataset dir]
 import fs from "node:fs"; import path from "node:path"; import jpeg from "jpeg-js";
 const OUTDIR = process.argv[2], D = process.argv[3] || path.resolve(new URL("../..", import.meta.url).pathname, "Training Video/dataset3");
-let seed = 5; const rand = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+let seed = 77; const rand = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
 function sheet(pick, boxes, out) {
   const COLS = 6, CELL = 208, ROWS = Math.ceil(pick.length / COLS), W = COLS * CELL, H = ROWS * CELL, buf = Buffer.alloc(W * H * 4, 0);
   pick.forEach((im, k) => { const px = jpeg.decode(fs.readFileSync(`${D}/${im.split}/${im.file_name}`), { useTArray: true }), ox = (k % COLS) * CELL, oy = Math.floor(k / COLS) * CELL;
@@ -16,7 +16,7 @@ function sheet(pick, boxes, out) {
 const all = {}; for (const s of ["train", "val", "test"]) { const j = JSON.parse(fs.readFileSync(`${D}/${s}.json`, "utf8")); all[s] = j; j.images.forEach(i => (i.split = s)); }
 const imgs = [].concat(...Object.values(all).map(j => j.images)), anns = new Map([].concat(...Object.values(all).map(j => j.annotations)).map(a => [a.image_id, a]));
 const take = (arr, n) => { const o = [], c = [...arr]; while (o.length < n && c.length) o.push(c.splice(Math.floor(rand() * c.length), 1)[0]); return o; };
-sheet(take(imgs.filter(i => i.source === "4825" && anns.has(i.id)), 24), anns, `${OUTDIR}/r2-pos.jpg`);
-sheet(take(imgs.filter(i => i.source === "4826"), 18), anns, `${OUTDIR}/r2-neg-4826.jpg`);
-sheet(take(imgs.filter(i => i.source === "4825" && !anns.has(i.id)), 18), anns, `${OUTDIR}/r2-neg-4825.jpg`);
+// each entry: [source, has a ball?, how many, file name]
+const jobs = (process.argv[4] ? JSON.parse(process.argv[4]) : [["4825", true, 24, "pos-4825"], ["4826", false, 18, "neg-4826"], ["4829", false, 18, "neg-4829"], ["4824", false, 18, "neg-4824"], ["4824", true, 18, "pos-4824"]]);
+for (const [src, ball, n, name] of jobs) sheet(take(imgs.filter(i => i.source === src && anns.has(i.id) === ball), n), anns, `${OUTDIR}/${name}.jpg`);
 console.log("sheets written to", OUTDIR);

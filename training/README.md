@@ -98,3 +98,16 @@ on motion (a person-aware filter, or reviewing candidates by eye in sheets), and
   Positive pictures built from these frames will teach the model that such a ball is background.
   Keep windows small and centred on the boxed ball, and do not reuse these frames as negatives.
 - Saved as `labels/IMG_4825-ball-boxes.json` (rim-centred 600 px window coordinates).
+
+### Round-two dataset v3 (dataset4, built 2026-10-02) - NOT YET SENT TO COLAB
+`12-build-dataset-v3.mjs`: ball pictures = 353 circle-fit boxes (IMG_4825) + round-one ball pictures
+(IMG_4824); no-ball pictures = IMG_4829 (Matt: no ball ever in frame) + IMG_4826 first ~150 s, with a
+"ball-sized orange blob in the window" filter (rejected 96 of ~516 chalk-clip frames). Round one's own
+no-ball pictures are dropped (a quarter held a ball). IMG_4825 contributes no no-ball pictures. The
+kids clip B1689585... is the held-out exam. Train 3477 (2905 ball), val 444 (283), test 771 (634).
+Eye check of 42 random chalk-clip no-ball pictures still found about 3 with a ball (the red boy holding
+one: the ball merges with his shirt into one oversized blob, so the size filter misses it; one more had
+an orange ball cut off at the picture edge). Eye check of 24 IMG_4825 ball pictures: most boxes are on the
+ball, but a few boxes sit on the backboard or net while the real ball is elsewhere in the picture
+(unboxed), which would teach "ball = background". Next: review the chalk-clip no-ball pictures and the
+ball pictures in sheets and drop the bad ones, then retrain once.
