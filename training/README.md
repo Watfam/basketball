@@ -223,3 +223,17 @@ the strips stop before the ball reaches the rim in many; stride-2 frames are too
 have an audio track with 655 windows louder than -38 dB (232 louder than -30 dB), so Matt may have said make/miss
 out loud; I cannot transcribe it here. Do not build or score make/miss logic until there is trustworthy ground
 truth: ask Matt for a list of outcomes for IMG_4836 (or film a clip with ONE ball and narration).
+
+### Correction: the "dark balls" at the backboard are SHADOWS (Matt, 2026-10-04)
+IMG_4836 had only an orange ball; the dark round objects that follow it across the backboard are its shadow (sun
+overhead). I had read them as a second, dark ball. Consequences found so far:
+- Round-three training positives include shadow boxes. Dark, non-orange ball boxes in dataset8 (mean luma < 85 and
+  not red-dominant): 4836 31 of 121 (26%), 4835 5 of 43 (12%), 4831 46 of 254 (18%, unclear: Matt used three balls,
+  one may be dark), 4825 124 of 306 (41%, unclear: backlit sky silhouettes of a real ball), 4824 0 of 3471.
+- The "second ball" filter (`20-drop-multi-ball`) treated shadows as another ball and dropped 80 of 4835 and 74 of
+  4836 ball pictures it should have kept.
+- Precision I reported for ball-2/ball-3 on the kids clip counted dark backboard blobs as balls ("dark silhouettes"),
+  so it is overstated; the kids' heads and shadows are both false-alarm classes.
+- Shadow-near-ball also breaks naive make/miss logic (the shadow reaches the rim zone too).
+Fix for round four: drop dark non-orange positives from 4835/4836 (and from 4831 if Matt confirms no dark ball),
+add pictures of shadows with the ball elsewhere or absent as negatives, redo the second-ball filter by colour.
