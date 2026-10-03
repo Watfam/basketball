@@ -111,3 +111,17 @@ an orange ball cut off at the picture edge). Eye check of 24 IMG_4825 ball pictu
 ball, but a few boxes sit on the backboard or net while the real ball is elsewhere in the picture
 (unboxed), which would teach "ball = background". Next: review the chalk-clip no-ball pictures and the
 ball pictures in sheets and drop the bad ones, then retrain once.
+
+### Round-two dataset v2 (dataset6 -> dataset_v2.zip, 2026-10-03) - sent to Matt for the second Colab run
+Built by 12 -> 15 -> 16. Train 3368 (2896 ball: IMG_4824 2662 + IMG_4825 234; no-ball: IMG_4829 277 +
+IMG_4826 195), val 431, test 756 (626 ball, 130 no-ball). Cleanups after eye checks:
+- 15-drop-red-boy: dropped 120 chalk-clip no-ball pictures containing the boy in red (he carries the ball and
+  it merges with his shirt; colour cannot separate them). Kept the man alone / empty hoop.
+- 16-drop-second-ball: dropped 17 IMG_4825 ball pictures where the motion scan tracked a second ball far
+  from the boxed one.
+- A hue-based "ball-coloured blob" check (training/work/ballhue.mjs, not committed) found 15 of 420 chalk-clip
+  no-ball pictures but MISSED the two balls I had spotted by eye, so it is not a reliable filter.
+Known remaining weakness: about 1 in 5 of the 234 IMG_4825 ball pictures (about 45, under 2% of all ball
+pictures) still show a second, unboxed ball, mostly dark balls against hazy sky that the scan cannot see.
+Not used for training: B1689585-096B-49E7-9423-E3D54EDA834D.MOV (kids clip), the final exam.
+Notebook: train_ball_detector_v2.ipynb reads dataset_v2.zip and writes to hardwood-lab/out2.
