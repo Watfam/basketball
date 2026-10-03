@@ -135,3 +135,12 @@ Test = 756 pictures (626 ball: IMG_4824 534 + IMG_4825 92; 130 no-ball: IMG_4826
 Round one on its own test: 99% found, 14% made-up at 0.25. Not comparable test sets (round two includes the
 harder IMG_4825 balls), and the no-ball test pictures come from the same two clips as the training no-ball
 pictures, filtered to contain no ball. The real exam is the kids clip, still to run.
+
+### Round 2 on the unseen kids clip (B1689585..., 2026-10-03) - checked by eye
+ball-2.onnx, hoop window 416 px at (714,202), one window per second: 944 windows, 134 with a detection, 140
+detections at confidence >= 0.25. Every detection cut out at native resolution (`tools/17-review-detections.mjs`)
+and judged by eye: about 130 sit on a ball (about 20 of those are dark silhouettes against sky or backboard),
+about 7 sit on the green-shirt boy's head or hair (dark, round), none on the red or green shirts. So about 95%
+precision, and the one failure type is a dark head. Recall is NOT measured: in the overview sheet some windows
+showed a ball with no box, and only windows around the hoop were looked at. Not yet done: label a sample of
+windows by eye for recall, make the dark-head case a training negative.
