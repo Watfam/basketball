@@ -190,3 +190,14 @@ at >= 0.15 (28 of 4825, 106 of 4831, 80 of 4835, 74 of 4836). Train 4154 (3194 b
 (342 / 260), test 902 (659 / 243). Held out entirely: B1689585 (kids clip) and a fresh clip to be filmed after
 this run. Known weakness: pictures from 4835/4836 can still show a second, dark ball with no box.
 Notebook train_ball_detector_v3.ipynb reads dataset_v3.zip and writes to hardwood-lab/out3.
+
+### Round 3 results (ball-3.onnx, 2026-10-04)
+Colab test (902 pictures, 659 ball / 243 no-ball): 99% found at 0.25, 0 of 243 made-up. Same-clip test, so not the exam.
+Exam 1, kids clip B1689585 (never trained on), window 416 at (714,202), one window per second: 169 detections
+(round two: 140). Looked at 90 of 169 by eye: about 72 on balls (including dark silhouettes against the backboard),
+about 18 on the kids' dark hair or heads (20%; round two: about 5%), none on the red or green shirts. IMG_4832
+(no ball, but TRAINED ON): 0 detections, down from 79 with round two; that only shows it learned that clip.
+Recall on the same 115 random windows as round two: windows with a box 22 (round two: 18), at 0.25. Still low.
+Reading: shirts are fixed on this clip, but the dark ball class added in round three (dark balls against the
+backboard) made dark round heads look like balls. Next: heads as explicit negatives (windows with a head and
+no ball), and the tracker/arc rule; exam 2 = a fresh clip, filmed on request.
