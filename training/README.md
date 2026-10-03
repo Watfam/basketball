@@ -237,3 +237,12 @@ overhead). I had read them as a second, dark ball. Consequences found so far:
 - Shadow-near-ball also breaks naive make/miss logic (the shadow reaches the rim zone too).
 Fix for round four: drop dark non-orange positives from 4835/4836 (and from 4831 if Matt confirms no dark ball),
 add pictures of shadows with the ball elsewhere or absent as negatives, redo the second-ball filter by colour.
+
+### Sorting the 46 dark boxes in IMG_4831 (2026-10-04, Matt: one of the three balls is black)
+`tools/24-dark-boxes.mjs` sheets in training/work/dark-4831. By eye, roughly 40 of 46 sit ON the backboard with a
+real ball (orange or the black one) visible elsewhere in the picture, so they are shadows; about 4 to 6 are a
+real black ball in the air off the backboard (for example the box left of the board in sheet 1, row 4, tile 1,
+and sheet 2, tile 24). Shadows exist for the black ball too, so a dark box on the board is not safe either way.
+Decision for round four: drop all 46 dark positives from 4831 rather than keep a handful of real black-ball
+boxes mixed with ~40 shadows; ask Matt for a short clip of the black ball alone against sky and trees to teach it
+properly; add backboard-shadow windows (ball elsewhere or out of frame) as negatives.
