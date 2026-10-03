@@ -201,3 +201,15 @@ Recall on the same 115 random windows as round two: windows with a box 22 (round
 Reading: shirts are fixed on this clip, but the dark ball class added in round three (dark balls against the
 backboard) made dark round heads look like balls. Next: heads as explicit negatives (windows with a head and
 no ball), and the tracker/arc rule; exam 2 = a fresh clip, filmed on request.
+
+### Arc rule on ball-3 detections, every frame (kids clip 240-300 s, 2026-10-04) - `tools/21-track-detections.mjs`
+1799 frames, 312 detections, linked into 43 tracks; 7 tracks (62 detections) pass "moves like a thrown ball"
+(>= 5 points, 5-120 frames, >= 60 px of path at >= 3 px/frame, smooth parabola fit). By eye on 30 random from each pile:
+- KEPT (62): 30 of 30 sampled are balls, no heads or shirts.
+- REJECTED (250): in 60 sampled, about 52 are real balls (balls that are being carried, resting on the rim, bouncing
+  on the backboard, or that appear for fewer than 5 frames), about 8 are heads. So the rule removes the heads but
+  also throws away most balls: only about 20% of detections survive and the surviving arcs are the long free-flight
+  ones.
+Consequence: usable for "was a shot taken" (a flight arc toward the hoop is confirmed by 62 clean detections in
+60 s), but it does not measure the whole ball path, and the make/miss decision near the rim, where the rule rejects
+most detections, needs its own logic. Per-frame recall is still unmeasured.
