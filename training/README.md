@@ -166,3 +166,17 @@ Looked at 90 of the 213 by eye (sheets det-01, det-03, det-06 of `training/work/
 - Unmeasured: how many balls it misses, and the other 123 detections.
 This clip is the best source of red-shirt negatives yet, but the person holds or dribbles a ball in many
 frames, so negatives must be taken only from windows with no ball in them (check by eye).
+
+### Round 2 on the three shirt clips (2026-10-04) - checked by eye; these clips are for round 3
+Clips: IMG_4832 (orange-shirt man walking around the hoop, no ball; 30 fps, phone placed ~18 s in and lifted
+~118 s), IMG_4835 (orange shirt rebounding near the hoop while a white-shirt boy shoots), IMG_4836 (orange
+shirt shoots/dribbles). Hoop window 416 px at (840,170). ball-2.onnx at >= 0.25:
+- 4832 no ball: 79 detections in 136 windows; 77 in the steady middle. All 52 I looked at are the orange
+  shirt or torso. 0 balls exist, so every detection is a false alarm: about 1 window in 2 when he is near.
+- 4835 (223 detections) and 4836 (93): mixed. In the 60 I looked at, roughly half sit on orange shirts or torso,
+  the rest on balls (orange, plus dark balls at the backboard) and a few on hats/heads. The model finds balls in
+  all of these clips; shirts are what it cannot reject.
+Round 2's 0% made-up rate came from a "no ball" test that never showed a large, close, bright orange shirt.
+Round 3 plan: use 4832's steady window as shirt negatives (tens of seconds, all ball-free by construction),
+4831's ball-free windows, and ball windows from 4835/4836/4831/B1689585 as positives after a by-eye box check;
+hold out fresh footage as the exam.
