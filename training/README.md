@@ -153,3 +153,16 @@ recall on this clip looks well below the 95%+ seen on the Colab test and is NOT 
 250 px per 416 px window are too small to count reliably. Lowering the threshold recovers some (14 more windows),
 so part of the gap is low confidence rather than blindness. Next: a proper count on larger tiles of the unboxed
 windows that contain a ball, then likely add kids-clip-like balls (small, dark, against sky) to training.
+
+### Round 2 on IMG_4831 (three balls, person in a red shirt, 2026-10-03) - checked by eye, NOT in training
+ball-2.onnx, hoop window 416 px at (752,172), one window per second: 624 windows, 213 detections at >= 0.25.
+Looked at 90 of the 213 by eye (sheets det-01, det-03, det-06 of `training/work/clip6-det`):
+- About 40 of 90 (44%) are on the person's red shirt or torso, often a close-up of the shirt. Round two did NOT
+  fully fix the red-shirt mistake: it held on the earlier kids clip (shirts there were small and far), but a
+  large, close, bright red-orange shirt still fires it. Box size does not separate them (shirt boxes are
+  about 40-70 px in the window, balls about 25-55 px).
+- The rest are on balls: the orange ball (found well, including against sky and trees), the dark green/black ball
+  (found, mostly against backboard or hedge), and a third orange ball. So colour/type of ball is not the problem.
+- Unmeasured: how many balls it misses, and the other 123 detections.
+This clip is the best source of red-shirt negatives yet, but the person holds or dribbles a ball in many
+frames, so negatives must be taken only from windows with no ball in them (check by eye).
