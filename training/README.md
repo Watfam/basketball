@@ -144,3 +144,12 @@ about 7 sit on the green-shirt boy's head or hair (dark, round), none on the red
 precision, and the one failure type is a dark head. Recall is NOT measured: in the overview sheet some windows
 showed a ball with no box, and only windows around the hoop were looked at. Not yet done: label a sample of
 windows by eye for recall, make the dark-head case a training negative.
+
+### Round 2 recall check on the kids clip (2026-10-03) - INCOMPLETE
+115 random one-second windows (seed 31, `tools/18-recall-sheets.mjs`, window 416 px at (714,202)), model scored on
+the exact frame drawn. Windows with at least one box: 18 at confidence 0.25, 32 at 0.03. By eye on the first 48
+thumbnails, balls in flight near the hoop with no box outnumbered boxed ones (about 8 unboxed to 5 boxed), so
+recall on this clip looks well below the 95%+ seen on the Colab test and is NOT yet quantified: thumbnails at
+250 px per 416 px window are too small to count reliably. Lowering the threshold recovers some (14 more windows),
+so part of the gap is low confidence rather than blindness. Next: a proper count on larger tiles of the unboxed
+windows that contain a ball, then likely add kids-clip-like balls (small, dark, against sky) to training.
