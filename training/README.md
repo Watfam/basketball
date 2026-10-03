@@ -180,3 +180,13 @@ Round 2's 0% made-up rate came from a "no ball" test that never showed a large, 
 Round 3 plan: use 4832's steady window as shirt negatives (tens of seconds, all ball-free by construction),
 4831's ball-free windows, and ball windows from 4835/4836/4831/B1689585 as positives after a by-eye box check;
 hold out fresh footage as the exam.
+
+### Round-three dataset (dataset8 -> dataset_v3.zip, 2026-10-04)
+Built by `19-build-round3.mjs` then `20-drop-multi-ball.mjs`. Adds to dataset6: shirt negatives from IMG_4832's
+steady middle (713 pictures, ball-free by construction), ball pictures from IMG_4831/4835/4836 whose box was
+proposed by ball-2.onnx (score >= 0.4) AND confirmed by an independent circle-edge fit (shirts and torsos have
+no round outline and fail); then dropped any ball picture where ball-2.onnx found another ball-sized box
+at >= 0.15 (28 of 4825, 106 of 4831, 80 of 4835, 74 of 4836). Train 4154 (3194 ball, 960 no-ball), val 602
+(342 / 260), test 902 (659 / 243). Held out entirely: B1689585 (kids clip) and a fresh clip to be filmed after
+this run. Known weakness: pictures from 4835/4836 can still show a second, dark ball with no box.
+Notebook train_ball_detector_v3.ipynb reads dataset_v3.zip and writes to hardwood-lab/out3.
