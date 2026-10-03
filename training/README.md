@@ -125,3 +125,13 @@ Known remaining weakness: about 1 in 5 of the 234 IMG_4825 ball pictures (about 
 pictures) still show a second, unboxed ball, mostly dark balls against hazy sky that the scan cannot see.
 Not used for training: B1689585-096B-49E7-9423-E3D54EDA834D.MOV (kids clip), the final exam.
 Notebook: train_ball_detector_v2.ipynb reads dataset_v2.zip and writes to hardwood-lab/out2.
+
+### Round 2 results (Colab, 40 epochs, dataset_v2) - 2026-10-03
+Test = 756 pictures (626 ball: IMG_4824 534 + IMG_4825 92; 130 no-ball: IMG_4826 43 + IMG_4829 87).
+| confidence | ball found (IoU>=0.3) | made-up ball in no-ball pictures |
+| 0.05 | 603/626 = 96% | 1/130 = 1% |
+| 0.25 | 600/626 = 96% | 0/130 = 0% |
+| 0.60 | 592/626 = 95% | 0/130 = 0% |
+Round one on its own test: 99% found, 14% made-up at 0.25. Not comparable test sets (round two includes the
+harder IMG_4825 balls), and the no-ball test pictures come from the same two clips as the training no-ball
+pictures, filtered to contain no ball. The real exam is the kids clip, still to run.
