@@ -213,3 +213,13 @@ no ball), and the tracker/arc rule; exam 2 = a fresh clip, filmed on request.
 Consequence: usable for "was a shot taken" (a flight arc toward the hoop is confirmed by 62 clean detections in
 60 s), but it does not measure the whole ball path, and the make/miss decision near the rim, where the rule rejects
 most detections, needs its own logic. Per-frame recall is still unmeasured.
+
+### Make/miss labelling attempt on IMG_4836 (2026-10-04) - NOT USABLE YET
+`22-dump-detections.mjs` ran ball-3 on every frame (3762 frames, 1560 detections in 1515 frames);
+`23-shot-candidates.mjs` found 25 candidate shots near the rim and cut unboxed zoom strips. By eye only ONE
+outcome was readable with confidence (candidate 3: orange ball drops through the net = make). Reasons: this clip
+has TWO balls in play (an orange one and a dark one) and the dark one drifts past the hoop in most candidates;
+the strips stop before the ball reaches the rim in many; stride-2 frames are too coarse at the rim. The clip DOES
+have an audio track with 655 windows louder than -38 dB (232 louder than -30 dB), so Matt may have said make/miss
+out loud; I cannot transcribe it here. Do not build or score make/miss logic until there is trustworthy ground
+truth: ask Matt for a list of outcomes for IMG_4836 (or film a clip with ONE ball and narration).
