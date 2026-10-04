@@ -260,3 +260,14 @@ Built from round three's merged set BEFORE its second-ball filter (dataset7) by:
   a strict filter; the first loose version let real black balls into the "no ball" set (found by looking at all 160).
 Final: train 4210 (3208 ball, 1002 no-ball), val 609 (338 / 271), test 913 (663 / 250). Held out: B1689585, plus a
 fresh clip to be filmed. Notebook train_ball_detector_v4.ipynb reads dataset_v4.zip, writes to hardwood-lab/out4.
+
+### Round 4 results (ball-4.onnx, 2026-10-04)
+Colab test (913 pictures, 663 ball / 250 no-ball): 96% found at 0.25, 0 of 250 made-up. Same-clip test, not the exam.
+Exam, kids clip B1689585 (never trained on), window 416 at (714,202), one window per second: 173 detections
+(round three: 169, round two: 140); 67 of the 173 are tiny boxes (<= 22 px wide). By eye on 90 of the 173
+(sheets det-01, det-03, det-05 in training/work/k4-det): about 57 on balls, about 10 on backboard shadows (dark
+circles on the board, mostly in the third sheet), about 4 on the kids' heads (round three: about 20%), about 15 tiny
+boxes on the net or rim edge, and a few doubtful. So roughly 60-65% of detections are balls on this sample.
+Reading: heads are mostly fixed, shadows are reduced but NOT fixed (the ~60 shadow crops were too few, 99 were lost to
+the strict filter), and a new failure class, tiny boxes on the net and rim, is visible; it may have always been there.
+Recall still unmeasured. Next: more shadow negatives, net/rim negatives, minimum box size, then the arc rule.
