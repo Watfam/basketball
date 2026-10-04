@@ -271,3 +271,17 @@ boxes on the net or rim edge, and a few doubtful. So roughly 60-65% of detection
 Reading: heads are mostly fixed, shadows are reduced but NOT fixed (the ~60 shadow crops were too few, 99 were lost to
 the strict filter), and a new failure class, tiny boxes on the net and rim, is visible; it may have always been there.
 Recall still unmeasured. Next: more shadow negatives, net/rim negatives, minimum box size, then the arc rule.
+
+### Round 5 preparation (2026-10-04)
+- Shadow-only crops: reviewed all 99 that the strict filter dropped (rescued 87, dropped 12 with a real ball) and
+  all 148 combined; 7 more with a ball at the board edge removed. Final `Training Video/shadowneg4`: 141 crops
+  (train 92, val 26, test 23), up from 61. Tools 30-show-files, 28-check-negatives.
+- Tiny boxes on the net/rim in the ball-4 exam: 67 of 173 detections are <= 22 px wide, median score 0.56 (balls
+  0.77). 36 random ones viewed: the great majority are net strands, rim edge, backboard speckle, the dark stand
+  base or a tree trunk; a few sit beside a real ball. A minimum-size rule at inference (e.g. >= 22 px) would drop
+  73 of 173 detections including most of this noise, at the cost of any ball that is genuinely that small. The
+  ball is 25-60 px wide in the kids setup, so a rule of about 22 px looks safe there; it may not be for a phone
+  that is farther away. Decide with the app's pipeline, not now.
+- Empty-hoop pictures (tool 32): IMG_4829/4832 are filmed from FAR away (hoop about 100 px wide), the kids setup has
+  the hoop filling the window, so those pictures do not match what the phone sees. Not used. A ball-free clip of
+  the hoop at the kids distance would give the right pictures (ask Matt, about 60 s, nobody holding a ball).
