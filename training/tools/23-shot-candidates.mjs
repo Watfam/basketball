@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import jpeg from "jpeg-js";
 
-const [, , DETS, VIDEO, RX, RY, OUTDIR, GAPARG = "40"] = process.argv;
+const [, , DETS, VIDEO, RX, RY, OUTDIR, GAPARG = "40", STARTOFF = "-6"] = process.argv;
 const D = JSON.parse(fs.readFileSync(DETS, "utf8")), FPS = D.fps, GAP = Number(GAPARG), rx = Number(RX), ry = Number(RY);
 const zone = d => { const cx = (d.x1 + d.x2) / 2, cy = (d.y1 + d.y2) / 2; return Math.abs(cx - rx) <= 55 && cy >= ry - 50 && cy <= ry + 45; };
 const hits = D.detections.filter(zone).sort((a, b) => a.f - b.f);
@@ -23,7 +23,7 @@ const lines = [];
 for (let s = 0; s * 5 < keep.length; s++) {
   const part = keep.slice(s * 5, s * 5 + 5), W = COLS * TILE, H = part.length * TILE, buf = Buffer.alloc(W * H * 4, 30);
   part.forEach((c, r) => {
-    const first = Math.max(0, c.start - 6);
+    const first = Math.max(0, c.start + Number(STARTOFF));
     for (let k = 0; k < COLS; k++) {
       const f = Math.round(first + k * STEP), t = f / FPS;
       const res = spawnSync("ffmpeg", ["-nostdin", "-loglevel", "error", "-ss", String(t), "-i", VIDEO, "-an", "-frames:v", "1", "-vf", `crop=${CROP}:${CROP}:${ox0}:${oy0},scale=${TILE}:${TILE}`, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], { maxBuffer: 1 << 24 });

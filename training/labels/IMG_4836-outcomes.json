@@ -1,0 +1,215 @@
+{
+ "video": "IMG_4836.MOV",
+ "fps": 29.97002997002997,
+ "windowOrigin": [
+  840,
+  170
+ ],
+ "rimInWindow": [
+  192,
+  195
+ ],
+ "note": "Read by eye by Claude from unboxed strips, 2026-10-05. NOT verified by Matt. Strips start 4 frames after the first ball detection in the rim zone, 2 frames apart; tails (5, 8, 16) show the ball already through the net.",
+ "shots": [
+  {
+   "n": 1,
+   "startFrame": 146,
+   "endFrame": 168,
+   "label": "miss",
+   "confidence": "low",
+   "note": "ball sits on top of the rim then is gone; could be a rim-out"
+  },
+  {
+   "n": 2,
+   "startFrame": 253,
+   "endFrame": 275,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "ball skims over the rim and leaves to the right"
+  },
+  {
+   "n": 3,
+   "startFrame": 493,
+   "endFrame": 509,
+   "label": "make",
+   "confidence": "high",
+   "note": "drops through the net and out the bottom"
+  },
+  {
+   "n": 4,
+   "startFrame": 591,
+   "endFrame": 630,
+   "label": "none",
+   "confidence": "",
+   "note": "a person's arm in the picture, no ball visible"
+  },
+  {
+   "n": 5,
+   "startFrame": 739,
+   "endFrame": 745,
+   "label": "make",
+   "confidence": "low",
+   "note": "strip starts after the ball is through the net, falling below"
+  },
+  {
+   "n": 6,
+   "startFrame": 858,
+   "endFrame": 882,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 7,
+   "startFrame": 1005,
+   "endFrame": 1031,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "above the rim, bounces up and away to the right"
+  },
+  {
+   "n": 8,
+   "startFrame": 1223,
+   "endFrame": 1233,
+   "label": "make",
+   "confidence": "low",
+   "note": "strip starts with the ball already below the net"
+  },
+  {
+   "n": 9,
+   "startFrame": 1347,
+   "endFrame": 1371,
+   "label": "make",
+   "confidence": "high",
+   "note": "into the net and out the bottom"
+  },
+  {
+   "n": 10,
+   "startFrame": 1520,
+   "endFrame": 1546,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "bounces off the top of the rim to the right"
+  },
+  {
+   "n": 11,
+   "startFrame": 1618,
+   "endFrame": 1645,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 12,
+   "startFrame": 1756,
+   "endFrame": 1786,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "hits the rim and goes out to the right"
+  },
+  {
+   "n": 13,
+   "startFrame": 1916,
+   "endFrame": 1961,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "bounces up off the rim and away"
+  },
+  {
+   "n": 14,
+   "startFrame": 2061,
+   "endFrame": 2087,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 15,
+   "startFrame": 2165,
+   "endFrame": 2237,
+   "label": "none",
+   "confidence": "",
+   "note": "a player and a held ball, no shot"
+  },
+  {
+   "n": 16,
+   "startFrame": 2380,
+   "endFrame": 2406,
+   "label": "make",
+   "confidence": "medium",
+   "note": "strip starts with the ball in the net, then falls below"
+  },
+  {
+   "n": 17,
+   "startFrame": 2508,
+   "endFrame": 2511,
+   "label": "none",
+   "confidence": "",
+   "note": "empty hoop, no ball visible"
+  },
+  {
+   "n": 18,
+   "startFrame": 2568,
+   "endFrame": 2601,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 19,
+   "startFrame": 2718,
+   "endFrame": 2760,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "above the rim and bounces away upward"
+  },
+  {
+   "n": 20,
+   "startFrame": 2864,
+   "endFrame": 2889,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 21,
+   "startFrame": 2997,
+   "endFrame": 3034,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "above the rim, leaves to the right"
+  },
+  {
+   "n": 22,
+   "startFrame": 3118,
+   "endFrame": 3156,
+   "label": "miss",
+   "confidence": "medium",
+   "note": "hits the rim and goes up and out"
+  },
+  {
+   "n": 23,
+   "startFrame": 3277,
+   "endFrame": 3302,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 24,
+   "startFrame": 3438,
+   "endFrame": 3461,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  },
+  {
+   "n": 25,
+   "startFrame": 3600,
+   "endFrame": 3628,
+   "label": "make",
+   "confidence": "high",
+   "note": "through the net and out the bottom"
+  }
+ ]
+}

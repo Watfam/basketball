@@ -331,3 +331,19 @@ detections on the kids clip have median width 24 px, so most training and most f
 balls the model misses on the kids clip are therefore NOT simply "too small" for it. They may be missed because of
 position (upper window), motion blur, or because the model rejects them after being punished for shadows and heads.
 A proper answer needs labelled misses from a clip that is not the exam clip.
+
+### First make/miss test (ball-5 detections, IMG_4836, 2026-10-05) - `tools/35-score-rim-rule.py`
+Per-frame ball-5 detections on the shooting clip (3762 frames, 1692 detections). 25 candidate shots near the rim
+(tools 22, 23). Outcomes read BY EYE by me from unboxed strips (`labels/IMG_4836-outcomes.json`): 13 makes, 9 misses,
+3 not shots (a person's arm, a held ball, empty hoop). 10 makes are high confidence; every miss is medium or low
+because a ball skimming the rim and leaving is a judgement from strips 2 frames apart. Rule, run ONCE with thresholds
+chosen before looking at any score (below the rim by >= 30 px, within 45 px in x, within 40 frames of the ball first
+being seen in the rim zone, box >= 18 px wide): a ball seen under the net = make, else miss.
+Result: agrees with my reading on 20 of 22 shots (91%); wrong on shots 12 and 21 (I read misses, the rule says make:
+the ball may have dropped past the net outside the 45 px band, or my reading is wrong).
+CAVEATS, read before quoting any number: (1) the labels are mine, not Matt's; (2) ball-5 was TRAINED on this clip
+(frames before 85 s are in its training set, 85-100 s validation), so this is not an unseen test; only shots 22-25
+(after 103 s) are in the held-out part, all four correct; (3) 22 shots is a small sample; (4) one ball only here, so a
+clip with two balls in view, or a ball bouncing under the net, may behave differently.
+What it does show: the detector's rim-zone coverage is good enough that a ball dropping through the net is seen below the
+net in every high-confidence make, so a simple rule can work. The real test is a fresh clip with narrated outcomes.
