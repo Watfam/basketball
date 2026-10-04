@@ -36,9 +36,8 @@ let id = 950000;
 for (const c of CLIPS) {
   for (let i = 0; i < PER; i++) {
     const t = c.from + rand() * (c.to - c.from), img = grab(c, t); if (!img) continue;
-    // tighter than the other pictures: in the far-away clips the hoop is small, in the kids clip it fills the window, so
-    // zoom in to make the net and rim about the size the phone sees
-    const W = Math.round(SIZE * (0.55 + rand() * 0.15)), cx = 300 + (rand() * 2 - 1) * 25, cy = 300 + (rand() * 2 - 1) * 25;
+    // same window size range as every other training picture: the hoop is about the same size in all the clips
+    const W = Math.round(SIZE * (0.85 + rand() * 0.15)), cx = 300 + (rand() * 2 - 1) * 40, cy = 300 + (rand() * 2 - 1) * 40;
     // same time boundaries the dataset already uses for these clips, so no frame near a test frame is trained on
     const split = c.id === "4829" ? (t < 85 ? "train" : t < 110 ? "val" : "test") : (t < 85 ? "train" : t < 100 ? "val" : "test");
     fs.mkdirSync(`${OUT}/${split}`, { recursive: true });

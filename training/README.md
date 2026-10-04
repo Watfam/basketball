@@ -282,6 +282,8 @@ Recall still unmeasured. Next: more shadow negatives, net/rim negatives, minimum
   73 of 173 detections including most of this noise, at the cost of any ball that is genuinely that small. The
   ball is 25-60 px wide in the kids setup, so a rule of about 22 px looks safe there; it may not be for a phone
   that is farther away. Decide with the app's pipeline, not now.
-- Empty-hoop pictures (tool 32): IMG_4829/4832 are filmed from FAR away (hoop about 100 px wide), the kids setup has
-  the hoop filling the window, so those pictures do not match what the phone sees. Not used. A ball-free clip of
-  the hoop at the kids distance would give the right pictures (ask Matt, about 60 s, nobody holding a ball).
+- Empty-hoop pictures (tool 32): CORRECTION. I first wrote that IMG_4829/4832 were filmed from far away and did not
+  match the kids clip. That was wrong: I had compared zoomed review tiles with full pictures. Side-by-side stills of all
+  nine clips (same phone spot) show the backboard is about 140-150 px wide in the 1080p frame in the kids, three-ball,
+  no-ball, red-shirt, rebound and shooting clips (about 100 px in the first video). The empty-hoop pictures from 4829
+  and 4832 are therefore the right size and are used (180 per clip, 85-100% of a 416 px window, same time splits).
