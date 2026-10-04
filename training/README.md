@@ -287,3 +287,11 @@ Recall still unmeasured. Next: more shadow negatives, net/rim negatives, minimum
   nine clips (same phone spot) show the backboard is about 140-150 px wide in the 1080p frame in the kids, three-ball,
   no-ball, red-shirt, rebound and shooting clips (about 100 px in the first video). The empty-hoop pictures from 4829
   and 4832 are therefore the right size and are used (180 per clip, 85-100% of a 416 px window, same time splits).
+
+### Round-five dataset (dataset13 -> dataset_v5.zip, 2026-10-04)
+Round four's set (dataset10: shadow boxes out, orange-only boxes in 4831/4835/4836) plus: 141 verified shadow-only
+crops (train 92, val 26, test 23; was 61), and 360 empty-hoop pictures from IMG_4829 and IMG_4832 (train 228, val 68,
+test 64; eye-checked: 60 of 60 clean, orange/red shirts visible in many, no ball). Train 4488 (3208 ball, 1280
+no-ball), val 692 (338 / 354), test 993 (663 / 330). Held out: B1689585 (kids clip) and a fresh clip to be filmed.
+Notebook train_ball_detector_v5.ipynb reads dataset_v5.zip, writes to hardwood-lab/out5.
+Not done in this round: the minimum-box-size rule (an app setting), more black-ball positives, recall measurement.
