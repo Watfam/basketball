@@ -295,3 +295,14 @@ test 64; eye-checked: 60 of 60 clean, orange/red shirts visible in many, no ball
 no-ball), val 692 (338 / 354), test 993 (663 / 330). Held out: B1689585 (kids clip) and a fresh clip to be filmed.
 Notebook train_ball_detector_v5.ipynb reads dataset_v5.zip, writes to hardwood-lab/out5.
 Not done in this round: the minimum-box-size rule (an app setting), more black-ball positives, recall measurement.
+
+### Round 5 results (ball-5.onnx, 2026-10-04)
+Colab test (993 pictures, 663 ball / 330 no-ball): 95% found at 0.25, 0 of 330 made-up. Same-clip test, not the exam.
+Exam, kids clip B1689585 (never trained on), window 416 at (714,202), one window per second, confidence >= 0.25:
+105 detections (round four 173, round three 169, round two 140), 26 of them <= 22 px wide. Viewed all 105
+(sheets det-01..04 in training/work/k5-det): about 95 on a real ball (including the pale ball against cloud and the
+ball in a hand), 4 to 5 on a dark shadow on the backboard (round four: about 10), 1 on a kid's head, about 3 doubtful
+(a dark round thing at the rim, the net), and no clear net/rim boxes. So roughly 90-95% precision on this sample, up
+from 60-65%. Also seen: boxes that cover only part of a ball when it is in front of the rim, and in several windows a
+shadow beside a ball that was NOT boxed (good).
+Not yet measured: recall (balls with no box); the sheet at 0.25 and a recall comparison against rounds 2-4 follow.
