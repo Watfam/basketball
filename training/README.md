@@ -306,3 +306,15 @@ ball in a hand), 4 to 5 on a dark shadow on the backboard (round four: about 10)
 from 60-65%. Also seen: boxes that cover only part of a ball when it is in front of the rim, and in several windows a
 shadow beside a ball that was NOT boxed (good).
 Not yet measured: recall (balls with no box); the sheet at 0.25 and a recall comparison against rounds 2-4 follow.
+
+### Round 5 recall check on the kids clip (2026-10-04) - rough, by eye
+Same 115 random windows as rounds 2-4 (seed 31), model scored on the exact frame drawn. Windows with a box at >= 0.25:
+round two 18, round three 22, round five 15. Looked at the first 48 windows at 250 px tiles: about 25 contain a
+visible ball somewhere in the 416 px window (in flight, held, or at the rim) but only about 7 are boxed, so roughly
+1 in 4 to 1 in 3 visible balls is found. The unboxed balls are mostly SMALL (about 15-25 px wide in the window), in
+the upper or outer part of the window, or held in a hand; balls at and around the rim are the ones found. Counting
+dots in thumbnails is unreliable, so treat this as a rough figure: recall is LOW, and it has not improved since
+round two while precision went from about 60% to about 95%. The model has become conservative, not better at seeing.
+Next: a recall-focused round (more small/far ball positives, labelled by the circle-fit on the kids' footage is not
+possible without using the exam clip), the minimum-size rule would make it worse for small balls, the arc rule on the
+ball-5 detections, and a fresh clip as the next exam.
