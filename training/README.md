@@ -246,3 +246,17 @@ and sheet 2, tile 24). Shadows exist for the black ball too, so a dark box on th
 Decision for round four: drop all 46 dark positives from 4831 rather than keep a handful of real black-ball
 boxes mixed with ~40 shadows; ask Matt for a short clip of the black ball alone against sky and trees to teach it
 properly; add backboard-shadow windows (ball elsewhere or out of frame) as negatives.
+
+### Round-four dataset (dataset12 -> dataset_v4.zip, 2026-10-05)
+Built from round three's merged set BEFORE its second-ball filter (dataset7) by:
+- `25-clean-round4`: dropped 204 shadow boxes (4831: 86, 4835: 33, 4836: 85) and 12 pictures that hold another ORANGE
+  ball (the old filter counted shadows as balls and dropped about 150 good pictures).
+- `26-orange-only`: kept boxes in 4831/4835/4836 only if the middle of the box is clearly orange (dropped 58 more,
+  which removes the black ball's few real boxes as well; it needs its own clip). Eye check of 36 random 4831 boxes:
+  all on an orange ball.
+- Shadow negatives: 160 backboard-shadow crops (150 px window around each wrongly boxed shadow, scaled to 416 px, no
+  orange pixels, no other ball found) -> `31-filter-shadow-crops` keeps only crops with exactly one round dark blob:
+  61 left. Eye check of 60 of them: 59 clean, 1 with a ball at the board edge (removed by name). Cost: 99 crops lost to
+  a strict filter; the first loose version let real black balls into the "no ball" set (found by looking at all 160).
+Final: train 4210 (3208 ball, 1002 no-ball), val 609 (338 / 271), test 913 (663 / 250). Held out: B1689585, plus a
+fresh clip to be filmed. Notebook train_ball_detector_v4.ipynb reads dataset_v4.zip, writes to hardwood-lab/out4.

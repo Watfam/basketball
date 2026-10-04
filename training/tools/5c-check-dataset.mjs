@@ -3,7 +3,7 @@
 //   node 5c-check-dataset.mjs <out dir> [dataset dir]
 import fs from "node:fs"; import path from "node:path"; import jpeg from "jpeg-js";
 const OUTDIR = process.argv[2], D = process.argv[3] || path.resolve(new URL("../..", import.meta.url).pathname, "Training Video/dataset3");
-let seed = 9; const rand = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+let seed = 88; const rand = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
 function sheet(pick, boxes, out) {
   const COLS = 6, CELL = 208, ROWS = Math.ceil(pick.length / COLS), W = COLS * CELL, H = ROWS * CELL, buf = Buffer.alloc(W * H * 4, 0);
   pick.forEach((im, k) => { const px = jpeg.decode(fs.readFileSync(`${D}/${im.split}/${im.file_name}`), { useTArray: true }), ox = (k % COLS) * CELL, oy = Math.floor(k / COLS) * CELL;
