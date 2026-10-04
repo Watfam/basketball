@@ -318,3 +318,16 @@ round two while precision went from about 60% to about 95%. The model has become
 Next: a recall-focused round (more small/far ball positives, labelled by the circle-fit on the kids' footage is not
 possible without using the exam clip), the minimum-size rule would make it worse for small balls, the arc rule on the
 ball-5 detections, and a fresh clip as the next exam.
+
+### Hard-example mining attempt (2026-10-04) - REJECTED, `tools/34-mine-hard-balls.mjs`
+Idea: use ball-5 at confidence 0.10-0.40 on 4831/4835/4836, confirm each box with the circle-edge fit, add as positives
+to recover the small/far/faint balls the model misses. Result: 86 candidate pictures. Eye check of 63 of them: the great
+majority are boxes on backboard SHADOWS, a kid's FACE or hat, and the red shirt's flag; the real, bright orange ball in
+the air in the same picture has no box. The circle fit passes shadows and faces because they are round with an edge.
+Lesson: a faint model score plus a round edge is not a ball detector, and "boxes the model weakly proposes" are exactly
+where its mistakes live. Do not mine positives this way.
+Size finding while checking: 68% of the 4,209 labelled training balls are under 25 px wide, 89% under 30 px; ball-5's
+detections on the kids clip have median width 24 px, so most training and most found balls are small already. The
+balls the model misses on the kids clip are therefore NOT simply "too small" for it. They may be missed because of
+position (upper window), motion blur, or because the model rejects them after being punished for shadows and heads.
+A proper answer needs labelled misses from a clip that is not the exam clip.
