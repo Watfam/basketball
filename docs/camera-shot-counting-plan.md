@@ -143,10 +143,10 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 
 ## Progress (branch `camera-counting`)
 
-- A1 done in code: model table in `engine.ts`, ball model 1 class at score 0.2. Waiting for the model file.
+- A1 done: `public/models/ball-5.onnx` committed (Matt, 2026-10-05); loads in the app engine, output [1, 3549, 6].
 - A2 done in the lab: 1080p request, 416 px window at full resolution with the rim at (192, 190) as in training, tap to re-aim, flagged when the camera refuses 1080p.
 - B1/B2 done: `src/lib/vision/shotRules.ts`, `npm test`. Matches `40-score-rules.py` call for call on 150 generated sessions; the 4839/4840 exam checks run when `training/work/dets5-*.json` are present.
-- 0020 written and checked on Postgres 16 (constraints, two-account security, purge). Not yet run on Supabase.
+- 0020 written, checked on Postgres 16, and run on Supabase by Matt (2026-10-05).
 - F2 done: delete with Undo and Manage mode.
 - C1, C3, C4 done; C2 started: front door "Who's playing?" with Continue as, profile cookie, player bottom bar (Home, Train, Shoot, Film), opening a player or team page sets the profile.
 - Needs the phone: A3 (saved-clip parity), A4 (10-minute soak).
