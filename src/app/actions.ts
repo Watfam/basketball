@@ -1512,18 +1512,34 @@ export async function syncShotSession(input: ShotSyncInput) {
   return { error: null, sessionId };
 }
 
+/**
+ * Deletes a session the player no longer wants (a set done by mistake, or
+ * just messing around). The row is only marked, so Undo can restore it,
+ * and every list and total skips marked rows straight away. Marked rows
+ * are removed for good after 10 days by purgeDeletedShotSessions.
+ */
 export async function deleteShotSession(sessionId: string, playerId: string) {
+  return setShotSessionDeleted(sessionId, playerId, new Date().toISOString());
+}
+
+export async function restoreShotSession(sessionId: string, playerId: string) {
+  return setShotSessionDeleted(sessionId, playerId, null);
+}
+
+async function setShotSessionDeleted(sessionId: string, playerId: string, deletedAt: string | null) {
   if (!sessionId || !playerId) return { error: "Missing session." };
 
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .schema("hoops")
     .from("shot_sessions")
-    .delete()
+    .update({ deleted_at: deletedAt })
     .eq("id", sessionId)
-    .eq("player_id", playerId);
+    .eq("player_id", playerId)
+    .select("id");
 
   if (error) return { error: error.message };
+  if (!data || data.length === 0) return { error: "That session is no longer there." };
 
   revalidatePath("/players/[playerId]/shooting", "page");
   revalidatePath("/players/[playerId]", "page");

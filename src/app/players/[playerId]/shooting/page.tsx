@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ShootingHub } from "@/components/shooting-hub";
 import { EmptyState } from "@/components/empty-state";
+import { ShotSessionList } from "@/components/shot-session-list";
 import { TrendChart } from "@/components/charts/trend-chart";
 import { formatPercentage, percentage } from "@/lib/basketball/shooting";
 
@@ -25,11 +26,15 @@ export default async function ShootingPage({
   searchParams,
 }: {
   params: Promise<{ playerId: string }>;
-  searchParams: Promise<{ label?: string }>;
+  searchParams: Promise<{ label?: string; deleted?: string }>;
 }) {
   const { playerId } = await params;
-  const { label: labelParam } = await searchParams;
+  const { label: labelParam, deleted } = await searchParams;
   const supabase = await createClient();
+
+  // Sessions deleted more than 10 days ago go for good. Done here rather
+  // than on a schedule, at no cost; a failure only delays it to next time.
+  void supabase.schema("hoops").rpc("purge_deleted_shot_sessions").then(() => {}, () => {});
 
   const [{ data: { user } }, { data: player }, { data: sessionRows, error: sessionsError }] =
     await Promise.all([
@@ -45,6 +50,7 @@ export default async function ShootingPage({
         .select("id, label, started_at, makes, attempts")
         .eq("player_id", playerId)
         .not("ended_at", "is", null)
+        .is("deleted_at", null)
         .order("started_at", { ascending: false })
         .limit(60),
     ]);
@@ -75,11 +81,15 @@ export default async function ShootingPage({
           subtitle="You can still shoot and count. Sessions are kept on this phone until they can be saved."
         />
       ) : sessions.length === 0 ? (
-        <EmptyState
-          eyebrow="Nothing yet"
-          title="No sessions saved"
-          subtitle="Finish a session and it shows up here, with a line that tracks your progress."
-        />
+        <>
+          <EmptyState
+            eyebrow="Nothing yet"
+            title="No sessions saved"
+            subtitle="Finish a session and it shows up here, with a line that tracks your progress."
+          />
+          {/* Only there to offer Undo after the last session was deleted. */}
+          {deleted && <ShotSessionList playerId={playerId} justDeleted={deleted} sessions={[]} />}
+        </>
       ) : (
         <>
           <div className="flex flex-wrap gap-1.5">
@@ -136,37 +146,17 @@ export default async function ShootingPage({
             )}
           </div>
 
-          <div>
-            <h2 className="mb-2.5 font-display text-xl uppercase leading-none tracking-wide text-foreground">
-              Recent sessions
-            </h2>
-            <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-              {sessions.slice(0, 15).map((s, i) => (
-                <Link
-                  key={s.id}
-                  href={`/players/${playerId}/shooting/${s.id}`}
-                  className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${
-                    i > 0 ? "border-t border-line" : ""
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground">{labelOf(s)}</p>
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
-                      {shortDate(s.started_at)}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="font-display text-xl leading-none text-foreground">
-                      {s.makes}/{s.attempts}
-                    </p>
-                    <p className="text-[11px] font-bold text-accent">
-                      {formatPercentage(percentage(s.makes, s.attempts))}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <ShotSessionList
+            playerId={playerId}
+            justDeleted={deleted}
+            sessions={sessions.slice(0, 15).map((s) => ({
+              id: s.id,
+              label: labelOf(s),
+              date: shortDate(s.started_at),
+              score: `${s.makes}/${s.attempts}`,
+              pct: formatPercentage(percentage(s.makes, s.attempts)),
+            }))}
+          />
         </>
       )}
     </div>

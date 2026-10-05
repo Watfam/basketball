@@ -166,6 +166,7 @@ export default async function PlayerHubPage({
       .select("label, started_at, makes, attempts")
       .eq("player_id", playerId)
       .not("ended_at", "is", null)
+      .is("deleted_at", null)
       .gt("attempts", 0)
       .order("started_at", { ascending: false })
       .limit(1),
