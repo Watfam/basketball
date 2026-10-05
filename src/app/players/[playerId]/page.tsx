@@ -345,7 +345,7 @@ export default async function PlayerHubPage({
             href="/"
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
-            ← Players
+            Switch player
           </Link>
           <Link
             href={`/players/${playerId}/sessions`}

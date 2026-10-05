@@ -55,7 +55,7 @@ All changes are additive; existing sessions keep working.
 
 `hoops.shot_sessions` gains:
 - `is_test boolean not null default false`: coach test sessions. Kept, listed under Camera lab, excluded from every player total and chart.
-- `deleted_at timestamptz`: soft delete. A deleted session disappears from lists and totals at once; Undo clears it. A scheduled clean-up hard-deletes rows older than 30 days (decision: 30 days gives room to recover a mistaken delete; Matt can shorten it).
+- `deleted_at timestamptz`: soft delete. A deleted session disappears from lists and totals at once; Undo clears it. Rows deleted more than 10 days ago are removed for good (Matt, 2026-10-05). Done by `hoops.purge_deleted_shot_sessions()`, which the shooting history page calls; no scheduled job.
 - `rule_version text`, `model_version text`: which counting software produced the camera calls (needed to compare accuracy before and after an update).
 - `drill text` (spot-up, free throws, game shots) alongside the existing `label`, so progress can be filtered. Keep `label` for free text.
 - `rim_x numeric, rim_y numeric`: where the rim was tapped, as fractions of the frame. Diagnostic only.
@@ -109,7 +109,7 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 
 ### Phase F. Stats, delete, summary  [M]
 - F1. Stats page from saved sessions per player: make %, makes, shots, sessions, best day, best run, shots per minute, chart by session, filter by drill. Test sessions excluded.
-- F2. Delete: Manage mode, confirm sheet, soft delete with a six-second Undo; deleted sessions leave every total at once. Players delete their own; the coach can delete any.
+- F2. Delete: Manage mode, confirm, soft delete with a six-second Undo; deleted sessions leave every total at once. Players delete their own; the coach can delete any.
 - F3. Summary after a session: makes out of shots and make % lead; best run, longest miss streak, shots a minute; today against that player's own average for the drill; camera details behind one tap.
 - F4. Home card with season make % and makes out of shots.
 
@@ -133,13 +133,23 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 5. **Safari on a phone is a harsh runtime.** The page was killed 12 of 12 times on the GPU path for reasons never found. The CPU path has been stable in every phone test so far; anything new on the phone (threads, recording) needs its own soak test.
 6. **Replays and children.** Everything stays on the phone and is deleted on save. If that rule ever changes, it needs Matt's explicit decision.
 
-## 7. Questions for Matt before or during the build
+## 7. Matt's answers (2026-10-05)
 
-1. Is committing the trained ball model (3.6 MB, no images in it) to the repository acceptable, or should it live somewhere private?
-2. The player hub (rating card, programs, film, workouts) currently sits under a player page. How much moves under the new bottom bar in the first release, and how much stays as is?
-3. The 30-day purge of deleted sessions: right length?
-4. Should a coach test session be able to use a player's name (to test with Cameron present) while still being excluded from his totals, or is a plain "Test" profile enough?
-5. A third fresh clip: when, and with whom shooting?
+1. Commit the trained ball model to the repository: yes. (It lives on Matt's Mac; it goes in `public/models/ball-5.onnx`.)
+2. How much of the player hub moves under the new bottom bar: as much as makes a clean, helpful UI.
+3. Deleted sessions are removed for good after 10 days.
+4. Coach test sessions use a plain Test profile, never a player's name.
+5. Third fresh clip: no earlier than 2026-10-06. Older film exists from a different, more zoomed-in angle with no spoken make/miss; it is not a fair exam for this setup.
+
+## Progress (branch `camera-counting`)
+
+- A1 done in code: model table in `engine.ts`, ball model 1 class at score 0.2. Waiting for the model file.
+- A2 done in the lab: 1080p request, 416 px window at full resolution with the rim at (192, 190) as in training, tap to re-aim, flagged when the camera refuses 1080p.
+- B1/B2 done: `src/lib/vision/shotRules.ts`, `npm test`. Matches `40-score-rules.py` call for call on 150 generated sessions; the 4839/4840 exam checks run when `training/work/dets5-*.json` are present.
+- 0020 written and checked on Postgres 16 (constraints, two-account security, purge). Not yet run on Supabase.
+- F2 done: delete with Undo and Manage mode.
+- C1, C3, C4 done; C2 started: front door "Who's playing?" with Continue as, profile cookie, player bottom bar (Home, Train, Shoot, Film), opening a player or team page sets the profile.
+- Needs the phone: A3 (saved-clip parity), A4 (10-minute soak).
 
 ## 8. Suggested order of work
 

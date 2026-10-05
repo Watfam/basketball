@@ -133,7 +133,7 @@ export default async function TeamPage({
             href="/"
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
-            ← Home
+            Switch profile
           </Link>
           {isOwner && (
             <Link

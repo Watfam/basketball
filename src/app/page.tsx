@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { SetupFamilyForm } from "@/components/setup-family-form";
 import { AddPlayerForm } from "@/components/add-player-form";
@@ -10,6 +11,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { PRIMARY_POSITIONS, DEFENSIVE_SCHEMES } from "@/lib/basketball/taxonomy";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { computeStreakWeeks } from "@/lib/basketball/progress";
+import { PROFILE_COOKIE, parseProfile, profileHome } from "@/lib/profile";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -44,6 +46,16 @@ export default async function Home() {
         .eq("household_id", household.id)
         .order("created_at", { ascending: true })
     : { data: null };
+
+  // The profile last used on this phone, if it still exists, offered as
+  // one big "Continue as" so a normal day is a single tap.
+  const remembered = parseProfile((await cookies()).get(PROFILE_COOKIE)?.value);
+  const rememberedName =
+    remembered?.kind === "player"
+      ? (players ?? []).find((p) => p.id === remembered.playerId)?.display_name
+      : remembered?.kind === "coach" && (teams ?? []).some((t) => t.id === remembered.teamId)
+        ? "Coach"
+        : undefined;
 
   const positionLabel = (value: string | null) =>
     PRIMARY_POSITIONS.find((p) => p.value === value)?.label ?? null;
@@ -123,12 +135,21 @@ export default async function Home() {
           <div className="space-y-6">
             <div>
               <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
-                Players
+                Who&rsquo;s playing?
               </h1>
               <p className="mt-1.5 text-xs text-foreground-dim">
-                Tap a player for their card, program, and progress.
+                Pick once. This phone remembers it, and Shoot, stats and everything else follow.
               </p>
             </div>
+
+            {remembered && rememberedName && (
+              <Link
+                href={profileHome(remembered)}
+                className="block rounded-2xl bg-accent px-4 py-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+              >
+                Continue as {rememberedName}
+              </Link>
+            )}
 
             <div className="space-y-3">
               {players?.length === 0 && (
@@ -179,7 +200,7 @@ export default async function Home() {
         <div>
           <div className="flex items-baseline justify-between">
             <h2 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
-              Coaching
+              Coach
             </h2>
             <Link
               href="/teams/new"

@@ -161,7 +161,7 @@ export function ShotSessionList({
       {undo && (
         <div
           role="status"
-          className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-line bg-[var(--raised)] px-4 py-3 shadow-lg"
+          className="fixed inset-x-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-line bg-[var(--raised)] px-4 py-3 shadow-lg"
         >
           <p className="text-sm text-foreground">Session deleted</p>
           <button
