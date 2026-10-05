@@ -26,8 +26,9 @@ export default function DetectorLabPage() {
           <p className="mt-2 text-xs leading-relaxed text-foreground-dim">
             Runs a ball-finding model on this phone&rsquo;s camera and measures how fast it goes and
             whether it slows as the phone warms up. Everything happens on the device; nothing is
-            recorded or sent anywhere. This is a generic model, so it will miss balls a trained
-            one would catch — the speed is what this test is for.
+            recorded or sent anywhere. The stock model is a generic one, kept for comparing speed
+            with earlier runs. Our ball model is the one trained on the driveway hoop: it reads a
+            1080p window around the rim and counts makes with the same rule as the offline tests.
           </p>
         </div>
         <DetectorLab />

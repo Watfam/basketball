@@ -1,5 +1,5 @@
-import { createEngine, COCO_PERSON, COCO_SPORTS_BALL } from "@/lib/vision/engine";
-import type { Backend, Detector, Optimization, Timings } from "@/lib/vision/engine";
+import { createEngine, COCO_PERSON, COCO_SPORTS_BALL, MODELS } from "@/lib/vision/engine";
+import type { Backend, Detector, ModelId, Optimization, Timings } from "@/lib/vision/engine";
 import type { Detection, Pixels } from "@/lib/vision/yolox";
 
 /**
@@ -17,8 +17,8 @@ import type { Detection, Pixels } from "@/lib/vision/yolox";
  * everything it held. The swap costs no visible pause.
  */
 
-export type { Backend, Detector, Optimization, Timings };
-export { COCO_PERSON, COCO_SPORTS_BALL };
+export type { Backend, Detector, ModelId, Optimization, Timings };
+export { COCO_PERSON, COCO_SPORTS_BALL, MODELS };
 
 type Result = { detections: Detection[]; timings: Timings; io: string; buffer: ArrayBuffer };
 
@@ -34,7 +34,8 @@ function spawn(
   onStep: (step: string) => void,
   onEvent: (text: string) => void,
   optimization?: Optimization,
-  threads?: number
+  threads?: number,
+  model?: ModelId
 ): Promise<Handle> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./detector.worker.ts", import.meta.url), { type: "module" });
@@ -112,7 +113,7 @@ function spawn(
     worker.onerror = (e) => failAll(new Error(e.message || "The detector thread failed."));
     worker.onmessageerror = () => failAll(new Error("The detector thread sent something unreadable."));
 
-    worker.postMessage({ type: "init", backend, optimization, threads });
+    worker.postMessage({ type: "init", backend, optimization, threads, model });
   });
 }
 
@@ -122,16 +123,24 @@ const WARMUP_LEAD_FRAMES = 120;
 export async function createDetector(
   backend: Backend,
   onStep: (step: string) => void = () => {},
-  options: { recycleAfter?: number; onEvent?: (text: string) => void; forcePage?: boolean; optimization?: Optimization; threads?: number } = {}
+  options: {
+    recycleAfter?: number;
+    onEvent?: (text: string) => void;
+    forcePage?: boolean;
+    optimization?: Optimization;
+    threads?: number;
+    model?: ModelId;
+  } = {}
 ): Promise<Detector> {
   let recycleAfter = options.recycleAfter ?? 0;
+  const model = options.model ?? "coco";
   const onEvent = options.onEvent ?? (() => {});
 
   let active: Handle | null = null;
   let onPage: Detector | null = null;
   try {
     if (options.forcePage) throw new Error("running on the page was requested");
-    active = await spawn(backend, onStep, onEvent, options.optimization, options.threads);
+    active = await spawn(backend, onStep, onEvent, options.optimization, options.threads, model);
   } catch (e) {
     // No worker, or no GPU inside one: run on the page instead. If the
     // trouble is real (no WebGPU at all) this fails the same way and the
@@ -142,6 +151,7 @@ export async function createDetector(
       onEvent,
       optimization: options.optimization,
       threads: options.threads,
+      model,
     });
     if (e instanceof Error) onStep(`(${e.message})`);
   }
@@ -166,7 +176,7 @@ export async function createDetector(
     if (!active || recycleAfter <= 0) return;
 
     if (!standby && frames >= recycleAfter - Math.min(WARMUP_LEAD_FRAMES, recycleAfter / 2)) {
-      standby = spawn(backend, () => {}, onEvent, options.optimization, options.threads)
+      standby = spawn(backend, () => {}, onEvent, options.optimization, options.threads, model)
         .then((h) => {
           standbyReady = h;
           return h;
@@ -192,6 +202,8 @@ export async function createDetector(
 
   return {
     backend,
+    model,
+    ballClass: MODELS[model].ballClass,
     inputSize: onPage?.inputSize ?? 416,
     describeIO: describe,
 

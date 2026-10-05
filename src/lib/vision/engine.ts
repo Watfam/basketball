@@ -26,8 +26,51 @@ export type Optimization = "disabled" | "basic" | "extended" | "all";
 
 export type Timings = { prepMs: number; inferMs: number; postMs: number };
 
+/**
+ * Which model to run.
+ *
+ * coco: the stock YOLOX-nano, 80 everyday classes, used for the speed
+ * tests before a ball model existed. ball: our own model (round 5 of the
+ * training in training/README.md), one class, trained on 416 px windows cut
+ * from native 1080p video of the driveway hoop.
+ */
+export type ModelId = "coco" | "ball";
+
+export type ModelSpec = {
+  url: string;
+  numClasses: number;
+  /** Class ids worth reporting; everything else is dropped in decode. */
+  classes: number[];
+  /** The class id that means "basketball" for this model. */
+  ballClass: number;
+  /** Detections below this score are dropped. */
+  scoreThreshold: number;
+};
+
+export const MODELS: Record<ModelId, ModelSpec> = {
+  coco: {
+    url: "/models/yolox_nano.onnx",
+    numClasses: 80,
+    classes: [COCO_SPORTS_BALL, COCO_PERSON],
+    ballClass: COCO_SPORTS_BALL,
+    scoreThreshold: 0.25,
+  },
+  ball: {
+    url: "/models/ball-5.onnx",
+    numClasses: 1,
+    classes: [0],
+    ballClass: 0,
+    // The offline make/miss scores were all measured on detections dumped
+    // at 0.2 (training/tools/22-dump-detections.mjs), so the app matches.
+    scoreThreshold: 0.2,
+  },
+};
+
 export type Detector = {
   backend: Backend;
+  model: ModelId;
+  /** Class id of a basketball in this detector's detections. */
+  ballClass: number;
   inputSize: number;
   /** Which buffer strategy is in use, for the report. */
   describeIO(): string;
@@ -35,9 +78,7 @@ export type Detector = {
   dispose(): Promise<void>;
 };
 
-const MODEL_URL = "/models/yolox_nano.onnx";
 const INPUT_SIZE = 416;
-const NUM_CLASSES = 80;
 
 let ortPromise: Promise<typeof Ort> | null = null;
 
@@ -168,16 +209,30 @@ export type EngineOptions = {
   optimization?: Optimization;
   /** CPU threads. Left out: 1. Zero: choose automatically. */
   threads?: number;
+  /** Left out: the stock COCO model, as every earlier lab run used. */
+  model?: ModelId;
 };
 
 export async function createEngine(backend: Backend, options: EngineOptions = {}): Promise<Detector> {
-  const { onStep = () => {}, inWorker = false, onEvent = () => {}, optimization = "all" } = options;
+  const { onStep = () => {}, inWorker = false, onEvent = () => {}, optimization = "all", model = "coco" } = options;
+  const spec = MODELS[model];
   const { threads, isolated } = resolveThreads(options.threads);
   onStep("Loading the runtime");
   const ort = await loadOrt(backend, inWorker, backend === "wasm" ? threads : 1);
 
   onStep("Loading the model and preparing the GPU or CPU");
-  const session = await ort.InferenceSession.create(MODEL_URL, {
+  // Fetched first so a missing file says so plainly, instead of the
+  // runtime's protobuf parse error on a 404 page.
+  const response = await fetch(spec.url);
+  if (!response.ok) {
+    throw new Error(
+      `The ${model} model (${spec.url}) could not be loaded: ${response.status}${
+        response.status === 404 ? ". The file is not in public/models yet." : ""
+      }`
+    );
+  }
+  const modelBytes = new Uint8Array(await response.arrayBuffer());
+  const session = await ort.InferenceSession.create(modelBytes, {
     executionProviders: [backend],
     graphOptimizationLevel: optimization,
     // Results stay on the GPU so they can be read through gpuIO's single
@@ -211,7 +266,7 @@ export async function createEngine(backend: Backend, options: EngineOptions = {}
         }`;
   if (backend === "webgpu") {
     try {
-      gpuIO = await createGpuIO(ort, INPUT_SIZE, NUM_CLASSES);
+      gpuIO = await createGpuIO(ort, INPUT_SIZE, spec.numClasses);
       io = "reused GPU buffers";
     } catch (e) {
       io = `standard buffers (reuse unavailable: ${e instanceof Error ? e.message : String(e)})`;
@@ -229,6 +284,8 @@ export async function createEngine(backend: Backend, options: EngineOptions = {}
 
   return {
     backend,
+    model,
+    ballClass: spec.ballClass,
     inputSize: INPUT_SIZE,
     describeIO: () => io,
 
@@ -280,9 +337,9 @@ export async function createEngine(backend: Backend, options: EngineOptions = {}
       }
       const t2 = performance.now();
 
-      const detections = decode(raw, NUM_CLASSES, INPUT_SIZE, letterbox, frame, {
-        scoreThreshold: 0.25,
-        classes: [COCO_SPORTS_BALL, COCO_PERSON],
+      const detections = decode(raw, spec.numClasses, INPUT_SIZE, letterbox, frame, {
+        scoreThreshold: spec.scoreThreshold,
+        classes: spec.classes,
       });
       const t3 = performance.now();
 
