@@ -430,3 +430,21 @@ On those two DESIGN clips: 4836 V1 23/24, V2 23/24; 4839 V1 22/28, V2 26/28 (the
 ball showed up below the net after the rebounder moved; the width cue fixes shot 6). Those numbers are in-sample for V2 and prove
 nothing. IMG_4840 (32 written shots: 14 makes, 18 misses; ball-5 detections already computed, no candidate or score looked at) is
 the test of V2, scored with both rules in one run.
+
+### FRESH EXAM 2: IMG_4840 (white shirt shoots, black shirt rebounds), 2026-10-05 - the test of rule V2
+Matt's list: 32 shots (14 makes, 18 misses; saved labels/IMG_4840-truth.json). The finder produced exactly 32 candidates, so the
+match to Matt's list is 1 to 1 in order and independent of the rules. Neither the model nor either rule had seen this clip; V2 was
+committed (d3c3c70) before its candidates were created or scored. ball-5.onnx, `tools/40-score-rules.py`:
+- V1 (original rule): agrees on 26 of 32 (81%); calls 16 makes / 16 misses against Matt's 14 / 18.
+- V2 (longer window, bigger-than-at-rim cue): agrees on 28 of 32 (88%); calls 18 makes / 14 misses.
+- V2 fixes V1's shots 18, 26 and 24 but breaks shot 6 (a miss, now called make); both are wrong on shots 11, 19 and 20.
+Both rules wrong on 11, 19, 20 (all Matt: miss): from the strips, shots 19 and 20 the ball hits the rim and bounces down in line
+with the net, 11 the same; ie. the same fault as on 4839: a ball bouncing off the rim and dropping straight down near the net is
+indistinguishable from a make with one camera and these cues. V2 breaks 6.
+Both clips, V1: 4839 22/28, 4840 26/32 = 48 of 60 (80%); V2: 4839 26/28 (design clip, in-sample), 4840 28/32 (88%, out of sample).
+The single V2 test is 32 shots: 88% has a wide uncertainty (roughly 71% to 96% at 95%), and V2 and V1 differ on only 4 shots, so
+this does not prove V2 is better than V1; it shows the V2 changes did no harm and probably helped. Shot totals matter separately:
+V2's session totals were 18/14 against 14/18 (V1 16/16): both over-count makes, V2 by 4. 
+Honest summary for tomorrow's UI discussion: counting makes automatically is accurate to roughly 80-90% per shot on unseen clips
+of the same hoop, and wrong in a recognizable way (rim bounces near the net). With one-tap correction, the tool would be right most
+of the time and cheap to fix.
