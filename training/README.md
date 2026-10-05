@@ -347,3 +347,13 @@ CAVEATS, read before quoting any number: (1) the labels are mine, not Matt's; (2
 clip with two balls in view, or a ball bouncing under the net, may behave differently.
 What it does show: the detector's rim-zone coverage is good enough that a ball dropping through the net is seen below the
 net in every high-confidence make, so a simple rule can work. The real test is a fresh clip with narrated outcomes.
+
+### Can the spoken "make"/"miss" be used as an answer key? (2026-10-05) - not from the old clips
+Built whisper.cpp (open source, MIT) in the git-ignored training/work/whisper with the base.en model and ran it on the
+audio of 4836, 4835, 4831, the kids clip and 4825 (90 s to full length). It produced only invented text: "(drumming)"
+for ball sounds, and on quiet stretches strings like "Make. [Pause]" repeated every second for the whole clip (a known
+loop), "Thank you very much", "Squares. Squares.", "So, we're going to do this one here" repeated. With the loop
+settings (-mc 0 -nf -nth 0.5) the output was still hallucinated. Reading: the phone's microphone, 30+ feet from whoever
+speaks, records the voice far too quietly for this model; the earlier "loud audio windows" were mostly ball and net
+sounds. No narrated outcomes could be recovered from any existing clip. For the next clip: speak loudly, and test a 15 s
+sample first.
