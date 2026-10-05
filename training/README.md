@@ -357,3 +357,14 @@ settings (-mc 0 -nf -nth 0.5) the output was still hallucinated. Reading: the ph
 speaks, records the voice far too quietly for this model; the earlier "loud audio windows" were mostly ball and net
 sounds. No narrated outcomes could be recovered from any existing clip. For the next clip: speak loudly, and test a 15 s
 sample first.
+
+### Correction: the 2:05 clip (IMG_4836) DOES have spoken outcomes, they just need boosting (2026-10-05)
+Matt confirmed IMG_4836 (orange shirt shooting, white shirt rebounding, 2:05) has make/miss said aloud and that he has
+the true counts. My first transcription of it (plain audio) found nothing. After `highpass 120 Hz, lowpass 4 kHz,
+dynaudnorm` and whisper.cpp base.en with `-mc 0 -nf -nth 0.5 -sns`, it hears 18 non-music segments
+(`tools/36-speech-vs-shots.py`). Timestamps are coarse (multiples of 1-2 s), and the words are mishearings, so the
+alignment is only suggestive: "Miss!" at 100 s and 104 s match my two misses at 100.0 s and 104.0 s (shots 21, 22);
+"Faith!", "Oh!", "Faith!" at 108, 116, 120 s match my makes at 109.3, 114.7, 120.1 s (shots 23-25), so "Faith" is
+probably "Make"; "OK." at 70, 75, 80, 86, 97 s sits on my makes at 68.8, 79.4, 85.7, 95.6 s. But 12 of 25 shots have no word at
+all, and early on ("Right.", "No.", "This.") the match is unclear. NOT usable as ground truth yet. Needs Matt's real
+list (or at least his makes/attempts counts) and a better pass (larger model on 4-second snippets around each shot).
