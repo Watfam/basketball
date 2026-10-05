@@ -397,3 +397,9 @@ Model: ball-5.onnx. Rule: tools/35 / 38 exactly as committed (below the rim >= 3
 5. Report: agreement on matched shots, shots the detector never saw, the rule's make/miss totals against Matt's, and every wrong call looked at by eye.
 `38-align-score.py` was checked on IMG_4836 and reproduces 23 of 24. Also run the speech check (tools 36) with the boosted audio (highpass 120 Hz,
 lowpass 4 kHz, dynaudnorm) as a second opinion. The fresh clip must NOT be used to change the model or the rule before the report.
+
+### Fresh exam clips arrived (2026-10-05): IMG_4839 and IMG_4840
+IMG_4839.MOV (2:56, black shirt shoots, white shirt rebounds) and IMG_4840.MOV (2:53, shirts swapped), 1080p30 HEVC, same spot
+as every earlier clip. Hoop window for BOTH: crop 416 px at (866, 260) of the 1920x1080 frame; rim at about (192, 190) inside it.
+Neither is in any training set, and neither may be used to change the model or the rule before its exam is reported
+(procedure above). ball-5.onnx detections go to training/work/dets5-4839.json and dets5-4840.json.
