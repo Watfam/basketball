@@ -368,3 +368,22 @@ alignment is only suggestive: "Miss!" at 100 s and 104 s match my two misses at 
 probably "Make"; "OK." at 70, 75, 80, 86, 97 s sits on my makes at 68.8, 79.4, 85.7, 95.6 s. But 12 of 25 shots have no word at
 all, and early on ("Right.", "No.", "This.") the match is unclear. NOT usable as ground truth yet. Needs Matt's real
 list (or at least his makes/attempts counts) and a better pass (larger model on 4-second snippets around each shot).
+
+### Make/miss against Matt's written record (IMG_4836, 2026-10-05) - `labels/IMG_4836-truth.json`
+Matt's own list for the 2:05 clip: 24 shots, 16 makes, 8 misses. The candidate finder produced 25 candidates; one is not a
+shot (candidate 15, a player with a held ball), so 24 line up with Matt's list in order. Candidates 4 (a person's arm
+in the way) and 17 (empty hoop in the strips) are real shots I could not read by eye; Matt's list says both are makes.
+Alignment check: with exactly one candidate skipped, five choices (candidates 14-18, an unbroken run of "make" calls)
+give the same best score, so the skip placement does not change the result; my eye says candidate 15.
+Results (rule from tools/35, thresholds fixed BEFORE Matt's list was seen, run on ball-5's detections):
+- The rim rule agrees with Matt on 23 of 24 shots (96%). Its calls: 17 makes and 7 misses (Matt: 16 and 8).
+- The one wrong call is candidate 21 (100.0 s, Matt's shot 20, a miss): the rule saw 3 detections below the net and said
+  make. Not tuned for; do not tune on this clip.
+- My own by-eye readings: right on 21 of 22 shots I called (wrong on candidate 12, a make I read as a miss), and could
+  not read 2 real shots. The rule read those two correctly.
+- The speech recognizer's words (tools/36) fit Matt's list where they exist: "Miss!" at ~100 s and ~104 s = shots 20
+  and 21 (both misses); "Faith!/Oh!/Faith!" at ~108-120 s = shots 22-24 (makes). Many shots had no word.
+CAVEATS: the detector was trained on the first 85 s of this clip, validated on 85-100 s, so only candidates 22-25
+(after 103 s; 4 shots, all right) plus 21 (wrong, at the 100 s boundary) are really unseen: 4 of 5. The result is
+offline (all frames used, in hindsight), one ball, one shooter. It says the approach works in principle; it does not yet
+show a live phone can do it. The fresh clip is the real test.
