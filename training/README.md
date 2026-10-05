@@ -387,3 +387,13 @@ CAVEATS: the detector was trained on the first 85 s of this clip, validated on 8
 (after 103 s; 4 shots, all right) plus 21 (wrong, at the 100 s boundary) are really unseen: 4 of 5. The result is
 offline (all frames used, in hindsight), one ball, one shooter. It says the approach works in principle; it does not yet
 show a live phone can do it. The fresh clip is the real test.
+
+### Fresh-clip exam procedure (written 2026-10-05, BEFORE the clip exists, so nothing is tuned afterward)
+Model: ball-5.onnx. Rule: tools/35 / 38 exactly as committed (below the rim >= 30 px, within 45 px in x, 40 frames, box >= 18 px).
+1. Look at one frame to place the 416 px hoop window (cropX, cropY) and find the rim inside it.
+2. `MODEL=ball-5.onnx node tools/22-dump-detections.mjs <video> <cropX> <cropY> dets.json 0.2`
+3. `node tools/23-shot-candidates.mjs dets.json <video> <rimX> <rimY> <out dir> 40 4`
+4. Write Matt's list into a truth json (results in order), `python3 tools/38-align-score.py dets.json <out dir>/candidates.json <rimX> <rimY> truth.json`
+5. Report: agreement on matched shots, shots the detector never saw, the rule's make/miss totals against Matt's, and every wrong call looked at by eye.
+`38-align-score.py` was checked on IMG_4836 and reproduces 23 of 24. Also run the speech check (tools 36) with the boosted audio (highpass 120 Hz,
+lowpass 4 kHz, dynaudnorm) as a second opinion. The fresh clip must NOT be used to change the model or the rule before the report.
