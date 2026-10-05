@@ -403,3 +403,21 @@ IMG_4839.MOV (2:56, black shirt shoots, white shirt rebounds) and IMG_4840.MOV (
 as every earlier clip. Hoop window for BOTH: crop 416 px at (866, 260) of the 1920x1080 frame; rim at about (192, 190) inside it.
 Neither is in any training set, and neither may be used to change the model or the rule before its exam is reported
 (procedure above). ball-5.onnx detections go to training/work/dets5-4839.json and dets5-4840.json.
+
+### FRESH EXAM 1: IMG_4839 (black shirt shoots, white shirt rebounds), ball-5 + rim rule as committed, 2026-10-05
+Neither the model nor the rule had seen this clip, and nothing was changed after seeing the result.
+Matt's written list: 28 shots (17 makes, 11 misses), all said aloud. The finder produced 28 candidates, one per written shot, so
+the in-order match has no skips and no unseen shots.
+RESULT: the rule agrees with Matt on 22 of 28 shots (79%). Its totals are 17 makes and 11 misses, exactly Matt's totals, but
+only because 3 false makes and 3 false misses cancel; shot by shot it is wrong 6 times.
+Wrong calls, read from strips (tools/39) and the detections below the net; confidence medium:
+- False makes (rule: make, Matt: miss), shots 6, 21, 27: the ball touches the rim and drops straight down just beside or in
+  line with the net (detections 5-30 px from the rim centre, so inside the 45 px band). From one camera a ball dropping just
+  in front of or behind the net looks like a make. Shot 27 falls about 25 px left of the net.
+- False misses (rule: miss, Matt: make), shots 3, 16, 28: shot 3 and 28, the rebounder's hands and body are under the net and
+  hide the ball (no detections below it); shot 16, the ball rolls around the rim for roughly 30 frames and drops after the
+  40-frame window has closed.
+Reading: the first-pass rule works (79% on an unseen clip, 96% on the clip it was written on, which the model had partly
+trained on), and its failures have understandable causes: ball falling beside the net, ball hidden by a person, slow roll-ins.
+Do NOT change the rule and then score 4839 again: the next test of any change must be on 4840, whose original-rule score is
+taken at the same time so the two can be compared.
