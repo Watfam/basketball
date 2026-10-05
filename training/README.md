@@ -421,3 +421,12 @@ Reading: the first-pass rule works (79% on an unseen clip, 96% on the clip it wa
 trained on), and its failures have understandable causes: ball falling beside the net, ball hidden by a person, slow roll-ins.
 Do NOT change the rule and then score 4839 again: the next test of any change must be on 4840, whose original-rule score is
 taken at the same time so the two can be compared.
+
+### Rule V2 registered BEFORE scoring IMG_4840 (2026-10-05)
+V2 is defined in the header of `tools/40-score-rules.py`: window 70 frames instead of 40, and a ball seen below the net does not
+count as a make if it looks >= 26 px wide AND >= 1.2x as wide as at the rim (a ball falling in front of the hoop is nearer the
+camera). Motivated by the 6 errors on IMG_4839 and 34 shots with a ball seen below the net across 4836 and 4839 (4 of them misses).
+On those two DESIGN clips: 4836 V1 23/24, V2 23/24; 4839 V1 22/28, V2 26/28 (the longer window fixes shots 3, 16, 28 because the
+ball showed up below the net after the rebounder moved; the width cue fixes shot 6). Those numbers are in-sample for V2 and prove
+nothing. IMG_4840 (32 written shots: 14 makes, 18 misses; ball-5 detections already computed, no candidate or score looked at) is
+the test of V2, scored with both rules in one run.
