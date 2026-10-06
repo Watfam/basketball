@@ -512,3 +512,14 @@ through the middle is slowed by the net and stays a make (4839 #16: rolled about
 slow roll that falls off the rim right beside the net starts from almost no speed, so speed can't tell it from a make; only
 the path through the middle of the net can. A tighter "through the middle" check is the next idea, held back for now
 because a few real makes' tracks briefly jump to another object. Long rolls are flagged worth a look either way.
+
+### First 10-minute live soak on Matt's iPhone (2026-10-06, afternoon, outdoors)
+ball-5, CPU 1 thread, 30 fps cap, live 1920x1080. No crash, screen kept awake. Speed fell steadily with heat: 20.5 fps in
+minute 1, 15.3 in minute 5, 12.1 in minute 10 (model time per frame 39 -> 68 ms). Average 15.4; below the 15 fps target from
+minute 6. Shots counted 58 against Matt's count of 56. Makes counted 3: wrong, because the rim size was set to x1.63 when the
+phone was FARTHER than in training (ball near the rim 9 px at that setting; the right setting was about x0.65). With the ball
+a third of its size, V2's "ball at least 18 px wide below the net" almost never held.
+Changes for the next run: the rim size is now measured by tapping the rim's two edges (no - / + to get backwards); a red
+warning appears 2-3 shots in, stays after the run and is in the copied report when the ball near the rim is outside 80-125%
+of 22 px; the default frame limit is 15 fps; still frames are skipped (the model runs only while something moves near the
+hoop, and for 1.5 s after; a block of the window must change by 6 or more out of 255).
