@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createDetector, nextVideoFrame, yieldToMain, type Backend, type Detector, type ModelId } from "@/lib/vision/detector";
 import { boxToFrame, cropAround, type Crop } from "@/lib/vision/roi";
-import { createShotCounter, type ShotCall } from "@/lib/vision/shotRules";
+import { REFERENCE_FPS, createShotCounter, type ShotCall } from "@/lib/vision/shotRules";
+import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
 import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
@@ -45,6 +46,10 @@ const BALL_WINDOW = 416;
 const RIM_IN_WINDOW = { x: 192, y: 190 } as const;
 /** Where the rim starts, as a fraction of the frame, until it is tapped. */
 const DEFAULT_RIM = { x: 0.5, y: 0.3 };
+/** Where the rim is on the exam clips (window at 866,260 of 1920x1080, rim at 192,190 in it). */
+const EXAM_RIM = { x: (866 + 192) / 1920, y: (260 + 190) / 1080 };
+/** The last rim tapped, remembered on this phone: the stand rarely moves far. */
+const RIM_KEY = "hl:lab:rim";
 
 /** The hoop window that puts the rim where training put it. */
 function ballWindow(frameW: number, frameH: number, rim: { x: number; y: number }): Crop {
@@ -220,12 +225,31 @@ export function DetectorLab() {
   const [source, setSource] = useState<Source>("camera");
   const [testMode, setTestMode] = useState<TestMode>("all");
   const [recycle, setRecycle] = useState(false);
+  // Saved clip with the ball model: step through every frame (what the
+  // offline exam did), or play in real time (what a slow phone would see).
+  const [everyFrame, setEveryFrame] = useState(true);
   const [capIdx, setCapIdx] = useState(1);
   const [threads, setThreads] = useState(1);
   const [model, setModel] = useState<ModelId>("coco");
   // Where the rim is, as a fraction of the frame. A ref as well, because a
   // tap during a run must move the window without restarting it.
   const rimRef = useRef(DEFAULT_RIM);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(readDraft(RIM_KEY) ?? "null") as { x: number; y: number } | null;
+      if (saved && saved.x >= 0 && saved.x <= 1 && saved.y >= 0 && saved.y <= 1) rimRef.current = saved;
+    } catch {
+      // Nothing usable saved; the default stands.
+    }
+  }, []);
+  const setRim = (rim: { x: number; y: number }) => {
+    rimRef.current = rim;
+    writeDraft(RIM_KEY, JSON.stringify(rim));
+  };
+  // Every-frame clips start paused on their first frame until the rim is
+  // confirmed, so no early shot is read through a misplaced window.
+  const [aiming, setAiming] = useState(false);
+  const aimDoneRef = useRef<(() => void) | null>(null);
   const [shots, setShots] = useState<{ shots: number; makes: number; last: ShotCall | null } | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -295,7 +319,9 @@ export function DetectorLab() {
     const video = videoRef.current;
     const overlay = overlayRef.current;
     if (!video || !overlay) return;
-    const runSeconds = DURATIONS[durationIdx].seconds;
+    // A whole clip, frame by frame, runs until the clip ends instead.
+    const exactClip = model === "ball" && source === "file" && testMode !== "model" && Boolean(file) && everyFrame;
+    const runSeconds = exactClip ? Number.POSITIVE_INFINITY : DURATIONS[durationIdx].seconds;
     const segmentSeconds = DURATIONS[durationIdx].segment;
 
     const runStartedMs = performance.now();
@@ -392,13 +418,44 @@ export function DetectorLab() {
       let counter = windowed ? createShotCounter(RIM_IN_WINDOW) : null;
       let clipTimeMs = -1;
       let shotsRun = { shots: 0, makes: 0 };
+      const runCalls: LabCalls["calls"] = [];
       const takeCalls = (calls: ShotCall[]) => {
         for (const c of calls) {
           if (!c.counted) continue;
           shotsRun = { shots: shotsRun.shots + 1, makes: shotsRun.makes + (c.v2 === "make" ? 1 : 0) };
+          runCalls.push({ v1: c.v1, v2: c.v2, flagged: c.flagged, atMs: Math.round(c.firstMs) });
           setShots({ ...shotsRun, last: c });
         }
       };
+      /** One pass is one set: count what is still open, keep the calls, stop counting. */
+      const finishCounting = () => {
+        if (!counter) return;
+        takeCalls(counter.flush());
+        counter = null;
+        saveLabCalls({
+          at: runAt,
+          source:
+            source === "file" && file
+              ? `${file.name}, ${exactClip ? "every frame" : "real time"}`
+              : "live camera",
+          ruleVersion: RULE_VERSION,
+          modelVersion: MODEL_VERSION,
+          calls: runCalls,
+        });
+      };
+      // Every-frame mode: the clip is stepped by seeking, not played.
+      let frameIdx = 0;
+      const clipFrames = exactClip ? Math.floor(video.duration * REFERENCE_FPS) : 0;
+      if (exactClip) {
+        video.pause();
+        video.loop = false;
+      }
+      const seekTo = (t: number) =>
+        new Promise<void>((resolve) => {
+          const done = () => resolve();
+          video.addEventListener("seeked", done, { once: true });
+          video.currentTime = t;
+        });
 
       // Model-only runs feed the same still picture every frame, so any
       // problem found can't be blamed on the camera.
@@ -468,6 +525,35 @@ export function DetectorLab() {
       };
 
       setPhase("running");
+
+      if (exactClip) {
+        mark("Aiming at the rim");
+        await seekTo(0.5 / REFERENCE_FPS);
+        let confirmed = false;
+        aimDoneRef.current = () => {
+          confirmed = true;
+        };
+        setAiming(true);
+        while (!confirmed && !stopped) {
+          const crop = ballWindow(video.videoWidth, video.videoHeight, rimRef.current);
+          octx.clearRect(0, 0, overlay.width, overlay.height);
+          octx.strokeStyle = "rgba(255,255,255,0.9)";
+          octx.lineWidth = 2;
+          octx.strokeRect(crop.sx * toOverlay, crop.sy * toOverlay, crop.sw * toOverlay, crop.sh * toOverlay);
+          const rx = (crop.sx + RIM_IN_WINDOW.x) * toOverlay;
+          const ry = (crop.sy + RIM_IN_WINDOW.y) * toOverlay;
+          octx.beginPath();
+          octx.moveTo(rx - 12, ry);
+          octx.lineTo(rx + 12, ry);
+          octx.moveTo(rx, ry - 12);
+          octx.lineTo(rx, ry + 12);
+          octx.stroke();
+          await new Promise((res) => setTimeout(res, 100));
+        }
+        aimDoneRef.current = null;
+        setAiming(false);
+      }
+
       mark("Running, first frame");
       let lastMark = 0;
 
@@ -475,6 +561,11 @@ export function DetectorLab() {
         const frameStart = performance.now();
         const elapsed = (frameStart - startedAt) / 1000;
         if (elapsed >= runSeconds) break;
+        if (exactClip) {
+          if (frameIdx >= clipFrames) break;
+          // The middle of the frame, so rounding never lands on a neighbour.
+          await seekTo((frameIdx + 0.5) / REFERENCE_FPS);
+        }
 
         let img: ImageData;
         let crop: Crop | null = null;
@@ -489,7 +580,11 @@ export function DetectorLab() {
         } else {
           img = still as ImageData;
         }
-        const frameClipMs = source === "file" && useCamera ? video.currentTime * 1000 : frameStart;
+        const frameClipMs = exactClip
+          ? (frameIdx * 1000) / REFERENCE_FPS
+          : source === "file" && useCamera
+            ? video.currentTime * 1000
+            : frameStart;
         const { detections, timings } = detector
           ? await detector.detect(img)
           : { detections: [], timings: { prepMs: 0, inferMs: 0, postMs: 0 } };
@@ -500,12 +595,13 @@ export function DetectorLab() {
         const hasBall = balls.length > 0;
         if (counter) {
           if (frameClipMs < clipTimeMs) {
-            // The clip looped: finish the pass and count the next one fresh.
-            takeCalls(counter.flush());
-            counter = createShotCounter(RIM_IN_WINDOW);
+            // The clip looped: that pass was the set. Counting it twice
+            // would double every shot.
+            finishCounting();
+          } else {
+            clipTimeMs = frameClipMs;
+            takeCalls(counter.push(frameClipMs, balls));
           }
-          clipTimeMs = frameClipMs;
-          takeCalls(counter.push(frameClipMs, balls));
         }
         frameMs.push(total);
         inferMs.push(timings.inferMs);
@@ -562,7 +658,10 @@ export function DetectorLab() {
         // instead of overshooting it by up to a frame.
         const capFps = FPS_CAPS[capIdx].fps;
         const due = frameStart + (capFps > 0 ? 1000 / capFps : 0);
-        if (useCamera) {
+        if (exactClip) {
+          frameIdx += 1;
+          await yieldToMain();
+        } else if (useCamera) {
           do {
             await nextVideoFrame(video);
           } while (performance.now() < due - 6 && !stopped);
@@ -572,6 +671,7 @@ export function DetectorLab() {
         }
       }
 
+      finishCounting();
       const endedAt = performance.now();
       closeSegment(endedAt);
 
@@ -644,7 +744,7 @@ export function DetectorLab() {
             // Ball model: tap the rim and the hoop window follows it.
             if (model !== "ball" || phase !== "running") return;
             const r = e.currentTarget.getBoundingClientRect();
-            rimRef.current = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+            setRim({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
             haptic("tap");
           }}
         />
@@ -665,10 +765,34 @@ export function DetectorLab() {
             {shots.last ? ` · last: ${shots.last.v2}` : ""}
           </div>
         )}
-        {model === "ball" && phase === "running" && (
+        {model === "ball" && phase === "running" && !aiming && (
           <p className="absolute bottom-2 left-2 right-2 rounded-md bg-black/60 px-2 py-1 text-center text-[11px] text-white/85">
             Tap the front of the rim to aim the window at it.
           </p>
+        )}
+        {aiming && (
+          <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-md bg-black/70 p-2">
+            <p className="flex-1 text-[11px] leading-snug text-white/90">
+              Tap the front of the rim so the cross sits on it.
+            </p>
+            <button
+              type="button"
+              onClick={() => setRim(EXAM_RIM)}
+              className="rounded-md border border-white/40 px-2 py-1.5 text-[10px] font-extrabold uppercase text-white"
+            >
+              Exam clips
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                aimDoneRef.current?.();
+              }}
+              className="rounded-md bg-accent px-3 py-1.5 text-[10px] font-extrabold uppercase text-white"
+            >
+              Start counting
+            </button>
+          </div>
         )}
       </div>
 
@@ -912,10 +1036,31 @@ export function DetectorLab() {
           ))}
         </div>
 
+        {source === "file" && testMode !== "model" && model === "ball" && (
+          <div className="grid grid-cols-2 gap-2">
+            {[true, false].map((v) => (
+              <button
+                key={String(v)}
+                type="button"
+                disabled={busy}
+                onClick={() => setEveryFrame(v)}
+                aria-pressed={everyFrame === v}
+                className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                  everyFrame === v ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+                }`}
+              >
+                {v ? "Every frame (exact)" : "Real time"}
+              </button>
+            ))}
+          </div>
+        )}
+
         {source === "file" && testMode !== "model" && !busy && (
           <label className="block">
             <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-              Choose a video, then it runs for {DURATIONS[durationIdx].seconds}s
+              {model === "ball" && everyFrame
+                ? "Choose a video: every frame is read, to the end of the clip (slower than real time)"
+                : `Choose a video, then it runs for ${DURATIONS[durationIdx].seconds}s`}
             </span>
             <input
               type="file"

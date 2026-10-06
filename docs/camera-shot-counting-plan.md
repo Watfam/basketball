@@ -152,6 +152,7 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 - D1 partly: Stop at (set ends and saves itself), "Shooting as … Switch". Camera choice waits for the phone test.
 - C1, C3, C4 done; C2 started: front door "Who's playing?" with Continue as, profile cookie, player bottom bar (Home, Train, Shoot, Film), opening a player or team page sets the profile.
 - B3 done (in-sample): worth-a-look flag in `shotRules.ts`, 5 of 6 errors caught, 18% of shots flagged; registered for the third clip.
+- G (part): Camera lab at /lab for the coach (accuracy per rule and model version, calibration history), /lab/calibrate scores the last lab run against a written list with the exam matching (tools/38, parity-tested). Detector lab: every-frame mode for saved clips with an aim step, calls kept for calibration. Coach test sessions not yet: they wait for live counting.
 - Needs the phone: A3 (saved-clip parity), A4 (10-minute soak).
 
 ## 8. Suggested order of work

@@ -223,12 +223,6 @@ export default async function ShootingPage({
           averages={averages}
         >
           {history}
-          <Link
-            href="/lab/detector"
-            className="block text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
-          >
-            Camera lab (experimental)
-          </Link>
         </ShootingHub>
       </main>
     </div>

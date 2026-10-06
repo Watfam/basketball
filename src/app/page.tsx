@@ -202,12 +202,20 @@ export default async function Home() {
             <h2 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
               Coach
             </h2>
-            <Link
-              href="/teams/new"
-              className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
-            >
-              + New team
-            </Link>
+            <div className="flex gap-4">
+              <Link
+                href="/lab"
+                className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
+              >
+                Camera lab
+              </Link>
+              <Link
+                href="/teams/new"
+                className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+              >
+                + New team
+              </Link>
+            </div>
           </div>
 
           <div className="mt-3 space-y-2.5">
