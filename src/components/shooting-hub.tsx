@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { syncShotSession, deleteShotSession } from "@/app/actions";
 import {
@@ -37,6 +38,12 @@ type Draft = {
   shots: Shot[];
   /** Sticky: stays on the last chosen spot until changed. */
   zone: ZoneKey | null;
+  /**
+   * The set ends and saves itself at this many shots, so nobody has to
+   * walk back to the phone to stop it. Missing in drafts from before it
+   * existed, which simply never stop on their own.
+   */
+  stopAt?: number | null;
   /** Bumped on every edit; a session is synced once syncedRev catches up. */
   rev: number;
   syncedRev: number;
@@ -45,6 +52,9 @@ type Draft = {
 type SyncState = "saved" | "saving" | "offline";
 
 const SOUND_KEY = "hl:shots:sound";
+const STOP_AT_KEY = "hl:shots:stopAt";
+const STOP_AT_CHOICES = [25, 50, 100];
+const STOP_AT_MAX = 500;
 const draftKey = (playerId: string) => `hl:shots:${playerId}:draft`;
 
 const DEFAULT_LABELS = [
@@ -86,6 +96,9 @@ export function ShootingHub({
   const draft = useMemo(() => parseDraft(raw), [raw]);
   const [soundRaw, setSoundRaw] = useLocalDraft(SOUND_KEY);
   const sound = soundRaw === "on";
+  // Remembered between sessions: the same set size is the usual habit.
+  const [stopAtRaw, setStopAtRaw] = useLocalDraft(STOP_AT_KEY);
+  const stopAt = stopAtRaw && Number(stopAtRaw) > 0 ? Math.min(STOP_AT_MAX, Math.round(Number(stopAtRaw))) : null;
 
   const [labelInput, setLabelInput] = useState("");
   const [syncState, setSyncState] = useState<SyncState>("saved");
@@ -206,6 +219,7 @@ export function ShootingHub({
         startedAt: new Date().toISOString(),
         shots: [],
         zone: null,
+        stopAt,
         rev: 1,
         syncedRev: 0,
       } satisfies Draft)
@@ -283,6 +297,22 @@ export function ShootingHub({
       router.refresh();
     }
   }
+
+  // The set is over: save it the moment the last shot is in. A ref keeps it
+  // to one attempt per set; Undo below the line arms it again.
+  const reachedStop = Boolean(draft?.stopAt && draft.shots.length >= draft.stopAt);
+  const autoFinished = useRef(false);
+  useEffect(() => {
+    if (!reachedStop) {
+      autoFinished.current = false;
+      return;
+    }
+    if (autoFinished.current || ending) return;
+    autoFinished.current = true;
+    void finish();
+    // finish reads everything it needs from storage, not from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reachedStop, ending]);
 
   // ---- Just finished: the summary --------------------------------------
   if (finished) {
@@ -367,6 +397,12 @@ export function ShootingHub({
 
           <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
             {draft.label || "Shooting session"} · {playerName}
+            {draft.stopAt ? (
+              <span className="text-foreground-mute">
+                {" "}
+                · {Math.min(draft.shots.length, draft.stopAt)} of {draft.stopAt}
+              </span>
+            ) : null}
           </p>
 
           <div className="mt-2 flex items-end gap-4">
@@ -468,9 +504,15 @@ export function ShootingHub({
   return (
     <div className="space-y-6">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
-          New session
-        </p>
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
+          <p className="truncate text-[11px] font-bold text-foreground-dim">
+            Shooting as <span className="text-foreground">{playerName}</span> ·{" "}
+            <Link href="/" className="font-extrabold uppercase tracking-wide text-accent">
+              Switch
+            </Link>
+          </p>
+        </div>
         <h2 className="font-display mt-1.5 text-3xl uppercase leading-none tracking-wide text-foreground">
           What are you shooting?
         </h2>
@@ -503,6 +545,51 @@ export function ShootingHub({
           maxLength={60}
           className="mt-3 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
         />
+
+        <div className="mt-4">
+          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            Stop at · the set ends and saves itself
+          </p>
+          <div className="flex items-center gap-1.5">
+            {[null, ...STOP_AT_CHOICES].map((n) => (
+              <button
+                key={n ?? "off"}
+                type="button"
+                onClick={() => {
+                  haptic("tap");
+                  setStopAtRaw(n ? String(n) : null);
+                }}
+                aria-pressed={stopAt === n}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold tabular-nums transition-colors ${
+                  stopAt === n ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+                }`}
+              >
+                {n ?? "No limit"}
+              </button>
+            ))}
+            {stopAt && (
+              <div className="ml-auto flex items-center gap-1">
+                {[-5, 5].map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    aria-label={d < 0 ? "Five fewer" : "Five more"}
+                    onClick={() => {
+                      haptic("tap");
+                      setStopAtRaw(String(Math.min(STOP_AT_MAX, Math.max(5, stopAt + d))));
+                    }}
+                    className="h-8 w-8 rounded-full border border-line text-sm font-extrabold text-foreground-dim"
+                  >
+                    {d < 0 ? "−" : "+"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {stopAt && !STOP_AT_CHOICES.includes(stopAt) && (
+            <p className="mt-1.5 text-xs font-bold tabular-nums text-accent">{stopAt} shots</p>
+          )}
+        </div>
 
         <button
           type="button"
