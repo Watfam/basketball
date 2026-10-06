@@ -155,6 +155,7 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 - B3 done (in-sample): worth-a-look flag in `shotRules.ts`, 5 of 6 errors caught, 18% of shots flagged; registered for the third clip.
 - G (part): Camera lab at /lab for the coach (accuracy per rule and model version, calibration history), /lab/calibrate scores the last lab run against a written list with the exam matching (tools/38, parity-tested). Detector lab: every-frame mode for saved clips with an aim step, calls kept for calibration. Coach test sessions not yet: they wait for live counting.
 - A3 PASSED (2026-10-06): IMG_4840 on Matt's iPhone, every frame, scored 28 of 32 with 18 camera makes and 6 flagged, identical to offline.
+- Rule V3 (trial, 2026-10-06): V2 plus "a make that falls past the rim faster than 10.5 px/frame is a miss" (the net slows a real make). In-sample 59/60 against V2's 54/60; registered for the third clip, scored beside V2 in Calibrate. The app still counts with V2.
 - Needs the phone: A4, the 10-minute live soak (Soak · 10 min in the detector lab).
 
 ## 8. Suggested order of work

@@ -12,7 +12,8 @@ export type LabCalls = {
   source: string;
   ruleVersion: string;
   modelVersion: string;
-  calls: { v1: Outcome; v2: Outcome; flagged: boolean; atMs: number }[];
+  /** v3 is the trial rule; runs saved before it existed have none. */
+  calls: { v1: Outcome; v2: Outcome; v3?: Outcome; flagged: boolean; atMs: number }[];
 };
 
 const KEY = "hl:lab:lastCalls";

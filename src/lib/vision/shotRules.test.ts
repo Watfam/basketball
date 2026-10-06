@@ -218,3 +218,19 @@ for (const exam of exams) {
     assert.equal(calls.filter((c, i) => c.v2 === truth[i]).length, exam.v2);
   });
 }
+
+test("trial rule V3: 59 of 60 on the exam clips (in-sample), and it only ever turns makes into misses", async () => {
+  const { align } = await import("../basketball/calibration.ts");
+  let agreed = 0;
+  for (const clip of ["4839", "4840"]) {
+    const dets = (JSON.parse(fs.readFileSync(path.join(root, `training/fixtures/dets5-${clip}.json`), "utf8")) as { detections: Det[] }).detections;
+    const truth = (JSON.parse(fs.readFileSync(path.join(root, `training/labels/IMG_${clip}-truth.json`), "utf8")) as { results: ("make" | "miss")[] }).results;
+    const calls = runCounter(dets, { x: 192, y: 190 }, Math.max(...dets.map((d) => d.f)) + 200).filter((c) => c.counted);
+    for (const c of calls) {
+      if (c.v2 === "miss") assert.equal(c.v3, "miss");
+      if (c.v3 !== c.v2) assert.ok(c.fall !== null && c.fall > 10.5);
+    }
+    agreed += align(calls.map((c) => c.v3), truth).agreed;
+  }
+  assert.equal(agreed, 59);
+});
