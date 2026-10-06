@@ -507,3 +507,8 @@ IN-SAMPLE (the limit was read off these two clips): V2 54/60, V3 59/60; any limi
 Locked by npm test. Exam for the third clip, decided now: score V2 and V3 in the same run against Matt's written list (the
 Calibrate screen has a V2 / V3 switch), report both and every shot where they differ. The worth-a-look flag stays as
 registered (on V2 makes). Nothing is tuned before the report; the app keeps counting with V2 until then.
+Known limit of V3 (Matt, 2026-10-06): V3 judges speed only, after V2's position check. A ball that rolls on the rim and drops
+through the middle is slowed by the net and stays a make (4839 #16: rolled about a second, fell 8.2 px/frame, kept). But a
+slow roll that falls off the rim right beside the net starts from almost no speed, so speed can't tell it from a make; only
+the path through the middle of the net can. A tighter "through the middle" check is the next idea, held back for now
+because a few real makes' tracks briefly jump to another object. Long rolls are flagged worth a look either way.
