@@ -468,3 +468,10 @@ On those two clips (IN-SAMPLE: thresholds picked after looking): catches 5 of 6 
 drop 1 px from the centre line), flags 11 of 60 shots (18%). Kept by `npm test`.
 Exam for the third clip, all decided now: score V2 against Matt's written list, then report how many wrong calls the flag catches
 and what share of all shots it flags. Target: most errors caught with under 25% of shots flagged. Nothing is tuned before the report.
+
+### Phone parity check passed: IMG_4840 on Matt's iPhone (2026-10-06)
+Camera lab, ball-5, CPU, saved clip, "Every frame (exact)", window from the "Exam clips" rim. Calibrate against Matt's written
+list: 32 shots counted, 18 camera makes, right on 28 of 32 (87.5%), 6 flagged catching 3 of the 4 wrong calls. Identical to
+the offline numbers (tools/40 and the app's rule on training/fixtures/dets5-4840.json), so the phone pipeline (HEVC decode,
+1080p window, preprocessing, ONNX Runtime on the phone, the streaming rule) reproduces the offline exam. Still unmeasured:
+live speed and heat over a whole session (the 10-minute soak), and live accuracy on new footage.

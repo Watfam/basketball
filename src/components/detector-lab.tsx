@@ -20,10 +20,15 @@ import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
  * Runs entirely on the device. Nothing is recorded or uploaded.
  */
 
-/** Quick is a smoke test; full is long enough for a phone to warm up. */
+/**
+ * Quick is a smoke test; full is long enough for a phone to warm up. Soak
+ * is a whole shooting session: the plan's pass mark for live counting is
+ * at least 15 fps held for 10 minutes, without the page being closed.
+ */
 const DURATIONS = [
   { label: "Quick · 20s", seconds: 20, segment: 5 },
   { label: "Full · 2 min", seconds: 120, segment: 15 },
+  { label: "Soak · 10 min", seconds: 600, segment: 60 },
 ] as const;
 const WORK_WIDTH = 640;
 /** How many frames one detector thread runs before a fresh one takes over. */
@@ -490,7 +495,7 @@ export function DetectorLab() {
         const secs = (now - segStart) / 1000;
         const from = segments.length * segmentSeconds;
         segments.push({
-          label: `${from}–${from + segmentSeconds}s`,
+          label: segmentSeconds >= 60 ? `${from / 60}–${(from + segmentSeconds) / 60} min` : `${from}–${from + segmentSeconds}s`,
           fps: segFrames / secs,
           totalMs: segTotal / segFrames,
           inferMs: segInfer / segFrames,
@@ -941,7 +946,7 @@ export function DetectorLab() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {DURATIONS.map((d, i) => (
             <button
               key={d.label}
