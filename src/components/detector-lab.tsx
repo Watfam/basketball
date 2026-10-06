@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createDetector, nextVideoFrame, yieldToMain, type Backend, type Detector, type ModelId } from "@/lib/vision/detector";
-import { MODEL_INPUT, blockMotion, boxToFrame, createMotionGate, hoopWindow, luma, rimScaleFromTaps, type Crop } from "@/lib/vision/roi";
+import { MODEL_INPUT, blockMotion, boxToFrame, createMotionGate, hoopWindow, luma, type Crop } from "@/lib/vision/roi";
+import { AUTO_SIZE, createAutoSizer } from "@/lib/vision/autoSize";
 import { REFERENCE_FPS, createShotCounter, type ShotCall } from "@/lib/vision/shotRules";
 import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
@@ -69,20 +70,13 @@ const RIM_KEY = "hl:lab:rim";
  * both exam clips (51-58 of 60 right, against 54 at the centre).
  */
 const RIM_TOLERANCE = 20;
-/**
- * How wide the rim was in the model's input on the training clips: the
- * ball near the rim measures 22 px there (median of 832 detections on
- * IMG_4839 and IMG_4840), and a rim is about 2.0 ball widths across. The
- * aim screen shows a bar this wide; matching it to the rim sets the scale.
- */
-const TRAINED_RIM_WIDTH = 45;
 /** The ball near the rim on the training clips, for the report's cross-check. */
 const TRAINED_BALL_WIDTH = 22;
 /** Rim-size steps: within about 10% counts as well as exact (training/README.md). */
-/** Outside this range of the trained ball size, the run warns that the rim size is off. */
-const BALL_SIZE_OK = [0.8, 1.25] as const;
+/** The size can't go beyond these (the window would be tiny or bigger than the frame). */
 const SCALE_MIN = 0.5;
 const SCALE_MAX = 4;
+const SCALE_LIMITS = [SCALE_MIN, SCALE_MAX] as const;
 /**
  * Below this much room above the rim (model px; training had 190) the
  * window is jammed against the top of the picture and part of the ball's
@@ -119,6 +113,8 @@ type Report = {
   /** Ball model only: rim size setting and the median ball width near the rim, model px. */
   scale?: number;
   ballNearRim?: number | null;
+  /** How the size was set: measured from the ball, or the remembered one kept. */
+  sizing?: string;
   /** Share of frames the model was skipped because nothing moved near the hoop, percent. */
   skippedPct?: number;
   source: Source;
@@ -179,10 +175,7 @@ function reportText(report: Report) {
           `Rim size setting: x${report.scale.toFixed(2)} · ball near the rim: ${
             report.ballNearRim ? `${report.ballNearRim.toFixed(0)} px` : "not seen"
           } (training: ${TRAINED_BALL_WIDTH} px)`,
-          ...(report.ballNearRim &&
-          (report.ballNearRim / TRAINED_BALL_WIDTH < BALL_SIZE_OK[0] || report.ballNearRim / TRAINED_BALL_WIDTH > BALL_SIZE_OK[1])
-            ? ["WARNING: the ball size near the rim is far from training's, so the rim size was set wrong and the make count is not reliable."]
-            : []),
+          ...(report.sizing ? [`Size: ${report.sizing}`] : []),
         ]
       : []),
     `Frame limit: ${report.cap ? `${report.cap} fps` : "none"}`,
@@ -277,10 +270,14 @@ export function DetectorLab() {
   // 15 fps: the rule holds there (training/README.md) and the phone runs cooler than flat out.
   const [capIdx, setCapIdx] = useState(3);
   const [skipStill, setSkipStill] = useState(true);
-  // Measuring the rim: the next two taps in the close-up are its left and right edges.
-  const [measuring, setMeasuring] = useState<null | "left" | "right">(null);
-  const leftEdgeRef = useRef<number | null>(null);
-  const [sizeWarning, setSizeWarning] = useState<string | null>(null);
+  // The size is measured from the ball while the run goes (src/lib/vision/autoSize.ts).
+  const [sizing, setSizing] = useState<string | null>(null);
+  // "Exam clips" pins the training size, so an exam run is exactly the exam.
+  const [pinSize, setPinSize] = useState(false);
+  const pinSizeRef = useRef(pinSize);
+  useEffect(() => {
+    pinSizeRef.current = pinSize;
+  }, [pinSize]);
   const [threads, setThreads] = useState(1);
   const [model, setModel] = useState<ModelId>("ball");
   // Where the rim is, as a fraction of the frame. A ref as well, because a
@@ -605,6 +602,7 @@ export function DetectorLab() {
               ...(skipStill && !exactClip ? { skippedPct: (skippedFrames / Math.max(1, frameMs.length)) * 100 } : {}),
               scale: scaleRef.current,
               ballNearRim: nearRimWidths.length ? [...nearRimWidths].sort((a, b) => a - b)[nearRimWidths.length >> 1] : null,
+              sizing: sizingSummary || `x${scaleRef.current.toFixed(2)}, remembered (the ball wasn't measured yet)`,
             }
           : {}),
         frames: frameMs.length,
@@ -664,28 +662,6 @@ export function DetectorLab() {
             zctx.beginPath();
             zctx.arc(zx, zy, RIM_TOLERANCE * k, 0, Math.PI * 2);
             zctx.stroke();
-            // The rim-size bar: the rim's width in training. Matched to the rim, the scale is right.
-            const half = (TRAINED_RIM_WIDTH / 2) * k;
-            zctx.strokeStyle = "#38bdf8";
-            zctx.lineWidth = 3;
-            zctx.beginPath();
-            zctx.moveTo(zx - half, zy - 26);
-            zctx.lineTo(zx + half, zy - 26);
-            zctx.moveTo(zx - half, zy - 34);
-            zctx.lineTo(zx - half, zy - 18);
-            zctx.moveTo(zx + half, zy - 34);
-            zctx.lineTo(zx + half, zy - 18);
-            zctx.stroke();
-            // While measuring: where the left edge was tapped.
-            if (leftEdgeRef.current !== null) {
-              const lx = leftEdgeRef.current * k;
-              zctx.strokeStyle = "#38bdf8";
-              zctx.lineWidth = 3;
-              zctx.beginPath();
-              zctx.moveTo(lx, zy - 40);
-              zctx.lineTo(lx, zy + 40);
-              zctx.stroke();
-            }
             zctx.strokeStyle = "#ff6a1a";
             zctx.lineWidth = 3;
             zctx.beginPath();
@@ -708,10 +684,20 @@ export function DetectorLab() {
 
       // The rule watches the rim where it really is in the window: at its
       // trained spot normally, elsewhere when the window met an edge.
-      const aimed = windowed && useCamera ? hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, scaleRef.current) : null;
+      let aimed = windowed && useCamera ? hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, scaleRef.current) : null;
+      // Sizing from the ball. Live (and a clip in real time): counting starts
+      // at once at the remembered size, and a correction is applied between
+      // shots. A clip read frame by frame: a quick first pass (every second
+      // frame) measures the ball, then counting starts from the first frame.
+      const sizer = aimed && !pinSizeRef.current ? createAutoSizer() : null;
+      let sizingPass = Boolean(sizer && exactClip);
+      let sizerDone = !sizer;
+      let pendingScale: number | null = null;
+      let restartClip = false;
+      let sizingSummary = sizer ? "" : `x${scaleRef.current.toFixed(2)}, pinned to the training size`;
+      setSizing(sizer ? `Measuring the ball: 0 of ${AUTO_SIZE.samples}` : null);
       if (aimed) {
         counter = createShotCounter(aimed.rim);
-        setSizeWarning(null);
         note(
           `aimed: rim (${Math.round(rimRef.current.x * video.videoWidth)}, ${Math.round(rimRef.current.y * video.videoHeight)}), ` +
             `size x${scaleRef.current.toFixed(2)}, rim in window (${aimed.rim.x.toFixed(0)}, ${aimed.rim.y.toFixed(0)})`
@@ -724,7 +710,6 @@ export function DetectorLab() {
       let prevLuma: Uint8Array | null = null;
       let curLuma: Uint8Array | null = null;
       let skippedFrames = 0;
-      let warnedSize = false;
 
       mark("Running, first frame");
       let lastMark = 0;
@@ -734,6 +719,15 @@ export function DetectorLab() {
         const elapsed = (frameStart - startedAt) / 1000;
         if (elapsed >= runSeconds) break;
         if (exactClip) {
+          if (frameIdx >= clipFrames && sizingPass) {
+            // The whole clip measured without settling: keep the size, count.
+            sizingPass = false;
+            sizerDone = true;
+            sizingSummary = `x${scaleRef.current.toFixed(2)}, kept (too few sightings of the ball in the air to measure)`;
+            setSizing(null);
+            frameIdx = 0;
+            if (aimed) counter = createShotCounter(aimed.rim);
+          }
           if (frameIdx >= clipFrames) break;
           // The middle of the frame, so rounding never lands on a neighbour.
           await seekTo((frameIdx + 0.5) / REFERENCE_FPS);
@@ -776,7 +770,41 @@ export function DetectorLab() {
         const ballClass = detector?.ballClass ?? -1;
         const balls = detections.filter((d) => d.classId === ballClass);
         const hasBall = balls.length > 0;
-        if (counter) {
+        // Not while a correction waits: those sightings are at the old size.
+        if (sizer && aimed && !sizerDone && pendingScale === null) {
+          const st = sizer.push(balls, aimed.rim);
+          if (st.kind === "collecting") {
+            if (st.have % 3 === 0) setSizing(`Measuring the ball: ${st.have} of ${st.need}`);
+          } else {
+            const next = Math.min(SCALE_LIMITS[1], Math.max(SCALE_LIMITS[0], scaleRef.current * (st.kind === "rescale" ? st.factor : 1)));
+            note(`ball in the air ${st.ballWidth.toFixed(1)} px (training ${AUTO_SIZE.referenceWidth}): ${st.kind === "rescale" ? `size x${scaleRef.current.toFixed(2)} -> x${next.toFixed(2)}` : "size kept"}`);
+            if (st.kind === "rescale") {
+              if (sizingPass) {
+                setScale(next);
+                aimed = hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, next);
+              } else pendingScale = next;
+              setSizing(`Size x${next.toFixed(2)} · checking it`);
+            } else {
+              sizerDone = true;
+              sizingSummary = `x${scaleRef.current.toFixed(2)}, measured from the ball (${st.ballWidth.toFixed(1)} px in the air; training ${AUTO_SIZE.referenceWidth})`;
+              setSizing(`Size x${scaleRef.current.toFixed(2)} · set from the ball`);
+              if (sizingPass) {
+                sizingPass = false;
+                restartClip = true;
+                // The window may have moved against an edge at the new size.
+                counter = createShotCounter(aimed.rim);
+              }
+            }
+          }
+        }
+        // A size correction waits for a moment with no shot under way.
+        if (pendingScale !== null && counter && aimed && counter.isIdle()) {
+          setScale(pendingScale);
+          aimed = hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, pendingScale);
+          counter = createShotCounter(aimed.rim);
+          pendingScale = null;
+        }
+        if (counter && !sizingPass) {
           if (frameClipMs < clipTimeMs) {
             // The clip looped: that pass was the set. Counting it twice
             // would double every shot.
@@ -789,20 +817,6 @@ export function DetectorLab() {
               for (const b of balls) {
                 if (Math.abs((b.x1 + b.x2) / 2 - aimed.rim.x) <= 55 && Math.abs((b.y1 + b.y2) / 2 - aimed.rim.y) <= 50) {
                   nearRimWidths.push(b.x2 - b.x1);
-                  // Checked every 6 sightings from the 12th (2-3 shots in): a wrong
-                  // rim size makes every call unreliable, so say so at once.
-                  if (!warnedSize && nearRimWidths.length >= 12 && nearRimWidths.length % 6 === 0) {
-                    const sorted = [...nearRimWidths].sort((p, q) => p - q);
-                    const m = sorted[sorted.length >> 1];
-                    const ratio = m / TRAINED_BALL_WIDTH;
-                    if (ratio < BALL_SIZE_OK[0] || ratio > BALL_SIZE_OK[1]) {
-                      warnedSize = true;
-                      setSizeWarning(
-                        `The ball looks ${m.toFixed(0)} px near the rim; training was ${TRAINED_BALL_WIDTH}. The rim size is off, so makes won't count right: stop, and measure the rim again.`
-                      );
-                      note(`ball near the rim ${m.toFixed(1)} px against ${TRAINED_BALL_WIDTH}: size warning shown`);
-                    }
-                  }
                 }
               }
             }
@@ -864,7 +878,9 @@ export function DetectorLab() {
         const capFps = FPS_CAPS[capIdx].fps;
         const due = frameStart + (capFps > 0 ? 1000 / capFps : 0);
         if (exactClip) {
-          frameIdx += 1;
+          // The sizing pass reads every second frame; counting reads them all, from the start.
+          frameIdx = restartClip ? 0 : frameIdx + (sizingPass ? 2 : 1);
+          restartClip = false;
           await yieldToMain();
         } else if (useCamera) {
           do {
@@ -951,6 +967,8 @@ export function DetectorLab() {
             if (!aiming) return;
             const r = e.currentTarget.getBoundingClientRect();
             setRim({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
+            // A new aim is a new hoop: measure the size again.
+            setPinSize(false);
             haptic("tap");
           }}
         />
@@ -971,9 +989,9 @@ export function DetectorLab() {
             {shots.last ? ` · last: ${shots.last.v2}` : ""}
           </div>
         )}
-        {sizeWarning && (phase === "running" || phase === "done") && !aiming && (
-          <p className="absolute bottom-2 left-2 right-2 rounded-md bg-red-600/90 px-2 py-1.5 text-center text-[11px] font-bold text-white">
-            {sizeWarning}
+        {sizing && phase === "running" && !aiming && (
+          <p className="absolute bottom-2 left-2 right-2 rounded-md bg-black/70 px-2 py-1 text-center text-[11px] font-bold text-white">
+            {sizing}
           </p>
         )}
         {aiming && (
@@ -988,15 +1006,9 @@ export function DetectorLab() {
           <p className="text-xs font-semibold text-foreground">
             2. Fine-tune: tap the front of the rim in this close-up. Anywhere inside the ring is close enough.
           </p>
-          <p className="text-xs font-semibold text-foreground">
-            3. Size: tap <span className="text-sky-500">Measure rim</span>, then tap the rim&rsquo;s left edge and its
-            right edge in the close-up. The blue bar should then match the rim.
+          <p className="text-xs text-foreground-dim">
+            No sizing to do: the camera measures the ball on the first few shots and sets the size itself.
           </p>
-          {measuring && (
-            <p className="rounded-lg bg-sky-500/10 px-3 py-2 text-xs font-bold text-sky-500">
-              {measuring === "left" ? "Tap the rim's LEFT edge" : "Now tap the rim's RIGHT edge"}
-            </p>
-          )}
           {tight && (
             <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-400">
               The rim is too close to the top of the picture: part of the ball&rsquo;s way in is cut off. Tilt the phone
@@ -1017,23 +1029,7 @@ export function DetectorLab() {
               const toCamera = win.crop.sw / BALL_WINDOW;
               const tapX = (e.clientX - rect.left) * toModel;
               haptic("tap");
-              // Measuring: two taps on the rim's edges set the size (and centre the rim between them).
-              if (measuring === "left") {
-                leftEdgeRef.current = tapX;
-                setMeasuring("right");
-                return;
-              }
-              if (measuring === "right" && leftEdgeRef.current !== null) {
-                const left = leftEdgeRef.current;
-                const { scale: measured } = rimScaleFromTaps(left, tapX, win.crop.sw, TRAINED_RIM_WIDTH);
-                const midCameraX = win.crop.sx + ((left + tapX) / 2) * toCamera;
-                setRim({ x: midCameraX / v.videoWidth, y: rimRef.current.y });
-                setScale(measured);
-                leftEdgeRef.current = null;
-                setMeasuring(null);
-                return;
-              }
-              // Otherwise a tap moves the rim to that spot: the difference
+              // A tap moves the rim to that spot: the difference
               // from the cross, in camera pixels.
               moveRimBy((tapX - win.rim.x) * toCamera, ((e.clientY - rect.top) * toModel - win.rim.y) * toCamera);
             }}
@@ -1060,20 +1056,10 @@ export function DetectorLab() {
                 {arrow}
               </button>
             ))}
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-[11px] font-bold tabular-nums text-foreground-dim">×{scale.toFixed(2)}</span>
-              <button
-                type="button"
-                onClick={() => {
-                  leftEdgeRef.current = null;
-                  setMeasuring(measuring ? null : "left");
-                }}
-                aria-pressed={Boolean(measuring)}
-                className="rounded-lg border border-sky-400/70 px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-sky-500"
-              >
-                {measuring ? "Cancel" : "Measure rim"}
-              </button>
-            </div>
+            <span className="ml-auto text-[11px] font-bold tabular-nums text-foreground-mute">
+              size ×{scale.toFixed(2)}
+              {pinSize ? " (exam, fixed)" : " (auto)"}
+            </span>
           </div>
           <div className="flex justify-end">
             {source === "file" && (
@@ -1081,6 +1067,9 @@ export function DetectorLab() {
                 type="button"
                 onClick={() => {
                   // The exam clips were the training setup: rim there, size exactly 1.
+                  // Pinned: auto sizing stays off so the exam matches the offline scoring.
+                  pinSizeRef.current = true;
+                  setPinSize(true);
                   setRim(EXAM_RIM);
                   setScale(1);
                 }}

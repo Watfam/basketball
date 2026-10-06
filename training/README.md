@@ -523,3 +523,20 @@ Changes for the next run: the rim size is now measured by tapping the rim's two 
 warning appears 2-3 shots in, stays after the run and is in the copied report when the ball near the rim is outside 80-125%
 of 22 px; the default frame limit is 15 fps; still frames are skipped (the model runs only while something moves near the
 hoop, and for 1.5 s after; a block of the window must change by 6 or more out of 255).
+
+### A different angle: IMG_4851, five trimmed clips (2026-10-06)
+Matt's phone behind the shooter on the wide lens, hoop far and seen side-on; 96 s in five clips (footage not kept). Answer
+key read frame by frame here: 12 shots, 8 makes, 4 misses (three of the misses roll on the rim and fall off; two makes roll
+in). The rim-edge sizing failed on this angle: seen side-on the rim is a long flat oval (about 57 px wide), so sizing from it
+said x1.27 the wrong way round, while the ball (a sphere looks the same size from every angle) said about x1.2.
+- ball-5 found the ball cleanly at the rim; the only steady false detection is a dark mark on the brick wall, far from the rim.
+- Shots found: 12 of 12 at every size tried (no extras).
+- Calls right (V2, V3 the same here): x1.0 9/12; x1.2, x1.3, x1.4 11/12 each. At x1.0 two makes became misses through V2's
+  "bigger below" cue (the net hides part of the ball at the rim, and its 26 px cut is absolute, so a ball bigger than in
+  training trips it), and one miss became a make through a stray sighting by the ground under the hoop 1.6 s later. At the
+  right size the one error left is a roll off the side called a make, flagged worth a look.
+- Ball size reference for automatic sizing: in the air above the rim (within 80 px sideways, 60-170 px above), training
+  23.5 / 23.9 px (4839 / 4840, ~280 sightings each); this video about 28 px at x1.0, so x1.18.
+Decision: size from the ball, automatically, over the first warm-up shots; the rim is tapped once for position only.
+Next rule idea, not done: count a "below the net" sighting only on the ball's own followed path (V3's tracker), which would
+also have stopped the ground-bounce make at x1.0.
