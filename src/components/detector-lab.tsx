@@ -693,9 +693,10 @@ export function DetectorLab() {
       let sizingPass = Boolean(sizer && exactClip);
       let sizerDone = !sizer;
       let pendingScale: number | null = null;
+      let sizerHave = 0;
       let restartClip = false;
       let sizingSummary = sizer ? "" : `x${scaleRef.current.toFixed(2)}, pinned to the training size`;
-      setSizing(sizer ? `Measuring the ball: 0 of ${AUTO_SIZE.samples}` : null);
+      setSizing(sizer ? `Measuring the ball: 0 of ${AUTO_SIZE.flights} shots` : null);
       if (aimed) {
         counter = createShotCounter(aimed.rim);
         note(
@@ -772,9 +773,12 @@ export function DetectorLab() {
         const hasBall = balls.length > 0;
         // Not while a correction waits: those sightings are at the old size.
         if (sizer && aimed && !sizerDone && pendingScale === null) {
-          const st = sizer.push(balls, aimed.rim);
+          const st = sizer.push(frameClipMs, balls, aimed.rim);
           if (st.kind === "collecting") {
-            if (st.have % 3 === 0) setSizing(`Measuring the ball: ${st.have} of ${st.need}`);
+            if (st.have !== sizerHave) {
+              sizerHave = st.have;
+              setSizing(`Measuring the ball: ${st.have} of ${st.need} shots`);
+            }
           } else {
             const next = Math.min(SCALE_LIMITS[1], Math.max(SCALE_LIMITS[0], scaleRef.current * (st.kind === "rescale" ? st.factor : 1)));
             note(`ball in the air ${st.ballWidth.toFixed(1)} px (training ${AUTO_SIZE.referenceWidth}): ${st.kind === "rescale" ? `size x${scaleRef.current.toFixed(2)} -> x${next.toFixed(2)}` : "size kept"}`);
@@ -784,6 +788,7 @@ export function DetectorLab() {
                 aimed = hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, next);
               } else pendingScale = next;
               setSizing(`Size x${next.toFixed(2)} · checking it`);
+              sizerHave = 0;
             } else {
               sizerDone = true;
               sizingSummary = `x${scaleRef.current.toFixed(2)}, measured from the ball (${st.ballWidth.toFixed(1)} px in the air; training ${AUTO_SIZE.referenceWidth})`;
