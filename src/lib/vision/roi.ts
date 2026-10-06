@@ -137,3 +137,45 @@ export function hoopWindow(
   const inModel = { x: (rx - crop.sx) * k, y: (ry - crop.sy) * k };
   return { crop, rim: inModel, roomAbove: inModel.y };
 }
+
+/**
+ * How much the busiest part of the picture changed: the hoop window split
+ * into square blocks, each block's average brightness change, the largest
+ * of them (0 to 255). An average over the whole window would drown a
+ * 22 px ball in 400x400 px of still sky; one block containing it changes
+ * by tens, while camera noise stays at a few.
+ */
+export function blockMotion(prev: Uint8Array, cur: Uint8Array, width: number, height: number, block = 52): number {
+  if (prev.length !== cur.length || cur.length !== width * height) return 0;
+  let best = 0;
+  for (let by = 0; by < height; by += block) {
+    for (let bx = 0; bx < width; bx += block) {
+      let sum = 0;
+      let n = 0;
+      for (let y = by; y < Math.min(height, by + block); y += 1) {
+        const row = y * width;
+        for (let x = bx; x < Math.min(width, bx + block); x += 1) {
+          sum += Math.abs(cur[row + x] - prev[row + x]);
+          n += 1;
+        }
+      }
+      if (n && sum / n > best) best = sum / n;
+    }
+  }
+  return best;
+}
+
+/**
+ * The rim's width in camera pixels, from two taps on its left and right
+ * edges in the close-up (model pixels of a window cut at `cropSide` camera
+ * pixels), and the window scale that makes it the trained width.
+ */
+export function rimScaleFromTaps(
+  leftX: number,
+  rightX: number,
+  cropSide: number,
+  trainedRimWidth: number
+): { rimCameraPx: number; scale: number } {
+  const rimCameraPx = (Math.abs(rightX - leftX) * cropSide) / MODEL_INPUT;
+  return { rimCameraPx, scale: rimCameraPx / trainedRimWidth };
+}
