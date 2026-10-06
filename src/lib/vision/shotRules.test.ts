@@ -7,9 +7,9 @@
  * 1. Parity: generated scenes go through this code and through the real
  *    training/tools/40-score-rules.py, and every call must match. Needs
  *    python3; skipped without it.
- * 2. The exam clips: if training/work/dets5-4839.json and dets5-4840.json
- *    exist (made by tools/22, not in git), their scores must come out as
- *    reported: V1 22/28 and 26/32, V2 26/28 and 28/32.
+ * 2. The exam clips, from training/fixtures/dets5-4839.json and dets5-4840.json
+ *    (ball-5 detections made by tools/22: box positions only, no pictures),
+ *    must score as reported: V1 22/28 and 26/32, V2 26/28 and 28/32.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -186,7 +186,7 @@ const exams = [
   { clip: "4840", rim: { x: 192, y: 190 }, v1: 26, v2: 28, shots: 32 },
 ];
 for (const exam of exams) {
-  const detsFile = path.join(root, `training/work/dets5-${exam.clip}.json`);
+  const detsFile = path.join(root, `training/fixtures/dets5-${exam.clip}.json`);
   test(`exam clip IMG_${exam.clip}: V1 ${exam.v1}/${exam.shots}, V2 ${exam.v2}/${exam.shots}`, { skip: !fs.existsSync(detsFile) && `${detsFile} not present` }, () => {
     const dets = (JSON.parse(fs.readFileSync(detsFile, "utf8")) as { detections: Det[] }).detections;
     const truth = (JSON.parse(fs.readFileSync(path.join(root, `training/labels/IMG_${exam.clip}-truth.json`), "utf8")) as { results: string[] }).results;

@@ -448,3 +448,14 @@ V2's session totals were 18/14 against 14/18 (V1 16/16): both over-count makes, 
 Honest summary for tomorrow's UI discussion: counting makes automatically is accurate to roughly 80-90% per shot on unseen clips
 of the same hoop, and wrong in a recognizable way (rim bounces near the net). With one-tap correction, the tool would be right most
 of the time and cheap to fix.
+
+### The app's rule on the exam clips, and how slow the phone may be (2026-10-06)
+`src/lib/vision/shotRules.ts` (the app's streaming rule) reproduces the offline scores exactly on the exam detections, now kept
+in `training/fixtures/dets5-4839.json` and `dets5-4840.json` (box positions only; `npm test` checks them): 4839 V1 22/28, V2 26/28;
+4840 V1 26/32, V2 28/32.
+Frame rate, simulated by feeding the rule every 2nd, 3rd or 4th frame of those same detections (two different starting frames):
+- 15 fps: 4839 V2 27/28 (one start found a 29th shot); 4840 V2 27-29/32. Holds.
+- 10 fps: 4839 V2 24-26/28; 4840 V2 28-29/32. Mostly holds, more spread.
+- 7.5 fps: shots start going missing (23-25 of 28, 29-31 of 32 found).
+Caveat: this thins out detections from a full-rate run; a phone running slower also sees different frames and may detect
+differently. Phase A pass line stays at 15 fps sustained; 10 fps is the floor below which live counting should not ship.
