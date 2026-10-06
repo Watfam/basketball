@@ -248,7 +248,8 @@ export function DetectorLab() {
   const streamRef = useRef<MediaStream | null>(null);
   const fileUrlRef = useRef<string | null>(null);
 
-  const [durationIdx, setDurationIdx] = useState(1);
+  // Defaults are the normal test: our ball model, live, the 10-minute soak.
+  const [durationIdx, setDurationIdx] = useState(2);
   const [backend, setBackend] = useState<Backend>("wasm");
   const [source, setSource] = useState<Source>("camera");
   const [testMode, setTestMode] = useState<TestMode>("all");
@@ -258,7 +259,7 @@ export function DetectorLab() {
   const [everyFrame, setEveryFrame] = useState(true);
   const [capIdx, setCapIdx] = useState(1);
   const [threads, setThreads] = useState(1);
-  const [model, setModel] = useState<ModelId>("coco");
+  const [model, setModel] = useState<ModelId>("ball");
   // Where the rim is, as a fraction of the frame. A ref as well, because a
   // tap during a run must move the window without restarting it.
   const rimRef = useRef(DEFAULT_RIM);
@@ -1116,25 +1117,9 @@ export function DetectorLab() {
       )}
 
       <section className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Model</p>
         <div className="grid grid-cols-2 gap-2">
-          {(["webgpu", "wasm"] as const).map((b) => (
-            <button
-              key={b}
-              type="button"
-              disabled={busy}
-              onClick={() => setBackend(b)}
-              aria-pressed={backend === b}
-              className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
-                backend === b ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
-              }`}
-            >
-              {b === "webgpu" ? "GPU (unstable on iPhone)" : "CPU (reliable)"}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          {(["coco", "ball"] as const).map((m) => (
+          {(["ball", "coco"] as const).map((m) => (
             <button
               key={m}
               type="button"
@@ -1145,11 +1130,12 @@ export function DetectorLab() {
                 model === m ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
               }`}
             >
-              {m === "coco" ? "Stock model" : "Our ball model"}
+              {m === "coco" ? "Stock (speed tests)" : "Our ball model"}
             </button>
           ))}
         </div>
 
+        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Source</p>
         <div className="grid grid-cols-2 gap-2">
           {(["camera", "file"] as const).map((s) => (
             <button
@@ -1167,6 +1153,29 @@ export function DetectorLab() {
           ))}
         </div>
 
+        {source === "file" && testMode !== "model" && model === "ball" ? (
+          <>
+        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Length</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[true, false].map((v) => (
+              <button
+                key={String(v)}
+                type="button"
+                disabled={busy}
+                onClick={() => setEveryFrame(v)}
+                aria-pressed={everyFrame === v}
+                className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                  everyFrame === v ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+                }`}
+              >
+                {v ? "Every frame (exact)" : "Real time"}
+              </button>
+            ))}
+          </div>
+          </>
+        ) : (
+          <>
+        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Length</p>
         <div className="grid grid-cols-3 gap-2">
           {DURATIONS.map((d, i) => (
             <button
@@ -1180,6 +1189,35 @@ export function DetectorLab() {
               }`}
             >
               {d.label}
+            </button>
+          ))}
+        </div>
+          </>
+        )}
+
+        {/* Switches for diagnosing problems, not for normal tests: GPU or CPU,
+            what the run exercises, threads, a frame limit, worker refresh. */}
+        <details className="group rounded-xl border border-line">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            Advanced (for diagnosing)
+            <span className="text-base transition-transform group-open:rotate-90" aria-hidden>
+              ›
+            </span>
+          </summary>
+          <div className="space-y-3 border-t border-line p-3">
+        <div className="grid grid-cols-2 gap-2">
+          {(["webgpu", "wasm"] as const).map((b) => (
+            <button
+              key={b}
+              type="button"
+              disabled={busy}
+              onClick={() => setBackend(b)}
+              aria-pressed={backend === b}
+              className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                backend === b ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+              }`}
+            >
+              {b === "webgpu" ? "GPU (unstable on iPhone)" : "CPU (reliable)"}
             </button>
           ))}
         </div>
@@ -1261,25 +1299,8 @@ export function DetectorLab() {
             </button>
           ))}
         </div>
-
-        {source === "file" && testMode !== "model" && model === "ball" && (
-          <div className="grid grid-cols-2 gap-2">
-            {[true, false].map((v) => (
-              <button
-                key={String(v)}
-                type="button"
-                disabled={busy}
-                onClick={() => setEveryFrame(v)}
-                aria-pressed={everyFrame === v}
-                className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
-                  everyFrame === v ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
-                }`}
-              >
-                {v ? "Every frame (exact)" : "Real time"}
-              </button>
-            ))}
           </div>
-        )}
+        </details>
 
         {source === "file" && testMode !== "model" && !busy && (
           <label className="block">
