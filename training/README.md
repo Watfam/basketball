@@ -482,3 +482,17 @@ Both exam clips re-run with the rim moved up to 20 px (in the 416 px window) eac
 "shot" per session. So 20 window px is close enough. On a phone the 1080p picture is shown at screen width, where 20 px is
 about 4 points, smaller than a fingertip, which is why aiming felt fiddly: the lab now aims in two steps, a rough tap on the
 picture and a fine tap in a full-width close-up of the window (20 px there is about 20 points), with a ring for the allowance.
+
+### Zoomed-in or farther-away setups: rim size (2026-10-06)
+Matt's older zoomed-in clip showed the rim about 2.2x the training size, and the rim at the very top of the picture.
+- Size sensitivity, measured by scaling the exam detections about the rim (as if zoomed by that factor), V2, both clips, 60
+  shots: x0.8 52, x0.9 53, x1.0 54, x1.1 53, x1.2 48, x1.4 51 (+2 extra, 1 missed), x0.7 46. Within about 10% is fine;
+  2x unmatched is not.
+- The ball near the rim on the exam clips measures 22 px (median of 832 detections), so the rim is about 45 px across there.
+- The lab now cuts a window of 416 x scale camera px and shrinks it to 416, with scale set on the aim screen by matching a
+  45 px bar to the rim (5% steps). Scale 1 is the training setup, unchanged: "Exam clips" sets the exam rim and scale 1,
+  and src/lib/vision/roi.test.ts checks the window is exactly (866, 260, 416) with the rim at (192, 190).
+- When the window meets the frame edge, the rule and the cross now use the rim's real place in the window (before, the
+  rule kept assuming (192, 190), which was wrong in exactly that case). Under 120 px of room above the rim the aim screen
+  warns to tilt down or step back.
+- The lab report gives the median ball width near the rim, to compare with training's 22 px.

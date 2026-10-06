@@ -92,3 +92,48 @@ export function createMotionGate(options: { threshold: number; holdMs: number })
     },
   };
 }
+
+/** The model's input: a square this many pixels on a side. */
+export const MODEL_INPUT = 416;
+/**
+ * Where the rim sat inside the 416 px hoop window on the clips the ball
+ * model and the make/miss rule were built from (training/README.md).
+ */
+export const TRAINED_RIM = { x: 192, y: 190 } as const;
+
+/**
+ * The hoop window for a rim at `rim` (fractions of the frame), and where
+ * the rim then is in the model's 416 px input.
+ *
+ * `scale` makes zoomed-in or far-away setups look like the training
+ * setup: at scale 2 the window is 832 camera pixels across and is shrunk
+ * to 416, so a rim and ball twice the trained size come out at the trained
+ * size, and every pixel threshold of the rule still means what it did.
+ * Scale 1 is the setup everything was measured on, unchanged.
+ *
+ * Near the edge of the frame the window cannot sit with the rim at its
+ * trained spot; it is pushed back inside the frame, and `rim` reports
+ * where the rim really is in the input, which is what the rule must use.
+ * `roomAbove` is how far, in model pixels, the window reaches above the
+ * rim (the trained setup had 190).
+ */
+export function hoopWindow(
+  frameW: number,
+  frameH: number,
+  rim: { x: number; y: number },
+  scale = 1
+): { crop: Crop; rim: { x: number; y: number }; roomAbove: number } {
+  const size = MODEL_INPUT * scale;
+  const rx = rim.x * frameW;
+  const ry = rim.y * frameH;
+  const crop = cropAround(
+    frameW,
+    frameH,
+    rx - TRAINED_RIM.x * scale + size / 2,
+    ry - TRAINED_RIM.y * scale + size / 2,
+    size
+  );
+  const k = MODEL_INPUT / crop.sw;
+  const inModel = { x: (rx - crop.sx) * k, y: (ry - crop.sy) * k };
+  return { crop, rim: inModel, roomAbove: inModel.y };
+}
