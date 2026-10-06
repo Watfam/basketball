@@ -10,6 +10,8 @@ export type ShotSessionListItem = {
   id: string;
   label: string;
   date: string;
+  /** e.g. the goal the set was shot to. */
+  detail?: string | null;
   score: string;
   pct: string;
 };
@@ -122,7 +124,10 @@ export function ShotSessionList({
               <>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{s.label}</p>
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">{s.date}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
+                    {s.date}
+                    {s.detail ? ` · ${s.detail}` : ""}
+                  </p>
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="font-display text-xl leading-none text-foreground">{s.score}</p>

@@ -201,6 +201,13 @@ export function ShootingHub({
           label: d.label || null,
           startedAt: d.startedAt,
           ended,
+          goal: (() => {
+            const g = draftGoal(d);
+            if (!g) return null;
+            // A streak that ran into the 100-shot cap ended, but wasn't reached.
+            const state = goalState(g, d.shots, Date.now() - Date.parse(d.startedAt));
+            return { kind: g.kind, target: g.target, reached: state.reached && !state.capped };
+          })(),
           shots: d.shots.map((s) => ({
             seq: s.seq,
             made: s.made,

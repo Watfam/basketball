@@ -105,3 +105,11 @@ export function goalState(goal: Goal, shots: ShotLike[], elapsedMs: number): Goa
     }
   }
 }
+
+/** How a saved set's goal reads in history: "Make 10 ✓", "3 in a row · not reached". */
+export function describeSavedGoal(kind: string | null, target: number | null, reached: boolean | null): string | null {
+  const goal = parseGoal({ kind, target });
+  if (!goal) return null;
+  if (reached === null) return describeGoal(goal);
+  return reached ? `${describeGoal(goal)} ✓` : `${describeGoal(goal)} · not reached`;
+}

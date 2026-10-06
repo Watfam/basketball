@@ -37,3 +37,10 @@ test("stored goals are checked and clamped", () => {
   assert.equal(parseGoal("50"), null);
   assert.equal(describeGoal({ kind: "streak", target: 5 }), "5 in a row");
 });
+
+test("a saved goal reads back for history", async () => {
+  const { describeSavedGoal } = await import("./goals.ts");
+  assert.equal(describeSavedGoal("makes", 10, true), "Make 10 ✓");
+  assert.equal(describeSavedGoal("streak", 3, false), "3 in a row · not reached");
+  assert.equal(describeSavedGoal(null, null, null), null);
+});

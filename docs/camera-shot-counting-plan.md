@@ -149,6 +149,7 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 - 0020 written, checked on Postgres 16, and run on Supabase by Matt (2026-10-05).
 - F2 done: delete with Undo and Manage mode.
 - F3/F4 done, F1 partly: summary adds longest miss streak, shots a minute and today against the player's own average for that label; Shoot page has a season block (since Aug 1: make %, makes of shots, sessions, best session of 10+ shots); home card adds the season line. Drill filter not yet: labels still group the history.
+- F1 done: Drill filter on the Shoot page (All, then the player's own set names, most used first): season block, best session, trend line (one drill only), By drill breakdown (All) and recent sessions all follow it. History shows the goal ("Make 10 ✓"). Migration 0021 stores goal kind, target and reached. The structured drill column (0020) is left unused: set names already are the drills.
 - D1 partly: goals (Matt, 2026-10-06): None, Shots (25/50/100), Makes (10/25/50), Time (3/5/10 min, countdown), In a row (3/5/10, stops at 100 shots), each adjustable; the set saves itself when reached; last 4 setups (name + goal) are one-tap starts; "Shooting as … Switch". Camera choice waits for the phone test.
 - C1, C3, C4 done; C2 started: front door "Who's playing?" with Continue as, profile cookie, player bottom bar (Home, Train, Shoot, Film), opening a player or team page sets the profile.
 - B3 done (in-sample): worth-a-look flag in `shotRules.ts`, 5 of 6 errors caught, 18% of shots flagged; registered for the third clip.
