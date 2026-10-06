@@ -130,10 +130,10 @@ export default async function TeamPage({
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="mx-auto flex w-full max-w-lg items-center justify-between">
           <Link
-            href="/"
+            href="/coach"
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
-            Switch profile
+            ← Coach home
           </Link>
           <div className="flex gap-4">
             <Link

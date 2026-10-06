@@ -90,6 +90,14 @@ export default async function ShootingPage({
     if (t.pct !== null) averages[d === UNLABELED ? "" : d] = { pct: t.pct, sessions: t.sessions };
   }
 
+  // "Last six" for the setup card: the newest six sets of each drill, and of everything.
+  const lastSix: Record<string, { pct: number; sessions: number }> = {};
+  for (const d of [ALL, ...drills]) {
+    const six = (d === ALL ? sessions : sessions.filter((s) => labelOf(s) === d)).slice(0, 6);
+    const t = totalSessions(six);
+    if (t.pct !== null) lastSix[d === ALL ? "*" : d === UNLABELED ? "" : d] = { pct: t.pct, sessions: t.sessions };
+  }
+
   // A line only for one drill: free throws and threes are different
   // skills, and a line that mixes them says nothing about either.
   const line = selected === ALL ? [] : shown.slice(0, 20).reverse();
@@ -248,6 +256,7 @@ export default async function ShootingPage({
           playerName={player.display_name}
           suggestedLabels={drills.filter((l) => l !== UNLABELED)}
           averages={averages}
+          lastSix={lastSix}
         >
           {history}
         </ShootingHub>

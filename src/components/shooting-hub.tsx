@@ -119,6 +119,7 @@ export function ShootingHub({
   playerName,
   suggestedLabels,
   averages = {},
+  lastSix = {},
   children,
 }: {
   playerId: string;
@@ -126,6 +127,8 @@ export function ShootingHub({
   suggestedLabels: string[];
   /** Make % per label over saved sessions, for the summary's comparison. */
   averages?: Record<string, { pct: number; sessions: number }>;
+  /** Make % over the newest six sets per label ("*": all of them), shown while picking. */
+  lastSix?: Record<string, { pct: number; sessions: number }>;
   /** The saved-session history, rendered on the server and shown while idle. */
   children: React.ReactNode;
 }) {
@@ -598,15 +601,13 @@ export function ShootingHub({
   return (
     <div className="space-y-6">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
-          <p className="truncate text-[11px] font-bold text-foreground-dim">
-            Shooting as <span className="text-foreground">{playerName}</span> ·{" "}
-            <Link href="/" className="font-extrabold uppercase tracking-wide text-accent">
-              Switch
-            </Link>
-          </p>
-        </div>
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
+        <p className="mt-1 text-xs font-bold text-foreground-dim">
+          Shooting as <span className="text-foreground">{playerName.trim().split(/\s+/)[0]}</span> ·{" "}
+          <Link href="/" className="font-extrabold uppercase tracking-wide text-accent">
+            Switch
+          </Link>
+        </p>
         {recent.length > 0 && (
           <div className="mt-3">
             <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
@@ -659,6 +660,38 @@ export function ShootingHub({
           maxLength={60}
           className="mt-3 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
         />
+
+        {(() => {
+          const name = labelInput.trim();
+          const six = name ? lastSix[name] : lastSix["*"];
+          if (!six) return null;
+          return (
+            <p className="mt-2.5 text-xs font-semibold text-foreground-dim">
+              Last {six.sessions === 1 ? "set" : `${six.sessions} sets`}
+              {name ? ` of ${name}` : ""}:{" "}
+              <span className="font-extrabold text-accent">{formatPercentage(six.pct)}</span>
+            </p>
+          );
+        })()}
+
+        <div className="mt-5">
+          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            How to count
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <div
+              aria-current="true"
+              className="rounded-xl border border-accent bg-accent/10 px-3 py-2.5"
+            >
+              <p className="text-xs font-extrabold uppercase tracking-wide text-accent">Tap counter</p>
+              <p className="mt-0.5 text-[11px] text-foreground-dim">Tap make or miss yourself</p>
+            </div>
+            <div aria-disabled="true" className="rounded-xl border border-dashed border-line px-3 py-2.5 opacity-70">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Camera · soon</p>
+              <p className="mt-0.5 text-[11px] text-foreground-mute">Phone on a stand counts for you</p>
+            </div>
+          </div>
+        </div>
 
         <div className="mt-5">
           <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">

@@ -118,13 +118,26 @@ export function CalibrationForm() {
           </p>
           <p className="text-xs font-bold tabular-nums text-foreground-dim">{truth.length} shots</p>
         </div>
-        <div className="mt-2 flex min-h-6 flex-wrap gap-1">
+        <p className="mt-1 text-[11px] text-foreground-mute">Tap a dot to flip a shot you got wrong.</p>
+        <div className="mt-1.5 flex min-h-7 flex-wrap">
           {truth.map((t, i) => (
-            <span
+            <button
               key={i}
-              title={`Shot ${i + 1}: ${t}`}
-              className={`h-4 w-4 rounded-full ${t === "make" ? "bg-[var(--data-positive)]" : "border-2 border-foreground-mute"}`}
-            />
+              type="button"
+              aria-label={`Shot ${i + 1}: ${t}. Tap to change.`}
+              onClick={() => {
+                haptic("tap");
+                setTruth((list) => list.map((x, j) => (j === i ? (x === "make" ? "miss" : "make") : x)));
+              }}
+              // A 28 px target around an 18 px dot: easy to hit, still a row of dots.
+              className="flex h-7 w-7 items-center justify-center"
+            >
+              <span
+                className={`h-[18px] w-[18px] rounded-full ${
+                  t === "make" ? "bg-[var(--data-positive)]" : "border-2 border-foreground-mute"
+                }`}
+              />
+            </button>
           ))}
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">

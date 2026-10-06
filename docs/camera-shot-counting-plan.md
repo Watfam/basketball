@@ -160,3 +160,4 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 ## 8. Suggested order of work
 
 A first (it can end the project cheaply), then B and C in parallel, then F and G (mostly independent of the camera), then D and E, then H. The tap counter and the stats screens deliver value on their own even if the camera never clears the bar.
+- Design polish (2026-10-06): front door with avatar profile cards (Overall, season shooting %) and a Coach card, Manage family folded below; coach home at /coach (players with season % and sessions this week, latest calibration with Calibrate / Detector / History, teams), and the coach looking at a player no longer switches the phone's profile; player Home has the avatar switcher, the big Shoot card first and a Me tab in the bottom bar; Shoot setup shows the last-six make % and How to count (Tap counter, Camera soon); Calibrate lets a dot be tapped to flip it.
