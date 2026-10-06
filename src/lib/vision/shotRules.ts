@@ -83,6 +83,51 @@ export const FLAG = {
 
 export type FlagReason = "wide_below" | "off_centre" | "long_at_rim";
 
+/**
+ * Rule V3, a trial (2026-10-06): V2, except that a make whose ball falls
+ * from the rim to 60 px below it faster than 10.5 px a frame is a miss.
+ * The net catches a ball going through and slows it; a ball that bounced
+ * off the rim and dropped beside or in front of the net falls freely.
+ *
+ * Designed AFTER seeing IMG_4839 and IMG_4840: makes there fell at most
+ * 9.5 px/frame, the wrongly called misses 11.1-17.5. In-sample it scores
+ * 59 of 60 (V2: 54), the same for any limit from 10 to 11, and 58-59 at
+ * 15 fps. In-sample means nothing about new footage: the third fresh clip
+ * is its test, scored beside V2, and nothing changes before that.
+ *
+ * The fall is measured on one ball, followed from its first sighting in
+ * the rim zone: each frame, the detection nearest to the last point, no
+ * more than 30 px per frame away, giving up after 8 frames unseen.
+ */
+export const FALL = {
+  maxGapFrames: 8,
+  maxJumpPerFrame: 30,
+  fromBelow: 0,
+  toBelow: 60,
+  netMax: 10.5,
+} as const;
+
+/** How fast the ball fell past the rim, px per reference frame, or null if it couldn't be followed that far. */
+export function fallSpeed(seen: Seen[], first: number, rim: { x: number; y: number }): number | null {
+  const at = (f: number) => seen.filter((s) => s.f === f);
+  const dist = (b: Box, x: number, y: number) => Math.hypot(cx(b) - x, cy(b) - y);
+  const start = at(first).sort((a, b) => dist(a.box, rim.x, rim.y) - dist(b.box, rim.x, rim.y))[0];
+  if (!start) return null;
+  const path = [{ f: first, x: cx(start.box), y: cy(start.box) }];
+  for (let f = first + 1; f < first + RULE.windowV2; f += 1) {
+    const last = path[path.length - 1];
+    const gap = f - last.f;
+    if (gap > FALL.maxGapFrames) break;
+    const next = at(f)
+      .filter((s) => dist(s.box, last.x, last.y) < FALL.maxJumpPerFrame * gap)
+      .sort((a, b) => dist(a.box, last.x, last.y) - dist(b.box, last.x, last.y))[0];
+    if (next) path.push({ f, x: cx(next.box), y: cy(next.box) });
+  }
+  const a = path.find((p) => p.y - rim.y >= FALL.fromBelow);
+  const b = path.find((p) => p.y - rim.y >= FALL.toBelow);
+  return a && b && b.f > a.f ? (b.y - a.y) / (b.f - a.f) : null;
+}
+
 export type ShotCall = {
   /** 1, 2, 3... in the order shots were decided. */
   n: number;
@@ -105,6 +150,10 @@ export type ShotCall = {
   belowWidth: number | null;
   /** Nearest the ball came to the net's centre line below the rim (V2 window), px. */
   belowMinDx: number | null;
+  /** Rule V3 (trial, see FALL): V2 with fast falls past the rim called misses. */
+  v3: Outcome;
+  /** The tracked ball's fall past the rim, px per reference frame; null when it couldn't be followed. */
+  fall: number | null;
   /** Worth a look in review; see FLAG. Only V2 makes are ever flagged. */
   flagged: boolean;
   flagReasons: FlagReason[];
@@ -201,6 +250,8 @@ export function createShotCounter(rim: { x: number; y: number }) {
     if (counted) n += 1;
     const called = callShot(history, shot.first, shot.last, rim);
     const reasons = flagReasons({ ...called, zoneSightings: shot.sightings });
+    const fall = called.v2 === "make" ? fallSpeed(history, shot.first, rim) : null;
+    const v3: Outcome = called.v2 === "make" && fall !== null && fall > FALL.netMax ? "miss" : called.v2;
     return {
       n: counted ? n : 0,
       first: shot.first,
@@ -209,6 +260,8 @@ export function createShotCounter(rim: { x: number; y: number }) {
       zoneSightings: shot.sightings,
       counted,
       ...called,
+      v3,
+      fall,
       flagged: reasons.length > 0,
       flagReasons: reasons,
     };

@@ -218,3 +218,56 @@ for (const exam of exams) {
     assert.equal(calls.filter((c, i) => c.v2 === truth[i]).length, exam.v2);
   });
 }
+
+test("trial rule V3: 59 of 60 on the exam clips (in-sample), and it only ever turns makes into misses", async () => {
+  const { align } = await import("../basketball/calibration.ts");
+  let agreed = 0;
+  for (const clip of ["4839", "4840"]) {
+    const dets = (JSON.parse(fs.readFileSync(path.join(root, `training/fixtures/dets5-${clip}.json`), "utf8")) as { detections: Det[] }).detections;
+    const truth = (JSON.parse(fs.readFileSync(path.join(root, `training/labels/IMG_${clip}-truth.json`), "utf8")) as { results: ("make" | "miss")[] }).results;
+    const calls = runCounter(dets, { x: 192, y: 190 }, Math.max(...dets.map((d) => d.f)) + 200).filter((c) => c.counted);
+    for (const c of calls) {
+      if (c.v2 === "miss") assert.equal(c.v3, "miss");
+      if (c.v3 !== c.v2) assert.ok(c.fall !== null && c.fall > 10.5);
+    }
+    agreed += align(calls.map((c) => c.v3), truth).agreed;
+  }
+  assert.equal(agreed, 59);
+});
+
+test("rolls on the rim: through the middle stays a make, knocked down fast is a miss, off the side is a miss", () => {
+  const rim = { x: 192, y: 190 };
+  const dets: Det[] = [];
+  const ball = (f: number, x: number, y: number) => dets.push({ f, x1: x - 11, y1: y - 11, x2: x + 11, y2: y + 11 });
+  // Comes in from above the rim, as every shot does.
+  const arrive = (f0: number, x: number, y: number) => {
+    for (let k = 0; k < 5; k += 1) ball(f0 + k, x - 40 + 8 * k, y - 60 + 12 * k);
+  };
+
+  // A: hits the rim, rolls around it for 25 frames, then drops through the middle, slowed by the net.
+  let f = 100;
+  arrive(f, 182, 170);
+  for (let k = 0; k < 25; k += 1) ball(f + 5 + k, 182 + 10 * Math.sin(k / 3), 168 + 2 * Math.cos(k / 2));
+  for (let k = 0; k < 35; k += 1) ball(f + 30 + k, 192, 170 + 4 * k);
+
+  // B: hits the rim, pops up, then is knocked straight down beside the net, falling fast.
+  f = 500;
+  arrive(f, 200, 168);
+  for (let k = 0; k < 5; k += 1) ball(f + 5 + k, 205, 165 - 3 * k);
+  for (let k = 0; k < 14; k += 1) ball(f + 10 + k, 212, 150 + 15 * k);
+
+  // C: rolls on the rim, then slowly falls off the side, outside the net.
+  f = 900;
+  arrive(f, 200, 168);
+  for (let k = 0; k < 20; k += 1) ball(f + 5 + k, 200 + 2 * k, 168);
+  for (let k = 0; k < 30; k += 1) ball(f + 25 + k, 252, 168 + 4 * k);
+
+  const calls = runCounter(dets, rim, 1300).filter((c) => c.counted);
+  assert.equal(calls.length, 3);
+  const [a, b, c] = calls;
+  assert.deepEqual([a.v2, a.v3], ["make", "make"], "slow roll-in through the middle");
+  assert.ok(a.fall !== null && a.fall <= 10.5, `roll-in fell at ${a.fall}`);
+  assert.ok(a.flagged, "a long roll on the rim is worth a look");
+  assert.deepEqual([b.v2, b.v3], ["make", "miss"], "knocked down fast beside the net");
+  assert.deepEqual([c.v2, c.v3], ["miss", "miss"], "slow roll off the side");
+});

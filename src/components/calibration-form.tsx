@@ -26,6 +26,8 @@ export function CalibrationForm() {
   const router = useRouter();
   const [lab, setLab] = useState<LabCalls | null | undefined>(undefined);
   const [truth, setTruth] = useState<Outcome[]>([]);
+  // V2 is the registered rule; V3 is the trial (src/lib/vision/shotRules.ts, FALL).
+  const [rule, setRule] = useState<"v2" | "v3">("v2");
   const [hoop, setHoop] = useState("Driveway");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,11 @@ export function CalibrationForm() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setLab(readLabCalls()), []);
 
-  const camera = useMemo(() => (lab?.calls ?? []).map((c) => c.v2), [lab]);
+  const hasV3 = Boolean(lab?.calls.length && lab.calls.every((c) => c.v3));
+  const camera = useMemo(
+    () => (lab?.calls ?? []).map((c) => (rule === "v3" && c.v3 ? c.v3 : c.v2)),
+    [lab, rule]
+  );
   const result = useMemo(() => (truth.length && camera.length ? align(camera, truth) : null), [camera, truth]);
 
   if (lab === undefined) return null;
@@ -70,7 +76,7 @@ export function CalibrationForm() {
       const res = await saveCalibrationRun({
         source: `${lab.source}${result.method === "aligned" ? ", lined up (flatters the camera)" : ""}`,
         hoopLabel: hoop,
-        ruleVersion: lab.ruleVersion,
+        ruleVersion: rule === "v3" && hasV3 ? "v3" : lab.ruleVersion,
         modelVersion: lab.modelVersion,
         shots: result.shots,
         agreed: result.agreed,
@@ -107,8 +113,26 @@ export function CalibrationForm() {
           <span className="text-foreground-dim">{lab.source}</span>
         </p>
         <p className="mt-0.5 text-[11px] text-foreground-mute">
-          {new Date(lab.at).toLocaleString()} · rule {lab.ruleVersion} · {lab.modelVersion}
+          {new Date(lab.at).toLocaleString()} · rule {rule === "v3" && hasV3 ? "v3 (trial)" : lab.ruleVersion} ·{" "}
+          {lab.modelVersion}
         </p>
+        {hasV3 && (
+          <div className="mt-2.5 grid grid-cols-2 gap-1 rounded-lg bg-[var(--raised)] p-1">
+            {(["v2", "v3"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setRule(v)}
+                aria-pressed={rule === v}
+                className={`rounded-md py-1.5 text-[11px] font-extrabold uppercase tracking-wide ${
+                  rule === v ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
+                }`}
+              >
+                {v === "v2" ? "Rule V2" : "Rule V3 (trial)"}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="rounded-2xl border border-line bg-surface p-4">
