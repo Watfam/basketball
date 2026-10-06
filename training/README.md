@@ -475,3 +475,10 @@ list: 32 shots counted, 18 camera makes, right on 28 of 32 (87.5%), 6 flagged ca
 the offline numbers (tools/40 and the app's rule on training/fixtures/dets5-4840.json), so the phone pipeline (HEVC decode,
 1080p window, preprocessing, ONNX Runtime on the phone, the streaming rule) reproduces the offline exam. Still unmeasured:
 live speed and heat over a whole session (the 10-minute soak), and live accuracy on new footage.
+
+### How exactly must the rim be tapped? (2026-10-06)
+Both exam clips re-run with the rim moved up to 20 px (in the 416 px window) each way, scored with the calibration line-up:
+51-58 of 60 right everywhere in that range, against 54 at the centre; moving it up or down usually adds one extra counted
+"shot" per session. So 20 window px is close enough. On a phone the 1080p picture is shown at screen width, where 20 px is
+about 4 points, smaller than a fingertip, which is why aiming felt fiddly: the lab now aims in two steps, a rough tap on the
+picture and a fine tap in a full-width close-up of the window (20 px there is about 20 points), with a ring for the allowance.

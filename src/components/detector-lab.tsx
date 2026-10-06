@@ -55,6 +55,12 @@ const DEFAULT_RIM = { x: 0.5, y: 0.3 };
 const EXAM_RIM = { x: (866 + 192) / 1920, y: (260 + 190) / 1080 };
 /** The last rim tapped, remembered on this phone: the stand rarely moves far. */
 const RIM_KEY = "hl:lab:rim";
+/**
+ * How far off the rim can be, in window pixels, and still count about as
+ * well as dead centre: measured by moving the rim up to 20 px each way on
+ * both exam clips (51-58 of 60 right, against 54 at the centre).
+ */
+const RIM_TOLERANCE = 20;
 
 /** The hoop window that puts the rim where training put it. */
 function ballWindow(frameW: number, frameH: number, rim: { x: number; y: number }): Crop {
@@ -255,6 +261,22 @@ export function DetectorLab() {
   // confirmed, so no early shot is read through a misplaced window.
   const [aiming, setAiming] = useState(false);
   const aimDoneRef = useRef<(() => void) | null>(null);
+  // The hoop window drawn large while aiming. On a phone the whole 1080p
+  // picture is squeezed to the screen's width, so 20 px of the window (as
+  // far off as the rim can be before counting suffers; training/README.md)
+  // is about 4 points on screen, smaller than a fingertip. Shown at full
+  // width, the same 20 px is about 20 points.
+  const zoomRef = useRef<HTMLCanvasElement>(null);
+  /** Move the rim by whole camera pixels, from the zoomed view or the arrows. */
+  const moveRimBy = (dx: number, dy: number) => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return;
+    const cur = rimRef.current;
+    setRim({
+      x: Math.min(1, Math.max(0, cur.x + dx / v.videoWidth)),
+      y: Math.min(1, Math.max(0, cur.y + dy / v.videoHeight)),
+    });
+  };
   const [shots, setShots] = useState<{ shots: number; makes: number; last: ShotCall | null } | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -477,7 +499,7 @@ export function DetectorLab() {
         wctx.fill();
         still = wctx.getImageData(0, 0, work.width, work.height);
       }
-      const startedAt = performance.now();
+      let startedAt = performance.now();
       const frameMs: number[] = [];
       const inferMs: number[] = [];
       const ballFrames: boolean[] = [];
@@ -531,9 +553,12 @@ export function DetectorLab() {
 
       setPhase("running");
 
-      if (exactClip) {
+      // The ball model reads only the hoop window, so it is aimed before any
+      // counting starts: a clip waits on its first frame, the live camera
+      // keeps playing.
+      if (windowed && useCamera) {
         mark("Aiming at the rim");
-        await seekTo(0.5 / REFERENCE_FPS);
+        if (exactClip) await seekTo(0.5 / REFERENCE_FPS);
         let confirmed = false;
         aimDoneRef.current = () => {
           confirmed = true;
@@ -553,10 +578,37 @@ export function DetectorLab() {
           octx.moveTo(rx, ry - 12);
           octx.lineTo(rx, ry + 12);
           octx.stroke();
-          await new Promise((res) => setTimeout(res, 100));
+
+          const zoom = zoomRef.current;
+          const zctx = zoom?.getContext("2d");
+          if (zoom && zctx) {
+            const k = zoom.width / crop.sw;
+            zctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, zoom.width, zoom.height);
+            const zx = RIM_IN_WINDOW.x * k;
+            const zy = RIM_IN_WINDOW.y * k;
+            // The ring is the measured allowance: anywhere inside it counts as well as dead centre.
+            zctx.strokeStyle = "rgba(255,255,255,0.45)";
+            zctx.lineWidth = 2;
+            zctx.beginPath();
+            zctx.arc(zx, zy, RIM_TOLERANCE * k, 0, Math.PI * 2);
+            zctx.stroke();
+            zctx.strokeStyle = "#ff6a1a";
+            zctx.lineWidth = 3;
+            zctx.beginPath();
+            zctx.moveTo(zx - 18, zy);
+            zctx.lineTo(zx + 18, zy);
+            zctx.moveTo(zx, zy - 18);
+            zctx.lineTo(zx, zy + 18);
+            zctx.stroke();
+          }
+          await new Promise((res) => setTimeout(res, 66));
         }
         aimDoneRef.current = null;
         setAiming(false);
+        // Time spent aiming isn't part of the run being measured.
+        startedAt = performance.now();
+        segStart = startedAt;
+        lastPaint = 0;
       }
 
       mark("Running, first frame");
@@ -776,30 +828,75 @@ export function DetectorLab() {
           </p>
         )}
         {aiming && (
-          <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-md bg-black/70 p-2">
-            <p className="flex-1 text-[11px] leading-snug text-white/90">
-              Tap the front of the rim so the cross sits on it.
-            </p>
-            <button
-              type="button"
-              onClick={() => setRim(EXAM_RIM)}
-              className="rounded-md border border-white/40 px-2 py-1.5 text-[10px] font-extrabold uppercase text-white"
-            >
-              Exam clips
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                haptic("tap");
-                aimDoneRef.current?.();
-              }}
-              className="rounded-md bg-accent px-3 py-1.5 text-[10px] font-extrabold uppercase text-white"
-            >
-              Start counting
-            </button>
-          </div>
+          <p className="absolute bottom-2 left-2 right-2 rounded-md bg-black/60 px-2 py-1 text-center text-[11px] text-white/90">
+            1. Tap the hoop here to bring it into the square.
+          </p>
         )}
       </div>
+
+      {aiming && (
+        <section className="space-y-3 rounded-2xl border border-accent bg-surface p-3">
+          <p className="text-xs font-semibold text-foreground">
+            2. Fine-tune: tap the front of the rim in this close-up. Anywhere inside the ring is close enough.
+          </p>
+          <canvas
+            ref={zoomRef}
+            width={BALL_WINDOW}
+            height={BALL_WINDOW}
+            className="block aspect-square w-full touch-none rounded-xl bg-black"
+            onPointerDown={(e) => {
+              // A tap in the close-up moves the rim to that spot: the
+              // difference from the cross, in camera pixels.
+              const rect = e.currentTarget.getBoundingClientRect();
+              const k = BALL_WINDOW / rect.width;
+              moveRimBy((e.clientX - rect.left) * k - RIM_IN_WINDOW.x, (e.clientY - rect.top) * k - RIM_IN_WINDOW.y);
+              haptic("tap");
+            }}
+          />
+          <div className="flex items-center gap-2">
+            {(
+              [
+                ["←", -2, 0, "Left"],
+                ["↑", 0, -2, "Up"],
+                ["↓", 0, 2, "Down"],
+                ["→", 2, 0, "Right"],
+              ] as const
+            ).map(([arrow, dx, dy, name]) => (
+              <button
+                key={name}
+                type="button"
+                aria-label={`Nudge ${name.toLowerCase()}`}
+                onClick={() => {
+                  haptic("tap");
+                  moveRimBy(dx, dy);
+                }}
+                className="h-10 w-10 rounded-lg border border-line text-base font-extrabold text-foreground-dim"
+              >
+                {arrow}
+              </button>
+            ))}
+            {source === "file" && (
+              <button
+                type="button"
+                onClick={() => setRim(EXAM_RIM)}
+                className="ml-auto rounded-lg border border-line px-2.5 py-2 text-[10px] font-extrabold uppercase text-foreground-dim"
+              >
+                Exam clips
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              haptic("tap");
+              aimDoneRef.current?.();
+            }}
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+          >
+            Start counting
+          </button>
+        </section>
+      )}
 
       {report && (
         <section ref={reportRef} className="scroll-mt-4 space-y-4 rounded-2xl border border-accent bg-surface p-4">
