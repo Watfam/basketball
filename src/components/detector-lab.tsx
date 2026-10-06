@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COCO_SPORTS_BALL, createDetector, nextVideoFrame, yieldToMain, type Backend, type Detector } from "@/lib/vision/detector";
+import { createDetector, nextVideoFrame, yieldToMain, type Backend, type Detector, type ModelId } from "@/lib/vision/detector";
+import { boxToFrame, cropAround, type Crop } from "@/lib/vision/roi";
+import { REFERENCE_FPS, createShotCounter, type ShotCall } from "@/lib/vision/shotRules";
+import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
 import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
@@ -32,6 +35,33 @@ const FPS_CAPS = [
   { label: "20 fps", fps: 20 },
 ] as const;
 
+/**
+ * The ball model was trained on 416 px windows cut from native 1080p
+ * video, with the rim at about (192, 190) inside the window
+ * (training/README.md, the exam clips). It must be fed the same: a window
+ * at full resolution, not a shrunk whole frame, or every ball is a third
+ * smaller than anything it learned from.
+ */
+const BALL_WINDOW = 416;
+const RIM_IN_WINDOW = { x: 192, y: 190 } as const;
+/** Where the rim starts, as a fraction of the frame, until it is tapped. */
+const DEFAULT_RIM = { x: 0.5, y: 0.3 };
+/** Where the rim is on the exam clips (window at 866,260 of 1920x1080, rim at 192,190 in it). */
+const EXAM_RIM = { x: (866 + 192) / 1920, y: (260 + 190) / 1080 };
+/** The last rim tapped, remembered on this phone: the stand rarely moves far. */
+const RIM_KEY = "hl:lab:rim";
+
+/** The hoop window that puts the rim where training put it. */
+function ballWindow(frameW: number, frameH: number, rim: { x: number; y: number }): Crop {
+  return cropAround(
+    frameW,
+    frameH,
+    rim.x * frameW - RIM_IN_WINDOW.x + BALL_WINDOW / 2,
+    rim.y * frameH - RIM_IN_WINDOW.y + BALL_WINDOW / 2,
+    BALL_WINDOW
+  );
+}
+
 type Source = "camera" | "file";
 /** What a run exercises: lets a crash be pinned on the camera or the model. */
 type TestMode = "all" | "camera" | "model";
@@ -55,6 +85,9 @@ type Report = {
   /** Which GPU buffer strategy the detector used. */
   io?: string;
   backend: Backend;
+  model?: ModelId;
+  /** Ball model only: shots and V2 makes counted by the make/miss rule. */
+  shots?: { shots: number; makes: number };
   source: Source;
   video: string;
   segments: Segment[];
@@ -100,13 +133,14 @@ function upsertRun(report: Report) {
 
 function reportText(report: Report) {
   return [
-    `Detector lab — ${report.backend} — ${report.source} — test: ${report.test ?? "all"} — ${new Date(report.at).toLocaleString()}${
+    `Detector lab — ${report.backend} — ${report.model === "ball" ? "ball model" : "stock model"} — ${report.source} — test: ${report.test ?? "all"} — ${new Date(report.at).toLocaleString()}${
       report.partial ? " — CUT OFF before finishing" : ""
     }`,
     `Device: ${navigator.userAgent}`,
     `Video: ${report.video}   Model load: ${fmt(report.loadMs, 0)} ms`,
     `Frames: ${report.frames}   Average: ${fmt(report.avgFps)} fps   Slowest 5%: ${fmt(report.p95Ms, 0)} ms`,
     `Frames with a ball: ${fmt(report.ballPct, 0)}%`,
+    ...(report.shots ? [`Shots counted: ${report.shots.shots}, makes (rule V2): ${report.shots.makes}`] : []),
     `Frame limit: ${report.cap ? `${report.cap} fps` : "none"}`,
     `Screen: ${report.screen ?? "not recorded"}`,
     `GPU buffers: ${report.io ?? "not recorded"}`,
@@ -191,8 +225,32 @@ export function DetectorLab() {
   const [source, setSource] = useState<Source>("camera");
   const [testMode, setTestMode] = useState<TestMode>("all");
   const [recycle, setRecycle] = useState(false);
+  // Saved clip with the ball model: step through every frame (what the
+  // offline exam did), or play in real time (what a slow phone would see).
+  const [everyFrame, setEveryFrame] = useState(true);
   const [capIdx, setCapIdx] = useState(1);
   const [threads, setThreads] = useState(1);
+  const [model, setModel] = useState<ModelId>("coco");
+  // Where the rim is, as a fraction of the frame. A ref as well, because a
+  // tap during a run must move the window without restarting it.
+  const rimRef = useRef(DEFAULT_RIM);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(readDraft(RIM_KEY) ?? "null") as { x: number; y: number } | null;
+      if (saved && saved.x >= 0 && saved.x <= 1 && saved.y >= 0 && saved.y <= 1) rimRef.current = saved;
+    } catch {
+      // Nothing usable saved; the default stands.
+    }
+  }, []);
+  const setRim = (rim: { x: number; y: number }) => {
+    rimRef.current = rim;
+    writeDraft(RIM_KEY, JSON.stringify(rim));
+  };
+  // Every-frame clips start paused on their first frame until the rim is
+  // confirmed, so no early shot is read through a misplaced window.
+  const [aiming, setAiming] = useState(false);
+  const aimDoneRef = useRef<(() => void) | null>(null);
+  const [shots, setShots] = useState<{ shots: number; makes: number; last: ShotCall | null } | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [live, setLive] = useState<{ fps: number; ms: number; ball: boolean; elapsed: number } | null>(null);
@@ -253,6 +311,7 @@ export function DetectorLab() {
     setReport(null);
     setMessage(null);
     setLive(null);
+    setShots(null);
     setPhase("loading");
     const mark = (step: string) => markStep(backend, source, `${testMode}: ${step}`);
     mark("Starting");
@@ -260,7 +319,9 @@ export function DetectorLab() {
     const video = videoRef.current;
     const overlay = overlayRef.current;
     if (!video || !overlay) return;
-    const runSeconds = DURATIONS[durationIdx].seconds;
+    // A whole clip, frame by frame, runs until the clip ends instead.
+    const exactClip = model === "ball" && source === "file" && testMode !== "model" && Boolean(file) && everyFrame;
+    const runSeconds = exactClip ? Number.POSITIVE_INFINITY : DURATIONS[durationIdx].seconds;
     const segmentSeconds = DURATIONS[durationIdx].segment;
 
     const runStartedMs = performance.now();
@@ -288,6 +349,7 @@ export function DetectorLab() {
       if (useModel) detector = await createDetector(backend, (step) => mark(step), {
           recycleAfter: recycle ? RECYCLE_FRAMES : 0,
           threads,
+          model,
           onEvent: (text) => logEvent(runStartedMs, text),
         });
       const loadMs = performance.now() - loadStart;
@@ -298,8 +360,9 @@ export function DetectorLab() {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: "environment" },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            // The ball model needs native 1080p (see BALL_WINDOW).
+            width: { ideal: model === "ball" ? 1920 : 1280 },
+            height: { ideal: model === "ball" ? 1080 : 720 },
             frameRate: { ideal: 60 },
           },
           audio: false,
@@ -319,21 +382,80 @@ export function DetectorLab() {
       if (video.videoWidth === 0) throw new Error("The video has no picture to read.");
       }
 
+      const windowed = model === "ball";
       const work = document.createElement("canvas");
-      work.width = WORK_WIDTH;
-      work.height = useCamera
-        ? Math.round((WORK_WIDTH * video.videoHeight) / video.videoWidth)
-        : Math.round((WORK_WIDTH * 9) / 16);
+      work.width = windowed ? BALL_WINDOW : WORK_WIDTH;
+      work.height = windowed
+        ? BALL_WINDOW
+        : useCamera
+          ? Math.round((WORK_WIDTH * video.videoHeight) / video.videoWidth)
+          : Math.round((WORK_WIDTH * 9) / 16);
       const wctx = work.getContext("2d", { willReadFrequently: true });
       const octx = overlay.getContext("2d");
       if (!wctx || !octx) throw new Error("Canvas isn't available in this browser.");
-      overlay.width = work.width;
-      overlay.height = work.height;
+      // The overlay covers the whole picture; boxes found in a hoop window
+      // are moved back to whole-frame positions before drawing.
+      overlay.width = WORK_WIDTH;
+      overlay.height = useCamera
+        ? Math.round((WORK_WIDTH * video.videoHeight) / video.videoWidth)
+        : Math.round((WORK_WIDTH * work.height) / work.width);
+      const toOverlay = useCamera ? overlay.width / video.videoWidth : overlay.width / work.width;
 
       const runAt = runStartIso;
+      const short1080 = windowed && useCamera && video.videoHeight < 1080;
       const videoLabel = useCamera
-        ? `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`
+        ? windowed
+          ? `${video.videoWidth}×${video.videoHeight}, ${BALL_WINDOW} px hoop window at full resolution${
+              short1080 ? " (NOT 1080p: balls look smaller than in training, results not comparable)" : ""
+            }`
+          : `${video.videoWidth}×${video.videoHeight} → ${work.width}×${work.height}`
         : `no camera: a fixed ${work.width}×${work.height} picture`;
+      if (short1080) note(`camera gave ${video.videoWidth}x${video.videoHeight}, not 1080p`);
+
+      // The make/miss rule, fed every frame the ball model sees. A saved
+      // clip is timed by its own clock, so a slow phone gets the same frame
+      // numbers the offline tools used; it restarts when the clip loops.
+      let counter = windowed ? createShotCounter(RIM_IN_WINDOW) : null;
+      let clipTimeMs = -1;
+      let shotsRun = { shots: 0, makes: 0 };
+      const runCalls: LabCalls["calls"] = [];
+      const takeCalls = (calls: ShotCall[]) => {
+        for (const c of calls) {
+          if (!c.counted) continue;
+          shotsRun = { shots: shotsRun.shots + 1, makes: shotsRun.makes + (c.v2 === "make" ? 1 : 0) };
+          runCalls.push({ v1: c.v1, v2: c.v2, flagged: c.flagged, atMs: Math.round(c.firstMs) });
+          setShots({ ...shotsRun, last: c });
+        }
+      };
+      /** One pass is one set: count what is still open, keep the calls, stop counting. */
+      const finishCounting = () => {
+        if (!counter) return;
+        takeCalls(counter.flush());
+        counter = null;
+        saveLabCalls({
+          at: runAt,
+          source:
+            source === "file" && file
+              ? `${file.name}, ${exactClip ? "every frame" : "real time"}`
+              : "live camera",
+          ruleVersion: RULE_VERSION,
+          modelVersion: MODEL_VERSION,
+          calls: runCalls,
+        });
+      };
+      // Every-frame mode: the clip is stepped by seeking, not played.
+      let frameIdx = 0;
+      const clipFrames = exactClip ? Math.floor(video.duration * REFERENCE_FPS) : 0;
+      if (exactClip) {
+        video.pause();
+        video.loop = false;
+      }
+      const seekTo = (t: number) =>
+        new Promise<void>((resolve) => {
+          const done = () => resolve();
+          video.addEventListener("seeked", done, { once: true });
+          video.currentTime = t;
+        });
 
       // Model-only runs feed the same still picture every frame, so any
       // problem found can't be blamed on the camera.
@@ -387,6 +509,8 @@ export function DetectorLab() {
         source,
         video: videoLabel,
         segments: [...segments],
+        model,
+        ...(windowed ? { shots: { ...shotsRun } } : {}),
         frames: frameMs.length,
         avgFps: frameMs.length / Math.max(0.001, (now - startedAt) / 1000),
         p95Ms: percentile(frameMs, 0.95),
@@ -401,6 +525,35 @@ export function DetectorLab() {
       };
 
       setPhase("running");
+
+      if (exactClip) {
+        mark("Aiming at the rim");
+        await seekTo(0.5 / REFERENCE_FPS);
+        let confirmed = false;
+        aimDoneRef.current = () => {
+          confirmed = true;
+        };
+        setAiming(true);
+        while (!confirmed && !stopped) {
+          const crop = ballWindow(video.videoWidth, video.videoHeight, rimRef.current);
+          octx.clearRect(0, 0, overlay.width, overlay.height);
+          octx.strokeStyle = "rgba(255,255,255,0.9)";
+          octx.lineWidth = 2;
+          octx.strokeRect(crop.sx * toOverlay, crop.sy * toOverlay, crop.sw * toOverlay, crop.sh * toOverlay);
+          const rx = (crop.sx + RIM_IN_WINDOW.x) * toOverlay;
+          const ry = (crop.sy + RIM_IN_WINDOW.y) * toOverlay;
+          octx.beginPath();
+          octx.moveTo(rx - 12, ry);
+          octx.lineTo(rx + 12, ry);
+          octx.moveTo(rx, ry - 12);
+          octx.lineTo(rx, ry + 12);
+          octx.stroke();
+          await new Promise((res) => setTimeout(res, 100));
+        }
+        aimDoneRef.current = null;
+        setAiming(false);
+      }
+
       mark("Running, first frame");
       let lastMark = 0;
 
@@ -408,20 +561,48 @@ export function DetectorLab() {
         const frameStart = performance.now();
         const elapsed = (frameStart - startedAt) / 1000;
         if (elapsed >= runSeconds) break;
+        if (exactClip) {
+          if (frameIdx >= clipFrames) break;
+          // The middle of the frame, so rounding never lands on a neighbour.
+          await seekTo((frameIdx + 0.5) / REFERENCE_FPS);
+        }
 
         let img: ImageData;
-        if (useCamera) {
+        let crop: Crop | null = null;
+        if (useCamera && windowed) {
+          // Only the window's pixels are read: 416x416 instead of a whole frame.
+          crop = ballWindow(video.videoWidth, video.videoHeight, rimRef.current);
+          wctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, work.width, work.height);
+          img = wctx.getImageData(0, 0, work.width, work.height);
+        } else if (useCamera) {
           wctx.drawImage(video, 0, 0, work.width, work.height);
           img = wctx.getImageData(0, 0, work.width, work.height);
         } else {
           img = still as ImageData;
         }
+        const frameClipMs = exactClip
+          ? (frameIdx * 1000) / REFERENCE_FPS
+          : source === "file" && useCamera
+            ? video.currentTime * 1000
+            : frameStart;
         const { detections, timings } = detector
           ? await detector.detect(img)
           : { detections: [], timings: { prepMs: 0, inferMs: 0, postMs: 0 } };
 
         const total = performance.now() - frameStart;
-        const hasBall = detections.some((d) => d.classId === COCO_SPORTS_BALL);
+        const ballClass = detector?.ballClass ?? -1;
+        const balls = detections.filter((d) => d.classId === ballClass);
+        const hasBall = balls.length > 0;
+        if (counter) {
+          if (frameClipMs < clipTimeMs) {
+            // The clip looped: that pass was the set. Counting it twice
+            // would double every shot.
+            finishCounting();
+          } else {
+            clipTimeMs = frameClipMs;
+            takeCalls(counter.push(frameClipMs, balls));
+          }
+        }
         frameMs.push(total);
         inferMs.push(timings.inferMs);
         ballFrames.push(hasBall);
@@ -447,8 +628,24 @@ export function DetectorLab() {
           octx.clearRect(0, 0, overlay.width, overlay.height);
           octx.lineWidth = 3;
           for (const d of detections) {
-            octx.strokeStyle = d.classId === COCO_SPORTS_BALL ? "#ff6a1a" : "#22d3ee";
-            octx.strokeRect(d.x1, d.y1, d.x2 - d.x1, d.y2 - d.y1);
+            const b = crop ? boxToFrame(d, crop, work.width) : d;
+            const k = crop ? toOverlay : overlay.width / work.width;
+            octx.strokeStyle = d.classId === ballClass ? "#ff6a1a" : "#22d3ee";
+            octx.strokeRect(b.x1 * k, b.y1 * k, (b.x2 - b.x1) * k, (b.y2 - b.y1) * k);
+          }
+          if (crop) {
+            // The window the model sees, and the rim it is counting on.
+            octx.strokeStyle = "rgba(255,255,255,0.7)";
+            octx.lineWidth = 1.5;
+            octx.strokeRect(crop.sx * toOverlay, crop.sy * toOverlay, crop.sw * toOverlay, crop.sh * toOverlay);
+            const rx = (crop.sx + RIM_IN_WINDOW.x) * toOverlay;
+            const ry = (crop.sy + RIM_IN_WINDOW.y) * toOverlay;
+            octx.beginPath();
+            octx.moveTo(rx - 10, ry);
+            octx.lineTo(rx + 10, ry);
+            octx.moveTo(rx, ry - 10);
+            octx.lineTo(rx, ry + 10);
+            octx.stroke();
           }
           const recent = frameMs.slice(-20);
           const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
@@ -461,7 +658,10 @@ export function DetectorLab() {
         // instead of overshooting it by up to a frame.
         const capFps = FPS_CAPS[capIdx].fps;
         const due = frameStart + (capFps > 0 ? 1000 / capFps : 0);
-        if (useCamera) {
+        if (exactClip) {
+          frameIdx += 1;
+          await yieldToMain();
+        } else if (useCamera) {
           do {
             await nextVideoFrame(video);
           } while (performance.now() < due - 6 && !stopped);
@@ -471,6 +671,7 @@ export function DetectorLab() {
         }
       }
 
+      finishCounting();
       const endedAt = performance.now();
       closeSegment(endedAt);
 
@@ -536,7 +737,17 @@ export function DetectorLab() {
     <div className="space-y-5">
       <div className="relative overflow-hidden rounded-2xl border border-line bg-black">
         <video ref={videoRef} playsInline muted className="block w-full" />
-        <canvas ref={overlayRef} className="absolute inset-0 h-full w-full" />
+        <canvas
+          ref={overlayRef}
+          className="absolute inset-0 h-full w-full"
+          onPointerDown={(e) => {
+            // Ball model: tap the rim and the hoop window follows it.
+            if (model !== "ball" || phase !== "running") return;
+            const r = e.currentTarget.getBoundingClientRect();
+            setRim({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
+            haptic("tap");
+          }}
+        />
         {phase !== "running" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 px-6 text-center text-sm text-white/80">
             {phase === "loading" ? "Loading the model…" : "The camera picture appears here."}
@@ -546,6 +757,41 @@ export function DetectorLab() {
           <div className="absolute left-2 top-2 rounded-md bg-black/70 px-2 py-1 text-[11px] font-bold tabular-nums text-white">
             {fmt(live.fps, 0)} fps · {fmt(live.ms, 0)} ms · {Math.floor(live.elapsed)}s
             {live.ball ? " · ball" : ""}
+          </div>
+        )}
+        {shots && (
+          <div className="absolute right-2 top-2 rounded-md bg-black/70 px-2 py-1 text-right text-[11px] font-bold tabular-nums text-white">
+            {shots.makes}/{shots.shots} made
+            {shots.last ? ` · last: ${shots.last.v2}` : ""}
+          </div>
+        )}
+        {model === "ball" && phase === "running" && !aiming && (
+          <p className="absolute bottom-2 left-2 right-2 rounded-md bg-black/60 px-2 py-1 text-center text-[11px] text-white/85">
+            Tap the front of the rim to aim the window at it.
+          </p>
+        )}
+        {aiming && (
+          <div className="absolute bottom-2 left-2 right-2 flex items-center gap-2 rounded-md bg-black/70 p-2">
+            <p className="flex-1 text-[11px] leading-snug text-white/90">
+              Tap the front of the rim so the cross sits on it.
+            </p>
+            <button
+              type="button"
+              onClick={() => setRim(EXAM_RIM)}
+              className="rounded-md border border-white/40 px-2 py-1.5 text-[10px] font-extrabold uppercase text-white"
+            >
+              Exam clips
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                haptic("tap");
+                aimDoneRef.current?.();
+              }}
+              className="rounded-md bg-accent px-3 py-1.5 text-[10px] font-extrabold uppercase text-white"
+            >
+              Start counting
+            </button>
           </div>
         )}
       </div>
@@ -662,6 +908,23 @@ export function DetectorLab() {
         </div>
 
         <div className="grid grid-cols-2 gap-2">
+          {(["coco", "ball"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              disabled={busy}
+              onClick={() => setModel(m)}
+              aria-pressed={model === m}
+              className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                model === m ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+              }`}
+            >
+              {m === "coco" ? "Stock model" : "Our ball model"}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
           {(["camera", "file"] as const).map((s) => (
             <button
               key={s}
@@ -773,10 +1036,31 @@ export function DetectorLab() {
           ))}
         </div>
 
+        {source === "file" && testMode !== "model" && model === "ball" && (
+          <div className="grid grid-cols-2 gap-2">
+            {[true, false].map((v) => (
+              <button
+                key={String(v)}
+                type="button"
+                disabled={busy}
+                onClick={() => setEveryFrame(v)}
+                aria-pressed={everyFrame === v}
+                className={`rounded-lg border px-3 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-colors disabled:opacity-50 ${
+                  everyFrame === v ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+                }`}
+              >
+                {v ? "Every frame (exact)" : "Real time"}
+              </button>
+            ))}
+          </div>
+        )}
+
         {source === "file" && testMode !== "model" && !busy && (
           <label className="block">
             <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-              Choose a video, then it runs for {DURATIONS[durationIdx].seconds}s
+              {model === "ball" && everyFrame
+                ? "Choose a video: every frame is read, to the end of the clip (slower than real time)"
+                : `Choose a video, then it runs for ${DURATIONS[durationIdx].seconds}s`}
             </span>
             <input
               type="file"

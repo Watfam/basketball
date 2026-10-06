@@ -14,7 +14,7 @@ import { ProgramPanel } from "@/components/program-panel";
 import { CombinePrompt } from "@/components/combine-prompt";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
 import { PlayerHubTabs } from "@/components/player-hub-tabs";
-import { formatPercentage, percentage } from "@/lib/basketball/shooting";
+import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import {
   computeProgramProgress,
   rankPrograms,
@@ -78,6 +78,7 @@ export default async function PlayerHubPage({
     { data: filmRows },
     { data: filmViewRows },
     { data: lastShotRows },
+    { data: seasonShotRows },
   ] = await Promise.all([
     supabase.auth.getUser(),
     // RLS scopes this to players in the current user's household — see
@@ -166,9 +167,20 @@ export default async function PlayerHubPage({
       .select("label, started_at, makes, attempts")
       .eq("player_id", playerId)
       .not("ended_at", "is", null)
+      .is("deleted_at", null)
       .gt("attempts", 0)
       .order("started_at", { ascending: false })
       .limit(1),
+    // This season's sessions, for the card's season make %.
+    supabase
+      .schema("hoops")
+      .from("shot_sessions")
+      .select("label, started_at, makes, attempts")
+      .eq("player_id", playerId)
+      .not("ended_at", "is", null)
+      .is("deleted_at", null)
+      .gte("started_at", seasonStart().toISOString())
+      .limit(1000),
   ]);
 
   if (!user) redirect("/login");
@@ -333,6 +345,8 @@ export default async function PlayerHubPage({
     | { label: string | null; started_at: string; makes: number; attempts: number }
     | undefined;
 
+  const seasonShots = totalSessions(seasonShotRows ?? []);
+
   const milestones = buildMilestones(totalCompleted, streakWeeks);
   const quote = randomQuote();
 
@@ -344,7 +358,7 @@ export default async function PlayerHubPage({
             href="/"
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
-            ← Players
+            Switch player
           </Link>
           <Link
             href={`/players/${playerId}/sessions`}
@@ -507,6 +521,8 @@ export default async function PlayerHubPage({
                     </p>
                     <p className="mt-1.5 text-xs text-foreground-dim">
                       Last: {lastShot.label?.trim() || "Shooting session"}
+                      {seasonShots.attempts > 0 &&
+                        ` · Season ${formatPercentage(seasonShots.pct)}, ${seasonShots.makes} of ${seasonShots.attempts}`}
                     </p>
                   </>
                 ) : (

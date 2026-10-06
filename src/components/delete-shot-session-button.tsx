@@ -16,7 +16,7 @@ export function DeleteShotSessionButton({
   const [pending, startTransition] = useTransition();
 
   function remove() {
-    if (!window.confirm("Delete this session? This can't be undone.")) return;
+    if (!window.confirm("Delete this session? It leaves your totals now; you can undo for a few seconds.")) return;
     haptic("tap");
     startTransition(async () => {
       const result = await deleteShotSession(sessionId, playerId);
@@ -24,7 +24,8 @@ export function DeleteShotSessionButton({
         window.alert(result.error);
         return;
       }
-      router.push(`/players/${playerId}/shooting`);
+      // The history page offers Undo for it.
+      router.push(`/players/${playerId}/shooting?deleted=${sessionId}`);
     });
   }
 

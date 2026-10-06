@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { syncShotSession, deleteShotSession } from "@/app/actions";
 import {
@@ -13,6 +14,16 @@ import {
   type Shot,
   type ZoneKey,
 } from "@/lib/basketball/shooting";
+import {
+  GOAL_KINDS,
+  clampGoal,
+  describeGoal,
+  goalSpec,
+  goalState,
+  parseGoal,
+  type Goal,
+  type GoalKind,
+} from "@/lib/basketball/goals";
 import { primeAlerts, blipShot } from "@/lib/alerts";
 import { haptic } from "@/lib/haptics";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
@@ -37,6 +48,13 @@ type Draft = {
   shots: Shot[];
   /** Sticky: stays on the last chosen spot until changed. */
   zone: ZoneKey | null;
+  /**
+   * What ends the set (src/lib/basketball/goals.ts); it saves itself the
+   * moment the goal is reached. Null: no goal, ended by hand.
+   */
+  goal?: Goal | null;
+  /** Drafts from the first version of this, which only counted shots. */
+  stopAt?: number | null;
   /** Bumped on every edit; a session is synced once syncedRev catches up. */
   rev: number;
   syncedRev: number;
@@ -45,6 +63,35 @@ type Draft = {
 type SyncState = "saved" | "saving" | "offline";
 
 const SOUND_KEY = "hl:shots:sound";
+const GOAL_KEY = "hl:shots:goal";
+/** The first version stored only a shot count, here. */
+const LEGACY_STOP_AT_KEY = "hl:shots:stopAt";
+const recentKey = (playerId: string) => `hl:shots:${playerId}:recent`;
+/** How many recent setups are offered as one-tap starts. */
+const MAX_RECENT = 4;
+
+type Setup = { label: string; goal: Goal | null };
+
+function draftGoal(d: Draft): Goal | null {
+  if (d.goal) return parseGoal(d.goal);
+  return d.stopAt ? { kind: "shots", target: d.stopAt } : null;
+}
+
+function parseRecent(raw: string | null): Setup[] {
+  try {
+    const list = JSON.parse(raw ?? "[]") as { label?: unknown; goal?: unknown }[];
+    return Array.isArray(list)
+      ? list
+          .filter((x) => typeof x?.label === "string")
+          .map((x) => ({ label: x.label as string, goal: parseGoal(x.goal) }))
+          .slice(0, MAX_RECENT)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+const setupKey = (s: Setup) => `${s.label.trim().toLowerCase()}|${s.goal ? describeGoal(s.goal) : ""}`;
 const draftKey = (playerId: string) => `hl:shots:${playerId}:draft`;
 
 const DEFAULT_LABELS = [
@@ -71,11 +118,14 @@ export function ShootingHub({
   playerId,
   playerName,
   suggestedLabels,
+  averages = {},
   children,
 }: {
   playerId: string;
   playerName: string;
   suggestedLabels: string[];
+  /** Make % per label over saved sessions, for the summary's comparison. */
+  averages?: Record<string, { pct: number; sessions: number }>;
   /** The saved-session history, rendered on the server and shown while idle. */
   children: React.ReactNode;
 }) {
@@ -86,6 +136,23 @@ export function ShootingHub({
   const draft = useMemo(() => parseDraft(raw), [raw]);
   const [soundRaw, setSoundRaw] = useLocalDraft(SOUND_KEY);
   const sound = soundRaw === "on";
+  // Remembered between sessions: the same set size is the usual habit.
+  const [goalRaw, setGoalRaw] = useLocalDraft(GOAL_KEY);
+  const [legacyStopAt] = useLocalDraft(LEGACY_STOP_AT_KEY);
+  const goal: Goal | null = useMemo(() => {
+    if (goalRaw === "none") return null;
+    try {
+      const g = parseGoal(JSON.parse(goalRaw ?? "null"));
+      if (g) return g;
+    } catch {
+      // Fall through to the old setting.
+    }
+    const n = Number(legacyStopAt);
+    return n > 0 ? clampGoal({ kind: "shots", target: n }) : null;
+  }, [goalRaw, legacyStopAt]);
+  const setGoal = (g: Goal | null) => setGoalRaw(g ? JSON.stringify(clampGoal(g)) : "none");
+  const [recentRaw, setRecentRaw] = useLocalDraft(recentKey(playerId));
+  const recent = useMemo(() => parseRecent(recentRaw), [recentRaw]);
 
   const [labelInput, setLabelInput] = useState("");
   const [syncState, setSyncState] = useState<SyncState>("saved");
@@ -96,6 +163,7 @@ export function ShootingHub({
     shots: Shot[];
     startedAt: string;
     endedAt: string;
+    goal: Goal | null;
   } | null>(null);
 
   const inFlight = useRef(false);
@@ -133,6 +201,13 @@ export function ShootingHub({
           label: d.label || null,
           startedAt: d.startedAt,
           ended,
+          goal: (() => {
+            const g = draftGoal(d);
+            if (!g) return null;
+            // A streak that ran into the 100-shot cap ended, but wasn't reached.
+            const state = goalState(g, d.shots, Date.now() - Date.parse(d.startedAt));
+            return { kind: g.kind, target: g.target, reached: state.reached && !state.capped };
+          })(),
           shots: d.shots.map((s) => ({
             seq: s.seq,
             made: s.made,
@@ -192,7 +267,14 @@ export function ShootingHub({
     };
   }, [hasDraft, key, runSync]);
 
-  function start(label: string) {
+  function start(label: string, chosen: Goal | null = goal) {
+    // Remembered as a one-tap start for next time, newest first.
+    const setup: Setup = { label: label.trim(), goal: chosen };
+    if (setup.label || setup.goal) {
+      setRecentRaw(
+        JSON.stringify([setup, ...recent.filter((x) => setupKey(x) !== setupKey(setup))].slice(0, MAX_RECENT))
+      );
+    }
     primeAlerts();
     haptic("tap");
     setError(null);
@@ -206,6 +288,7 @@ export function ShootingHub({
         startedAt: new Date().toISOString(),
         shots: [],
         zone: null,
+        goal: chosen,
         rev: 1,
         syncedRev: 0,
       } satisfies Draft)
@@ -264,6 +347,7 @@ export function ShootingHub({
       shots: snapshot.shots,
       startedAt: snapshot.startedAt,
       endedAt: new Date().toISOString(),
+      goal: draftGoal(snapshot),
     });
     writeDraft(key, null);
     setEnding(false);
@@ -284,6 +368,35 @@ export function ShootingHub({
     }
   }
 
+  // A time goal needs a clock that ticks without any taps.
+  const activeGoal = draft ? draftGoal(draft) : null;
+  const [now, setNow] = useState(() => Date.now());
+  const timed = activeGoal?.kind === "time";
+  useEffect(() => {
+    if (!timed) return;
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [timed]);
+  const progress =
+    draft && activeGoal ? goalState(activeGoal, draft.shots, Math.max(0, now - Date.parse(draft.startedAt))) : null;
+
+  // The goal is reached: save the set at once. A ref keeps it to one
+  // attempt per set; an Undo back below the goal arms it again. A set with
+  // no shots (time ran out first) is left for the player to discard.
+  const reachedStop = Boolean(progress?.reached && draft && draft.shots.length > 0);
+  const autoFinished = useRef(false);
+  useEffect(() => {
+    if (!reachedStop) {
+      autoFinished.current = false;
+      return;
+    }
+    if (autoFinished.current || ending) return;
+    autoFinished.current = true;
+    void finish();
+    // finish reads everything it needs from storage, not from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reachedStop, ending]);
+
   // ---- Just finished: the summary --------------------------------------
   if (finished) {
     return (
@@ -292,18 +405,20 @@ export function ShootingHub({
           <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
             Session saved
           </p>
+          {finished.goal && <GoalResult goal={finished.goal} finished={finished} />}
           <div className="mt-4 flex-1">
             <SessionSummary
               label={finished.label}
               startedAt={finished.startedAt}
               endedAt={finished.endedAt}
               shots={finished.shots}
+              average={averages[finished.label?.trim() || ""] ?? null}
             />
           </div>
           <div className="mt-8 flex gap-2.5">
             <button
               type="button"
-              onClick={() => start(finished.label ?? "")}
+              onClick={() => start(finished.label ?? "", finished.goal)}
               className="flex-1 rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-white"
             >
               Shoot again
@@ -367,7 +482,22 @@ export function ShootingHub({
 
           <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
             {draft.label || "Shooting session"} · {playerName}
+            {activeGoal && <span className="text-foreground-mute"> · {describeGoal(activeGoal)}</span>}
           </p>
+          {progress && activeGoal && (
+            <div className="mt-2">
+              <p
+                className={`text-sm font-extrabold tabular-nums ${
+                  activeGoal.kind === "time" && progress.fraction > 0.85 ? "text-accent" : "text-foreground"
+                }`}
+              >
+                {progress.reached && draft.shots.length === 0 ? "Time's up" : progress.label}
+              </p>
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--raised)]">
+                <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress.fraction * 100}%` }} />
+              </div>
+            </div>
+          )}
 
           <div className="mt-2 flex items-end gap-4">
             <p className="font-display text-8xl leading-[0.85] tabular-nums text-foreground">
@@ -468,10 +598,36 @@ export function ShootingHub({
   return (
     <div className="space-y-6">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
-          New session
-        </p>
-        <h2 className="font-display mt-1.5 text-3xl uppercase leading-none tracking-wide text-foreground">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
+          <p className="truncate text-[11px] font-bold text-foreground-dim">
+            Shooting as <span className="text-foreground">{playerName}</span> ·{" "}
+            <Link href="/" className="font-extrabold uppercase tracking-wide text-accent">
+              Switch
+            </Link>
+          </p>
+        </div>
+        {recent.length > 0 && (
+          <div className="mt-3">
+            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+              Go again · one tap starts
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {recent.map((r) => (
+                <button
+                  key={setupKey(r)}
+                  type="button"
+                  onClick={() => start(r.label, r.goal)}
+                  className="rounded-full bg-accent/10 px-3 py-1.5 text-xs font-bold text-accent ring-1 ring-accent/40"
+                >
+                  {[r.label || "Shooting", r.goal ? describeGoal(r.goal) : null].filter(Boolean).join(" · ")}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <h2 className="font-display mt-4 text-3xl uppercase leading-none tracking-wide text-foreground">
           What are you shooting?
         </h2>
 
@@ -504,6 +660,77 @@ export function ShootingHub({
           className="mt-3 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
         />
 
+        <div className="mt-5">
+          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            Goal · the set ends and saves itself
+          </p>
+          <div className="grid grid-cols-5 gap-1 rounded-xl bg-[var(--raised)] p-1">
+            {([null, ...GOAL_KINDS.map((k) => k.kind)] as (GoalKind | null)[]).map((kind) => {
+              const active = (goal?.kind ?? null) === kind;
+              return (
+                <button
+                  key={kind ?? "none"}
+                  type="button"
+                  onClick={() => {
+                    haptic("tap");
+                    if (!kind) setGoal(null);
+                    else if (goal?.kind !== kind) setGoal({ kind, target: goalSpec(kind).choices[1] });
+                  }}
+                  aria-pressed={active}
+                  className={`rounded-lg px-1 py-2 text-[10.5px] font-extrabold uppercase tracking-wide transition-colors ${
+                    active ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
+                  }`}
+                >
+                  {kind ? goalSpec(kind).label : "None"}
+                </button>
+              );
+            })}
+          </div>
+
+          {goal && (
+            <div className="mt-2.5 flex items-center gap-1.5">
+              {goalSpec(goal.kind).choices.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => {
+                    haptic("tap");
+                    setGoal({ kind: goal.kind, target: n });
+                  }}
+                  aria-pressed={goal.target === n}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-bold tabular-nums transition-colors ${
+                    goal.target === n ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <div className="ml-auto flex items-center gap-1">
+                {[-1, 1].map((sign) => (
+                  <button
+                    key={sign}
+                    type="button"
+                    aria-label={sign < 0 ? "Fewer" : "More"}
+                    onClick={() => {
+                      haptic("tap");
+                      setGoal({ kind: goal.kind, target: goal.target + sign * goalSpec(goal.kind).step });
+                    }}
+                    className="h-8 w-8 rounded-full border border-line text-sm font-extrabold text-foreground-dim"
+                  >
+                    {sign < 0 ? "−" : "+"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="mt-2 text-xs font-bold text-foreground">
+            {goal ? describeGoal(goal) : "No goal: end the set yourself"}
+            {goal?.kind === "streak" && (
+              <span className="font-normal text-foreground-mute"> · stops at 100 shots if it doesn&rsquo;t come</span>
+            )}
+          </p>
+        </div>
+
         <button
           type="button"
           onClick={() => start(labelInput)}
@@ -518,5 +745,34 @@ export function ShootingHub({
 
       {children}
     </div>
+  );
+}
+
+/** One line on the summary: did the set reach its goal, and how. */
+function GoalResult({
+  goal,
+  finished,
+}: {
+  goal: Goal;
+  finished: { shots: Shot[]; startedAt: string; endedAt: string };
+}) {
+  const elapsed = Date.parse(finished.endedAt) - Date.parse(finished.startedAt);
+  const state = goalState(goal, finished.shots, elapsed);
+  const n = finished.shots.length;
+  const text = !state.reached
+    ? `${describeGoal(goal)} · ended early, ${state.label}`
+    : goal.kind === "makes"
+      ? `${describeGoal(goal)} · done in ${n} shots`
+      : goal.kind === "streak"
+        ? state.capped
+          ? `${describeGoal(goal)} · not this time, stopped at ${n} shots`
+          : `${describeGoal(goal)} · got it on shot ${n}`
+        : goal.kind === "time"
+          ? `${describeGoal(goal)} · ${n} shots`
+          : `${describeGoal(goal)} · done`;
+  return (
+    <p className={`mt-1 text-sm font-extrabold ${state.reached && !state.capped ? "text-accent" : "text-foreground-dim"}`}>
+      {text}
+    </p>
   );
 }

@@ -150,3 +150,49 @@ export function durationMinutes(startedAt: string | null, endedAt: string | null
   if (!Number.isFinite(ms) || ms < 0) return null;
   return Math.max(1, Math.round(ms / 60000));
 }
+
+/**
+ * Basketball seasons run across the new year, so "this season" starts on
+ * August 1: this year's if that has passed, otherwise last year's.
+ */
+export function seasonStart(now: Date = new Date()): Date {
+  const year = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+  return new Date(year, 7, 1);
+}
+
+export type SessionRow = { label: string | null; started_at: string; makes: number; attempts: number };
+
+export type SessionTotals = {
+  makes: number;
+  attempts: number;
+  pct: number | null;
+  sessions: number;
+  /** Best make % in one session of at least BEST_MIN_SHOTS shots; ties go to more makes. */
+  best: (SessionRow & { pct: number }) | null;
+};
+
+/** A 3-for-3 day shouldn't count as a best session. */
+export const BEST_MIN_SHOTS = 10;
+
+/** Totals over saved sessions, read from each session row's own totals. */
+export function totalSessions(rows: SessionRow[]): SessionTotals {
+  let makes = 0;
+  let attempts = 0;
+  let best: SessionTotals["best"] = null;
+  for (const r of rows) {
+    makes += r.makes;
+    attempts += r.attempts;
+    const pct = percentage(r.makes, r.attempts);
+    if (pct === null || r.attempts < BEST_MIN_SHOTS) continue;
+    if (!best || pct > best.pct || (pct === best.pct && r.makes > best.makes)) best = { ...r, pct };
+  }
+  return { makes, attempts, pct: percentage(makes, attempts), sessions: rows.filter((r) => r.attempts > 0).length, best };
+}
+
+/** Shots a minute, to one decimal; null when the session is too short to say. */
+export function shotsPerMinute(attempts: number, startedAt: string | null, endedAt: string | null): number | null {
+  if (!startedAt || !endedAt || attempts === 0) return null;
+  const minutes = (new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 60000;
+  if (!(minutes >= 0.5)) return null;
+  return Math.round((attempts / minutes) * 10) / 10;
+}

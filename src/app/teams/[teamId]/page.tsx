@@ -133,16 +133,24 @@ export default async function TeamPage({
             href="/"
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
-            ← Home
+            Switch profile
           </Link>
-          {isOwner && (
+          <div className="flex gap-4">
             <Link
-              href={`/teams/${teamId}/edit`}
+              href="/lab"
               className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
             >
-              Edit
+              Camera lab
             </Link>
-          )}
+            {isOwner && (
+              <Link
+                href={`/teams/${teamId}/edit`}
+                className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+              >
+                Edit
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 

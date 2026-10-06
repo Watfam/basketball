@@ -21,6 +21,7 @@ export default async function ShotSessionPage({
       .select("id, label, source, started_at, ended_at")
       .eq("id", sessionId)
       .eq("player_id", playerId)
+      .is("deleted_at", null)
       .maybeSingle(),
     supabase
       .schema("hoops")

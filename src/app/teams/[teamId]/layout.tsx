@@ -1,4 +1,5 @@
 import { TeamBottomNav } from "@/components/team-bottom-nav";
+import { RememberProfile } from "@/components/remember-profile";
 
 /**
  * Wraps every team screen in the persistent bottom bar. Lives at the
@@ -15,6 +16,8 @@ export default async function TeamLayout({
 
   return (
     <div className="flex min-h-[100dvh] flex-1 flex-col">
+      {/* Opening a team makes the coach the active profile on this phone. */}
+      <RememberProfile profile={{ kind: "coach", teamId }} />
       {children}
       <TeamBottomNav teamId={teamId} />
     </div>

@@ -1387,6 +1387,8 @@ export type ShotSyncInput = {
   label: string | null;
   startedAt: string;
   ended: boolean;
+  /** The goal the set was shot to, if any (src/lib/basketball/goals.ts). */
+  goal?: { kind: string; target: number; reached: boolean } | null;
   shots: {
     seq: number;
     made: boolean;
@@ -1395,6 +1397,8 @@ export type ShotSyncInput = {
     detectedMade: boolean | null;
   }[];
 };
+
+const VALID_GOAL_KINDS = new Set(["shots", "makes", "time", "streak"]);
 
 const VALID_ZONES = new Set([
   "free_throw",
@@ -1434,9 +1438,22 @@ export async function syncShotSession(input: ShotSyncInput) {
     if (s.source !== "manual" && s.source !== "camera") return { error: "Unknown shot source." };
   }
 
+  const goal = input.goal ?? null;
+  if (goal && (!VALID_GOAL_KINDS.has(goal.kind) || !Number.isInteger(goal.target) || goal.target <= 0)) {
+    return { error: "Unknown goal." };
+  }
+
   const supabase = await createClient();
   const label = input.label?.trim().slice(0, 60) || null;
   const source = input.shots.some((s) => s.source === "camera") ? "camera" : "manual";
+  const goalColumns = {
+    goal_kind: goal?.kind ?? null,
+    goal_target: goal?.target ?? null,
+    goal_reached: goal ? goal.reached : null,
+  };
+  // Until migration 0021 has run, the goal columns don't exist; the set is
+  // saved without them rather than not at all.
+  const missingGoalColumns = (e: { message: string } | null) => Boolean(e && /goal_(kind|target|reached)/.test(e.message));
   const endedAt = input.ended ? new Date().toISOString() : null;
   const makes = input.shots.filter((s) => s.made).length;
   const attempts = input.shots.length;
@@ -1444,13 +1461,16 @@ export async function syncShotSession(input: ShotSyncInput) {
   let sessionId = input.sessionId;
 
   if (sessionId) {
-    const { data: updated, error } = await supabase
-      .schema("hoops")
-      .from("shot_sessions")
-      .update({ label, source, ended_at: endedAt, makes, attempts })
-      .eq("id", sessionId)
-      .eq("player_id", input.playerId)
-      .select("id");
+    const update = (withGoal: boolean) =>
+      supabase
+        .schema("hoops")
+        .from("shot_sessions")
+        .update({ label, source, ended_at: endedAt, makes, attempts, ...(withGoal ? goalColumns : {}) })
+        .eq("id", sessionId as string)
+        .eq("player_id", input.playerId)
+        .select("id");
+    let { data: updated, error } = await update(true);
+    if (missingGoalColumns(error)) ({ data: updated, error } = await update(false));
     if (error) return { error: error.message };
     // The row is gone (deleted from another device, say). Start a fresh
     // one from this snapshot instead of failing a session that is intact
@@ -1459,21 +1479,25 @@ export async function syncShotSession(input: ShotSyncInput) {
   }
 
   if (!sessionId) {
-    const { data, error } = await supabase
-      .schema("hoops")
-      .from("shot_sessions")
-      .insert({
-        player_id: input.playerId,
-        label,
-        source,
-        started_at: input.startedAt,
-        ended_at: endedAt,
-        makes,
-        attempts,
-      })
-      .select("id")
-      .single();
-    if (error) return { error: error.message };
+    const insert = (withGoal: boolean) =>
+      supabase
+        .schema("hoops")
+        .from("shot_sessions")
+        .insert({
+          player_id: input.playerId,
+          label,
+          source,
+          started_at: input.startedAt,
+          ended_at: endedAt,
+          makes,
+          attempts,
+          ...(withGoal ? goalColumns : {}),
+        })
+        .select("id")
+        .single();
+    let { data, error } = await insert(true);
+    if (missingGoalColumns(error)) ({ data, error } = await insert(false));
+    if (error || !data) return { error: error?.message ?? "Couldn't save the session." };
     sessionId = data.id as string;
   }
 
@@ -1512,20 +1536,88 @@ export async function syncShotSession(input: ShotSyncInput) {
   return { error: null, sessionId };
 }
 
+/**
+ * Deletes a session the player no longer wants (a set done by mistake, or
+ * just messing around). The row is only marked, so Undo can restore it,
+ * and every list and total skips marked rows straight away. Marked rows
+ * are removed for good after 10 days by purgeDeletedShotSessions.
+ */
 export async function deleteShotSession(sessionId: string, playerId: string) {
+  return setShotSessionDeleted(sessionId, playerId, new Date().toISOString());
+}
+
+export async function restoreShotSession(sessionId: string, playerId: string) {
+  return setShotSessionDeleted(sessionId, playerId, null);
+}
+
+async function setShotSessionDeleted(sessionId: string, playerId: string, deletedAt: string | null) {
   if (!sessionId || !playerId) return { error: "Missing session." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .schema("hoops")
+    .from("shot_sessions")
+    .update({ deleted_at: deletedAt })
+    .eq("id", sessionId)
+    .eq("player_id", playerId)
+    .select("id");
+
+  if (error) return { error: error.message };
+  if (!data || data.length === 0) return { error: "That session is no longer there." };
+
+  revalidatePath("/players/[playerId]/shooting", "page");
+  revalidatePath("/players/[playerId]", "page");
+  return { error: null };
+}
+
+export type CalibrationInput = {
+  source: string;
+  hoopLabel: string | null;
+  ruleVersion: string;
+  modelVersion: string;
+  shots: number;
+  agreed: number;
+  cameraMakes: number;
+  trueMakes: number;
+  perShot: unknown[];
+  notes: string | null;
+};
+
+/** Saves one calibration: the camera's calls set against a written list. */
+export async function saveCalibrationRun(input: CalibrationInput) {
+  const ints = [input.shots, input.agreed, input.cameraMakes, input.trueMakes];
+  if (ints.some((n) => !Number.isInteger(n) || n < 0) || input.agreed > input.shots) {
+    return { error: "Those numbers don't add up." };
+  }
+  if (input.perShot.length > 2000) return { error: "That is more shots than one calibration can hold." };
 
   const supabase = await createClient();
   const { error } = await supabase
     .schema("hoops")
-    .from("shot_sessions")
-    .delete()
-    .eq("id", sessionId)
-    .eq("player_id", playerId);
-
+    .from("calibration_runs")
+    .insert({
+      kind: "calibration",
+      hoop_label: input.hoopLabel?.trim().slice(0, 60) || null,
+      rule_version: input.ruleVersion.slice(0, 20),
+      model_version: input.modelVersion.slice(0, 40),
+      shots: input.shots,
+      agreed: input.agreed,
+      camera_makes: input.cameraMakes,
+      true_makes: input.trueMakes,
+      per_shot: input.perShot,
+      notes: [input.source.slice(0, 120), input.notes?.trim().slice(0, 500)].filter(Boolean).join(" · ") || null,
+    });
   if (error) return { error: error.message };
 
-  revalidatePath("/players/[playerId]/shooting", "page");
-  revalidatePath("/players/[playerId]", "page");
+  revalidatePath("/lab");
+  return { error: null };
+}
+
+export async function deleteCalibrationRun(id: string) {
+  if (!id) return { error: "Missing calibration." };
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("calibration_runs").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/lab");
   return { error: null };
 }

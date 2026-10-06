@@ -448,3 +448,23 @@ V2's session totals were 18/14 against 14/18 (V1 16/16): both over-count makes, 
 Honest summary for tomorrow's UI discussion: counting makes automatically is accurate to roughly 80-90% per shot on unseen clips
 of the same hoop, and wrong in a recognizable way (rim bounces near the net). With one-tap correction, the tool would be right most
 of the time and cheap to fix.
+
+### The app's rule on the exam clips, and how slow the phone may be (2026-10-06)
+`src/lib/vision/shotRules.ts` (the app's streaming rule) reproduces the offline scores exactly on the exam detections, now kept
+in `training/fixtures/dets5-4839.json` and `dets5-4840.json` (box positions only; `npm test` checks them): 4839 V1 22/28, V2 26/28;
+4840 V1 26/32, V2 28/32.
+Frame rate, simulated by feeding the rule every 2nd, 3rd or 4th frame of those same detections (two different starting frames):
+- 15 fps: 4839 V2 27/28 (one start found a 29th shot); 4840 V2 27-29/32. Holds.
+- 10 fps: 4839 V2 24-26/28; 4840 V2 28-29/32. Mostly holds, more spread.
+- 7.5 fps: shots start going missing (23-25 of 28, 29-31 of 32 found).
+Caveat: this thins out detections from a full-rate run; a phone running slower also sees different frames and may detect
+differently. Phase A pass line stays at 15 fps sustained; 10 fps is the floor below which live counting should not ship.
+
+### "Worth a look" flag registered BEFORE the third fresh clip (2026-10-06)
+Defined as `FLAG` / `flagReasons` in `src/lib/vision/shotRules.ts`: a V2 make is flagged if the ball below the net is >= 25 px
+wide (median of its first 8 sightings), OR it never comes within 15 px of the net's centre line, OR it had >= 20 sightings in the
+rim zone. All six V2 errors on 4839 + 4840 were misses called makes (rim bounce dropping by the net), so only makes are flagged.
+On those two clips (IN-SAMPLE: thresholds picked after looking): catches 5 of 6 wrong calls (missed: 4840 #11, a clean-looking
+drop 1 px from the centre line), flags 11 of 60 shots (18%). Kept by `npm test`.
+Exam for the third clip, all decided now: score V2 against Matt's written list, then report how many wrong calls the flag catches
+and what share of all shots it flags. Target: most errors caught with under 25% of shots flagged. Nothing is tuned before the report.
