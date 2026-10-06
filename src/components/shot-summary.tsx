@@ -1,4 +1,4 @@
-import { byZone, durationMinutes, formatPercentage, summarize, type Shot } from "@/lib/basketball/shooting";
+import { byZone, durationMinutes, formatPercentage, shotsPerMinute, summarize, type Shot } from "@/lib/basketball/shooting";
 
 /**
  * The most recent shots as a row of marks.
@@ -62,14 +62,18 @@ export function SessionSummary({
   startedAt,
   endedAt,
   shots,
+  average,
 }: {
   label: string | null;
   dateLabel?: string;
   startedAt?: string | null;
   endedAt?: string | null;
   shots: Shot[];
+  /** The player's own make % for this kind of shot, to set today against. */
+  average?: { pct: number; sessions: number } | null;
 }) {
   const sum = summarize(shots);
+  const pace = shotsPerMinute(shots.length, startedAt ?? null, endedAt ?? null);
   const zones = byZone(shots);
   const minutes = durationMinutes(startedAt ?? null, endedAt ?? null);
   const untagged = shots.filter((s) => s.zone === null).length;
@@ -94,11 +98,38 @@ export function SessionSummary({
           {[
             minutes !== null ? `${minutes} min` : null,
             sum.longestMakeStreak >= 2 ? `Best run ${sum.longestMakeStreak} makes` : null,
+            sum.longestMissStreak >= 3 ? `Longest miss streak ${sum.longestMissStreak}` : null,
+            pace !== null ? `${pace} shots a min` : null,
           ]
-            .filter(Boolean)
+            .filter((t): t is string => Boolean(t))
+            // Each stat stays on one line; only the gaps between them wrap.
+            .map((t) => t.replace(/ /g, "\u00a0"))
             .join(" · ")}
         </p>
       </div>
+
+      {average && sum.pct !== null && (
+        <div className="rounded-xl border border-line bg-[var(--raised)] p-3">
+          <div className="flex items-baseline justify-between text-[11px] font-bold uppercase tracking-wide">
+            <span className="text-foreground-mute">
+              Your {label ?? "shooting"} average · {average.sessions} {average.sessions === 1 ? "session" : "sessions"}
+            </span>
+            <span className="tabular-nums text-foreground-dim">{formatPercentage(average.pct)}</span>
+          </div>
+          <div className="relative mt-2 h-2 overflow-hidden rounded-full bg-background">
+            <div className="h-full rounded-full bg-accent" style={{ width: `${sum.pct}%` }} />
+            <div
+              className="absolute top-0 h-full w-0.5 bg-foreground"
+              style={{ left: `${average.pct}%` }}
+              aria-hidden
+            />
+          </div>
+          <p className="mt-1.5 text-xs font-semibold text-foreground">
+            Today {formatPercentage(sum.pct)}
+            {sum.pct > average.pct ? " · above your average" : sum.pct < average.pct ? " · below your average" : " · right on it"}
+          </p>
+        </div>
+      )}
 
       <ShotStrip shots={shots} limit={60} />
 

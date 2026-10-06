@@ -5,7 +5,7 @@ import { ShootingHub } from "@/components/shooting-hub";
 import { EmptyState } from "@/components/empty-state";
 import { ShotSessionList } from "@/components/shot-session-list";
 import { TrendChart } from "@/components/charts/trend-chart";
-import { formatPercentage, percentage } from "@/lib/basketball/shooting";
+import { formatPercentage, percentage, seasonStart, totalSessions, type SessionRow as TotalsRow } from "@/lib/basketball/shooting";
 
 type SessionRow = {
   id: string;
@@ -36,7 +36,8 @@ export default async function ShootingPage({
   // than on a schedule, at no cost; a failure only delays it to next time.
   void supabase.schema("hoops").rpc("purge_deleted_shot_sessions").then(() => {}, () => {});
 
-  const [{ data: { user } }, { data: player }, { data: sessionRows, error: sessionsError }] =
+  const season = seasonStart();
+  const [{ data: { user } }, { data: player }, { data: sessionRows, error: sessionsError }, { data: seasonRows }] =
     await Promise.all([
       supabase.auth.getUser(),
       supabase.schema("hoops").from("players").select("id, display_name").eq("id", playerId).maybeSingle(),
@@ -53,12 +54,30 @@ export default async function ShootingPage({
         .is("deleted_at", null)
         .order("started_at", { ascending: false })
         .limit(60),
+      // The whole season, for its totals and each label's average. Session
+      // rows carry their own totals, so this stays one small query.
+      supabase
+        .schema("hoops")
+        .from("shot_sessions")
+        .select("label, started_at, makes, attempts")
+        .eq("player_id", playerId)
+        .not("ended_at", "is", null)
+        .is("deleted_at", null)
+        .gte("started_at", season.toISOString())
+        .limit(1000),
     ]);
 
   if (!user) redirect("/login");
   if (!player) notFound();
 
   const sessions = ((sessionRows ?? []) as SessionRow[]).filter((s) => s.attempts > 0);
+  const seasonSessions = (seasonRows ?? []) as TotalsRow[];
+  const seasonTotals = totalSessions(seasonSessions);
+  const averages: Record<string, { pct: number; sessions: number }> = {};
+  for (const label of new Set(seasonSessions.map((s) => s.label?.trim() || ""))) {
+    const t = totalSessions(seasonSessions.filter((s) => (s.label?.trim() || "") === label));
+    if (t.pct !== null) averages[label] = { pct: t.pct, sessions: t.sessions };
+  }
   const labelOf = (s: SessionRow) => s.label?.trim() || UNLABELED;
   const labels = [...new Set(sessions.map(labelOf))];
   const selected = labelParam && labels.includes(labelParam) ? labelParam : labels[0];
@@ -92,6 +111,27 @@ export default async function ShootingPage({
         </>
       ) : (
         <>
+          {seasonTotals.attempts > 0 && (
+            <div className="rounded-2xl border border-line bg-surface p-4">
+              <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                This season · since {season.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+              </p>
+              <div className="mt-1 flex items-end gap-3">
+                <p className="font-display text-4xl leading-none text-foreground">{formatPercentage(seasonTotals.pct)}</p>
+                <p className="pb-0.5 text-xs font-bold tabular-nums text-foreground-dim">
+                  {seasonTotals.makes} of {seasonTotals.attempts} · {seasonTotals.sessions}{" "}
+                  {seasonTotals.sessions === 1 ? "session" : "sessions"}
+                </p>
+              </div>
+              {seasonTotals.best && (
+                <p className="mt-1.5 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
+                  Best session {seasonTotals.best.makes}/{seasonTotals.best.attempts} (
+                  {formatPercentage(seasonTotals.best.pct)}) · {shortDate(seasonTotals.best.started_at)}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-1.5">
             {labels.map((l) => (
               <Link
@@ -180,6 +220,7 @@ export default async function ShootingPage({
           playerId={playerId}
           playerName={player.display_name}
           suggestedLabels={labels.filter((l) => l !== UNLABELED)}
+          averages={averages}
         >
           {history}
           <Link

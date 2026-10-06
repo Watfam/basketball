@@ -81,11 +81,14 @@ export function ShootingHub({
   playerId,
   playerName,
   suggestedLabels,
+  averages = {},
   children,
 }: {
   playerId: string;
   playerName: string;
   suggestedLabels: string[];
+  /** Make % per label over saved sessions, for the summary's comparison. */
+  averages?: Record<string, { pct: number; sessions: number }>;
   /** The saved-session history, rendered on the server and shown while idle. */
   children: React.ReactNode;
 }) {
@@ -328,6 +331,7 @@ export function ShootingHub({
               startedAt={finished.startedAt}
               endedAt={finished.endedAt}
               shots={finished.shots}
+              average={averages[finished.label?.trim() || ""] ?? null}
             />
           </div>
           <div className="mt-8 flex gap-2.5">
