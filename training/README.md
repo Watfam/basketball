@@ -459,3 +459,12 @@ Frame rate, simulated by feeding the rule every 2nd, 3rd or 4th frame of those s
 - 7.5 fps: shots start going missing (23-25 of 28, 29-31 of 32 found).
 Caveat: this thins out detections from a full-rate run; a phone running slower also sees different frames and may detect
 differently. Phase A pass line stays at 15 fps sustained; 10 fps is the floor below which live counting should not ship.
+
+### "Worth a look" flag registered BEFORE the third fresh clip (2026-10-06)
+Defined as `FLAG` / `flagReasons` in `src/lib/vision/shotRules.ts`: a V2 make is flagged if the ball below the net is >= 25 px
+wide (median of its first 8 sightings), OR it never comes within 15 px of the net's centre line, OR it had >= 20 sightings in the
+rim zone. All six V2 errors on 4839 + 4840 were misses called makes (rim bounce dropping by the net), so only makes are flagged.
+On those two clips (IN-SAMPLE: thresholds picked after looking): catches 5 of 6 wrong calls (missed: 4840 #11, a clean-looking
+drop 1 px from the centre line), flags 11 of 60 shots (18%). Kept by `npm test`.
+Exam for the third clip, all decided now: score V2 against Matt's written list, then report how many wrong calls the flag catches
+and what share of all shots it flags. Target: most errors caught with under 25% of shots flagged. Nothing is tuned before the report.

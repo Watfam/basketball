@@ -58,6 +58,31 @@ export const RULE = {
   bigBelowRatio: 1.2,
 } as const;
 
+/**
+ * "Worth a look": a make the camera is least sure of, shown amber in
+ * review so a player checks a few shots instead of every one.
+ *
+ * Every wrong call on the two exam clips was the same kind, a miss called
+ * a make (the ball bounced off the rim and dropped near the net). A make
+ * is flagged when any of these holds:
+ * - wide below: the ball below the net is >= 25 px wide, near V2's 26 px
+ *   cut, so it may be falling in front of the hoop rather than through it;
+ * - off centre: it never comes within 15 px of the net's centre line;
+ * - long at the rim: 20 or more sightings in the rim zone, a bounce or roll.
+ *
+ * Chosen 2026-10-06 AFTER seeing IMG_4839 and IMG_4840, where it catches
+ * 5 of the 6 wrong calls while flagging 11 of 60 shots (18%). That is
+ * in-sample. The third fresh clip is its real test, and it must not be
+ * changed before that clip is scored (training/README.md).
+ */
+export const FLAG = {
+  wideBelow: 25,
+  offCentre: 15,
+  longAtRim: 20,
+} as const;
+
+export type FlagReason = "wide_below" | "off_centre" | "long_at_rim";
+
 export type ShotCall = {
   /** 1, 2, 3... in the order shots were decided. */
   n: number;
@@ -78,6 +103,11 @@ export type ShotCall = {
   /** Median zone width in the first frames, and median width below the net (V2). */
   zoneWidth: number | null;
   belowWidth: number | null;
+  /** Nearest the ball came to the net's centre line below the rim (V2 window), px. */
+  belowMinDx: number | null;
+  /** Worth a look in review; see FLAG. Only V2 makes are ever flagged. */
+  flagged: boolean;
+  flagReasons: FlagReason[];
 };
 
 type Seen = { f: number; box: Box };
@@ -110,7 +140,7 @@ export function callShot(
   first: number,
   last: number,
   rim: { x: number; y: number }
-): Pick<ShotCall, "v1" | "v2" | "belowSightingsV1" | "belowSightingsV2" | "zoneWidth" | "belowWidth"> {
+): Pick<ShotCall, "v1" | "v2" | "belowSightingsV1" | "belowSightingsV2" | "zoneWidth" | "belowWidth" | "belowMinDx"> {
   const zoneWidths = seen
     .filter((s) => s.f >= first && s.f <= Math.min(last, first + RULE.zoneWidthFrames) && inZone(s.box, rim))
     .map((s) => width(s.box));
@@ -134,7 +164,18 @@ export function callShot(
     belowSightingsV2: b2.length,
     zoneWidth,
     belowWidth,
+    belowMinDx: b2.length ? Math.min(...b2.map((s) => Math.abs(cx(s.box) - rim.x))) : null,
   };
+}
+
+/** Why a call is worth a look, if it is. */
+export function flagReasons(call: Pick<ShotCall, "v2" | "belowWidth" | "belowMinDx" | "zoneSightings">): FlagReason[] {
+  if (call.v2 !== "make") return [];
+  const reasons: FlagReason[] = [];
+  if ((call.belowWidth ?? 0) >= FLAG.wideBelow) reasons.push("wide_below");
+  if ((call.belowMinDx ?? 0) >= FLAG.offCentre) reasons.push("off_centre");
+  if (call.zoneSightings >= FLAG.longAtRim) reasons.push("long_at_rim");
+  return reasons;
 }
 
 /**
@@ -158,6 +199,8 @@ export function createShotCounter(rim: { x: number; y: number }) {
   const decide = (shot: Group): ShotCall => {
     const counted = shot.sightings >= RULE.minZoneSightings;
     if (counted) n += 1;
+    const called = callShot(history, shot.first, shot.last, rim);
+    const reasons = flagReasons({ ...called, zoneSightings: shot.sightings });
     return {
       n: counted ? n : 0,
       first: shot.first,
@@ -165,7 +208,9 @@ export function createShotCounter(rim: { x: number; y: number }) {
       firstMs: shot.firstMs,
       zoneSightings: shot.sightings,
       counted,
-      ...callShot(history, shot.first, shot.last, rim),
+      ...called,
+      flagged: reasons.length > 0,
+      flagReasons: reasons,
     };
   };
 

@@ -181,6 +181,27 @@ test("a call waits for the 70-frame window, and a slower camera gives the same c
   assert.ok(decidedAt <= 102 + RULE.gapFrames + RULE.windowV2, `decided too late, at frame ${decidedAt}`);
 });
 
+test("worth a look: on the exam clips, 5 of the 6 wrong calls flagged, 11 of 60 shots in all (in-sample)", () => {
+  let wrong = 0;
+  let caught = 0;
+  let flagged = 0;
+  let total = 0;
+  for (const clip of ["4839", "4840"]) {
+    const dets = (JSON.parse(fs.readFileSync(path.join(root, `training/fixtures/dets5-${clip}.json`), "utf8")) as { detections: Det[] }).detections;
+    const truth = (JSON.parse(fs.readFileSync(path.join(root, `training/labels/IMG_${clip}-truth.json`), "utf8")) as { results: string[] }).results;
+    const calls = runCounter(dets, { x: 192, y: 190 }, Math.max(...dets.map((d) => d.f)) + 200).filter((c) => c.counted);
+    calls.forEach((c, i) => {
+      total += 1;
+      if (c.flagged) flagged += 1;
+      if (c.v2 !== truth[i]) {
+        wrong += 1;
+        if (c.flagged) caught += 1;
+      }
+    });
+  }
+  assert.deepEqual({ wrong, caught, flagged, total }, { wrong: 6, caught: 5, flagged: 11, total: 60 });
+});
+
 const exams = [
   { clip: "4839", rim: { x: 192, y: 190 }, v1: 22, v2: 26, shots: 28 },
   { clip: "4840", rim: { x: 192, y: 190 }, v1: 26, v2: 28, shots: 32 },

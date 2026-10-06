@@ -149,6 +149,7 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 - 0020 written, checked on Postgres 16, and run on Supabase by Matt (2026-10-05).
 - F2 done: delete with Undo and Manage mode.
 - C1, C3, C4 done; C2 started: front door "Who's playing?" with Continue as, profile cookie, player bottom bar (Home, Train, Shoot, Film), opening a player or team page sets the profile.
+- B3 done (in-sample): worth-a-look flag in `shotRules.ts`, 5 of 6 errors caught, 18% of shots flagged; registered for the third clip.
 - Needs the phone: A3 (saved-clip parity), A4 (10-minute soak).
 
 ## 8. Suggested order of work
