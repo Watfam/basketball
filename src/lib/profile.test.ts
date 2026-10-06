@@ -19,8 +19,8 @@ test("a damaged or foreign cookie is ignored, not trusted", () => {
 
 test("each profile has a home", () => {
   assert.equal(profileHome({ kind: "player", playerId: id }), `/players/${id}`);
-  assert.equal(profileHome({ kind: "coach", teamId: id }), `/teams/${id}`);
-  assert.equal(profileHome({ kind: "coach", teamId: null }), "/teams/new");
+  assert.equal(profileHome({ kind: "coach", teamId: id }), "/coach");
+  assert.equal(profileHome({ kind: "coach", teamId: null }), "/coach");
 });
 
 test("the bottom bar lights the right tab and hides on full-screen screens", () => {
@@ -29,7 +29,9 @@ test("the bottom bar lights the right tab and hides on full-screen screens", () 
   assert.equal(activePlayerTab(`${b}/shooting/abc`, id), "shoot");
   assert.equal(activePlayerTab(`${b}/film/sessions/x`, id), "film");
   assert.equal(activePlayerTab(`${b}/workouts`, id), "train");
-  assert.equal(activePlayerTab(`${b}/assessments`, id), "home");
+  assert.equal(activePlayerTab(`${b}/assessments`, id), "me");
+  assert.equal(activePlayerTab(b, id, "tab=profile"), "me");
+  assert.equal(activePlayerTab(b, id, "from=coach"), "home");
   assert.equal(activePlayerTab("/teams/x", id), null);
   assert.equal(isImmersivePlayerRoute(`${b}/sessions/abc`), true);
   assert.equal(isImmersivePlayerRoute(`${b}/assessment`), true);

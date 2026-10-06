@@ -4,15 +4,21 @@ import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { SetupFamilyForm } from "@/components/setup-family-form";
 import { AddPlayerForm } from "@/components/add-player-form";
-import { PlayerRow } from "@/components/player-row";
 import { HouseholdSettings } from "@/components/household-settings";
-import { EmptyState } from "@/components/empty-state";
+import { ManagePlayerRow } from "@/components/manage-player-row";
+import { Avatar } from "@/components/avatar";
+import { EndCoachView } from "@/components/remember-profile";
 import { SignOutButton } from "@/components/sign-out-button";
-import { PRIMARY_POSITIONS, DEFENSIVE_SCHEMES } from "@/lib/basketball/taxonomy";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
-import { computeStreakWeeks } from "@/lib/basketball/progress";
+import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import { PROFILE_COOKIE, parseProfile, profileHome } from "@/lib/profile";
 
+/**
+ * The front door: who is using the app on this phone. One tap on a
+ * profile, remembered after that, and nothing later asks again
+ * (src/lib/profile.ts). Adding and removing players and the family's
+ * settings sit below, folded away, so the picker stays a picker.
+ */
 export default async function Home() {
   const supabase = await createClient();
   const {
@@ -23,17 +29,15 @@ export default async function Home() {
     redirect("/login");
   }
 
-  // Independent of each other — both just need user.id — so they run
-  // together instead of teams waiting behind the whole household chain.
+  // Independent of each other: both just need user.id.
   const [{ data: household }, { data: teams }] = await Promise.all([
     // A user owns at most one household in this model (see supabase/schema.sql).
     supabase.schema("hoops").from("households").select("id, name").eq("owner_id", user.id).maybeSingle(),
-    // Independent of household — a coach who hasn't set up a family yet
-    // (or ever will) still gets to their teams.
+    // A coach who hasn't set up a family still gets to their teams.
     supabase
       .schema("hoops")
       .from("teams")
-      .select("id, name, defensive_scheme")
+      .select("id, name")
       .eq("owner_id", user.id)
       .order("created_at", { ascending: true }),
   ]);
@@ -42,10 +46,25 @@ export default async function Home() {
     ? await supabase
         .schema("hoops")
         .from("players")
-        .select("id, display_name, birth_year, primary_position, player_type")
+        .select("id, display_name, player_type")
         .eq("household_id", household.id)
         .order("created_at", { ascending: true })
     : { data: null };
+
+  // Each player's season shooting, from session totals: one small query
+  // for the whole family.
+  const playerIds = (players ?? []).map((p) => p.id);
+  const { data: shotRows } = playerIds.length
+    ? await supabase
+        .schema("hoops")
+        .from("shot_sessions")
+        .select("player_id, label, started_at, makes, attempts")
+        .in("player_id", playerIds)
+        .not("ended_at", "is", null)
+        .is("deleted_at", null)
+        .gte("started_at", seasonStart().toISOString())
+        .limit(1000)
+    : { data: [] as { player_id: string; label: string | null; started_at: string; makes: number; attempts: number }[] };
 
   // The profile last used on this phone, if it still exists, offered as
   // one big "Continue as" so a normal day is a single tap.
@@ -53,72 +72,17 @@ export default async function Home() {
   const rememberedName =
     remembered?.kind === "player"
       ? (players ?? []).find((p) => p.id === remembered.playerId)?.display_name
-      : remembered?.kind === "coach" && (teams ?? []).some((t) => t.id === remembered.teamId)
+      : remembered?.kind === "coach"
         ? "Coach"
         : undefined;
 
-  const positionLabel = (value: string | null) =>
-    PRIMARY_POSITIONS.find((p) => p.value === value)?.label ?? null;
-
-  // Everything the rows need, fetched across all players at once rather
-  // than per row — a household is small, but one query per player per
-  // stat would be four round trips per kid. The two below are independent
-  // of each other (both just need playerIds), so they run together.
-  const playerIds = (players ?? []).map((p) => p.id);
-
-  const [{ data: sessionRows }, { data: enrollments }] = await Promise.all([
-    playerIds.length
-      ? supabase
-          .schema("hoops")
-          .from("workout_sessions")
-          .select("id, player_id, completed_at")
-          .in("player_id", playerIds)
-          .eq("status", "completed")
-      : Promise.resolve({ data: [] as { id: string; player_id: string; completed_at: string | null }[] }),
-    playerIds.length
-      ? supabase
-          .schema("hoops")
-          .from("player_programs")
-          .select("player_id, programs(name)")
-          .in("player_id", playerIds)
-          .eq("status", "active")
-      : Promise.resolve({ data: [] as { player_id: string; programs: unknown }[] }),
-  ]);
-
-  // Same rule as the hub: a session only counts once work was logged
-  // against it, so an opened-and-abandoned workout never inflates a
-  // streak or a session count.
-  const sessionIds = (sessionRows ?? []).map((s) => s.id);
-  const { data: logRows } = sessionIds.length
-    ? await supabase
-        .schema("hoops")
-        .from("session_logs")
-        .select("session_id")
-        .in("session_id", sessionIds)
-    : { data: [] as { session_id: string }[] };
-
-  const sessionsWithWork = new Set((logRows ?? []).map((l) => l.session_id));
-  const datesByPlayer = new Map<string, Date[]>();
-  (sessionRows ?? []).forEach((s) => {
-    if (!sessionsWithWork.has(s.id) || !s.completed_at) return;
-    const list = datesByPlayer.get(s.player_id) ?? [];
-    list.push(new Date(s.completed_at));
-    datesByPlayer.set(s.player_id, list);
-  });
-
-  const programByPlayer = new Map<string, string>();
-  (enrollments ?? []).forEach((e) => {
-    const name = (e.programs as unknown as { name: string } | null)?.name;
-    if (name) programByPlayer.set(e.player_id, name);
-  });
+  const teamCount = (teams ?? []).length;
 
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="min-w-0">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
-            Hardwood Lab
-          </p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Hardwood Lab</p>
           {household && (
             <p className="mt-0.5 truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
               {household.name}
@@ -129,131 +93,114 @@ export default async function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-5 sm:py-8">
-        {!household ? (
-          <SetupFamilyForm />
-        ) : (
-          <div className="space-y-6">
-            <div>
-              <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
-                Who&rsquo;s playing?
-              </h1>
-              <p className="mt-1.5 text-xs text-foreground-dim">
-                Pick once. This phone remembers it, and Shoot, stats and everything else follow.
-              </p>
-            </div>
-
-            {remembered && rememberedName && (
-              <Link
-                href={profileHome(remembered)}
-                className="block rounded-2xl bg-accent px-4 py-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
-              >
-                Continue as {rememberedName}
-              </Link>
-            )}
-
-            <div className="space-y-3">
-              {players?.length === 0 && (
-                <EmptyState
-                  eyebrow="No players yet"
-                  title="Add your first player"
-                  subtitle="Build their Player Card and start curating workouts and film for them."
-                />
-              )}
-
-              {players?.map((player) => {
-                const playerType = (player.player_type ?? {}) as {
-                  archetype?: string;
-                  ratings?: Ratings;
-                };
-                const hasAssessment = Boolean(playerType.archetype);
-                const subtitle = hasAssessment
-                  ? (playerType.archetype as string)
-                  : [positionLabel(player.primary_position), player.birth_year]
-                      .filter(Boolean)
-                      .join(" · ") || "Assessment not started";
-
-                const dates = datesByPlayer.get(player.id) ?? [];
-
-                return (
-                  <PlayerRow
-                    key={player.id}
-                    id={player.id}
-                    displayName={player.display_name}
-                    subtitle={subtitle}
-                    hasAssessment={hasAssessment}
-                    positionLabel={positionLabel(player.primary_position)}
-                    overall={playerType.ratings ? computeOverall(playerType.ratings) : null}
-                    streakWeeks={computeStreakWeeks(dates)}
-                    totalSessions={dates.length}
-                    programLabel={programByPlayer.get(player.id) ?? null}
-                  />
-                );
-              })}
-
-              <AddPlayerForm householdId={household.id} />
-            </div>
-
-            <HouseholdSettings householdId={household.id} householdName={household.name} />
-          </div>
-        )}
+        <EndCoachView />
+        {!household && <SetupFamilyForm />}
 
         <div>
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
-              Coach
-            </h2>
-            <div className="flex gap-4">
-              <Link
-                href="/lab"
-                className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
-              >
-                Camera lab
-              </Link>
-              <Link
-                href="/teams/new"
-                className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
-              >
-                + New team
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-3 space-y-2.5">
-            {(teams ?? []).length === 0 ? (
-              <Link
-                href="/teams/new"
-                className="block rounded-2xl border border-dashed border-line px-4 py-4 text-center text-sm font-semibold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
-              >
-                Set up a team — roster, scheme, practice plans
-              </Link>
-            ) : (
-              (teams ?? []).map((team) => {
-                const scheme = DEFENSIVE_SCHEMES.find((s) => s.value === team.defensive_scheme);
-                return (
-                  <Link
-                    key={team.id}
-                    href={`/teams/${team.id}`}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5 transition-colors hover:border-[var(--line-strong)]"
-                  >
-                    <div className="min-w-0">
-                      <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                        {team.name}
-                      </p>
-                      {scheme && (
-                        <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
-                          {scheme.label}
-                        </p>
-                      )}
-                    </div>
-                    <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
-                      Open →
-                    </span>
-                  </Link>
-                );
-              })
-            )}
-          </div>
+          <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
+            Who&rsquo;s playing?
+          </h1>
+          <p className="mt-1.5 text-xs text-foreground-dim">
+            Pick once. This phone remembers it, and Shoot, stats and everything else follow.
+          </p>
         </div>
+
+        {remembered && rememberedName && (
+          <Link
+            href={profileHome(remembered)}
+            className="block rounded-2xl bg-accent px-4 py-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+          >
+            Continue as {rememberedName}
+          </Link>
+        )}
+
+        <div className="space-y-2.5">
+          {(players ?? []).map((player) => {
+            const type = (player.player_type ?? {}) as { archetype?: string; ratings?: Ratings };
+            const assessed = Boolean(type.archetype);
+            const overall = type.ratings ? computeOverall(type.ratings) : null;
+            const season = totalSessions((shotRows ?? []).filter((r) => r.player_id === player.id));
+            const isRemembered = remembered?.kind === "player" && remembered.playerId === player.id;
+            const line = [
+              overall !== null ? `Overall ${overall}` : assessed ? null : "Assessment not started",
+              season.attempts > 0 ? `Shooting ${formatPercentage(season.pct)} this season` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ");
+            return (
+              <Link
+                key={player.id}
+                // Not assessed yet: the assessment is the only useful first stop.
+                href={assessed ? `/players/${player.id}` : `/players/${player.id}/assessment`}
+                className={`flex items-center gap-3.5 rounded-2xl border bg-surface px-4 py-3.5 transition-colors hover:border-[var(--line-strong)] ${
+                  isRemembered ? "border-accent" : "border-line"
+                }`}
+              >
+                <Avatar id={player.id} name={player.display_name} />
+                <div className="min-w-0 flex-1">
+                  <p className="font-display truncate text-xl uppercase leading-none tracking-tight text-foreground">
+                    {player.display_name}
+                  </p>
+                  <p className="mt-1 truncate text-xs font-semibold text-foreground-dim">{line || "Ready to start"}</p>
+                </div>
+                <span className="shrink-0 text-lg text-foreground-mute" aria-hidden>
+                  ›
+                </span>
+              </Link>
+            );
+          })}
+
+          <Link
+            href="/coach"
+            className={`flex items-center gap-3.5 rounded-2xl border bg-surface px-4 py-3.5 transition-colors hover:border-[var(--line-strong)] ${
+              remembered?.kind === "coach" ? "border-accent" : "border-line"
+            }`}
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-foreground text-[11px] font-extrabold uppercase tracking-wide text-background"
+            >
+              Coach
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display truncate text-xl uppercase leading-none tracking-tight text-foreground">
+                Coach
+              </p>
+              <p className="mt-1 truncate text-xs font-semibold text-foreground-dim">
+                {teamCount > 0
+                  ? `${teamCount === 1 ? (teams ?? [])[0].name : `${teamCount} teams`} · players, practice, camera lab`
+                  : "Players, camera lab, and teams when you make one"}
+              </p>
+            </div>
+            <span className="shrink-0 text-lg text-foreground-mute" aria-hidden>
+              ›
+            </span>
+          </Link>
+        </div>
+
+        {household && (
+          <details className="group rounded-2xl border border-line bg-surface">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+              Manage family
+              <span className="text-base transition-transform group-open:rotate-90" aria-hidden>
+                ›
+              </span>
+            </summary>
+            <div className="space-y-4 border-t border-line pb-4">
+              {(players ?? []).length > 0 && (
+                <div className="divide-y divide-line">
+                  {(players ?? []).map((p) => (
+                    <ManagePlayerRow key={p.id} id={p.id} name={p.display_name} />
+                  ))}
+                </div>
+              )}
+              <div className="space-y-4 px-4">
+                <AddPlayerForm householdId={household.id} />
+                <HouseholdSettings householdId={household.id} householdName={household.name} />
+              </div>
+            </div>
+          </details>
+        )}
       </main>
     </div>
   );

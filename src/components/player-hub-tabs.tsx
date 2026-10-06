@@ -20,23 +20,33 @@ const TABS = [
   { value: "today" as const, label: "Today" },
   { value: "progress" as const, label: "Progress" },
   { value: "film" as const, label: "Film" },
-  { value: "profile" as const, label: "Profile" },
+  { value: "profile" as const, label: "Me" },
 ];
 
 type TabValue = (typeof TABS)[number]["value"];
 
 export function PlayerHubTabs({
+  initialTab = "today",
   today,
   progress,
   film,
   profile,
 }: {
+  /** Which tab opens first; the bottom bar's Me opens "profile". */
+  initialTab?: TabValue;
   today: React.ReactNode;
   progress: React.ReactNode;
   film: React.ReactNode;
   profile: React.ReactNode;
 }) {
-  const [tab, setTab] = useState<TabValue>("today");
+  const [tab, setTab] = useState<TabValue>(initialTab);
+  // The bottom bar's Home and Me both land on this page: follow it when
+  // it changes the tab without a fresh mount.
+  const [shownFor, setShownFor] = useState(initialTab);
+  if (shownFor !== initialTab) {
+    setShownFor(initialTab);
+    setTab(initialTab);
+  }
 
   return (
     <div>

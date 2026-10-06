@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { PLAYER_TABS, activePlayerTab, isImmersivePlayerRoute } from "@/lib/basketball/player-nav";
 import { haptic } from "@/lib/haptics";
 
@@ -36,6 +36,13 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
           <path d="M12 3.5v17M3.5 12h17M5.5 6.2c3 2.2 10 2.2 13 0M5.5 17.8c3-2.2 10-2.2 13 0" />
         </svg>
       );
+    case "me":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8.5" r="3.5" />
+          <path d="M5 20c1.2-3.6 3.8-5.5 7-5.5s5.8 1.9 7 5.5" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>
@@ -49,9 +56,10 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
 /** The player area's persistent bottom bar; same shape as TeamBottomNav. */
 export function PlayerBottomNav({ playerId }: { playerId: string }) {
   const pathname = usePathname();
+  const search = useSearchParams();
   if (isImmersivePlayerRoute(pathname)) return null;
 
-  const active = activePlayerTab(pathname, playerId);
+  const active = activePlayerTab(pathname, playerId, search.toString());
 
   return (
     <nav

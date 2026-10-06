@@ -27,8 +27,8 @@ export function parseProfile(value: string | undefined | null): Profile | null {
   return null;
 }
 
-/** Where a profile's home is. */
+/** Where a profile's home is: a player's hub, or the coach home (players, camera lab, teams). */
 export function profileHome(p: Profile): string {
   if (p.kind === "player") return `/players/${p.playerId}`;
-  return p.teamId ? `/teams/${p.teamId}` : "/teams/new";
+  return "/coach";
 }

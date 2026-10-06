@@ -14,7 +14,8 @@ import { ProgramPanel } from "@/components/program-panel";
 import { CombinePrompt } from "@/components/combine-prompt";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
 import { PlayerHubTabs } from "@/components/player-hub-tabs";
-import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
+import { Avatar } from "@/components/avatar";
+import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import {
   computeProgramProgress,
   rankPrograms,
@@ -54,10 +55,14 @@ const WEEKLY_TARGET = 3;
 
 export default async function PlayerHubPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ playerId: string }>;
+  /** tab=profile opens the Me tab (the bottom bar's Me). */
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { playerId } = await params;
+  const { tab } = await searchParams;
   const supabase = await createClient();
 
   // Everything in this first batch depends only on playerId (already
@@ -355,16 +360,15 @@ export default async function PlayerHubPage({
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="mx-auto flex w-full max-w-lg items-center justify-between">
           <Link
-            href="/"
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            Switch player
-          </Link>
-          <Link
             href={`/players/${playerId}/sessions`}
             className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
           >
             History
+          </Link>
+          {/* Your picture: the one place to change who is using the phone. */}
+          <Link href="/" aria-label={`${player.display_name}: switch profile`} className="flex items-center gap-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Switch</span>
+            <Avatar id={playerId} name={player.display_name} size={32} />
           </Link>
         </div>
       </header>
@@ -424,8 +428,46 @@ export default async function PlayerHubPage({
         </div>
 
         <PlayerHubTabs
+          initialTab={tab === "profile" ? "profile" : "today"}
           today={
             <div className="space-y-4">
+        {/* Shoot gets its own front door: the season number a player owns, and one tap to start. */}
+        <section className="animate-rise">
+          <Link
+            href={`/players/${playerId}/shooting`}
+            className="panel-lit block overflow-hidden rounded-3xl border border-line bg-surface p-5 transition-colors hover:border-[var(--line-strong)]"
+          >
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Count your shots</p>
+            <div className="mt-2 flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                {seasonShots.attempts > 0 ? (
+                  <>
+                    <p className="font-display text-5xl leading-none text-foreground">
+                      {formatPercentage(seasonShots.pct)}
+                    </p>
+                    <p className="mt-1.5 text-xs font-semibold text-foreground-dim">
+                      Season · {seasonShots.makes} of {seasonShots.attempts}
+                      {lastShot
+                        ? ` · last ${lastShot.makes}/${lastShot.attempts} ${lastShot.label?.trim() || ""}`.trimEnd()
+                        : ""}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-display text-3xl uppercase leading-none text-foreground">Shoot</p>
+                    <p className="mt-1.5 text-xs font-semibold text-foreground-dim">
+                      Makes and misses, tracked over the season
+                    </p>
+                  </>
+                )}
+              </div>
+              <span className="shrink-0 rounded-xl bg-accent px-4 py-3 text-xs font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)]">
+                Shoot
+              </span>
+            </div>
+          </Link>
+        </section>
+
         {showCombinePrompt && (
           <CombinePrompt
             playerId={playerId}
@@ -505,43 +547,7 @@ export default async function PlayerHubPage({
           )}
         </section>
 
-        <section className="animate-rise" style={{ animationDelay: "90ms" }}>
-          <SectionHeading title="Shooting" caption="Just shoot" />
-          <Link
-            href={`/players/${playerId}/shooting`}
-            className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                {lastShot ? (
-                  <>
-                    <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                      {lastShot.makes}/{lastShot.attempts} ·{" "}
-                      {formatPercentage(percentage(lastShot.makes, lastShot.attempts))}
-                    </p>
-                    <p className="mt-1.5 text-xs text-foreground-dim">
-                      Last: {lastShot.label?.trim() || "Shooting session"}
-                      {seasonShots.attempts > 0 &&
-                        ` · Season ${formatPercentage(seasonShots.pct)}, ${seasonShots.makes} of ${seasonShots.attempts}`}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
-                      Count your shots
-                    </p>
-                    <p className="mt-1.5 text-xs text-foreground-dim">
-                      Makes and misses, tracked over time
-                    </p>
-                  </>
-                )}
-              </div>
-              <span className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent">
-                Shoot →
-              </span>
-            </div>
-          </Link>
-        </section>
+
 
             </div>
           }
@@ -679,6 +685,31 @@ export default async function PlayerHubPage({
           }
           profile={
             <div className="space-y-4">
+        <section className="overflow-hidden rounded-2xl border border-line bg-surface">
+          {[
+            { href: `/players/${playerId}/assessments`, label: "Ratings history", sub: "Every self-rating, and how your game has changed" },
+            { href: `/players/${playerId}/assessment`, label: "Rate yourself again", sub: "Updates your card and what gets recommended" },
+            { href: `/players/${playerId}/combine`, label: "Combine", sub: "Measured tests against benchmarks" },
+            { href: `/players/${playerId}/sessions`, label: "Workout history", sub: "Every session logged" },
+            { href: "/", label: "Switch profile", sub: "Someone else using this phone" },
+          ].map((item, i) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${
+                i ? "border-t border-line" : ""
+              }`}
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                <p className="truncate text-[11px] text-foreground-mute">{item.sub}</p>
+              </div>
+              <span className="text-foreground-mute" aria-hidden>
+                ›
+              </span>
+            </Link>
+          ))}
+        </section>
         <section className="animate-rise" style={{ animationDelay: "240ms" }}>
           <SectionHeading title="Training Level" caption="Sets how hard your sessions run" />
           <div className="rounded-2xl border border-line bg-surface p-4">

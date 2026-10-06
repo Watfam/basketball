@@ -5,7 +5,7 @@
  * Profile tabs inside Home.
  */
 export type PlayerTab = {
-  key: "home" | "train" | "shoot" | "film";
+  key: "home" | "train" | "shoot" | "film" | "me";
   label: string;
   href: (playerId: string) => string;
 };
@@ -15,16 +15,18 @@ export const PLAYER_TABS: PlayerTab[] = [
   { key: "train", label: "Train", href: (id) => `/players/${id}/workouts` },
   { key: "shoot", label: "Shoot", href: (id) => `/players/${id}/shooting` },
   { key: "film", label: "Film", href: (id) => `/players/${id}/film` },
+  { key: "me", label: "Me", href: (id) => `/players/${id}?tab=profile` },
 ];
 
 /** Which tab a path belongs to, or null outside the player area. */
-export function activePlayerTab(pathname: string, playerId: string): PlayerTab["key"] | null {
+export function activePlayerTab(pathname: string, playerId: string, search = ""): PlayerTab["key"] | null {
   const base = `/players/${playerId}`;
   if (!pathname.startsWith(base)) return null;
   const rest = pathname.slice(base.length).replace(/\/$/, "");
   if (rest.startsWith("/shooting")) return "shoot";
   if (rest.startsWith("/film")) return "film";
   if (rest.startsWith("/workouts") || rest.startsWith("/programs") || rest === "/sessions") return "train";
+  if (rest.startsWith("/assessments") || (rest === "" && new URLSearchParams(search).get("tab") === "profile")) return "me";
   return "home";
 }
 
