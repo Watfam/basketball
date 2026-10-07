@@ -809,7 +809,8 @@ export function DetectorLab() {
           counter = createShotCounter(aimed.rim);
           pendingScale = null;
         }
-        if (counter && !sizingPass) {
+        // The frame that ended the sizing pass isn't counted: counting starts from the clip's first frame.
+        if (counter && !sizingPass && !restartClip) {
           if (frameClipMs < clipTimeMs) {
             // The clip looped: that pass was the set. Counting it twice
             // would double every shot.
