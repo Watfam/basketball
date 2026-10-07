@@ -538,5 +538,11 @@ said x1.27 the wrong way round, while the ball (a sphere looks the same size fro
 - Ball size reference for automatic sizing: in the air above the rim (within 80 px sideways, 60-170 px above), training
   23.5 / 23.9 px (4839 / 4840, ~280 sightings each); this video about 28 px at x1.0, so x1.18.
 Decision: size from the ball, automatically, over the first warm-up shots; the rim is tapped once for position only.
+- Auto sizing as built (src/lib/vision/autoSize.ts): the narrow area above the rim saw only ~2 sightings a shot on this
+  angle (the ball comes in across the window from the side), and the first 20-30 sightings, all from one or two flights,
+  read 20-30% high even on training (the ball nearer the camera on its way in looks bigger). So: any moving, round,
+  uncut ball within 140 px sideways and 25-180 px above the rim; the median of each flight, then the median of five
+  flights. Five-flight estimates: training x1.03-1.04 (kept, tolerance 15%); IMG_4851 at x1.0 x1.22-1.30. In the lab
+  (browser, clip read frame by frame) it went x1.00 -> x1.24 after five shots, then confirmed x1.24 on the next five.
 Next rule idea, not done: count a "below the net" sighting only on the ball's own followed path (V3's tracker), which would
 also have stopped the ground-bounce make at x1.0.
