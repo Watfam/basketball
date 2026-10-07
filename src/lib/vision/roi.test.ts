@@ -42,12 +42,3 @@ test("block motion sees a small ball move and ignores even noise", async () => {
   for (let y = 100; y < 122; y += 1) for (let x = 180; x < 202; x += 1) ball[y * w + x] = 200;
   assert.ok(blockMotion(still, ball, w, h) > 10);
 });
-
-test("two taps on the rim's edges give its width and the scale that makes it the trained size", async () => {
-  const { rimScaleFromTaps } = await import("./roi.ts");
-  // At scale 1 the window is 416 camera px: a rim tapped 45 px wide is the trained size.
-  assert.deepEqual(rimScaleFromTaps(170, 215, 416, 45), { rimCameraPx: 45, scale: 1 });
-  // Matt's far setup: window cut at 678 px (x1.63), rim tapped 18 model px wide -> about 29 camera px -> x0.65.
-  const far = rimScaleFromTaps(183, 201, 678, 45);
-  assert.ok(Math.abs(far.scale - 0.65) < 0.01);
-});

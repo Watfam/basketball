@@ -164,18 +164,3 @@ export function blockMotion(prev: Uint8Array, cur: Uint8Array, width: number, he
   }
   return best;
 }
-
-/**
- * The rim's width in camera pixels, from two taps on its left and right
- * edges in the close-up (model pixels of a window cut at `cropSide` camera
- * pixels), and the window scale that makes it the trained width.
- */
-export function rimScaleFromTaps(
-  leftX: number,
-  rightX: number,
-  cropSide: number,
-  trainedRimWidth: number
-): { rimCameraPx: number; scale: number } {
-  const rimCameraPx = (Math.abs(rightX - leftX) * cropSide) / MODEL_INPUT;
-  return { rimCameraPx, scale: rimCameraPx / trainedRimWidth };
-}

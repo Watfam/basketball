@@ -301,6 +301,11 @@ export function createShotCounter(rim: { x: number; y: number }) {
       return done;
     },
 
+    /** No shot open or waiting: a safe moment to change the window. */
+    isIdle(): boolean {
+      return open === null && closed.length === 0;
+    },
+
     /** End of the session: decide whatever is still waiting. */
     flush(): ShotCall[] {
       if (open) closed.push(open);
