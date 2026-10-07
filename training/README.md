@@ -543,6 +543,8 @@ Decision: size from the ball, automatically, over the first warm-up shots; the r
   read 20-30% high even on training (the ball nearer the camera on its way in looks bigger). So: any moving, round,
   uncut ball within 140 px sideways and 25-180 px above the rim; the median of each flight, then the median of five
   flights. Five-flight estimates: training x1.03-1.04 (kept, tolerance 15%); IMG_4851 at x1.0 x1.22-1.30. In the lab
-  (browser, clip read frame by frame) it went x1.00 -> x1.24 after five shots, then confirmed x1.24 on the next five.
+  (browser, clip read frame by frame) it went x1.00 -> x1.24 after five shots, then confirmed x1.24 on the next five. Counting the 12 shots at x1.24 in the lab: 12 of 12 found,
+  10 of 12 calls right with V2 (the roll-off make, flagged; and clip 3's second make called a miss, not flagged), V3 9 of 12.
+  Offline at x1.2 and x1.3 it was 11 of 12; the lab's clip was a re-encode, so a borderline shot can tip.
 Next rule idea, not done: count a "below the net" sighting only on the ball's own followed path (V3's tracker), which would
 also have stopped the ground-bounce make at x1.0.
