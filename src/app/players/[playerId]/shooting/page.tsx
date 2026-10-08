@@ -8,7 +8,7 @@ import { TrendChart } from "@/components/charts/trend-chart";
 import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import { describeSavedGoal } from "@/lib/basketball/goals";
 import { Card } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
+import { PlayerTabHeader } from "@/components/player-tab-header";
 
 type SessionRow = {
   id: string;
@@ -241,7 +241,7 @@ export default async function ShootingPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }} />
+      <PlayerTabHeader playerId={playerId} name={player.display_name} />
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
         <ShootingHub

@@ -48,7 +48,23 @@ export async function submitAssessment(
     .eq("id", playerId)
     .maybeSingle();
 
-  const nextPlayerType = { ...(existing?.player_type ?? {}), ...computed };
+  // Measured beats self-rated: once the player has done the combine, a
+  // check-in keeps the measured ratings and updates the rest.
+  const { count: combines } =
+    kind === "onboarding"
+      ? { count: 0 }
+      : await supabase
+          .schema("hoops")
+          .from("assessments")
+          .select("id", { count: "exact", head: true })
+          .eq("player_id", playerId)
+          .eq("kind", "combine");
+  const existingType = (existing?.player_type ?? {}) as { ratings?: unknown };
+  const nextPlayerType = {
+    ...existingType,
+    ...computed,
+    ...((combines ?? 0) > 0 && existingType.ratings ? { ratings: existingType.ratings } : {}),
+  };
 
   const { error: playerError } = await supabase
     .schema("hoops")
@@ -64,6 +80,7 @@ export async function submitAssessment(
 
   revalidatePath("/");
   revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null, computed };
 }
 
@@ -102,6 +119,7 @@ export async function setPlayerProfile(
 
   revalidatePath(`/players/${playerId}/combine`);
   revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 
@@ -176,6 +194,8 @@ export async function submitCombine(
   if (updateError) return { error: updateError.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   revalidatePath(`/players/${playerId}/assessments`);
   return { error: null };
 }
@@ -210,5 +230,7 @@ export async function snoozeCombine(playerId: string) {
   if (error) return { error: error.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }

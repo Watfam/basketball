@@ -1,13 +1,14 @@
 import { ProgressRing } from "@/components/charts/progress-ring";
-import { ovrTier } from "@/lib/basketball/rating";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import { SKILL_LEVELS, type SkillLevel } from "@/lib/basketball/assessment";
 
 /**
- * The identity block at the top of the hub. One panel carrying name,
- * archetype, overall rating and headline stats — deliberately not four
- * separate stacked cards, which is what made the old hub read as a list
- * of widgets instead of a player's profile.
+ * The player card, at the top of Me. One panel carrying name, style,
+ * overall rating and headline stats.
+ *
+ * One way of saying how good you are: the Overall, marked Measured (from
+ * the combine) or Self-rated. The training level is the badge. The old
+ * "Elite tier" stat was a third scale for the same number and is gone.
  */
 export function PlayerHero({
   playerName,
@@ -15,25 +16,30 @@ export function PlayerHero({
   primaryPosition,
   level,
   overall,
+  measured,
   streakWeeks,
   totalSessions,
+  seasonPct,
 }: {
   playerName: string;
   archetype: string;
   primaryPosition: string;
   level: SkillLevel;
   overall: number;
+  /** Ratings from the combine rather than the player's own estimate. */
+  measured: boolean;
   streakWeeks: number;
+  /** Everything: workouts, shooting sets, film and the combine. */
   totalSessions: number;
+  /** This season's make %, already formatted, or null before any shooting. */
+  seasonPct: string | null;
 }) {
   const positionLabel = PRIMARY_POSITIONS.find((p) => p.value === primaryPosition)?.label ?? "";
   const levelLabel = SKILL_LEVELS.find((l) => l.value === level)?.label ?? "";
-  const tier = ovrTier(overall);
-
   const stats = [
     { value: streakWeeks, label: "Wk streak", accent: streakWeeks > 0 },
     { value: totalSessions, label: totalSessions === 1 ? "Session" : "Sessions", accent: false },
-    { value: tier.label, label: "Tier", accent: false, isText: true },
+    { value: seasonPct ?? "–", label: "Shooting", accent: false },
   ];
 
   return (
@@ -55,20 +61,29 @@ export function PlayerHero({
               </span>
             </div>
 
-            <h1 className="font-display mt-3 text-[2.6rem] uppercase leading-[0.88] tracking-tight text-foreground sm:text-6xl">
+            <h1 className="font-display mt-3 break-words text-[2.3rem] uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl">
               {playerName}
             </h1>
             <p className="mt-2 text-sm font-semibold leading-snug text-accent">{archetype}</p>
           </div>
 
-          <ProgressRing ratio={overall / 99} size={104} stroke={7} idPrefix="ovr">
-            <span className="font-display text-gradient-accent text-[2.6rem] leading-none">
-              {overall}
+          <div className="flex shrink-0 flex-col items-center gap-1.5">
+            <ProgressRing ratio={overall / 99} size={104} stroke={7} idPrefix="ovr">
+              <span className="font-display text-gradient-accent text-[2.6rem] leading-none">
+                {overall}
+              </span>
+              <span className="-mt-1 text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-dim">
+                Overall
+              </span>
+            </ProgressRing>
+            <span
+              className={`rounded-md border px-1.5 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.1em] ${
+                measured ? "border-[var(--data-positive)] text-[var(--data-positive)]" : "border-line-strong text-foreground-dim"
+              }`}
+            >
+              {measured ? "Measured" : "Self-rated"}
             </span>
-            <span className="-mt-1 text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-dim">
-              Overall
-            </span>
-          </ProgressRing>
+          </div>
         </div>
       </div>
 
@@ -81,7 +96,7 @@ export function PlayerHero({
             <p
               className={`font-display text-2xl uppercase leading-none ${
                 stat.accent ? "text-accent" : "text-foreground"
-              } ${stat.isText ? "text-xl" : ""}`}
+              }`}
             >
               {stat.value}
             </p>

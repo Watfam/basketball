@@ -155,6 +155,7 @@ export async function syncShotSession(input: ShotSyncInput) {
   if (input.ended) {
     revalidatePath("/players/[playerId]/shooting", "page");
     revalidatePath("/players/[playerId]", "page");
+    revalidatePath("/players/[playerId]/me", "page");
   }
 
   return { error: null, sessionId };
@@ -191,5 +192,6 @@ async function setShotSessionDeleted(sessionId: string, playerId: string, delete
 
   revalidatePath("/players/[playerId]/shooting", "page");
   revalidatePath("/players/[playerId]", "page");
+  revalidatePath("/players/[playerId]/me", "page");
   return { error: null };
 }

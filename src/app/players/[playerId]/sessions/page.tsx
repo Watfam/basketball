@@ -46,7 +46,7 @@ export default async function SessionHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+      <PageHeader back={{ href: `/players/${playerId}/workouts`, label: "Train" }}>
         <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
           {sessions?.length ?? 0} {sessions?.length === 1 ? "session" : "sessions"}
         </span>

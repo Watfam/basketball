@@ -33,6 +33,7 @@ export async function logFilmView(playerId: string, filmResourceId: string, take
 
   revalidatePath(`/players/${playerId}/film`);
   revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 
@@ -88,6 +89,7 @@ export async function completeFilmSession(
 
   revalidatePath(`/players/${playerId}/film`);
   revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 

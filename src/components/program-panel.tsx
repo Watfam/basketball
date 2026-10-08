@@ -51,7 +51,8 @@ export function ProgramPanel({
         setError(result.error);
         return;
       }
-      router.push(`/players/${playerId}/assessment`);
+      // The retest is the combine: measured, not a fresh guess.
+      router.push(`/players/${playerId}/combine`);
     });
   }
 

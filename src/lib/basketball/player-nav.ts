@@ -1,21 +1,25 @@
 /**
- * The player area's bottom-bar destinations, as in the design review
- * (docs/camera-shot-counting-plan.md): Shoot sits in the middle, one thumb
- * away from anywhere. The hub keeps its own Today / Progress / Film /
- * Profile tabs inside Home.
+ * The player area's bottom bar: four tabs, one job each.
+ *
+ * - Today: the one thing to do next, and this week.
+ * - Shoot: count a set; the camera will live here too.
+ * - Train: workouts, programs and film (film is learning, so it trains).
+ * - Me: the player card, progress, level, history.
+ *
+ * It used to be five tabs on top of the home screen's own four inner tabs,
+ * with Film and Me in both.
  */
 export type PlayerTab = {
-  key: "home" | "train" | "shoot" | "film" | "me";
+  key: "today" | "shoot" | "train" | "me";
   label: string;
   href: (playerId: string) => string;
 };
 
 export const PLAYER_TABS: PlayerTab[] = [
-  { key: "home", label: "Home", href: (id) => `/players/${id}` },
-  { key: "train", label: "Train", href: (id) => `/players/${id}/workouts` },
+  { key: "today", label: "Today", href: (id) => `/players/${id}` },
   { key: "shoot", label: "Shoot", href: (id) => `/players/${id}/shooting` },
-  { key: "film", label: "Film", href: (id) => `/players/${id}/film` },
-  { key: "me", label: "Me", href: (id) => `/players/${id}?tab=profile` },
+  { key: "train", label: "Train", href: (id) => `/players/${id}/workouts` },
+  { key: "me", label: "Me", href: (id) => `/players/${id}/me` },
 ];
 
 /** Which tab a path belongs to, or null outside the player area. */
@@ -24,10 +28,13 @@ export function activePlayerTab(pathname: string, playerId: string, search = "")
   if (!pathname.startsWith(base)) return null;
   const rest = pathname.slice(base.length).replace(/\/$/, "");
   if (rest.startsWith("/shooting")) return "shoot";
-  if (rest.startsWith("/film")) return "film";
-  if (rest.startsWith("/workouts") || rest.startsWith("/programs") || rest === "/sessions") return "train";
-  if (rest.startsWith("/assessments") || (rest === "" && new URLSearchParams(search).get("tab") === "profile")) return "me";
-  return "home";
+  if (rest.startsWith("/workouts") || rest.startsWith("/programs") || rest.startsWith("/film") || rest === "/sessions") {
+    return "train";
+  }
+  if (rest.startsWith("/me") || rest.startsWith("/assessments") || (rest === "" && new URLSearchParams(search).get("tab") === "profile")) {
+    return "me";
+  }
+  return "today";
 }
 
 /**

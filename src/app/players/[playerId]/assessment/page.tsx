@@ -12,7 +12,7 @@ export default async function AssessmentPage({
   const supabase = await createClient();
 
   // Independent of each other — parallel instead of sequential.
-  const [{ data: { user } }, { data: player }] = await Promise.all([
+  const [{ data: { user } }, { data: player }, { count: combines }] = await Promise.all([
     supabase.auth.getUser(),
     // RLS scopes this to players in the current user's household — see
     // players_household_owner_all in supabase/schema.sql.
@@ -22,6 +22,12 @@ export default async function AssessmentPage({
       .select("id, display_name, primary_position, player_type")
       .eq("id", playerId)
       .maybeSingle(),
+    supabase
+      .schema("hoops")
+      .from("assessments")
+      .select("id", { count: "exact", head: true })
+      .eq("player_id", playerId)
+      .eq("kind", "combine"),
   ]);
 
   if (!user) redirect("/login");
@@ -48,6 +54,7 @@ export default async function AssessmentPage({
         previousRatings={playerType.ratings ?? null}
         previousStyleTags={playerType.style_tags ?? null}
         previousGoal={playerType.goal ?? null}
+        ratingsMeasured={isRetest && (combines ?? 0) > 0}
       />
     </div>
   );
