@@ -89,7 +89,7 @@ export function AttributePanel({
         })}
       </div>
 
-      <div className="border-t border-line bg-[var(--raised)] px-5 py-3.5">
+      <div className="border-t border-line bg-raised px-5 py-3.5">
         <p className="text-xs leading-relaxed text-foreground-dim">
           <span className="font-bold text-foreground">{strongest.label}</span> is your edge.{" "}
           <span className="font-bold text-foreground">{weakest.label}</span> is where the next

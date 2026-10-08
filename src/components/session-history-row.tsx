@@ -26,7 +26,7 @@ export function SessionHistoryRow({
   return (
     <Link
       href={href}
-      className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${
+      className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised ${
         isFirst ? "" : "border-t border-line"
       }`}
     >

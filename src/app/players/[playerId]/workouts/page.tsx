@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { rankWorkouts, type PlayerType } from "@/lib/basketball/workout-matching";
 import { WorkoutCard, type Workout } from "@/components/workout-card";
 import { EmptyState } from "@/components/empty-state";
 import { suggestSkillLevel, type ComputedPlayerType, type SkillLevel } from "@/lib/basketball/assessment";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function PlayerWorkoutsPage({
   params,
@@ -78,19 +78,11 @@ export default async function PlayerWorkoutsPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            {ranked.length} {ranked.length === 1 ? "workout" : "workouts"}
-          </span>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          {ranked.length} {ranked.length === 1 ? "workout" : "workouts"}
+        </span>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-5 sm:py-8">
         <div className="mb-1">

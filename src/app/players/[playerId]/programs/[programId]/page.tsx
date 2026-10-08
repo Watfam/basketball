@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { WorkoutCard, type Workout } from "@/components/workout-card";
 import { EnrollButton } from "@/components/enroll-button";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -84,16 +85,7 @@ export default async function ProgramDetailPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-lg">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Back
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: "Back" }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]">
@@ -154,7 +146,7 @@ export default async function ProgramDetailPage({
 
           <div className="mt-3 space-y-2.5">
             {[...weeks.entries()].map(([weekNumber, weekDays]) => (
-              <div key={weekNumber} className="rounded-2xl border border-line bg-surface p-4">
+              <Card key={weekNumber} className="p-4">
                 <div className="flex items-baseline justify-between">
                   <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                     Week {weekNumber}
@@ -184,7 +176,7 @@ export default async function ProgramDetailPage({
                     {weekDays.find((d) => d.note)?.note}
                   </p>
                 )}
-              </div>
+              </Card>
             ))}
           </div>
         </section>

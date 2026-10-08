@@ -15,6 +15,8 @@ import {
 import { RATING_CATEGORIES } from "@/lib/basketball/assessment";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -167,28 +169,19 @@ export function CombineFlow({
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={finish}
-            disabled={pending || recordedCount === 0}
-            className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:shadow-none"
-          >
+          <Button size="lg" block onClick={finish} disabled={pending || recordedCount === 0} className="mt-5">
             {pending ? "Saving…" : "Save my combine"}
-          </button>
+          </Button>
           {recordedCount === 0 && (
             <p className="mt-2 text-center text-xs text-foreground-dim">
               Record at least one test to save.
             </p>
           )}
-          {error && <p className="mt-2 text-center text-xs text-danger">{error}</p>}
+          {error && <FormError className="mt-2 text-center">{error}</FormError>}
 
-          <button
-            type="button"
-            onClick={back}
-            className="mt-2 w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-          >
+          <Button variant="ghost" size="sm" block onClick={back} className="mt-2">
             Back
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -247,7 +240,7 @@ export function CombineFlow({
             {(drill.equipment ?? []).map((e) => (
               <span
                 key={e}
-                className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
+                className="rounded-full border border-line bg-raised px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
               >
                 {e}
               </span>
@@ -279,13 +272,13 @@ export function CombineFlow({
             Your score — {scoreUnit(drill)}
           </label>
           <div className="flex items-center gap-3">
-            <input
+            <Input
               id={`score-${drill.id}`}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               inputMode="decimal"
               placeholder={drill.metric === "seconds" ? "13.2" : "24"}
-              className="w-full rounded-xl border border-line bg-[var(--raised)] px-3 py-3 font-display text-2xl text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+              className="rounded-xl py-3 font-display text-2xl"
             />
             {/* Live so a player sees what the number means before
                 committing to it, rather than only at the end. */}
@@ -299,33 +292,21 @@ export function CombineFlow({
             )}
           </div>
 
-          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+          {error && <FormError className="mt-2">{error}</FormError>}
 
-          <button
-            type="button"
-            onClick={record}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
-          >
+          <Button size="lg" block onClick={record} className="mt-4">
             {index === drills.length - 1 ? "Record & review" : "Record & next"}
-          </button>
+          </Button>
 
-          <div className="mt-2 flex justify-center gap-5">
+          <div className="mt-2 flex justify-center gap-2">
             {index > 0 && (
-              <button
-                type="button"
-                onClick={back}
-                className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-              >
+              <Button variant="ghost" size="sm" onClick={back}>
                 Back
-              </button>
+              </Button>
             )}
-            <button
-              type="button"
-              onClick={skip}
-              className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-            >
+            <Button variant="ghost" size="sm" onClick={skip}>
               Can&rsquo;t do this one
-            </button>
+            </Button>
           </div>
         </div>
       </div>

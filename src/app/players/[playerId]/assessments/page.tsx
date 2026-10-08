@@ -1,10 +1,12 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TrendChart, type TrendSeries } from "@/components/charts/trend-chart";
 import { EmptyState } from "@/components/empty-state";
 import { RATING_CATEGORIES, RATING_SCALE_MAX, type ComputedPlayerType } from "@/lib/basketball/assessment";
 import { computeOverall, ovrTier, type Ratings } from "@/lib/basketball/rating";
+import { ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 const SERIES_COLORS = ["var(--accent)", "var(--data-cyan)", "var(--data-positive)", "var(--foreground-mute)"];
 
@@ -64,19 +66,11 @@ export default async function AssessmentHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            {assessments.length} {assessments.length === 1 ? "check-in" : "check-ins"}
-          </span>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          {assessments.length} {assessments.length === 1 ? "check-in" : "check-ins"}
+        </span>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <div>
@@ -136,7 +130,7 @@ export default async function AssessmentHistoryPage({
               </h2>
               <div className="space-y-2.5">
                 {[...assessments].reverse().map((a, i) => (
-                  <div key={a.id} className="rounded-2xl border border-line bg-surface p-4">
+                  <Card key={a.id} className="p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
@@ -180,19 +174,16 @@ export default async function AssessmentHistoryPage({
                         ))}
                       </div>
                     )}
-                  </div>
+                  </Card>
                 ))}
               </div>
             </section>
           </>
         )}
 
-        <Link
-          href={`/players/${playerId}/assessment`}
-          className="block w-full rounded-xl border border-accent py-3.5 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent/10"
-        >
+        <ButtonLink href={`/players/${playerId}/assessment`} variant="secondary" size="lg" block>
           Rate yourself again
-        </Link>
+        </ButtonLink>
       </main>
     </div>
   );

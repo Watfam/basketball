@@ -1,6 +1,7 @@
 import { StartSessionButton } from "@/components/start-session-button";
 import { computeWorkoutDifficulty } from "@/lib/basketball/workout-matching";
 import { type LevelTarget } from "@/lib/basketball/prescription";
+import { Card } from "@/components/ui/card";
 
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -77,7 +78,7 @@ export function WorkoutCard({
   const pips = difficulty ? DIFFICULTY_PIPS[difficulty] : 0;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+    <Card className="overflow-hidden">
       <div className="px-5 pt-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -171,7 +172,7 @@ export function WorkoutCard({
           <StartSessionButton playerId={playerId} workoutId={workout.id} fullWidth />
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 

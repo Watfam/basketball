@@ -1,4 +1,5 @@
 import { byZone, durationMinutes, formatPercentage, shotsPerMinute, summarize, type Shot } from "@/lib/basketball/shooting";
+import { Eyebrow } from "@/components/ui/card";
 
 /**
  * The most recent shots as a row of marks.
@@ -109,7 +110,7 @@ export function SessionSummary({
       </div>
 
       {average && sum.pct !== null && (
-        <div className="rounded-xl border border-line bg-[var(--raised)] p-3">
+        <div className="rounded-xl border border-line bg-raised p-3">
           <div className="flex items-baseline justify-between text-[11px] font-bold uppercase tracking-wide">
             <span className="text-foreground-mute">
               Your {label ?? "shooting"} average · {average.sessions} {average.sessions === 1 ? "session" : "sessions"}
@@ -135,9 +136,7 @@ export function SessionSummary({
 
       {zones.length > 0 && (
         <div className="space-y-2.5">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            By spot
-          </p>
+          <Eyebrow>By spot</Eyebrow>
           {zones.map((z) => (
             <div key={z.zone}>
               <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -146,7 +145,7 @@ export function SessionSummary({
                   {z.makes}/{z.attempts} · {formatPercentage(z.pct)}
                 </span>
               </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--raised)]">
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-raised">
                 <div
                   className="h-full rounded-full bg-accent"
                   style={{ width: `${z.pct ?? 0}%` }}

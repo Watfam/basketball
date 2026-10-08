@@ -18,6 +18,8 @@ import {
 import { isWatchableUrl } from "@/lib/basketball/film";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
+import { Button, buttonClass } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 type Drill = {
   id: string;
@@ -323,16 +325,18 @@ export function SessionPlayer({
         ))}
       </div>
 
-      {error && <p className="mt-4 text-sm text-danger">{error}</p>}
+      {error && <FormError className="mt-4">{error}</FormError>}
 
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
+        block
         onClick={skipActiveDrill}
         disabled={pending || completed.has(activeIndex)}
-        className="mt-4 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground disabled:opacity-50"
+        className="mt-4"
       >
         {completed.has(activeIndex) ? "Drill logged" : "Skip this drill"}
-      </button>
+      </Button>
 
       {/* Only offered once something has actually been logged. Finishing
           a session with nothing done used to mark it completed, which fed
@@ -346,32 +350,19 @@ export function SessionPlayer({
               Finish now with {completed.size} of {drills.length} drills logged? Whatever
               you&rsquo;ve done is already saved.
             </p>
-            <div className="mt-3 flex justify-center gap-4">
-              <button
-                type="button"
-                onClick={finishSession}
-                disabled={pending}
-                className="text-xs font-bold uppercase tracking-wide text-accent hover:text-accent-hover disabled:opacity-50"
-              >
+            <div className="mt-3 flex justify-center gap-2">
+              <Button size="sm" onClick={finishSession} disabled={pending}>
                 {pending ? "Finishing…" : "Finish now"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFinishConfirming(false)}
-                className="text-xs font-semibold text-foreground-dim hover:text-foreground"
-              >
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setFinishConfirming(false)}>
                 Keep going
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => setFinishConfirming(true)}
-            className="mt-3 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground"
-          >
+          <Button variant="ghost" size="sm" block onClick={() => setFinishConfirming(true)} className="mt-3">
             Finish workout now
-          </button>
+          </Button>
         ))}
     </div>
   );
@@ -552,16 +543,17 @@ function TimerDrill({
       </div>
 
       {!running && (
-        <button
-          type="button"
+        <Button
+          size="lg"
+          block
           onClick={() => {
             haptic("tap");
             setRunning(true);
           }}
-          className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover active:scale-[0.99]"
+          className="mt-6"
         >
           Start
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -658,16 +650,17 @@ function RepDrill({
           Set {setsDone + 1} of {totalSets} up next
         </p>
 
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             haptic("tap");
             setRestLeft(null);
           }}
-          className="mt-3 text-xs font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+          className="mt-3 text-accent hover:text-accent-hover"
         >
           Skip rest →
-        </button>
+        </Button>
       </div>
     );
   }
@@ -756,7 +749,7 @@ function SessionComplete({
         transition={{ delay: 0.3 }}
         type="button"
         onClick={onDone}
-        className="mt-5 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
+        className={buttonClass({ size: "lg", block: true, className: "mt-5" })}
       >
         Done
       </motion.button>

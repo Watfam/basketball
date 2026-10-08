@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { enrollInProgram } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -100,23 +101,15 @@ export function ProgramOffer({
           </div>
 
           <div className="space-y-2 px-5 py-3.5">
-            <button
-              type="button"
-              onClick={() => join(program.id)}
-              disabled={pendingId !== null}
-              className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
-            >
+            <Button size="lg" block onClick={() => join(program.id)} disabled={pendingId !== null}>
               {pendingId === program.id ? "Starting…" : "Start this program"}
-            </button>
+            </Button>
             {/* Six weeks is a real commitment — there should be a way to
                 read the whole thing before agreeing to it. */}
-            <Link
-              href={`/players/${playerId}/programs/${program.id}`}
-              className="block w-full py-1 text-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
-            >
+            <ButtonLink href={`/players/${playerId}/programs/${program.id}`} variant="ghost" size="sm" block>
               See what&rsquo;s inside →
-            </Link>
-            {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+            </ButtonLink>
+            {error && <FormError className="mt-2">{error}</FormError>}
           </div>
         </div>
       ))}

@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { computeWorkoutDifficulty } from "@/lib/basketball/workout-matching";
 import { type Workout } from "@/components/workout-card";
+import { CardLink } from "@/components/ui/card";
 
 const DIFFICULTY_PIPS: Record<string, number> = { beginner: 1, intermediate: 2, advanced: 3 };
 
@@ -34,10 +34,10 @@ export function WorkoutRail({
         const focus = workout.focus_areas?.[0];
 
         return (
-          <Link
+          <CardLink
             key={workout.id}
             href={`/players/${playerId}/workouts`}
-            className="group w-[63%] shrink-0 snap-start rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)] sm:w-[46%]"
+            className="group w-[63%] shrink-0 snap-start p-4 sm:w-[46%]"
           >
             <div className="flex items-center justify-between">
               {focus && (
@@ -72,7 +72,7 @@ export function WorkoutRail({
                 {drills.length} {drills.length === 1 ? "drill" : "drills"}
               </span>
             </div>
-          </Link>
+          </CardLink>
         );
       })}
     </div>

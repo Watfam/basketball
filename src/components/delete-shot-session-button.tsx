@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteShotSession } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
 
 export function DeleteShotSessionButton({
   sessionId,
@@ -30,13 +31,8 @@ export function DeleteShotSessionButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={remove}
-      disabled={pending}
-      className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
-    >
+    <Button variant="ghost" size="sm" block onClick={remove} disabled={pending} className="hover:text-danger">
       {pending ? "Deleting…" : "Delete this session"}
-    </button>
+    </Button>
   );
 }

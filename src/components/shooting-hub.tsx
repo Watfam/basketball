@@ -29,6 +29,9 @@ import { haptic } from "@/lib/haptics";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { useWakeLock } from "@/lib/use-wake-lock";
 import { SessionSummary, ShotStrip } from "@/components/shot-summary";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/card";
+import { Input } from "@/components/ui/field";
 
 /**
  * The session lives on the phone first.
@@ -419,20 +422,12 @@ export function ShootingHub({
             />
           </div>
           <div className="mt-8 flex gap-2.5">
-            <button
-              type="button"
-              onClick={() => start(finished.label ?? "", finished.goal)}
-              className="flex-1 rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
-            >
+            <Button onClick={() => start(finished.label ?? "", finished.goal)} className="flex-1 py-4">
               Shoot again
-            </button>
-            <button
-              type="button"
-              onClick={() => setFinished(null)}
-              className="flex-1 rounded-xl bg-raised py-4 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim"
-            >
+            </Button>
+            <Button variant="secondary" onClick={() => setFinished(null)} className="flex-1 py-4">
               Done
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -453,13 +448,9 @@ export function ShootingHub({
       <div className="theme-dark court-glow fixed inset-0 z-50 flex select-none flex-col overflow-y-auto bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] text-foreground">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
           <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={discard}
-              className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={discard} className="-ml-3">
               Discard
-            </button>
+            </Button>
             <span
               className={`text-[11px] font-extrabold uppercase tracking-wide ${
                 syncState === "offline" ? "text-accent" : "text-foreground-mute"
@@ -496,7 +487,7 @@ export function ShootingHub({
               >
                 {progress.reached && draft.shots.length === 0 ? "Time's up" : progress.label}
               </p>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--raised)]">
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-raised">
                 <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress.fraction * 100}%` }} />
               </div>
             </div>
@@ -527,9 +518,9 @@ export function ShootingHub({
           </div>
 
           <div className="mt-5">
-            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <Eyebrow className="mb-1.5">
               Spot (optional — stays until you change it)
-            </p>
+            </Eyebrow>
             <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {ZONES.map((z) => (
                 <button
@@ -572,22 +563,22 @@ export function ShootingHub({
             {error && <p className="mt-3 text-center text-xs text-accent">{error}</p>}
 
             <div className="mt-3 flex gap-2.5">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={undo}
                 disabled={draft.shots.length === 0 || ending}
-                className="flex-1 rounded-xl bg-raised py-4 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-opacity disabled:opacity-30"
+                className="flex-1 py-4"
               >
                 Undo
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={finish}
                 disabled={draft.shots.length === 0 || ending}
-                className="flex-[1.6] rounded-xl border border-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:bg-accent/10 disabled:opacity-30"
+                className="flex-[1.6] py-4"
               >
                 {ending ? "Saving…" : "End session"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -610,9 +601,9 @@ export function ShootingHub({
         </p>
         {recent.length > 0 && (
           <div className="mt-3">
-            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <Eyebrow className="mb-1.5">
               Go again · one tap starts
-            </p>
+            </Eyebrow>
             <div className="flex flex-wrap gap-1.5">
               {recent.map((r) => (
                 <button
@@ -653,12 +644,12 @@ export function ShootingHub({
           ))}
         </div>
 
-        <input
+        <Input
           value={labelInput}
           onChange={(e) => setLabelInput(e.target.value)}
           placeholder="Or name your own"
           maxLength={60}
-          className="mt-3 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+          className="mt-3"
         />
 
         {(() => {
@@ -675,9 +666,9 @@ export function ShootingHub({
         })()}
 
         <div className="mt-5">
-          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <Eyebrow className="mb-1.5">
             How to count
-          </p>
+          </Eyebrow>
           <div className="grid grid-cols-2 gap-2">
             <div
               aria-current="true"
@@ -694,10 +685,10 @@ export function ShootingHub({
         </div>
 
         <div className="mt-5">
-          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <Eyebrow className="mb-1.5">
             Goal · the set ends and saves itself
-          </p>
-          <div className="grid grid-cols-5 gap-1 rounded-xl bg-[var(--raised)] p-1">
+          </Eyebrow>
+          <div className="grid grid-cols-5 gap-1 rounded-xl bg-raised p-1">
             {([null, ...GOAL_KINDS.map((k) => k.kind)] as (GoalKind | null)[]).map((kind) => {
               const active = (goal?.kind ?? null) === kind;
               return (
@@ -764,13 +755,9 @@ export function ShootingHub({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => start(labelInput)}
-          className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99]"
-        >
+        <Button size="lg" block onClick={() => start(labelInput)} className="mt-4">
           Start shooting
-        </button>
+        </Button>
         <p className="mt-2.5 text-center text-[11px] text-foreground-mute">
           Keeping the same name each time is what makes your progress line up.
         </p>

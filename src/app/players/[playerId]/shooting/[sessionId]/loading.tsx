@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+
 export default function Loading() {
   return (
     <div className="flex flex-1 flex-col">
@@ -10,10 +12,10 @@ export default function Loading() {
         <div className="h-52 animate-pulse rounded-3xl border border-line bg-surface" />
         <div className="flex gap-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-20 flex-1 animate-pulse rounded-2xl border border-line bg-surface" />
+            <Card key={i} className="h-20 flex-1 animate-pulse" />
           ))}
         </div>
-        <div className="h-44 animate-pulse rounded-2xl border border-line bg-surface" />
+        <Card className="h-44 animate-pulse" />
       </main>
     </div>
   );

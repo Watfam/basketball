@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startProgramDay, completeProgram, leaveProgram } from "@/app/actions";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { haptic } from "@/lib/haptics";
 import type { ProgramProgress } from "@/lib/basketball/program";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/card";
+import { FormError } from "@/components/ui/field";
 
 /**
  * The program a player is currently on. This is the "you're on week 2,
@@ -117,15 +119,10 @@ export function ProgramPanel({
             All {progress.totalCount} days logged. Rate yourself again — your old numbers stay on
             the chart so you can see exactly what moved.
           </p>
-          <button
-            type="button"
-            onClick={finishBlockAndRetest}
-            disabled={pending}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
-          >
+          <Button size="lg" block onClick={finishBlockAndRetest} disabled={pending} className="mt-4">
             {pending ? "Finishing…" : "Finish block & retest"}
-          </button>
-          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+          </Button>
+          {error && <FormError className="mt-2">{error}</FormError>}
         </div>
       ) : (
         next && (
@@ -148,16 +145,11 @@ export function ProgramPanel({
               </p>
             )}
 
-            <button
-              type="button"
-              onClick={start}
-              disabled={pending}
-              className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
-            >
+            <Button size="lg" block onClick={start} disabled={pending} className="mt-4">
               {pending ? "Starting…" : "Start Today's Session"}
-            </button>
+            </Button>
 
-            {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+            {error && <FormError className="mt-2">{error}</FormError>}
           </div>
         )
       )}
@@ -173,19 +165,16 @@ export function ProgramPanel({
 
         {expanded && (
           <div className="space-y-3 px-5 pb-5">
-            <Link
-              href={`/players/${playerId}/programs/${programId}`}
-              className="block w-full rounded-lg border border-line py-2 text-center text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-            >
+            <ButtonLink href={`/players/${playerId}/programs/${programId}`} variant="secondary" size="sm" block>
               Every session in this block →
-            </Link>
+            </ButtonLink>
 
             {progress.weeks.map((week) => (
               <div key={week.weekNumber}>
-                <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+                <Eyebrow className="mb-1.5">
                   Week {week.weekNumber}
                   {week.days.some((d) => d.is_deload) && " · Deload"}
-                </p>
+                </Eyebrow>
                 <div className="flex gap-1.5">
                   {week.days.map((day) => {
                     const done = progress.completedDayIds.has(day.id);
@@ -212,38 +201,25 @@ export function ProgramPanel({
 
             {!progress.isComplete &&
               (leaveConfirming ? (
-                <div className="rounded-xl border border-line bg-[var(--raised)] px-4 py-3 text-center">
+                <div className="rounded-xl border border-line bg-raised px-4 py-3 text-center">
                   <p className="text-xs leading-relaxed text-foreground-dim">
                     Leave this program? The {progress.completedCount}{" "}
                     {progress.completedCount === 1 ? "session" : "sessions"} you&rsquo;ve already
                     logged stay in your history and still count.
                   </p>
-                  <div className="mt-2.5 flex justify-center gap-4">
-                    <button
-                      type="button"
-                      onClick={leave}
-                      disabled={pending}
-                      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover disabled:opacity-50"
-                    >
+                  <div className="mt-2.5 flex justify-center gap-2">
+                    <Button size="sm" onClick={leave} disabled={pending}>
                       {pending ? "Leaving…" : "Leave program"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLeaveConfirming(false)}
-                      className="text-[11px] font-bold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
-                    >
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setLeaveConfirming(false)}>
                       Stay on it
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setLeaveConfirming(true)}
-                  className="w-full pt-1 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-foreground-mute transition-colors hover:text-foreground-dim"
-                >
+                <Button variant="ghost" size="sm" block onClick={() => setLeaveConfirming(true)}>
                   Leave this program
-                </button>
+                </Button>
               ))}
           </div>
         )}

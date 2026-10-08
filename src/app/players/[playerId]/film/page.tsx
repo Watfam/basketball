@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FilmCard, type FilmView } from "@/components/film-card";
@@ -6,6 +5,8 @@ import { FilmRoomTabs } from "@/components/film-room-tabs";
 import { AddFilmForm } from "@/components/add-film-form";
 import { EmptyState } from "@/components/empty-state";
 import { ProgressRing } from "@/components/charts/progress-ring";
+import { Card, CardLink } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   rankFilm,
   groupProFilm,
@@ -169,10 +170,10 @@ export default async function FilmRoomPage({
             {studySessions.map((s) => {
               const finished = Boolean(completedSessionIds.get(s.id));
               return (
-                <Link
+                <CardLink
                   key={s.id}
                   href={`/players/${playerId}/film/sessions/${s.id}`}
-                  className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+                  className="panel-lit overflow-hidden p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -204,7 +205,7 @@ export default async function FilmRoomPage({
                   <p className="mt-3 border-t border-line pt-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
                     {itemCountBySession.get(s.id) ?? 0} clips
                   </p>
-                </Link>
+                </CardLink>
               );
             })}
           </div>
@@ -282,7 +283,7 @@ export default async function FilmRoomPage({
   const trainersTab = (
     <div className="space-y-2.5">
       {trainers.map((trainer) => (
-        <div key={trainer.id} className="rounded-2xl border border-line bg-surface p-4">
+        <Card key={trainer.id} className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
@@ -317,26 +318,18 @@ export default async function FilmRoomPage({
             <TrainerLink href={trainer.instagram_url} label="Instagram" />
             <TrainerLink href={trainer.website_url} label="Website" />
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   );
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            {studiedCount}/{film.length} studied
-          </span>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          {studiedCount}/{film.length} studied
+        </span>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
         <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]">

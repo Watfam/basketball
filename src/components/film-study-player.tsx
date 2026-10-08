@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { completeFilmSession } from "@/app/actions";
 import { isWatchableUrl, durationLabel, FILM_KIND_LABELS } from "@/lib/basketball/film";
 import { haptic } from "@/lib/haptics";
+import { Button, buttonClass } from "@/components/ui/button";
+import { FormError, TextArea } from "@/components/ui/field";
 
 export type StudyItem = {
   id: string;
@@ -103,13 +105,9 @@ export function FilmStudyPlayer({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => router.push(`/players/${playerId}/film`)}
-          className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
-        >
+        <Button size="lg" block onClick={() => router.push(`/players/${playerId}/film`)} className="mt-5">
           Back to Film Room
-        </button>
+        </Button>
       </div>
     );
   }
@@ -157,31 +155,22 @@ export function FilmStudyPlayer({
             {outcome ?? "One thing from this session you're taking onto the court."}
           </p>
 
-          <textarea
+          <TextArea
             value={takeaway}
             onChange={(e) => setTakeaway(e.target.value)}
             rows={4}
             placeholder="Be specific. “Relocate after every pass instead of watching the ball.”"
-            className="mt-4 w-full rounded-xl border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+            className="mt-4"
           />
 
-          <button
-            type="button"
-            onClick={finish}
-            disabled={pending}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-50"
-          >
+          <Button size="lg" block onClick={finish} disabled={pending} className="mt-4">
             {pending ? "Saving…" : alreadyCompleted ? "Update takeaway" : "Finish session"}
-          </button>
-          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+          </Button>
+          {error && <FormError className="mt-2">{error}</FormError>}
 
-          <button
-            type="button"
-            onClick={back}
-            className="mt-2 w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-          >
+          <Button variant="ghost" size="sm" block onClick={back} className="mt-2">
             Back
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
@@ -222,7 +211,7 @@ export function FilmStudyPlayer({
               href={item.film.url as string}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
+              className={buttonClass({ size: "lg", block: true, className: "mt-4" })}
             >
               Watch film ↗
             </a>
@@ -250,21 +239,13 @@ export function FilmStudyPlayer({
 
           <div className="mt-5 flex gap-3">
             {index > 0 && (
-              <button
-                type="button"
-                onClick={back}
-                className="rounded-xl border border-line px-5 py-3 text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
-              >
+              <Button variant="secondary" onClick={back} className="px-5">
                 Back
-              </button>
+              </Button>
             )}
-            <button
-              type="button"
-              onClick={next}
-              className="flex-1 rounded-xl border border-accent py-3 text-sm font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent/10"
-            >
+            <Button variant="secondary" onClick={next} className="flex-1">
               {index === items.length - 1 ? "Last step →" : "Next clip →"}
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { startWorkoutSession } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 export function StartSessionButton({
   playerId,
@@ -34,19 +36,10 @@ export function StartSessionButton({
 
   return (
     <div className={fullWidth ? "w-full" : undefined}>
-      <button
-        type="button"
-        onClick={handleStart}
-        disabled={pending}
-        className={
-          fullWidth
-            ? "w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
-            : "rounded-lg bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-50"
-        }
-      >
+      <Button size={fullWidth ? "lg" : "sm"} block={fullWidth} onClick={handleStart} disabled={pending}>
         {pending ? "Starting…" : fullWidth ? "Start Session" : "Start Workout"}
-      </button>
-      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
+      </Button>
+      {error && <FormError className="mt-1">{error}</FormError>}
     </div>
   );
 }
