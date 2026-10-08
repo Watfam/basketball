@@ -24,7 +24,7 @@ export function TrainingLoadPanel({
       <div className="flex items-start justify-between gap-3 px-5 pt-5">
         <div>
           <h2 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
-            Your work
+            Training load
           </h2>
           <p className="mt-1 text-xs text-foreground-dim">Workouts, shooting, film and the combine, per week</p>
         </div>

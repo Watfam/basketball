@@ -13,7 +13,7 @@ import { playerLevel, WEAKNESS_THRESHOLD, type ComputedPlayerType } from "@/lib/
 
 /**
  * Train: everything that builds the player. The program they're on (or
- * the two that fit them best), the film room, and the workout library,
+ * the one that fits them best), the film room, and the workout library,
  * ordered for them. Programs and film used to sit on the home screen.
  */
 export default async function TrainPage({ params }: { params: Promise<{ playerId: string }> }) {
@@ -77,7 +77,7 @@ export default async function TrainPage({ params }: { params: Promise<{ playerId
     | { id: string; name: string; week_count: number; days_per_week: number }
     | null
     | undefined;
-  // Committing to a block is a real decision: offer the two that fit
+  // Committing to a block is a real decision: offer the one that fits
   // best, the rest one tap away, and nothing at all while on one.
   const rankedPrograms = activeProgram ? [] : rankPrograms(playerType, level, programs ?? [], WEAKNESS_THRESHOLD);
   const programReasons: Record<string, string> = {};
@@ -114,19 +114,21 @@ export default async function TrainPage({ params }: { params: Promise<{ playerId
               <SectionHeading title="Programs" caption="A few weeks, planned for you" />
               <ProgramOffer
                 playerId={playerId}
-                programs={rankedPrograms.slice(0, 2) as OfferedProgram[]}
+                programs={rankedPrograms.slice(0, 1) as OfferedProgram[]}
                 reasons={programReasons}
               />
-              {rankedPrograms.length > 2 && (
+              {rankedPrograms.length > 1 && (
                 <details className="group mt-3">
                   <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center rounded-xl border border-line text-xs font-extrabold uppercase tracking-[0.1em] text-foreground-dim">
-                    <span className="group-open:hidden">{rankedPrograms.length - 2} more programs</span>
+                    <span className="group-open:hidden">
+                      {rankedPrograms.length - 1} more {rankedPrograms.length === 2 ? "program" : "programs"}
+                    </span>
                     <span className="hidden group-open:inline">Fewer programs</span>
                   </summary>
                   <div className="mt-3">
                     <ProgramOffer
                       playerId={playerId}
-                      programs={rankedPrograms.slice(2) as OfferedProgram[]}
+                      programs={rankedPrograms.slice(1) as OfferedProgram[]}
                       reasons={programReasons}
                     />
                   </div>

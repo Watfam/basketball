@@ -272,34 +272,36 @@ function shortDate(iso: string): string {
 }
 
 const DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
+const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 /** This week at a glance: which days had work, against a 3-day target. */
 function WeekStrip({ week, streakWeeks }: { week: WeekSummary; streakWeeks: number }) {
   const hit = week.activeDays >= WEEKLY_DAYS_TARGET;
   return (
-    <Card className="flex items-center justify-between gap-4 px-4 py-3.5">
-      <div className="min-w-0">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">This week</p>
-        <p className="mt-1 font-display text-2xl leading-none text-foreground">
-          {week.activeDays}
-          <span className="text-foreground-mute">/{WEEKLY_DAYS_TARGET} days</span>
+    <Card className="px-4 py-3.5">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          This week ·{" "}
+          <span className="text-foreground">
+            {week.activeDays} of {WEEKLY_DAYS_TARGET} days
+          </span>
         </p>
-        <p className={`mt-1 text-xs font-semibold ${hit ? "text-[var(--data-positive)]" : "text-foreground-dim"}`}>
+        <p className={`text-xs font-bold ${hit ? "text-[var(--data-positive)]" : "text-foreground-dim"}`}>
           {hit ? "Target hit" : streakWeeks > 0 ? `${streakWeeks}-week streak` : "Start a streak"}
         </p>
       </div>
-      <ol className="flex shrink-0 gap-1.5" aria-label={`${week.activeDays} active days this week`}>
+      <ol className="mt-3 grid grid-cols-7 gap-1.5" aria-label={`${week.activeDays} days trained this week`}>
         {week.days.map((active, i) => (
-          <li key={i} className="flex flex-col items-center gap-1">
+          <li key={i} className="flex justify-center">
             <span
-              className={`flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-extrabold ${
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-extrabold ${
                 active
                   ? "bg-accent text-on-accent"
                   : i === week.today
                     ? "border-2 border-accent text-accent"
                     : "bg-raised text-foreground-mute"
               }`}
-              aria-label={`${DAY_LETTERS[i]}${active ? ", trained" : ""}${i === week.today ? ", today" : ""}`}
+              aria-label={`${DAY_NAMES[i]}${active ? ", trained" : ""}${i === week.today ? ", today" : ""}`}
             >
               {DAY_LETTERS[i]}
             </span>
@@ -342,7 +344,7 @@ function QuickTile({ href, eyebrow, value, sub }: { href: string; eyebrow: strin
     <CardLink href={href} className="flex min-h-28 flex-col justify-between p-4">
       <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">{eyebrow}</p>
       <div className="min-w-0">
-        <p className="font-display text-3xl uppercase leading-none text-foreground">{value}</p>
+        <p className="font-display text-2xl uppercase leading-none text-foreground">{value}</p>
         <p className="mt-1 line-clamp-2 text-xs font-semibold text-foreground-dim">{sub}</p>
       </div>
     </CardLink>

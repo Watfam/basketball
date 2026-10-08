@@ -61,27 +61,29 @@ export function PlayerHero({
               </span>
             </div>
 
-            <h1 className="font-display mt-3 text-[2.6rem] uppercase leading-[0.88] tracking-tight text-foreground sm:text-6xl">
+            <h1 className="font-display mt-3 break-words text-[2.3rem] uppercase leading-[0.9] tracking-tight text-foreground sm:text-6xl">
               {playerName}
             </h1>
             <p className="mt-2 text-sm font-semibold leading-snug text-accent">{archetype}</p>
           </div>
 
-          <ProgressRing ratio={overall / 99} size={104} stroke={7} idPrefix="ovr">
-            <span className="font-display text-gradient-accent text-[2.6rem] leading-none">
-              {overall}
-            </span>
-            <span className="-mt-1 text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-dim">
-              Overall
-            </span>
+          <div className="flex shrink-0 flex-col items-center gap-1.5">
+            <ProgressRing ratio={overall / 99} size={104} stroke={7} idPrefix="ovr">
+              <span className="font-display text-gradient-accent text-[2.6rem] leading-none">
+                {overall}
+              </span>
+              <span className="-mt-1 text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-dim">
+                Overall
+              </span>
+            </ProgressRing>
             <span
-              className={`mt-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] ${
-                measured ? "text-[var(--data-positive)]" : "text-foreground-mute"
+              className={`rounded-md border px-1.5 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.1em] ${
+                measured ? "border-[var(--data-positive)] text-[var(--data-positive)]" : "border-line-strong text-foreground-dim"
               }`}
             >
               {measured ? "Measured" : "Self-rated"}
             </span>
-          </ProgressRing>
+          </div>
         </div>
       </div>
 
