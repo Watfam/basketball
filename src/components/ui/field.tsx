@@ -3,9 +3,9 @@ import { cx } from "./cx";
 
 /** Text inputs, selects and text areas share one look. */
 export const fieldClass =
-  "w-full rounded-lg border border-line bg-raised px-3 py-2.5 text-base text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none sm:text-sm";
+  "w-full rounded-lg border border-line bg-raised px-3 py-2.5 text-base text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none";
 
-// 16 px on phones: iOS zooms into any input with smaller text when it's focused.
+// text-base (16 px): iOS zooms into any input with smaller text when it's focused.
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cx(fieldClass, className)} {...props} />;
