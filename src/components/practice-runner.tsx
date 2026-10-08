@@ -273,22 +273,26 @@ export function PracticeRunner({
                     type="number"
                     value={scores[index] ?? ""}
                     onChange={(e) => setScores((prev) => ({ ...prev, [index]: e.target.value }))}
+                    // A tap here is a user gesture: unlock the drill-end beep with it.
+                    onFocus={primeAlerts}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.currentTarget.blur();
+                    }}
+                    enterKeyHint="done"
+                    inputMode="numeric"
                     placeholder="—"
                     className="w-20 rounded-lg border border-line-strong bg-raised px-2 py-2 text-center font-display text-2xl text-foreground focus:border-accent focus:outline-none"
                   />
                   {step.goal.unit && (
                     <span className="text-xs font-bold text-foreground-mute">{step.goal.unit}</span>
                   )}
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      primeAlerts();
-                      haptic("success");
-                    }}
-                    className="ml-auto shrink-0"
-                  >
-                    Save
-                  </Button>
+                  {/* Scores are kept as you go and saved together at the wrap-up;
+                      this used to be a "Save" button that saved nothing. */}
+                  {scores[index]?.trim() && (
+                    <span className="ml-auto shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-[var(--data-positive)]">
+                      ✓ Kept for the wrap-up
+                    </span>
+                  )}
                 </div>
                 {lastForStep !== undefined && (
                   <p className="mt-2 text-[11px] text-foreground-mute">

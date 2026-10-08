@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useLocalDraft } from "@/lib/use-local-draft";
 import { useRouter } from "next/navigation";
 import { submitCombine } from "@/app/actions";
 import {
@@ -34,6 +35,18 @@ const CATEGORY_LABELS: Record<string, string> = {
  * categories they didn't measure keep their previous ratings rather than
  * being zeroed by absence.
  */
+type Progress = { index: number; scores: Record<string, number> };
+
+function parseProgress(raw: string | null): Progress {
+  try {
+    const p = JSON.parse(raw ?? "") as Partial<Progress>;
+    if (typeof p.index === "number" && p.scores && typeof p.scores === "object") return { index: p.index, scores: p.scores };
+  } catch {
+    // Nothing saved, or unreadable: start fresh.
+  }
+  return { index: 0, scores: {} };
+}
+
 export function CombineFlow({
   playerId,
   playerName,
@@ -52,8 +65,13 @@ export function CombineFlow({
   bandKnown: boolean;
 }) {
   const router = useRouter();
-  const [index, setIndex] = useState(0);
-  const [scores, setScores] = useState<Record<string, number>>({});
+  // Kept on the phone as tests are recorded, so a refresh or a stray tap
+  // on Back doesn't lose nine timed tests. Cleared once they're saved.
+  const [saved, setSaved] = useLocalDraft(`hl:combine:${playerId}`);
+  const progress = useMemo(() => parseProgress(saved), [saved]);
+  const { index, scores } = progress;
+  const setIndex = (next: (i: number) => number) =>
+    setSaved(JSON.stringify({ ...progress, index: next(progress.index) }));
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -76,9 +94,9 @@ export function CombineFlow({
     }
     haptic("step");
     setError(null);
-    setScores((prev) => ({ ...prev, [drill.id]: value }));
+    // One write: two separate ones would each start from the same old value.
+    setSaved(JSON.stringify({ index: index + 1, scores: { ...scores, [drill.id]: value } }));
     setDraft("");
-    setIndex((i) => i + 1);
   }
 
   function skip() {
@@ -108,6 +126,7 @@ export function CombineFlow({
         setError(result.error);
         return;
       }
+      setSaved(null);
       router.push(`/players/${playerId}/assessments`);
     });
   }

@@ -540,7 +540,7 @@ export default async function PlayerHubPage({
             <EmptyState
               eyebrow="No workouts yet"
               title="No curated content yet"
-              subtitle="The workout library hasn't been seeded for this project yet — see supabase/seed_content.sql."
+              subtitle="The workouts aren't loaded yet. Ask your coach to set them up."
             />
           )}
         </section>

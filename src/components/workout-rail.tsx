@@ -36,7 +36,7 @@ export function WorkoutRail({
         return (
           <CardLink
             key={workout.id}
-            href={`/players/${playerId}/workouts`}
+            href={`/players/${playerId}/workouts#workout-${workout.id}`}
             className="group w-[63%] shrink-0 snap-start p-4 sm:w-[46%]"
           >
             <div className="flex items-center justify-between">

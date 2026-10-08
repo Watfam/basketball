@@ -129,10 +129,10 @@ export function AssessmentFlow({
         primaryPosition={primaryPosition}
         styleTags={styleTags}
         ratings={ratings}
-        // A retest lands back on the hub, where the attribute radar draws
-        // the previous values underneath the new ones — that before/after
-        // is the whole point of retesting.
-        onContinue={() => router.push(isRetest ? `/players/${playerId}` : "/")}
+        // Both land on the player's own home: a retest to see the radar's
+        // before/after, a first assessment to start training (it used to go
+        // back to the profile picker, one tap from where it should be).
+        onContinue={() => router.push(`/players/${playerId}`)}
       />
     );
   }

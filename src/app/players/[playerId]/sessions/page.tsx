@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
+import { playerLevel } from "@/lib/basketball/assessment";
 import { SessionHistoryRow } from "@/components/session-history-row";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -16,7 +17,7 @@ export default async function SessionHistoryPage({
   // Independent of each other — parallel instead of sequential.
   const [{ data: { user } }, { data: player }, { data: sessions }] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.schema("hoops").from("players").select("id, display_name").eq("id", playerId).maybeSingle(),
+    supabase.schema("hoops").from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
     // Every session regardless of status — this is the "nothing is lost"
     // view. The hub only ever surfaces the single most recent in-progress
     // session as a "continue" banner; anything older than that (or already
@@ -24,13 +25,14 @@ export default async function SessionHistoryPage({
     supabase
       .schema("hoops")
       .from("workout_sessions")
-      .select("id, status, started_at, completed_at, workouts(name, workout_drills(drill_id))")
+      .select("id, status, started_at, completed_at, workouts(name, workout_drills(drill_id, levels))")
       .eq("player_id", playerId)
       .order("started_at", { ascending: false }),
   ]);
 
   if (!user) redirect("/login");
   if (!player) notFound();
+  const level = playerLevel(player.player_type);
 
   const sessionIds = (sessions ?? []).map((s) => s.id);
   const { data: logs } = sessionIds.length
@@ -70,8 +72,14 @@ export default async function SessionHistoryPage({
           <Card className="overflow-hidden">
             {sessions.map((session, i) => {
               const workout = session.workouts as unknown as
-                | { name: string; workout_drills: unknown[] }
+                | { name: string; workout_drills: { levels: string[] | null }[] }
                 | null;
+              // Only the drills at the player's level: a workout holds every
+              // level's version of a slot, and counting them all made a
+              // finished session read "5/7".
+              const drillsAtLevel = (workout?.workout_drills ?? []).filter(
+                (d) => !d.levels || d.levels.length === 0 || d.levels.includes(level)
+              ).length;
               const date = session.completed_at ?? session.started_at;
 
               return (
@@ -80,7 +88,7 @@ export default async function SessionHistoryPage({
                   href={`/players/${playerId}/sessions/${session.id}`}
                   workoutName={workout?.name ?? "Workout"}
                   loggedCount={loggedCountBySession.get(session.id) ?? 0}
-                  totalDrills={workout?.workout_drills.length ?? 0}
+                  totalDrills={Math.max(drillsAtLevel, loggedCountBySession.get(session.id) ?? 0)}
                   dateLabel={
                     date
                       ? new Date(date).toLocaleDateString(undefined, {

@@ -370,7 +370,7 @@ export default async function FilmRoomPage({
           <EmptyState
             eyebrow="No film yet"
             title="Nothing in the Film Room"
-            subtitle="Run supabase/seed_0005_film_room.sql to load the curriculum, or add your own film."
+            subtitle="The film lessons aren't loaded yet. Ask your coach, or add a clip of your own."
           />
         ) : (
           <FilmRoomTabs

@@ -78,7 +78,7 @@ export function WorkoutCard({
   const pips = difficulty ? DIFFICULTY_PIPS[difficulty] : 0;
 
   return (
-    <Card className="overflow-hidden">
+    <Card id={`workout-${workout.id}`} className="scroll-mt-16 overflow-hidden">
       <div className="px-5 pt-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">

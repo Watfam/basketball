@@ -92,7 +92,7 @@ export default async function GamesPage({
           <EmptyState
             eyebrow="Nothing scheduled"
             title="No games yet"
-            subtitle="Add one below, or pull your schedule in from MaxPreps."
+            subtitle="Add your first game below."
           />
         ) : (
           <>

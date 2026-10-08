@@ -62,7 +62,7 @@ export default async function CombinePage({
           <EmptyState
             eyebrow="No tests loaded"
             title="The combine hasn't been seeded"
-            subtitle="Run supabase/seed_0011_combine_drills.sql to load the tests."
+            subtitle="The combine tests aren't loaded yet. Ask your coach to set them up."
           />
         ) : (
           <>
