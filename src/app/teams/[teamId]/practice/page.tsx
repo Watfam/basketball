@@ -5,6 +5,9 @@ import { EmptyState } from "@/components/empty-state";
 import { DuplicatePlanButton } from "@/components/duplicate-plan-button";
 import { RunPracticeLink } from "@/components/run-practice-link";
 import { totalMinutes, type PracticeBlock } from "@/lib/basketball/practice";
+import { PageHeader, HeaderLink } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { ButtonLink, buttonClass } from "@/components/ui/button";
 
 export default async function PracticePlansPage({
   params,
@@ -67,30 +70,12 @@ export default async function PracticePlansPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/teams/${teamId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {team.name}
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href={`/teams/${teamId}/practice/history`}
-              className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-            >
-              History
-            </Link>
-            <Link
-              href={`/teams/${teamId}/practice/new`}
-              className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
-            >
-              + New plan
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }}>
+        <HeaderLink href={`/teams/${teamId}/practice/history`}>History</HeaderLink>
+        <HeaderLink href={`/teams/${teamId}/practice/new`} tone="accent">
+          + New plan
+        </HeaderLink>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
@@ -113,10 +98,7 @@ export default async function PracticePlansPage({
                 })
               : null;
             return (
-              <div
-                key={plan.id}
-                className="rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-              >
+              <Card key={plan.id} className="p-4 transition-colors hover:border-line-strong">
                 <Link href={`/teams/${teamId}/practice/${plan.id}`} className="block">
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
@@ -129,7 +111,7 @@ export default async function PracticePlansPage({
                     )}
                   </div>
                 </Link>
-                <div className="mt-2 flex items-center justify-between gap-3">
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                   <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
                     {(() => {
                       const drillCount = blocks.filter((b) => !b.isSection).length;
@@ -142,19 +124,16 @@ export default async function PracticePlansPage({
                         .join(" · ");
                     })()}
                   </p>
-                  <div className="flex shrink-0 items-center gap-3">
+                  <div className="-mr-3 flex shrink-0 items-center gap-1">
                     <RunPracticeLink
                       href={`/teams/${teamId}/practice/${plan.id}/run`}
-                      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+                      className={buttonClass({ variant: "secondary", size: "sm" })}
                     >
                       Run
                     </RunPracticeLink>
-                    <Link
-                      href={`/teams/${teamId}/practice/${plan.id}/log`}
-                      className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
-                    >
+                    <ButtonLink href={`/teams/${teamId}/practice/${plan.id}/log`} variant="ghost" size="sm">
                       Log Results
-                    </Link>
+                    </ButtonLink>
                     <DuplicatePlanButton planId={plan.id} teamId={teamId} />
                   </div>
                 </div>
@@ -174,7 +153,7 @@ export default async function PracticePlansPage({
                     </p>
                   );
                 })()}
-              </div>
+              </Card>
             );
           })
         )}

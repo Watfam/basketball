@@ -18,6 +18,9 @@ import {
   type PracticeShapeKey,
 } from "@/lib/basketball/practice";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FormError, Input, TextArea } from "@/components/ui/field";
 
 type ExistingPlan = {
   id: string;
@@ -275,12 +278,10 @@ export function PracticePlanForm({
           className="font-display mt-2 w-full border-b border-line bg-transparent pb-2 text-2xl uppercase text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
         />
         <div className="mt-4 flex items-center justify-between gap-3">
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
-          />
+          {/* Wrapped so the date field keeps its own width (Input is w-full). */}
+          <div>
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
           {minutes > 0 && (
             <span className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
               {minutes} min total
@@ -356,7 +357,7 @@ export function PracticePlanForm({
                 className={`rounded-xl border px-3 py-2 text-left transition-colors ${
                   shape === key
                     ? "border-accent bg-accent/10"
-                    : "border-line bg-[var(--raised)]"
+                    : "border-line bg-raised"
                 }`}
               >
                 <span
@@ -383,7 +384,7 @@ export function PracticePlanForm({
               className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
                 skeletonMinutes === m
                   ? "border-accent bg-accent text-on-accent"
-                  : "border-line bg-[var(--raised)] text-foreground-dim"
+                  : "border-line bg-raised text-foreground-dim"
               }`}
             >
               {m}
@@ -394,13 +395,9 @@ export function PracticePlanForm({
           </span>
         </div>
         <div className="mt-3 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={applySkeleton}
-            className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
-          >
+          <Button onClick={applySkeleton} className="shrink-0">
             Generate skeleton
-          </button>
+          </Button>
           <p className="text-[11px] leading-snug text-foreground-mute">
             Names and times only, sized to fit — replaces the drills below. Blank
             rows stay blank until you fill them.
@@ -414,16 +411,16 @@ export function PracticePlanForm({
           <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
             Drills
           </h2>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => {
               haptic("tap");
               setPasteOpen((v) => !v);
             }}
-            className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
           >
             {pasteOpen ? "Cancel paste" : "Paste a list"}
-          </button>
+          </Button>
         </div>
 
         {pasteOpen && (
@@ -432,26 +429,20 @@ export function PracticePlanForm({
               Paste it exactly how you&rsquo;d write it in Notes — one drill per line, a blank
               line between groups. This replaces the list below.
             </p>
-            <textarea
+            <TextArea
               value={pasteText}
               onChange={(e) => setPasteText(e.target.value)}
               rows={6}
               placeholder={"Celtic drill\nOlympic shooting\n\nShell Drill\n4UP"}
               autoFocus
-              className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
             />
-            <button
-              type="button"
-              onClick={importPaste}
-              disabled={!pasteText.trim()}
-              className="mt-2 w-full rounded-lg bg-accent py-2 text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-40"
-            >
+            <Button size="sm" block onClick={importPaste} disabled={!pasteText.trim()} className="mt-2">
               Use this list
-            </button>
+            </Button>
           </div>
         )}
 
-        <div className="rounded-2xl border border-line bg-surface p-2">
+        <Card className="p-2">
           {(() => {
             // A running count of drill rows only — numbering straight
             // through the array would count dividers too, and skipping
@@ -493,7 +484,7 @@ export function PracticePlanForm({
               return (
                 <div
                   key={i}
-                  className={`flex items-center gap-1 rounded-lg bg-[var(--raised)] px-2.5 py-2 ${i > 0 ? "mt-2" : ""}`}
+                  className={`flex items-center gap-1 rounded-lg bg-raised px-2.5 py-2 ${i > 0 ? "mt-2" : ""}`}
                 >
                   <input
                     ref={(el) => {
@@ -592,7 +583,7 @@ export function PracticePlanForm({
                         key={name}
                         type="button"
                         onClick={() => fillBlankRow(i, name)}
-                        className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-1 text-[11px] font-bold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
+                        className="rounded-full border border-line bg-raised px-2.5 py-1 text-[11px] font-bold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
                       >
                         {name}
                       </button>
@@ -625,7 +616,7 @@ export function PracticePlanForm({
                 ) : null}
 
                 {expanded && (
-                  <div className="mb-2 ml-8 mr-2 space-y-2 rounded-lg border border-line bg-[var(--raised)] p-2.5">
+                  <div className="mb-2 ml-8 mr-2 space-y-2 rounded-lg border border-line bg-raised p-2.5">
                     <div className="flex items-center gap-2">
                       <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         Minutes
@@ -696,39 +687,28 @@ export function PracticePlanForm({
                       placeholder="Notes (optional)"
                       className="w-full rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                     />
-                    <div className="flex justify-between">
-                      <div className="flex gap-3">
-                        <button
-                          type="button"
-                          onClick={() => moveBlock(i, -1)}
-                          disabled={i === 0}
-                          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
-                        >
+                    {/* -mx-3 lines the button text up with the fields above;
+                        wraps on narrow phones now that each has a tap area. */}
+                    <div className="-mx-3 flex flex-wrap justify-between">
+                      <div className="flex">
+                        <Button variant="ghost" size="sm" onClick={() => moveBlock(i, -1)} disabled={i === 0}>
                           ↑ Up
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => moveBlock(i, 1)}
                           disabled={i === blocks.length - 1}
-                          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
                         >
                           ↓ Down
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => insertGroupAbove(i)}
-                          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
-                        >
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => insertGroupAbove(i)}>
                           + Group above
-                        </button>
+                        </Button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removeBlock(i)}
-                        className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => removeBlock(i)}>
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -736,7 +716,7 @@ export function PracticePlanForm({
             );
             });
           })()}
-        </div>
+        </Card>
 
         <div className="mt-2.5 flex gap-2">
           <button
@@ -760,26 +740,16 @@ export function PracticePlanForm({
         </div>
       </section>
 
-      {error && <p className="text-center text-sm text-danger">{error}</p>}
+      {error && <FormError className="text-center">{error}</FormError>}
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-40"
-      >
+      <Button size="lg" block onClick={save} disabled={pending}>
         {pending ? "Saving…" : existing ? "Save changes" : "Save plan"}
-      </button>
+      </Button>
 
       {existing && (
-        <button
-          type="button"
-          onClick={remove}
-          disabled={deleting}
-          className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
-        >
+        <Button variant="danger" size="sm" block onClick={remove} disabled={deleting}>
           {deleting ? "Deleting…" : "Delete this plan"}
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { addPlayer } from "@/app/actions";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { cardClass } from "@/components/ui/card";
+import { cx } from "@/components/ui/cx";
+import { FormError, Input, Select } from "@/components/ui/field";
 
 export function AddPlayerForm({ householdId }: { householdId: string }) {
   const router = useRouter();
@@ -46,55 +50,40 @@ export function AddPlayerForm({ householdId }: { householdId: string }) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-3 rounded-xl border border-line bg-surface p-4"
-    >
-      <input
+    <form onSubmit={handleSubmit} className={cx(cardClass, "space-y-3 p-4")}>
+      <Input
         type="text"
         required
         placeholder="Player name"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
-        className="w-full rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
       />
+      {/* flex-1 on both: an even split, as w-1/2 was (Input/Select are w-full). */}
       <div className="flex gap-2">
-        <input
+        <Input
           type="number"
           placeholder="Birth year"
           value={birthYear}
           onChange={(e) => setBirthYear(e.target.value)}
-          className="w-1/2 rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
+          className="flex-1"
         />
-        <select
-          value={primaryPosition}
-          onChange={(e) => setPrimaryPosition(e.target.value)}
-          className="w-1/2 rounded-lg border border-line bg-elevated px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
-        >
+        <Select value={primaryPosition} onChange={(e) => setPrimaryPosition(e.target.value)} className="flex-1">
           <option value="">Position (optional)</option>
           {PRIMARY_POSITIONS.map((p) => (
             <option key={p.value} value={p.value}>
               {p.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && <FormError>{error}</FormError>}
       <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-50"
-        >
+        <Button type="submit" disabled={pending} className="flex-1">
           {pending ? "Adding…" : "Add player"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-foreground-dim hover:text-foreground"
-        >
+        </Button>
+        <Button variant="ghost" onClick={() => setOpen(false)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );

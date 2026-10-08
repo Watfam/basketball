@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader, HeaderLink } from "@/components/ui/page-header";
+import { CardLink } from "@/components/ui/card";
 
 export default async function ScoutingNotesPage({
   params,
@@ -28,22 +29,11 @@ export default async function ScoutingNotesPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/teams/${teamId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {team.name}
-          </Link>
-          <Link
-            href={`/teams/${teamId}/scouting/new`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
-          >
-            + New note
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }}>
+        <HeaderLink href={`/teams/${teamId}/scouting/new`} tone="accent">
+          + New note
+        </HeaderLink>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
@@ -61,11 +51,7 @@ export default async function ScoutingNotesPage({
             const body = (note.notes ?? {}) as Record<string, string>;
             const preview = body.personnel || body.tendencies || body.game_plan || "";
             return (
-              <Link
-                key={note.id}
-                href={`/teams/${teamId}/scouting/${note.id}`}
-                className="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-              >
+              <CardLink key={note.id} href={`/teams/${teamId}/scouting/${note.id}`} className="p-4">
                 <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
                   {note.opponent_name}
                 </p>
@@ -74,7 +60,7 @@ export default async function ScoutingNotesPage({
                     {preview}
                   </p>
                 )}
-              </Link>
+              </CardLink>
             );
           })
         )}

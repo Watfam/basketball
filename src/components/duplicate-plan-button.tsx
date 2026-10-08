@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { duplicatePracticePlan } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
 
 /**
  * Copies a plan and drops the coach straight onto the copy's edit page —
@@ -24,13 +25,8 @@ export function DuplicatePlanButton({ planId, teamId }: { planId: string; teamId
   }
 
   return (
-    <button
-      type="button"
-      onClick={duplicate}
-      disabled={pending}
-      className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent disabled:opacity-50"
-    >
+    <Button variant="ghost" size="sm" onClick={duplicate} disabled={pending} className="shrink-0">
       {pending ? "Copying…" : "Duplicate"}
-    </button>
+    </Button>
   );
 }

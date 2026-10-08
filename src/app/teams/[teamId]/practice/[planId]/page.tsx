@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PracticePlanForm } from "@/components/practice-plan-form";
 import { RunPracticeLink } from "@/components/run-practice-link";
 import { frequentDrillNames, type PracticeBlock as PB } from "@/lib/basketball/practice";
 import type { PracticeBlock } from "@/lib/basketball/practice";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function EditPracticePlanPage({
   params,
@@ -36,22 +36,15 @@ export default async function EditPracticePlanPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-md items-center justify-between">
-          <Link
-            href={`/teams/${teamId}/practice`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Practice Plans
-          </Link>
-          <RunPracticeLink
-            href={`/teams/${teamId}/practice/${planId}/run`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
-          >
-            Run practice →
-          </RunPracticeLink>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice Plans" }} width="md">
+        {/* RunPracticeLink (not HeaderLink) so the tap also unlocks audio; same look and tap area as a HeaderLink. */}
+        <RunPracticeLink
+          href={`/teams/${teamId}/practice/${planId}/run`}
+          className="-my-3 inline-flex items-center py-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent transition-colors hover:text-accent-hover"
+        >
+          Run practice →
+        </RunPracticeLink>
+      </PageHeader>
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
         <PracticePlanForm
           teamId={teamId}

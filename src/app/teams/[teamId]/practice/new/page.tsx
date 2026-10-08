@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PracticePlanForm } from "@/components/practice-plan-form";
 import { frequentDrillNames, type PracticeBlock as PB } from "@/lib/basketball/practice";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function NewPracticePlanPage({
   params,
@@ -30,16 +30,7 @@ export default async function NewPracticePlanPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href={`/teams/${teamId}/practice`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Practice Plans
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice Plans" }} width="md" />
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
         <PracticePlanForm teamId={teamId} availableDrills={drills ?? []} quickNames={quickNames} />
       </main>

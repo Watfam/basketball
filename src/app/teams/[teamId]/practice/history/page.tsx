@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
 import { TrendChart } from "@/components/charts/trend-chart";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
 
 type ResultRow = {
   actual: number | null;
@@ -71,16 +73,7 @@ export default async function PracticeHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/teams/${teamId}/practice`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Practice Plans
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice Plans" }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
@@ -112,7 +105,7 @@ export default async function PracticeHistoryPage({
             </div>
 
             <div className="flex gap-3">
-              <div className="flex-1 rounded-2xl border border-line bg-surface p-4">
+              <Card className="flex-1 p-4">
                 <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   Latest
                 </p>
@@ -120,8 +113,8 @@ export default async function PracticeHistoryPage({
                   {latest ?? "—"}
                   {goalUnit ? <span className="text-sm"> {goalUnit}</span> : null}
                 </p>
-              </div>
-              <div className="flex-1 rounded-2xl border border-line bg-surface p-4">
+              </Card>
+              <Card className="flex-1 p-4">
                 <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   Since first logged
                 </p>
@@ -134,9 +127,9 @@ export default async function PracticeHistoryPage({
                 >
                   {delta === null ? "—" : delta > 0 ? `+${delta}` : delta}
                 </p>
-              </div>
+              </Card>
               {latestGoal !== null && (
-                <div className="flex-1 rounded-2xl border border-line bg-surface p-4">
+                <Card className="flex-1 p-4">
                   <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                     Goal
                   </p>
@@ -144,11 +137,11 @@ export default async function PracticeHistoryPage({
                     {latestGoal}
                     {goalUnit ? <span className="text-sm"> {goalUnit}</span> : null}
                   </p>
-                </div>
+                </Card>
               )}
             </div>
 
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <Card className="p-5">
               <p className="mb-3 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                 {selectedLabel} — {values.length} {values.length === 1 ? "practice" : "practices"} logged
               </p>
@@ -162,7 +155,7 @@ export default async function PracticeHistoryPage({
                   goalLine={latestGoal ?? undefined}
                 />
               )}
-            </div>
+            </Card>
           </>
         )}
       </main>

@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addGame } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 /**
  * For filling in a reschedule or a game the imported schedule missed —
@@ -48,7 +50,7 @@ export function AddGameForm({ teamId }: { teamId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full rounded-xl border border-dashed border-line py-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:border-accent hover:text-accent"
+        className="min-h-11 w-full rounded-xl border border-dashed border-line py-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:border-accent hover:text-accent"
       >
         + Add game
       </button>
@@ -57,25 +59,13 @@ export function AddGameForm({ teamId }: { teamId: string }) {
 
   return (
     <div className="rounded-2xl border border-accent/40 bg-accent/5 p-4">
-      <input
-        value={opponent}
-        onChange={(e) => setOpponent(e.target.value)}
-        placeholder="Opponent"
-        className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
-      />
+      <Input value={opponent} onChange={(e) => setOpponent(e.target.value)} placeholder="Opponent" />
       <div className="mt-2.5 flex gap-2">
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="flex-1 rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
-        />
-        <input
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          placeholder="5:00pm"
-          className="w-24 rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
-        />
+        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="flex-1" />
+        {/* The wrapper sets the width: Input is full-width by default. */}
+        <div className="w-24 shrink-0">
+          <Input value={time} onChange={(e) => setTime(e.target.value)} placeholder="5:00pm" />
+        </div>
       </div>
       <div className="mt-2.5 flex gap-1.5">
         {(["home", "away", "neutral"] as const).map((loc) => (
@@ -89,7 +79,7 @@ export function AddGameForm({ teamId }: { teamId: string }) {
             className={`flex-1 rounded-full border px-3 py-1.5 text-xs font-bold capitalize transition-colors ${
               location === loc
                 ? "border-accent bg-accent text-on-accent"
-                : "border-line bg-[var(--raised)] text-foreground-dim"
+                : "border-line bg-raised text-foreground-dim"
             }`}
           >
             {loc}
@@ -97,24 +87,15 @@ export function AddGameForm({ teamId }: { teamId: string }) {
         ))}
       </div>
 
-      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+      {error && <FormError className="mt-2">{error}</FormError>}
 
-      <div className="mt-3 flex gap-3">
-        <button
-          type="button"
-          onClick={submit}
-          disabled={pending}
-          className="flex-1 rounded-lg border border-accent py-2 text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:bg-accent/10 disabled:opacity-40"
-        >
+      <div className="mt-3 flex gap-2">
+        <Button variant="secondary" size="sm" onClick={submit} disabled={pending} className="flex-1">
           {pending ? "Adding…" : "Add game"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
-        >
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

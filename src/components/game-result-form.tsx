@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveGameResult, deleteGame } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, TextArea } from "@/components/ui/field";
 
 export function GameResultForm({
   teamId,
@@ -72,7 +74,7 @@ export function GameResultForm({
               value={teamScore}
               onChange={(e) => setTeamScore(e.target.value)}
               placeholder="—"
-              className="mt-1 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-center font-display text-2xl text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-line bg-raised px-3 py-2 text-center font-display text-2xl text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
             />
           </div>
           <span className="mt-4 text-foreground-mute">–</span>
@@ -85,7 +87,7 @@ export function GameResultForm({
               value={opponentScore}
               onChange={(e) => setOpponentScore(e.target.value)}
               placeholder="—"
-              className="mt-1 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-center font-display text-2xl text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-line bg-raised px-3 py-2 text-center font-display text-2xl text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
             />
           </div>
         </div>
@@ -95,34 +97,24 @@ export function GameResultForm({
         <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Post-Game Notes
         </p>
-        <textarea
+        <TextArea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={6}
           placeholder="What worked, what to fix, who stood out..."
-          className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+          className="mt-2"
         />
       </section>
 
-      {error && <p className="text-center text-sm text-danger">{error}</p>}
+      {error && <FormError className="text-center">{error}</FormError>}
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40"
-      >
+      <Button size="lg" block onClick={save} disabled={pending}>
         {pending ? "Saving…" : "Save"}
-      </button>
+      </Button>
 
-      <button
-        type="button"
-        onClick={remove}
-        disabled={deleting}
-        className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
-      >
+      <Button variant="danger" size="sm" block onClick={remove} disabled={deleting}>
         {deleting ? "Removing…" : "Remove this game"}
-      </button>
+      </Button>
     </div>
   );
 }

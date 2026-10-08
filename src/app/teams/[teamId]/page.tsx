@@ -1,6 +1,7 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader, HeaderLink } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
 import { RosterRow } from "@/components/roster-row";
 import { AddRosterForm } from "@/components/add-roster-form";
 import { EmptyState } from "@/components/empty-state";
@@ -127,32 +128,10 @@ export default async function TeamPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href="/coach"
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Coach home
-          </Link>
-          <div className="flex gap-4">
-            <Link
-              href="/lab"
-              className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-            >
-              Camera lab
-            </Link>
-            {isOwner && (
-              <Link
-                href={`/teams/${teamId}/edit`}
-                className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-              >
-                Edit
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <PageHeader back={{ href: "/coach", label: "Coach home" }}>
+        <HeaderLink href="/lab">Camera lab</HeaderLink>
+        {isOwner && <HeaderLink href={`/teams/${teamId}/edit`}>Edit</HeaderLink>}
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]">
@@ -226,11 +205,11 @@ export default async function TeamPage({
               subtitle="Add players below — most kids won't have a Hardwood Lab account, and that's fine."
             />
           ) : (
-            <div className="divide-y divide-line rounded-2xl border border-line bg-surface px-3">
+            <Card className="divide-y divide-line px-3">
               {roster.map((member) => (
                 <RosterRow key={member.id} member={member} teamId={teamId} />
               ))}
-            </div>
+            </Card>
           )}
 
           {isOwner && (
