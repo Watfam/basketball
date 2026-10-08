@@ -70,7 +70,7 @@ export function AddFilmForm({
   return (
     <div className="rounded-2xl border border-line bg-surface p-4">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
           Add film
         </p>
         <button
@@ -109,9 +109,9 @@ export function AddFilmForm({
                 key={k.value}
                 type="button"
                 onClick={() => setKind(k.value)}
-                className={`rounded-lg border px-2 py-2 text-[10px] font-extrabold uppercase tracking-wide transition-colors ${
+                className={`rounded-lg border px-2 py-2 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
                   kind === k.value
-                    ? "border-accent bg-accent text-white"
+                    ? "border-accent bg-accent text-on-accent"
                     : "border-line bg-[var(--raised)] text-foreground-dim"
                 }`}
               >
@@ -134,7 +134,7 @@ export function AddFilmForm({
                       prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
                     )
                   }
-                  className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors ${
+                  className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide transition-colors ${
                     on
                       ? "border-accent bg-accent/15 text-accent"
                       : "border-line text-foreground-dim"
@@ -161,12 +161,12 @@ export function AddFilmForm({
           type="button"
           onClick={submit}
           disabled={pending || !title.trim() || !url.trim()}
-          className="w-full rounded-xl bg-accent py-3 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover disabled:opacity-40"
+          className="w-full rounded-xl bg-accent py-3 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-40"
         >
           {pending ? "Saving…" : "Add to Film Room"}
         </button>
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
       </div>
     </div>
   );
@@ -175,7 +175,7 @@ export function AddFilmForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+      <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
         {label}
       </p>
       {children}

@@ -88,7 +88,7 @@ export function AddGameForm({ teamId }: { teamId: string }) {
             }}
             className={`flex-1 rounded-full border px-3 py-1.5 text-xs font-bold capitalize transition-colors ${
               location === loc
-                ? "border-accent bg-accent text-white"
+                ? "border-accent bg-accent text-on-accent"
                 : "border-line bg-[var(--raised)] text-foreground-dim"
             }`}
           >
@@ -97,7 +97,7 @@ export function AddGameForm({ teamId }: { teamId: string }) {
         ))}
       </div>
 
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
 
       <div className="mt-3 flex gap-3">
         <button

@@ -265,7 +265,7 @@ export function PracticePlanForm({
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Practice Plan
         </p>
         <input
@@ -303,7 +303,7 @@ export function PracticePlanForm({
           aria-controls="practice-setup"
           className="flex w-full items-center gap-3 px-6 py-4 text-left"
         >
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             Setup
           </span>
           <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-foreground-dim">
@@ -320,7 +320,7 @@ export function PracticePlanForm({
         </button>
 
         <div id="practice-setup" hidden={!setupOpen} className="px-6 pb-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
           Focus
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -340,7 +340,7 @@ export function PracticePlanForm({
           ))}
         </div>
 
-        <p className="mt-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
+        <p className="mt-5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
           Quick Start
         </p>
         <div className="mt-3 grid grid-cols-2 gap-1.5">
@@ -364,7 +364,7 @@ export function PracticePlanForm({
                 >
                   {s.label}
                 </span>
-                <span className="mt-0.5 block text-[10px] leading-snug text-foreground-mute">
+                <span className="mt-0.5 block text-[11px] leading-snug text-foreground-mute">
                   {s.description}
                 </span>
               </button>
@@ -382,14 +382,14 @@ export function PracticePlanForm({
               }}
               className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
                 skeletonMinutes === m
-                  ? "border-accent bg-accent text-white"
+                  ? "border-accent bg-accent text-on-accent"
                   : "border-line bg-[var(--raised)] text-foreground-dim"
               }`}
             >
               {m}
             </button>
           ))}
-          <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <span className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             min
           </span>
         </div>
@@ -397,11 +397,11 @@ export function PracticePlanForm({
           <button
             type="button"
             onClick={applySkeleton}
-            className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+            className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
           >
             Generate skeleton
           </button>
-          <p className="text-[10.5px] leading-snug text-foreground-mute">
+          <p className="text-[11px] leading-snug text-foreground-mute">
             Names and times only, sized to fit — replaces the drills below. Blank
             rows stay blank until you fill them.
           </p>
@@ -420,7 +420,7 @@ export function PracticePlanForm({
               haptic("tap");
               setPasteOpen((v) => !v);
             }}
-            className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+            className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
           >
             {pasteOpen ? "Cancel paste" : "Paste a list"}
           </button>
@@ -444,7 +444,7 @@ export function PracticePlanForm({
               type="button"
               onClick={importPaste}
               disabled={!pasteText.trim()}
-              className="mt-2 w-full rounded-lg bg-accent py-2 text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover disabled:opacity-40"
+              className="mt-2 w-full rounded-lg bg-accent py-2 text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-40"
             >
               Use this list
             </button>
@@ -502,10 +502,10 @@ export function PracticePlanForm({
                     value={block.label}
                     onChange={(e) => updateBlock(i, { label: e.target.value })}
                     placeholder="Group name (optional)"
-                    className="min-w-0 flex-1 bg-transparent text-[10.5px] font-extrabold uppercase tracking-wide text-foreground-dim placeholder:text-foreground-mute placeholder:font-bold focus:text-foreground focus:outline-none"
+                    className="min-w-0 flex-1 bg-transparent text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim placeholder:text-foreground-mute placeholder:font-bold focus:text-foreground focus:outline-none"
                   />
                   {groupTotal > 0 && (
-                    <span className="shrink-0 text-[10px] font-extrabold text-foreground-mute">
+                    <span className="shrink-0 text-[11px] font-extrabold text-foreground-mute">
                       {groupTotal} min
                     </span>
                   )}
@@ -531,7 +531,7 @@ export function PracticePlanForm({
                     type="button"
                     onClick={() => removeBlock(i)}
                     aria-label="Remove group"
-                    className="shrink-0 rounded-md px-1.5 py-1 text-[13px] font-bold leading-none text-foreground-mute transition-colors hover:text-red-400"
+                    className="shrink-0 rounded-md px-1.5 py-1 text-[13px] font-bold leading-none text-foreground-mute transition-colors hover:text-danger"
                   >
                     ✕
                   </button>
@@ -549,7 +549,7 @@ export function PracticePlanForm({
             return (
               <div key={i} className={i > 0 ? "border-t border-line" : ""}>
                 <div className="flex items-center gap-1.5 px-2 py-2">
-                  <span className="w-5 shrink-0 text-center text-[10px] font-bold text-foreground-mute">
+                  <span className="w-5 shrink-0 text-center text-[11px] font-bold text-foreground-mute">
                     {rowNumber}
                   </span>
                   <input
@@ -563,12 +563,12 @@ export function PracticePlanForm({
                     className="min-w-0 flex-1 bg-transparent py-1 text-sm font-semibold text-foreground placeholder:text-foreground-mute placeholder:font-normal focus:outline-none"
                   />
                   {block.minutes ? (
-                    <span className="shrink-0 text-[10px] font-extrabold text-foreground-mute">
+                    <span className="shrink-0 text-[11px] font-extrabold text-foreground-mute">
                       {block.minutes}m
                     </span>
                   ) : null}
                   {minutes > 0 && (
-                    <span className="shrink-0 text-[9px] font-bold text-foreground-mute/70">
+                    <span className="shrink-0 text-[11px] font-bold text-foreground-mute/70">
                       @{rollingMinutes}m
                     </span>
                   )}
@@ -607,18 +607,18 @@ export function PracticePlanForm({
                       haptic("tap");
                       updateBlock(i, { drillId: suggestion.id });
                     }}
-                    className="ml-8 mb-1.5 block text-[10px] font-extrabold uppercase tracking-wide text-[var(--data-cyan)] transition-colors hover:opacity-80"
+                    className="ml-8 mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[var(--data-cyan)] transition-colors hover:opacity-80"
                   >
                     ↳ Link to &ldquo;{suggestion.name}&rdquo; in the drill library
                   </button>
                 )}
                 {block.drillId && (
-                  <p className="ml-8 mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--data-cyan)]">
+                  <p className="ml-8 mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-[var(--data-cyan)]">
                     Linked to drill library
                   </p>
                 )}
                 {block.goal?.target ? (
-                  <p className="ml-8 mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--data-positive)]">
+                  <p className="ml-8 mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-[var(--data-positive)]">
                     Goal: {block.goal.target}
                     {block.goal.unit ? ` ${block.goal.unit}` : ""}
                   </p>
@@ -627,7 +627,7 @@ export function PracticePlanForm({
                 {expanded && (
                   <div className="mb-2 ml-8 mr-2 space-y-2 rounded-lg border border-line bg-[var(--raised)] p-2.5">
                     <div className="flex items-center gap-2">
-                      <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                      <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         Minutes
                       </label>
                       <input
@@ -639,7 +639,7 @@ export function PracticePlanForm({
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                      <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         Goal
                       </label>
                       <input
@@ -667,7 +667,7 @@ export function PracticePlanForm({
                     </div>
                     {groups.length > 1 && (
                       <div className="flex items-center gap-2">
-                        <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                        <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                           Move to
                         </label>
                         <select
@@ -702,7 +702,7 @@ export function PracticePlanForm({
                           type="button"
                           onClick={() => moveBlock(i, -1)}
                           disabled={i === 0}
-                          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
+                          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
                         >
                           ↑ Up
                         </button>
@@ -710,14 +710,14 @@ export function PracticePlanForm({
                           type="button"
                           onClick={() => moveBlock(i, 1)}
                           disabled={i === blocks.length - 1}
-                          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
+                          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground disabled:opacity-30"
                         >
                           ↓ Down
                         </button>
                         <button
                           type="button"
                           onClick={() => insertGroupAbove(i)}
-                          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
+                          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
                         >
                           + Group above
                         </button>
@@ -725,7 +725,7 @@ export function PracticePlanForm({
                       <button
                         type="button"
                         onClick={() => removeBlock(i)}
-                        className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400"
+                        className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger"
                       >
                         Remove
                       </button>
@@ -760,13 +760,13 @@ export function PracticePlanForm({
         </div>
       </section>
 
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <p className="text-center text-sm text-danger">{error}</p>}
 
       <button
         type="button"
         onClick={save}
         disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-40"
+        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-40"
       >
         {pending ? "Saving…" : existing ? "Save changes" : "Save plan"}
       </button>
@@ -776,7 +776,7 @@ export function PracticePlanForm({
           type="button"
           onClick={remove}
           disabled={deleting}
-          className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400 disabled:opacity-50"
+          className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
         >
           {deleting ? "Deleting…" : "Delete this plan"}
         </button>

@@ -108,7 +108,7 @@ export default async function Home() {
         {remembered && rememberedName && (
           <Link
             href={profileHome(remembered)}
-            className="block rounded-2xl bg-accent px-4 py-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+            className="block rounded-2xl bg-accent px-4 py-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
           >
             Continue as {rememberedName}
           </Link>

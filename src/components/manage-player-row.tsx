@@ -18,7 +18,7 @@ export function ManagePlayerRow({ id, name }: { id: string; name: string }) {
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400"
+            className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger"
           >
             Remove
           </button>
@@ -30,7 +30,7 @@ export function ManagePlayerRow({ id, name }: { id: string; name: string }) {
             Remove <strong>{name}</strong>? This deletes their Player Card, assessments, workouts and shooting
             history. It can&rsquo;t be undone.
           </p>
-          {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
           <div className="mt-2 flex gap-2">
             <button
               type="button"

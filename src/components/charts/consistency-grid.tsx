@@ -49,11 +49,11 @@ export function ConsistencyGrid({
       </div>
 
       <div className="mt-2.5 flex items-center justify-between">
-        <span className="text-[9px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {weeks} weeks
         </span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground-mute">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
             Less
           </span>
           {[0, 1, 2, 3].map((n) => (
@@ -63,7 +63,7 @@ export function ConsistencyGrid({
               style={{ background: intensity(n) }}
             />
           ))}
-          <span className="text-[9px] font-bold uppercase tracking-wider text-foreground-mute">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
             More
           </span>
         </div>

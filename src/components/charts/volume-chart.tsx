@@ -23,7 +23,7 @@ export function VolumeChart({ weeks, height = 108 }: { weeks: VolumeWeek[]; heig
             {/* Anchored left: the most recent weeks are on the right and are
                 usually the tallest bars, so a right-aligned label sits on top
                 of them. */}
-            <span className="absolute -top-2.5 left-0 rounded bg-[var(--surface)] px-1 text-[9px] font-bold uppercase tracking-wider text-foreground-mute">
+            <span className="absolute -top-2.5 left-0 rounded bg-[var(--surface)] px-1 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
               avg {average.toFixed(1)}
             </span>
           </div>
@@ -58,7 +58,7 @@ export function VolumeChart({ weeks, height = 108 }: { weeks: VolumeWeek[]; heig
         {weeks.map((week, i) => (
           <span
             key={week.label + i}
-            className={`flex-1 text-center text-[9px] font-bold uppercase tracking-wide ${
+            className={`flex-1 text-center text-[11px] font-bold uppercase tracking-wide ${
               week.isCurrent ? "text-accent" : "text-foreground-mute"
             }`}
           >

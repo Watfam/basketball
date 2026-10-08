@@ -35,7 +35,7 @@ export function TrainingLoadPanel({
             <span className="text-foreground-mute">/{weeklyTarget}</span>
           </p>
           <p
-            className={`mt-1 text-[9px] font-extrabold uppercase tracking-[0.14em] ${
+            className={`mt-1 text-[11px] font-extrabold uppercase tracking-[0.14em] ${
               hitTarget ? "text-[var(--data-positive)]" : "text-foreground-mute"
             }`}
           >
@@ -49,7 +49,7 @@ export function TrainingLoadPanel({
       </div>
 
       <div className="border-t border-line px-5 py-4">
-        <p className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+        <p className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
           Consistency
         </p>
         <ConsistencyGrid days={days} />

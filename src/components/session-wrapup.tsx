@@ -114,7 +114,7 @@ export function SessionWrapup({
                   {r.actual !== null ? "✓" : "?"}
                 </div>
                 <span className="flex-1 text-sm font-semibold text-foreground">{r.label}</span>
-                <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+                <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
                   Goal {r.goalTarget}
                   {r.goalUnit ? ` ${r.goalUnit}` : ""}
                 </span>
@@ -132,7 +132,7 @@ export function SessionWrapup({
       </section>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Post-Practice Notes
         </p>
         <textarea
@@ -144,13 +144,13 @@ export function SessionWrapup({
         />
       </section>
 
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <p className="text-center text-sm text-danger">{error}</p>}
 
       <button
         type="button"
         onClick={save}
         disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40"
+        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40"
       >
         {pending ? "Saving…" : "Save & Finish"}
       </button>

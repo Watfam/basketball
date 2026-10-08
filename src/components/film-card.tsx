@@ -142,12 +142,12 @@ export function FilmCard({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
               {film.kind && (
-                <span className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                   {FILM_KIND_LABELS[film.kind] ?? film.kind}
                 </span>
               )}
               {duration && (
-                <span className="text-[9px] font-bold uppercase tracking-wider text-foreground-mute">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
                   {duration}
                 </span>
               )}
@@ -173,7 +173,7 @@ export function FilmCard({
           </div>
 
           {watched && (
-            <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
+            <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
               Studied
             </span>
           )}
@@ -205,7 +205,7 @@ export function FilmCard({
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 {film.kind && (
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
                     {FILM_KIND_LABELS[film.kind] ?? film.kind}
                   </p>
                 )}
@@ -242,7 +242,7 @@ export function FilmCard({
                 {(film.skill_tags ?? []).map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent"
+                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent"
                   >
                     {SKILL_LABELS[tag] ?? tag}
                   </span>
@@ -252,7 +252,7 @@ export function FilmCard({
 
             {(film.watch_for ?? []).length > 0 && (
               <div className="mt-5 border-t border-line pt-4">
-                <h4 className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+                <h4 className="mb-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
                   Watch For
                 </h4>
                 <ul className="space-y-2">
@@ -272,7 +272,7 @@ export function FilmCard({
                   href={effectiveUrl as string}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+                  className="block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
                 >
                   Watch film ↗
                 </a>
@@ -322,7 +322,7 @@ export function FilmCard({
             <div className="mt-5 border-t border-line pt-4">
               <label
                 htmlFor={`takeaway-${film.id}`}
-                className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent"
+                className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent"
               >
                 What are you taking into your next session?
               </label>
@@ -350,7 +350,7 @@ export function FilmCard({
                     type="button"
                     onClick={unwatch}
                     disabled={pending}
-                    className="text-[10px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim disabled:opacity-50"
+                    className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim disabled:opacity-50"
                   >
                     Mark unstudied
                   </button>
@@ -360,14 +360,14 @@ export function FilmCard({
                     type="button"
                     onClick={remove}
                     disabled={pending}
-                    className="text-[10px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400 disabled:opacity-50"
+                    className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
                   >
                     Delete film
                   </button>
                 )}
               </div>
 
-              {error && <p className="mt-2 text-center text-xs text-red-400">{error}</p>}
+              {error && <p className="mt-2 text-center text-xs text-danger">{error}</p>}
             </div>
           </div>
         </div>

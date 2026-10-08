@@ -22,10 +22,17 @@
   --elevated: #ffffff;
   --raised: #f7f5f1;
   --foreground: #0d1526;
-  --foreground-dim: #5c6b85;
-  --foreground-mute: #8b98ae;
-  --accent: #f2560a;
-  --accent-hover: #d64607;
+  /* Text levels are all readable outdoors: dim 6.3:1 and mute 4.6:1 on the
+     background (WCAG AA is 4.5:1). */
+  --foreground-dim: #4a5872;
+  --foreground-mute: #606c85;
+  /* Deep enough that white text on it, and it as small text on the
+     background, both pass 4.5:1. The bright orange lives on in the glows. */
+  --accent: #c2410c;
+  --accent-hover: #9a3412;
+  /* Text on an accent fill. */
+  --on-accent: #ffffff;
+  --danger: #b91c1c;
   --line: #e2ded6;
   --line-strong: #cbc5ba;
 
@@ -57,9 +64,12 @@
   --raised: #1f2d48;
   --foreground: #f4f6fb;
   --foreground-dim: #93a3c0;
-  --foreground-mute: #5f719a;
+  --foreground-mute: #8496bb;
   --accent: #ff6a1a;
   --accent-hover: #ff8140;
+  /* White on this orange is 2.9:1; navy is 6.8:1. */
+  --on-accent: #070d18;
+  --danger: #f87171;
   --line: #22314f;
   --line-strong: #31416a;
 
@@ -91,6 +101,8 @@
   --color-foreground-mute: var(--foreground-mute);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-data-cyan: var(--data-cyan);

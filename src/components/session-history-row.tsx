@@ -39,13 +39,13 @@ export function SessionHistoryRow({
           <div className="h-1 w-16 shrink-0 overflow-hidden rounded-full bg-[var(--data-dim)]">
             <div className="h-full rounded-full bg-accent" style={{ width: `${ratio * 100}%` }} />
           </div>
-          <p className="truncate text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+          <p className="truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
             {loggedCount}/{totalDrills} drills · {dateLabel}
           </p>
         </div>
       </div>
       <span
-        className={`shrink-0 whitespace-nowrap rounded-md border px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide ${
+        className={`shrink-0 whitespace-nowrap rounded-md border px-2 py-1 text-[11px] font-extrabold uppercase tracking-wide ${
           isInProgress ? "border-accent text-accent" : "border-line text-foreground-mute"
         }`}
       >

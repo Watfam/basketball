@@ -219,7 +219,7 @@ export function PracticeRunner({
           >
             ← End practice
           </button>
-          <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <span className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             {elapsedMinutes} / {totalMinutes} MIN
           </span>
         </div>
@@ -254,7 +254,7 @@ export function PracticeRunner({
                 <p className="font-display mt-8 text-center text-7xl tabular-nums text-foreground">
                   {formatClock(secondsLeft)}
                 </p>
-                <p className="mt-1 text-center text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+                <p className="mt-1 text-center text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
                   time on this drill
                 </p>
               </>
@@ -266,7 +266,7 @@ export function PracticeRunner({
 
             {step.goal?.target ? (
               <div className="mt-5 rounded-2xl border border-line bg-surface p-3.5">
-                <p className="text-[9.5px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   Log the score — goal {step.goal.target}
                   {step.goal.unit ? ` ${step.goal.unit}` : ""}
                 </p>
@@ -287,7 +287,7 @@ export function PracticeRunner({
                       primeAlerts();
                       haptic("success");
                     }}
-                    className="ml-auto shrink-0 rounded-lg bg-accent px-3.5 py-2 text-[10.5px] font-extrabold uppercase tracking-wide text-white"
+                    className="ml-auto shrink-0 rounded-lg bg-accent px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
                   >
                     Save
                   </button>
@@ -323,7 +323,7 @@ export function PracticeRunner({
                 <button
                   type="button"
                   onClick={togglePause}
-                  className="flex-[1.4] rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-white"
+                  className="flex-[1.4] rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
                 >
                   {paused ? "Resume" : "Pause"}
                 </button>

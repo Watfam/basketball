@@ -85,7 +85,7 @@ export function ProgramPanel({
       <div className="relative px-5 pt-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
               Your Program
             </p>
             <h2 className="font-display mt-1.5 text-2xl uppercase leading-[0.98] tracking-tight text-foreground">
@@ -101,7 +101,7 @@ export function ProgramPanel({
               {progress.completedCount}
               <span className="text-foreground-mute">/{progress.totalCount}</span>
             </span>
-            <span className="mt-0.5 text-[8px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+            <span className="mt-0.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
               Days
             </span>
           </ProgressRing>
@@ -121,18 +121,18 @@ export function ProgramPanel({
             type="button"
             onClick={finishBlockAndRetest}
             disabled={pending}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
+            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
           >
             {pending ? "Finishing…" : "Finish block & retest"}
           </button>
-          {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
         </div>
       ) : (
         next && (
           <div className="relative mt-4 border-t border-line px-5 py-4">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
                   Week {next.week_number} · Day {next.day_number}
                   {next.is_deload && " · Deload"}
                 </p>
@@ -152,12 +152,12 @@ export function ProgramPanel({
               type="button"
               onClick={start}
               disabled={pending}
-              className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
+              className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
             >
               {pending ? "Starting…" : "Start Today's Session"}
             </button>
 
-            {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+            {error && <p className="mt-2 text-xs text-danger">{error}</p>}
           </div>
         )
       )}
@@ -166,7 +166,7 @@ export function ProgramPanel({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="w-full px-5 py-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+          className="w-full px-5 py-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
         >
           {expanded ? "Hide the plan" : "See the whole plan"}
         </button>
@@ -175,14 +175,14 @@ export function ProgramPanel({
           <div className="space-y-3 px-5 pb-5">
             <Link
               href={`/players/${playerId}/programs/${programId}`}
-              className="block w-full rounded-lg border border-line py-2 text-center text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+              className="block w-full rounded-lg border border-line py-2 text-center text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
             >
               Every session in this block →
             </Link>
 
             {progress.weeks.map((week) => (
               <div key={week.weekNumber}>
-                <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+                <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
                   Week {week.weekNumber}
                   {week.days.some((d) => d.is_deload) && " · Deload"}
                 </p>
@@ -194,9 +194,9 @@ export function ProgramPanel({
                       <div
                         key={day.id}
                         title={`Week ${day.week_number}, day ${day.day_number}`}
-                        className={`h-7 flex-1 rounded-md border text-center text-[10px] font-extrabold leading-[1.6rem] ${
+                        className={`h-7 flex-1 rounded-md border text-center text-[11px] font-extrabold leading-[1.6rem] ${
                           done
-                            ? "border-accent bg-accent text-white"
+                            ? "border-accent bg-accent text-on-accent"
                             : isNext
                               ? "border-accent text-accent"
                               : "border-line bg-[var(--data-dim)] text-foreground-mute"
@@ -240,7 +240,7 @@ export function ProgramPanel({
                 <button
                   type="button"
                   onClick={() => setLeaveConfirming(true)}
-                  className="w-full pt-1 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-foreground-mute transition-colors hover:text-foreground-dim"
+                  className="w-full pt-1 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-foreground-mute transition-colors hover:text-foreground-dim"
                 >
                   Leave this program
                 </button>

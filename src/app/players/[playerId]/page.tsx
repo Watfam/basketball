@@ -367,7 +367,7 @@ export default async function PlayerHubPage({
           </Link>
           {/* Your picture: the one place to change who is using the phone. */}
           <Link href="/" aria-label={`${player.display_name}: switch profile`} className="flex items-center gap-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Switch</span>
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Switch</span>
             <Avatar id={playerId} name={player.display_name} size={32} />
           </Link>
         </div>
@@ -376,7 +376,7 @@ export default async function PlayerHubPage({
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
         {unfinished.length > 0 && (
           <section>
-            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
               {unfinished.length === 1
                 ? "Unfinished session"
                 : `${unfinished.length} unfinished sessions`}
@@ -437,7 +437,7 @@ export default async function PlayerHubPage({
             href={`/players/${playerId}/shooting`}
             className="panel-lit block overflow-hidden rounded-3xl border border-line bg-surface p-5 transition-colors hover:border-[var(--line-strong)]"
           >
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Count your shots</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Count your shots</p>
             <div className="mt-2 flex items-end justify-between gap-3">
               <div className="min-w-0">
                 {seasonShots.attempts > 0 ? (
@@ -461,7 +461,7 @@ export default async function PlayerHubPage({
                   </>
                 )}
               </div>
-              <span className="shrink-0 rounded-xl bg-accent px-4 py-3 text-xs font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)]">
+              <span className="shrink-0 rounded-xl bg-accent px-4 py-3 text-xs font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)]">
                 Shoot
               </span>
             </div>
@@ -487,7 +487,7 @@ export default async function PlayerHubPage({
           <p className="relative text-[0.95rem] font-semibold leading-snug text-foreground">
             {quote.text}
           </p>
-          <p className="relative mt-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+          <p className="relative mt-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
             {quote.author}
           </p>
         </blockquote>
@@ -566,7 +566,7 @@ export default async function PlayerHubPage({
               className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-accent bg-accent/10 px-4 py-3 transition-colors hover:bg-accent/20"
             >
               <div className="min-w-0">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                   Time to re-rate
                 </p>
                 <p className="mt-0.5 text-xs leading-relaxed text-foreground-dim">
@@ -735,7 +735,7 @@ function SectionHeading({ title, caption }: { title: string; caption?: string })
         {title}
       </h2>
       {caption && (
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {caption}
         </span>
       )}

@@ -61,7 +61,7 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
                   {drill.name}
                 </h3>
                 {drill.source_trainer && (
-                  <p className="mt-1 text-[10px] font-extrabold uppercase tracking-wider text-foreground-mute">
+                  <p className="mt-1 text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
                     {drill.source_trainer}
                   </p>
                 )}
@@ -84,7 +84,7 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
                 {equipment.map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-foreground-dim"
+                    className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
                   >
                     {item}
                   </span>
@@ -144,7 +144,7 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-5 border-t border-line pt-4">
-      <h4 className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+      <h4 className="mb-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
         {title}
       </h4>
       {children}

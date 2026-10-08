@@ -34,7 +34,7 @@ export function DeleteShotSessionButton({
       type="button"
       onClick={remove}
       disabled={pending}
-      className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400 disabled:opacity-50"
+      className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
     >
       {pending ? "Deleting…" : "Delete this session"}
     </button>

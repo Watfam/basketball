@@ -41,7 +41,7 @@ export function WorkoutRail({
           >
             <div className="flex items-center justify-between">
               {focus && (
-                <span className="truncate text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                <span className="truncate text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                   {SKILL_LABELS[focus] ?? focus}
                 </span>
               )}
@@ -65,10 +65,10 @@ export function WorkoutRail({
             </p>
 
             <div className="mt-3 flex items-center gap-3 border-t border-line pt-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-dim">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-dim">
                 {workout.estimated_minutes ?? "—"} min
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
                 {drills.length} {drills.length === 1 ? "drill" : "drills"}
               </span>
             </div>

@@ -369,7 +369,7 @@ export function SurvivalTest() {
   return (
     <div className="space-y-4">
       <section className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-foreground-dim">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">How to run it</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">How to run it</p>
         <ol className="list-decimal space-y-1 pl-4">
           <li>Restart the iPhone first, then open this page from the home screen.</li>
           <li>
@@ -425,7 +425,7 @@ export function SurvivalTest() {
           <button
             type="button"
             onClick={() => void go(true)}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent"
           >
             Start the survival test
           </button>
@@ -434,7 +434,7 @@ export function SurvivalTest() {
           <button
             type="button"
             onClick={() => void go(false)}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent"
           >
             {resuming ? "Carry on now" : "Continue"}
           </button>
@@ -465,7 +465,7 @@ export function SurvivalTest() {
             <button
               type="button"
               onClick={() => void copyOrShare(true)}
-              className="flex-1 rounded-xl bg-accent py-3 text-[11px] font-extrabold uppercase tracking-wide text-white"
+              className="flex-1 rounded-xl bg-accent py-3 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
             >
               Share or save
             </button>
@@ -499,7 +499,7 @@ export function SurvivalTest() {
             rows={16}
             value={reportText(state, trials)}
             onFocus={(e) => e.currentTarget.select()}
-            className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[10px] leading-snug text-foreground-dim"
+            className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[11px] leading-snug text-foreground-dim"
           />
         </details>
       )}

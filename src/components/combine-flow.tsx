@@ -114,7 +114,7 @@ export function CombineFlow({
     return (
       <div className="mx-auto w-full max-w-md">
         <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             Your results
           </p>
           <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
@@ -128,7 +128,7 @@ export function CombineFlow({
               const delta = after - before;
               return (
                 <div key={cat.value} className="bg-surface px-4 py-3">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim">
                     {cat.label}
                   </p>
                   <div className="mt-1 flex items-baseline gap-2">
@@ -171,7 +171,7 @@ export function CombineFlow({
             type="button"
             onClick={finish}
             disabled={pending || recordedCount === 0}
-            className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:shadow-none"
+            className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:shadow-none"
           >
             {pending ? "Saving…" : "Save my combine"}
           </button>
@@ -180,7 +180,7 @@ export function CombineFlow({
               Record at least one test to save.
             </p>
           )}
-          {error && <p className="mt-2 text-center text-xs text-red-400">{error}</p>}
+          {error && <p className="mt-2 text-center text-xs text-danger">{error}</p>}
 
           <button
             type="button"
@@ -203,7 +203,7 @@ export function CombineFlow({
         <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
           {playerName}
         </p>
-        <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
           Test {index + 1} of {drills.length}
         </span>
       </div>
@@ -225,13 +225,13 @@ export function CombineFlow({
 
       {/* Named explicitly: a rating only means something if you know what
           it was measured against. */}
-      <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+      <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
         Scored against {BAND_LABELS[band] ?? band}
         {bandKnown ? "" : " — set age and gender for a closer match"}
       </p>
 
       <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           {CATEGORY_LABELS[drill.category] ?? drill.category}
         </p>
         <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
@@ -247,7 +247,7 @@ export function CombineFlow({
             {(drill.equipment ?? []).map((e) => (
               <span
                 key={e}
-                className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-foreground-dim"
+                className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
               >
                 {e}
               </span>
@@ -257,7 +257,7 @@ export function CombineFlow({
 
         {(drill.cues ?? []).length > 0 && (
           <div className="mt-4 border-t border-line pt-4">
-            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
               Rules
             </p>
             <ul className="space-y-1.5">
@@ -274,7 +274,7 @@ export function CombineFlow({
         <div className="mt-5 border-t border-line pt-4">
           <label
             htmlFor={`score-${drill.id}`}
-            className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent"
+            className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent"
           >
             Your score — {scoreUnit(drill)}
           </label>
@@ -292,19 +292,19 @@ export function CombineFlow({
             {previewRating !== null && (
               <div className="shrink-0 text-right">
                 <p className="font-display text-3xl leading-none text-accent">{previewRating}</p>
-                <p className="text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   / 10
                 </p>
               </div>
             )}
           </div>
 
-          {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
 
           <button
             type="button"
             onClick={record}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
           >
             {index === drills.length - 1 ? "Record & review" : "Record & next"}
           </button>

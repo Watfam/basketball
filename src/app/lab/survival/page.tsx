@@ -19,7 +19,7 @@ export default function SurvivalTestPage() {
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-4 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Experimental</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Experimental</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
             Survival test
           </h1>

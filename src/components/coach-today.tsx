@@ -64,7 +64,7 @@ export function CoachToday({
           className="flex items-center justify-between gap-3 rounded-2xl border border-accent bg-accent/10 px-4 py-3 transition-colors hover:bg-accent/20"
         >
           <div className="min-w-0">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
               Result not logged
             </p>
             <p className="mt-0.5 truncate text-sm font-bold text-foreground">
@@ -89,7 +89,7 @@ export function CoachToday({
           <div className="mt-4 flex justify-center gap-2.5">
             <Link
               href={`/teams/${teamId}/practice/new`}
-              className="rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+              className="rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
             >
               New plan
             </Link>
@@ -103,7 +103,7 @@ export function CoachToday({
         </div>
       ) : (
         <div className="panel-lit rounded-2xl border border-line bg-surface p-5">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             {whenText(next.when, next.date)}
             {next.when !== "upcoming" ? ` · ${next.kind === "game" ? "Game" : "Practice"}` : ""}
           </p>
@@ -120,7 +120,7 @@ export function CoachToday({
               <div className="mt-4 flex gap-2.5">
                 <RunPracticeLink
                   href={`/teams/${teamId}/practice/${next.plan.id}/run`}
-                  className="flex-1 rounded-xl bg-accent py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+                  className="flex-1 rounded-xl bg-accent py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
                 >
                   Run practice
                 </RunPracticeLink>
@@ -143,7 +143,7 @@ export function CoachToday({
               <div className="mt-4 flex gap-2.5">
                 <Link
                   href={`/teams/${teamId}/games/${next.game.id}`}
-                  className="flex-1 rounded-xl bg-accent py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+                  className="flex-1 rounded-xl bg-accent py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
                 >
                   Open game
                 </Link>
@@ -171,7 +171,7 @@ export function CoachToday({
           className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3 transition-colors hover:border-[var(--line-strong)]"
         >
           <div className="min-w-0">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
               Then · {whenText(then.when, then.date)}
             </p>
             <p className="mt-0.5 truncate text-sm font-semibold text-foreground">

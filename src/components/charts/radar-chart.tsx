@@ -132,7 +132,7 @@ export function RadarChart({
               x={x}
               y={y - 3}
               textAnchor={anchor}
-              className="fill-[var(--foreground-dim)] text-[8.5px] font-bold uppercase"
+              className="fill-[var(--foreground-dim)] text-[11px] font-bold uppercase"
               style={{ letterSpacing: "0.08em" }}
             >
               {axis.label}

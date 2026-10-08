@@ -28,7 +28,7 @@ export function DuplicatePlanButton({ planId, teamId }: { planId: string; teamId
       type="button"
       onClick={duplicate}
       disabled={pending}
-      className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent disabled:opacity-50"
+      className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent disabled:opacity-50"
     >
       {pending ? "Copying…" : "Duplicate"}
     </button>

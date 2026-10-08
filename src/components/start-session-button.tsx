@@ -40,13 +40,13 @@ export function StartSessionButton({
         disabled={pending}
         className={
           fullWidth
-            ? "w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
-            : "rounded-lg bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+            ? "w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
+            : "rounded-lg bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-50"
         }
       >
         {pending ? "Starting…" : fullWidth ? "Start Session" : "Start Workout"}
       </button>
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </div>
   );
 }

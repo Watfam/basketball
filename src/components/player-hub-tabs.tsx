@@ -63,7 +63,7 @@ export function PlayerHubTabs({
                 haptic("tap");
                 setTab(t.value);
               }}
-              className={`-mb-px flex-1 border-b-2 px-2 py-2.5 text-[10.5px] font-extrabold uppercase tracking-[0.08em] transition-colors ${
+              className={`-mb-px flex-1 border-b-2 px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-[0.08em] transition-colors ${
                 isActive
                   ? "border-accent text-foreground"
                   : "border-transparent text-foreground-mute hover:text-foreground-dim"

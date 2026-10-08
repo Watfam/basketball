@@ -143,7 +143,7 @@ export function ShotSessionList({
                   type="button"
                   disabled={pending}
                   onClick={() => remove(s.id, s.label)}
-                  className="shrink-0 rounded-lg border border-red-400/40 px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-red-400 disabled:opacity-50"
+                  className="shrink-0 rounded-lg border border-danger/40 px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-danger disabled:opacity-50"
                 >
                   Delete
                 </button>
@@ -161,7 +161,7 @@ export function ShotSessionList({
         </div>
       )}
 
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
 
       {undo && (
         <div

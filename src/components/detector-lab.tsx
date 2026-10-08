@@ -1016,7 +1016,7 @@ export function DetectorLab() {
             No sizing to do: the camera measures the ball on the first few shots and sets the size itself.
           </p>
           {tight && (
-            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-400">
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs font-semibold text-danger">
               The rim is too close to the top of the picture: part of the ball&rsquo;s way in is cut off. Tilt the phone
               down or step back so there&rsquo;s sky above the rim.
             </p>
@@ -1079,7 +1079,7 @@ export function DetectorLab() {
                   setRim(EXAM_RIM);
                   setScale(1);
                 }}
-                className="ml-auto rounded-lg border border-line px-2.5 py-2 text-[10px] font-extrabold uppercase text-foreground-dim"
+                className="ml-auto rounded-lg border border-line px-2.5 py-2 text-[11px] font-extrabold uppercase text-foreground-dim"
               >
                 Exam clips
               </button>
@@ -1091,7 +1091,7 @@ export function DetectorLab() {
               haptic("tap");
               aimDoneRef.current?.();
             }}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent"
           >
             Start counting
           </button>
@@ -1107,7 +1107,7 @@ export function DetectorLab() {
               { k: "Ball seen", v: `${fmt(report.ballPct, 0)}%` },
             ].map((t) => (
               <div key={t.k} className="flex-1 rounded-xl bg-[var(--raised)] p-3">
-                <p className="text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">{t.k}</p>
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">{t.k}</p>
                 <p className="font-display mt-1 text-xl text-foreground">{t.v}</p>
               </div>
             ))}
@@ -1124,7 +1124,7 @@ export function DetectorLab() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs tabular-nums">
               <thead>
-                <tr className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <tr className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   <th className="py-1 pr-3">Segment</th>
                   <th className="py-1 pr-3">fps</th>
                   <th className="py-1 pr-3">ms/frame</th>
@@ -1151,7 +1151,7 @@ export function DetectorLab() {
             {report.backend === "webgpu" ? "GPU" : "CPU"}
           </p>
           {report.partial && (
-            <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-red-400">
+            <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-danger">
               This run was cut off before it finished. These numbers cover the{" "}
               {Math.round(report.frames / Math.max(0.001, report.avgFps))}s it got through.
             </p>
@@ -1162,7 +1162,7 @@ export function DetectorLab() {
               <button
                 type="button"
                 onClick={() => void shareReport()}
-                className="flex-1 rounded-xl bg-accent py-3 text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+                className="flex-1 rounded-xl bg-accent py-3 text-[11px] font-extrabold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
               >
                 {shared ? "Shared" : "Share or save"}
               </button>
@@ -1185,14 +1185,14 @@ export function DetectorLab() {
               rows={10}
               value={reportText(report)}
               onFocus={(e) => e.currentTarget.select()}
-              className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[10px] leading-snug text-foreground-dim"
+              className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[11px] leading-snug text-foreground-dim"
             />
           </details>
         </section>
       )}
 
       <section className="space-y-3 rounded-2xl border border-line bg-surface p-4">
-        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Model</p>
+        <p className="pt-1 text-[11px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Model</p>
         <div className="grid grid-cols-2 gap-2">
           {(["ball", "coco"] as const).map((m) => (
             <button
@@ -1210,7 +1210,7 @@ export function DetectorLab() {
           ))}
         </div>
 
-        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Source</p>
+        <p className="pt-1 text-[11px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Source</p>
         <div className="grid grid-cols-2 gap-2">
           {(["camera", "file"] as const).map((s) => (
             <button
@@ -1230,7 +1230,7 @@ export function DetectorLab() {
 
         {source === "file" && testMode !== "model" && model === "ball" ? (
           <>
-        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Length</p>
+        <p className="pt-1 text-[11px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Length</p>
           <div className="grid grid-cols-2 gap-2">
             {[true, false].map((v) => (
               <button
@@ -1250,7 +1250,7 @@ export function DetectorLab() {
           </>
         ) : (
           <>
-        <p className="pt-1 text-[10px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Length</p>
+        <p className="pt-1 text-[11px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Length</p>
         <div className="grid grid-cols-3 gap-2">
           {DURATIONS.map((d, i) => (
             <button
@@ -1316,7 +1316,7 @@ export function DetectorLab() {
 
         {backend === "wasm" && (
           <div>
-            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
               CPU threads
             </p>
             <div className="grid grid-cols-5 gap-2">
@@ -1398,7 +1398,7 @@ export function DetectorLab() {
 
         {source === "file" && testMode !== "model" && !busy && (
           <label className="block">
-            <span className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <span className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
               {model === "ball" && everyFrame
                 ? "Choose a video: every frame is read, to the end of the clip (slower than real time)"
                 : `Choose a video, then it runs for ${DURATIONS[durationIdx].seconds}s`}
@@ -1420,7 +1420,7 @@ export function DetectorLab() {
             type="button"
             onClick={busy ? stop : () => void run()}
             disabled={phase === "loading"}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             {phase === "loading" ? "Loading…" : phase === "running" ? "Stop" : "Start test"}
           </button>
@@ -1429,15 +1429,15 @@ export function DetectorLab() {
           <button
             type="button"
             onClick={stop}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent"
           >
             Stop
           </button>
         )}
 
-        {message && <p className="text-xs leading-relaxed text-red-400">{message}</p>}
+        {message && <p className="text-xs leading-relaxed text-danger">{message}</p>}
 
-        <p className="text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
           Version {process.env.NEXT_PUBLIC_BUILD} ·{" "}
           {keepsData === null
             ? "checking storage"
@@ -1469,7 +1469,7 @@ export function DetectorLab() {
             {(() => {
               const lines = eventLines(savedRuns[0]?.at ?? "");
               return lines.length ? (
-                <span className="mt-2 block whitespace-pre-wrap font-mono text-[10px]">
+                <span className="mt-2 block whitespace-pre-wrap font-mono text-[11px]">
                   {lines.slice(-8).join("\n")}
                 </span>
               ) : null;
@@ -1481,7 +1481,7 @@ export function DetectorLab() {
 
       {savedRuns.length > 0 && (
         <section className="space-y-2 rounded-2xl border border-line bg-surface p-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             Saved runs on this phone
           </p>
           {savedRuns.map((r) => (

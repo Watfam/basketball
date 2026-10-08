@@ -78,7 +78,7 @@ export function AddRosterForm({
     <div className="rounded-2xl border border-accent/40 bg-accent/5 p-4">
       {availableOwnPlayers.length > 0 && (
         <div className="mb-3">
-          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             Your players
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -93,7 +93,7 @@ export function AddRosterForm({
                 }}
                 className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
                   playerId === p.id
-                    ? "border-accent bg-accent text-white"
+                    ? "border-accent bg-accent text-on-accent"
                     : "border-line bg-[var(--raised)] text-foreground-dim"
                 }`}
               >
@@ -106,7 +106,7 @@ export function AddRosterForm({
 
       {!playerId && (
         <>
-          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             Or a name — no account needed
           </p>
           <input
@@ -141,7 +141,7 @@ export function AddRosterForm({
         )}
       </div>
 
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
 
       <div className="mt-3 flex gap-3">
         <button

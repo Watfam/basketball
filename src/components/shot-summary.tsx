@@ -81,7 +81,7 @@ export function SessionSummary({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           {label ?? "Shooting session"}
           {dateLabel ? ` · ${dateLabel}` : ""}
         </p>
@@ -135,7 +135,7 @@ export function SessionSummary({
 
       {zones.length > 0 && (
         <div className="space-y-2.5">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             By spot
           </p>
           {zones.map((z) => (

@@ -41,7 +41,7 @@ export function CombinePrompt({
     <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-2xl border border-accent shadow-[var(--shadow-panel)]">
       <div className="court-lines absolute inset-0 opacity-60" aria-hidden />
       <div className="relative p-5">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
           {hasEverDone ? "Time to retest" : "Not measured yet"}
         </p>
         <h2 className="font-display mt-1.5 text-2xl uppercase leading-[0.98] tracking-tight text-foreground">
@@ -55,7 +55,7 @@ export function CombinePrompt({
 
         <Link
           href={`/players/${playerId}/combine`}
-          className="mt-4 block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+          className="mt-4 block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
         >
           {hasEverDone ? "Retest" : "Start the combine"}
         </Link>

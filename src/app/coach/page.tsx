@@ -85,7 +85,7 @@ export default async function CoachHomePage() {
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
             {firstTeam && (teams ?? []).length === 1 ? firstTeam.name : "Coach home"}
           </h1>
@@ -123,7 +123,7 @@ export default async function CoachHomePage() {
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="font-display text-xl leading-none text-accent">{formatPercentage(season.pct)}</p>
-                      <p className="text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                      <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         {season.attempts > 0 ? `${season.makes} of ${season.attempts}` : "this season"}
                       </p>
                     </div>
@@ -163,7 +163,7 @@ export default async function CoachHomePage() {
             <div className="mt-3 grid grid-cols-3 gap-2">
               <Link
                 href="/lab/calibrate"
-                className="rounded-xl bg-accent py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-white"
+                className="rounded-xl bg-accent py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
               >
                 Calibrate
               </Link>

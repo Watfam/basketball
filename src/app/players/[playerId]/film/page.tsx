@@ -180,7 +180,7 @@ export default async function FilmRoomPage({
                         {((s.skill_tags ?? []) as string[]).map((t) => (
                           <span
                             key={t}
-                            className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent"
+                            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent"
                           >
                             {SKILL_LABELS[t] ?? t}
                           </span>
@@ -196,12 +196,12 @@ export default async function FilmRoomPage({
                       )}
                     </div>
                     {finished && (
-                      <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
+                      <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
                         Done
                       </span>
                     )}
                   </div>
-                  <p className="mt-3 border-t border-line pt-2.5 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+                  <p className="mt-3 border-t border-line pt-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
                     {itemCountBySession.get(s.id) ?? 0} clips
                   </p>
                 </Link>
@@ -251,7 +251,7 @@ export default async function FilmRoomPage({
                     {group.player}
                   </p>
                   {group.matchesPosition && (
-                    <span className="shrink-0 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[var(--data-cyan)]">
+                    <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--data-cyan)]">
                       Your position
                     </span>
                   )}
@@ -298,7 +298,7 @@ export default async function FilmRoomPage({
               {(trainer.specialty ?? []).map((s) => (
                 <span
                   key={s}
-                  className="shrink-0 text-[9px] font-extrabold uppercase tracking-[0.12em] text-accent"
+                  className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent"
                 >
                   {SKILL_LABELS[s] ?? s}
                 </span>
@@ -343,7 +343,7 @@ export default async function FilmRoomPage({
           <div className="court-lines absolute inset-0 opacity-60" aria-hidden />
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
                 Film Room
               </p>
               <h1 className="font-display mt-1.5 text-4xl uppercase leading-[0.92] tracking-tight text-foreground">
@@ -365,7 +365,7 @@ export default async function FilmRoomPage({
                 <span className="font-display text-xl leading-none text-foreground">
                   {studiedCount}
                 </span>
-                <span className="mt-0.5 text-[8px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+                <span className="mt-0.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
                   Studied
                 </span>
               </ProgressRing>
@@ -399,7 +399,7 @@ function TrainerLink({ href, label }: { href: string | null; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
     >
       {label} ↗
     </a>
@@ -413,7 +413,7 @@ function SectionHeading({ title, caption }: { title: string; caption?: string })
         {title}
       </h2>
       {caption && (
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {caption}
         </span>
       )}

@@ -123,7 +123,7 @@ export default async function PracticePlansPage({
                       {plan.title}
                     </p>
                     {dateLabel && (
-                      <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                      <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         {dateLabel}
                       </span>
                     )}
@@ -145,13 +145,13 @@ export default async function PracticePlansPage({
                   <div className="flex shrink-0 items-center gap-3">
                     <RunPracticeLink
                       href={`/teams/${teamId}/practice/${plan.id}/run`}
-                      className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+                      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
                     >
                       Run
                     </RunPracticeLink>
                     <Link
                       href={`/teams/${teamId}/practice/${plan.id}/log`}
-                      className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
+                      className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute transition-colors hover:text-accent"
                     >
                       Log Results
                     </Link>
@@ -166,7 +166,7 @@ export default async function PracticePlansPage({
                     lastSession.run_date + "T00:00:00"
                   ).toLocaleDateString(undefined, { month: "short", day: "numeric" });
                   return (
-                    <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-[var(--data-positive)]">
+                    <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-[var(--data-positive)]">
                       Last run: {runDateLabel}
                       {scoreCount > 0
                         ? ` · ${scoreCount} ${scoreCount === 1 ? "score" : "scores"} logged`

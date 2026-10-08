@@ -45,7 +45,7 @@ export function FilmRoomTabs({
             }}
             className={`flex-1 rounded-lg border px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
               tab === t.value
-                ? "border-accent bg-accent text-white"
+                ? "border-accent bg-accent text-on-accent"
                 : "border-line bg-surface text-foreground-dim hover:border-accent/50"
             }`}
           >

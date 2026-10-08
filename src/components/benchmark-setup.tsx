@@ -48,7 +48,7 @@ export function BenchmarkSetup({
 
   return (
     <div className="mb-4 rounded-2xl border border-accent/40 bg-accent/5 p-4">
-      <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
         Before you start
       </p>
       <p className="mt-1.5 text-xs leading-relaxed text-foreground-dim">
@@ -59,7 +59,7 @@ export function BenchmarkSetup({
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div>
-          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             Birth year
           </p>
           <input
@@ -71,7 +71,7 @@ export function BenchmarkSetup({
           />
         </div>
         <div>
-          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             Benchmarks
           </p>
           <div className="flex gap-1.5">
@@ -85,7 +85,7 @@ export function BenchmarkSetup({
                 onClick={() => setGender(g.value)}
                 className={`flex-1 rounded-lg border px-2 py-2 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
                   gender === g.value
-                    ? "border-accent bg-accent text-white"
+                    ? "border-accent bg-accent text-on-accent"
                     : "border-line bg-[var(--raised)] text-foreground-dim"
                 }`}
               >
@@ -105,7 +105,7 @@ export function BenchmarkSetup({
         {pending ? "Saving…" : "Save and use these benchmarks"}
       </button>
 
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
     </div>
   );
 }

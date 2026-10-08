@@ -353,7 +353,7 @@ export function GpuDiagnostic() {
   return (
     <div className="space-y-4">
       <section className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-foreground-dim">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Before you start</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Before you start</p>
         <ol className="list-decimal space-y-1 pl-4">
           <li>
             <strong className="text-foreground">Restart the iPhone</strong> (power off, power on). Earlier
@@ -391,7 +391,7 @@ export function GpuDiagnostic() {
             : r?.status === "survived"
               ? "text-[var(--data-positive)]"
               : r
-                ? "text-red-400"
+                ? "text-danger"
                 : "text-foreground-mute";
           return (
             <div key={arm.id} className="rounded-lg border border-line p-3">
@@ -413,7 +413,7 @@ export function GpuDiagnostic() {
       </section>
 
       {crashed && (
-        <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-red-400">
+        <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-danger">
           {ARMS.find((a) => a.id === ladder?.running?.id)?.label} was cut off by the browser at about{" "}
           {fmt(ladder?.running?.beat ?? 0)} s.
         </p>
@@ -424,7 +424,7 @@ export function GpuDiagnostic() {
           <button
             type="button"
             onClick={() => void go(true)}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent"
           >
             Start the tests
           </button>
@@ -433,7 +433,7 @@ export function GpuDiagnostic() {
           <button
             type="button"
             onClick={() => void go(false)}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent"
           >
             {nextArm.needsTap ? `Run test ${ARMS.indexOf(nextArm) + 1} (uses the camera)` : crashed ? "Continue" : "Continue the tests"}
           </button>
@@ -454,7 +454,7 @@ export function GpuDiagnostic() {
             <button
               type="button"
               onClick={() => void copyOrShare(true)}
-              className="flex-1 rounded-xl bg-accent py-3 text-[11px] font-extrabold uppercase tracking-wide text-white"
+              className="flex-1 rounded-xl bg-accent py-3 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
             >
               Share or save
             </button>
@@ -488,7 +488,7 @@ export function GpuDiagnostic() {
             rows={14}
             value={reportText(ladder, results)}
             onFocus={(e) => e.currentTarget.select()}
-            className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[10px] leading-snug text-foreground-dim"
+            className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[11px] leading-snug text-foreground-dim"
           />
         </details>
       )}

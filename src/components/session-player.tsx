@@ -300,7 +300,7 @@ export function SessionPlayer({
           Drill {activeIndex + 1}
           <span className="text-foreground-mute">/{drills.length}</span>
         </p>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           Swipe for more
         </span>
       </div>
@@ -323,7 +323,7 @@ export function SessionPlayer({
         ))}
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-4 text-sm text-danger">{error}</p>}
 
       <button
         type="button"
@@ -399,12 +399,12 @@ function DrillCard({
     <div className="panel-lit rounded-3xl border border-line bg-surface p-6 sm:p-7">
       <div className="flex flex-wrap items-center gap-2">
         {blockLabel && (
-          <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+          <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
             {blockLabel}
           </span>
         )}
         {drill.variant_label && (
-          <span className="rounded-md border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)]">
+          <span className="rounded-md border border-line-strong px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)]">
             {drill.variant_label}
           </span>
         )}
@@ -445,7 +445,7 @@ function DrillCard({
           than a link they won't follow. */}
       {film && (film.watch_for ?? []).length > 0 && (
         <div className="mt-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-3.5 py-3">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
             Watch for
           </p>
           <ul className="mt-1.5 space-y-1">
@@ -545,7 +545,7 @@ function TimerDrill({
           animate={false}
         >
           <span className="font-display text-6xl leading-none text-foreground">{secondsLeft}</span>
-          <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+          <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
             {running ? "seconds left" : "seconds"}
           </span>
         </ProgressRing>
@@ -558,7 +558,7 @@ function TimerDrill({
             haptic("tap");
             setRunning(true);
           }}
-          className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover active:scale-[0.99]"
+          className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover active:scale-[0.99]"
         >
           Start
         </button>
@@ -648,7 +648,7 @@ function RepDrill({
             animate={false}
           >
             <span className="font-display text-6xl leading-none text-foreground">{restLeft}</span>
-            <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+            <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
               seconds
             </span>
           </ProgressRing>
@@ -694,7 +694,7 @@ function RepDrill({
             {setsDone}
             <span className="text-foreground-mute">/{totalSets}</span>
           </span>
-          <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+          <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
             Tap when done
           </span>
         </ProgressRing>
@@ -740,7 +740,7 @@ function SessionComplete({
               /{totalCount}
             </span>
           </div>
-          <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+          <p className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
             {totalCount === 1 ? "Drill logged" : "Drills logged"}
           </p>
 
@@ -756,7 +756,7 @@ function SessionComplete({
         transition={{ delay: 0.3 }}
         type="button"
         onClick={onDone}
-        className="mt-5 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+        className="mt-5 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover"
       >
         Done
       </motion.button>

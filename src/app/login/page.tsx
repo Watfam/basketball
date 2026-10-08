@@ -109,12 +109,12 @@ function LoginForm() {
               />
             </div>
 
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className="text-sm text-danger">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+              className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-50"
             >
               {loading ? "Please wait…" : mode === "sign_in" ? "Sign in" : "Create account"}
             </button>

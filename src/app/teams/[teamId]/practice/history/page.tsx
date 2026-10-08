@@ -113,7 +113,7 @@ export default async function PracticeHistoryPage({
 
             <div className="flex gap-3">
               <div className="flex-1 rounded-2xl border border-line bg-surface p-4">
-                <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   Latest
                 </p>
                 <p className="font-display mt-1 text-2xl text-foreground">
@@ -122,7 +122,7 @@ export default async function PracticeHistoryPage({
                 </p>
               </div>
               <div className="flex-1 rounded-2xl border border-line bg-surface p-4">
-                <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   Since first logged
                 </p>
                 <p
@@ -137,7 +137,7 @@ export default async function PracticeHistoryPage({
               </div>
               {latestGoal !== null && (
                 <div className="flex-1 rounded-2xl border border-line bg-surface p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                     Goal
                   </p>
                   <p className="font-display mt-1 text-2xl text-foreground">
@@ -149,7 +149,7 @@ export default async function PracticeHistoryPage({
             </div>
 
             <div className="rounded-2xl border border-line bg-surface p-5">
-              <p className="mb-3 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+              <p className="mb-3 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                 {selectedLabel} — {values.length} {values.length === 1 ? "practice" : "practices"} logged
               </p>
               {values.length === 0 ? (

@@ -405,7 +405,7 @@ export function ShootingHub({
     return (
       <div className="theme-dark court-glow fixed inset-0 z-50 flex flex-col overflow-y-auto bg-background px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] text-foreground">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-mute">
             Session saved
           </p>
           {finished.goal && <GoalResult goal={finished.goal} finished={finished} />}
@@ -422,7 +422,7 @@ export function ShootingHub({
             <button
               type="button"
               onClick={() => start(finished.label ?? "", finished.goal)}
-              className="flex-1 rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-white"
+              className="flex-1 rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
             >
               Shoot again
             </button>
@@ -461,7 +461,7 @@ export function ShootingHub({
               Discard
             </button>
             <span
-              className={`text-[10px] font-extrabold uppercase tracking-wide ${
+              className={`text-[11px] font-extrabold uppercase tracking-wide ${
                 syncState === "offline" ? "text-accent" : "text-foreground-mute"
               }`}
               aria-live="polite"
@@ -522,12 +522,12 @@ export function ShootingHub({
           <div className="mt-4 min-h-[2rem]">
             <ShotStrip shots={draft.shots} onToggle={flip} limit={20} />
             {draft.shots.length > 0 && (
-              <p className="mt-2 text-[10px] text-foreground-mute">Tap a shot to flip it.</p>
+              <p className="mt-2 text-[11px] text-foreground-mute">Tap a shot to flip it.</p>
             )}
           </div>
 
           <div className="mt-5">
-            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
               Spot (optional — stays until you change it)
             </p>
             <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -539,7 +539,7 @@ export function ShootingHub({
                   aria-pressed={draft.zone === z.key}
                   className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors ${
                     draft.zone === z.key
-                      ? "border-accent bg-accent text-white"
+                      ? "border-accent bg-accent text-on-accent"
                       : "border-line bg-raised text-foreground-dim"
                   }`}
                 >
@@ -563,7 +563,7 @@ export function ShootingHub({
                 type="button"
                 onClick={() => log(true)}
                 disabled={ending}
-                className="h-40 touch-manipulation rounded-3xl bg-accent font-display text-5xl uppercase tracking-wide text-white shadow-lg shadow-[var(--glow)] transition-transform active:scale-[0.97] disabled:opacity-40"
+                className="h-40 touch-manipulation rounded-3xl bg-accent font-display text-5xl uppercase tracking-wide text-on-accent shadow-lg shadow-[var(--glow)] transition-transform active:scale-[0.97] disabled:opacity-40"
               >
                 Make
               </button>
@@ -601,7 +601,7 @@ export function ShootingHub({
   return (
     <div className="space-y-6">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
         <p className="mt-1 text-xs font-bold text-foreground-dim">
           Shooting as <span className="text-foreground">{playerName.trim().split(/\s+/)[0]}</span> ·{" "}
           <Link href="/" className="font-extrabold uppercase tracking-wide text-accent">
@@ -610,7 +610,7 @@ export function ShootingHub({
         </p>
         {recent.length > 0 && (
           <div className="mt-3">
-            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
               Go again · one tap starts
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -675,7 +675,7 @@ export function ShootingHub({
         })()}
 
         <div className="mt-5">
-          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             How to count
           </p>
           <div className="grid grid-cols-2 gap-2">
@@ -694,7 +694,7 @@ export function ShootingHub({
         </div>
 
         <div className="mt-5">
-          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             Goal · the set ends and saves itself
           </p>
           <div className="grid grid-cols-5 gap-1 rounded-xl bg-[var(--raised)] p-1">
@@ -710,7 +710,7 @@ export function ShootingHub({
                     else if (goal?.kind !== kind) setGoal({ kind, target: goalSpec(kind).choices[1] });
                   }}
                   aria-pressed={active}
-                  className={`rounded-lg px-1 py-2 text-[10.5px] font-extrabold uppercase tracking-wide transition-colors ${
+                  className={`rounded-lg px-1 py-2 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
                     active ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
                   }`}
                 >
@@ -767,7 +767,7 @@ export function ShootingHub({
         <button
           type="button"
           onClick={() => start(labelInput)}
-          className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99]"
+          className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99]"
         >
           Start shooting
         </button>

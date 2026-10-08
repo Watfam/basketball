@@ -59,12 +59,12 @@ export function GameResultForm({
   return (
     <div className="space-y-5">
       <section className="rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Final Score
         </p>
         <div className="mt-3 flex items-center gap-3">
           <div className="flex-1">
-            <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+            <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
               Us
             </label>
             <input
@@ -77,7 +77,7 @@ export function GameResultForm({
           </div>
           <span className="mt-4 text-foreground-mute">–</span>
           <div className="flex-1">
-            <label className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+            <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
               Them
             </label>
             <input
@@ -92,7 +92,7 @@ export function GameResultForm({
       </section>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Post-Game Notes
         </p>
         <textarea
@@ -104,13 +104,13 @@ export function GameResultForm({
         />
       </section>
 
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <p className="text-center text-sm text-danger">{error}</p>}
 
       <button
         type="button"
         onClick={save}
         disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40"
+        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40"
       >
         {pending ? "Saving…" : "Save"}
       </button>
@@ -119,7 +119,7 @@ export function GameResultForm({
         type="button"
         onClick={remove}
         disabled={deleting}
-        className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400 disabled:opacity-50"
+        className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
       >
         {deleting ? "Removing…" : "Remove this game"}
       </button>

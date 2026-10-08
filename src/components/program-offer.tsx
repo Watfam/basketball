@@ -70,7 +70,7 @@ export function ProgramOffer({
               {program.focus_areas?.map((area) => (
                 <span
                   key={area}
-                  className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent"
+                  className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent"
                 >
                   {SKILL_LABELS[area] ?? area}
                 </span>
@@ -104,7 +104,7 @@ export function ProgramOffer({
               type="button"
               onClick={() => join(program.id)}
               disabled={pendingId !== null}
-              className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
+              className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
             >
               {pendingId === program.id ? "Starting…" : "Start this program"}
             </button>
@@ -116,7 +116,7 @@ export function ProgramOffer({
             >
               See what&rsquo;s inside →
             </Link>
-            {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+            {error && <p className="mt-2 text-xs text-danger">{error}</p>}
           </div>
         </div>
       ))}
@@ -128,7 +128,7 @@ function Metric({ value, unit }: { value: string; unit: string }) {
   return (
     <div className="flex items-baseline gap-1">
       <span className="font-display text-lg leading-none text-foreground">{value}</span>
-      <span className="text-[10px] font-extrabold uppercase tracking-wider text-foreground-mute">
+      <span className="text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
         {unit}
       </span>
     </div>

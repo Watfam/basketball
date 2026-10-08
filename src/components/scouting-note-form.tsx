@@ -73,7 +73,7 @@ export function ScoutingNoteForm({
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Opponent
         </p>
         <input
@@ -86,7 +86,7 @@ export function ScoutingNoteForm({
 
       {SECTIONS.map((s) => (
         <section key={s.key} className="panel-lit rounded-3xl border border-line bg-surface p-6">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             {s.label}
           </p>
           <textarea
@@ -99,13 +99,13 @@ export function ScoutingNoteForm({
         </section>
       ))}
 
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <p className="text-center text-sm text-danger">{error}</p>}
 
       <button
         type="button"
         onClick={save}
         disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-40"
+        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-40"
       >
         {pending ? "Saving…" : existing ? "Save changes" : "Save note"}
       </button>
@@ -115,7 +115,7 @@ export function ScoutingNoteForm({
           type="button"
           onClick={remove}
           disabled={deleting}
-          className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-red-400 disabled:opacity-50"
+          className="w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger disabled:opacity-50"
         >
           {deleting ? "Deleting…" : "Delete this note"}
         </button>

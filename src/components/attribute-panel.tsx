@@ -31,7 +31,7 @@ export function AttributePanel({
         <h2 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Attributes
         </h2>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {previousRatings ? "vs. last check-in" : "Baseline"}
         </span>
       </div>
@@ -52,12 +52,12 @@ export function AttributePanel({
           return (
             <div key={cat.value} className="bg-surface px-4 py-3.5">
               <div className="flex items-baseline justify-between gap-2">
-                <span className="truncate text-[10px] font-extrabold uppercase tracking-[0.1em] text-foreground-dim">
+                <span className="truncate text-[11px] font-extrabold uppercase tracking-[0.1em] text-foreground-dim">
                   {cat.label}
                 </span>
                 {delta !== null && delta !== 0 && (
                   <span
-                    className={`shrink-0 text-[10px] font-extrabold ${
+                    className={`shrink-0 text-[11px] font-extrabold ${
                       delta > 0 ? "text-[var(--data-positive)]" : "text-foreground-mute"
                     }`}
                   >
@@ -69,8 +69,8 @@ export function AttributePanel({
 
               <div className="mt-1.5 flex items-baseline gap-1.5">
                 <span className="font-display text-3xl leading-none text-foreground">{value}</span>
-                <span className="text-[10px] font-bold text-foreground-mute">/{RATING_SCALE_MAX}</span>
-                <span className={`ml-auto text-[10px] font-extrabold uppercase ${tier.className}`}>
+                <span className="text-[11px] font-bold text-foreground-mute">/{RATING_SCALE_MAX}</span>
+                <span className={`ml-auto text-[11px] font-extrabold uppercase ${tier.className}`}>
                   {tier.label}
                 </span>
               </div>

@@ -41,7 +41,7 @@ export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
           >
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-lg text-[13px] font-extrabold ${
-                unlocked ? "bg-accent text-white" : "bg-[var(--data-dim)] text-foreground-mute"
+                unlocked ? "bg-accent text-on-accent" : "bg-[var(--data-dim)] text-foreground-mute"
               }`}
             >
               {unlocked ? "★" : "○"}
@@ -54,7 +54,7 @@ export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
             >
               {m.label}
             </p>
-            <p className="mt-0.5 text-[10px] text-foreground-mute">{m.detail}</p>
+            <p className="mt-0.5 text-[11px] text-foreground-mute">{m.detail}</p>
 
             {!unlocked && (
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--data-dim)]">

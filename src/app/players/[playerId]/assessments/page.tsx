@@ -139,7 +139,7 @@ export default async function AssessmentHistoryPage({
                   <div key={a.id} className="rounded-2xl border border-line bg-surface p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                           {a.kind === "onboarding" ? "Baseline" : a.kind === "annual" ? "Annual" : "Check-in"}
                           {i === 0 && assessments.length > 1 ? " · Latest" : ""}
                         </p>
@@ -159,7 +159,7 @@ export default async function AssessmentHistoryPage({
                           <p className="font-display text-2xl leading-none text-foreground">
                             {a.overall}
                           </p>
-                          <p className="text-[8px] font-extrabold uppercase tracking-[0.16em] text-foreground-mute">
+                          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-mute">
                             {ovrTier(a.overall).label}
                           </p>
                         </div>
@@ -173,7 +173,7 @@ export default async function AssessmentHistoryPage({
                             <p className="font-display text-lg leading-none text-foreground">
                               {a.ratings?.[cat.value] ?? "—"}
                             </p>
-                            <p className="mt-0.5 truncate text-[8px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                            <p className="mt-0.5 truncate text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                               {cat.label.split(" ")[0]}
                             </p>
                           </div>

@@ -56,7 +56,7 @@ export default async function GamesPage({
               {g.game_time ? ` · ${g.game_time}` : ""}
             </p>
             {g.tournament_note && (
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+              <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
                 {g.tournament_note}
               </p>
             )}
@@ -67,7 +67,7 @@ export default async function GamesPage({
                 result.startsWith("W")
                   ? "bg-[var(--data-positive)]/15 text-[var(--data-positive)]"
                   : result.startsWith("L")
-                    ? "bg-red-500/10 text-red-400"
+                    ? "bg-red-500/10 text-danger"
                     : "bg-[var(--raised)] text-foreground-mute"
               }`}
             >
@@ -110,7 +110,7 @@ export default async function GamesPage({
           <>
             {upcoming.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                   Upcoming
                 </h2>
                 {upcoming.map(row)}
@@ -118,7 +118,7 @@ export default async function GamesPage({
             )}
             {past.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
                   Past
                 </h2>
                 {past.map(row)}

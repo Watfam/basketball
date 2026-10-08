@@ -65,7 +65,7 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
             type="button"
             onClick={remove}
             disabled={pending}
-            className="text-[11px] font-extrabold uppercase tracking-wide text-red-400 disabled:opacity-50"
+            className="text-[11px] font-extrabold uppercase tracking-wide text-danger disabled:opacity-50"
           >
             Remove
           </button>
@@ -107,7 +107,7 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
             </select>
           )}
         </div>
-        {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
+        {error && <p className="mt-1.5 text-xs text-danger">{error}</p>}
         <div className="mt-2.5 flex gap-3">
           <button
             type="button"
@@ -137,7 +137,7 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
         </span>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-foreground">{name}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
             {currentPosition ? POSITION_LABELS[currentPosition] ?? currentPosition : "No position"}
             {!linked && " · No account"}
           </p>
@@ -147,14 +147,14 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
+          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
         >
           Edit
         </button>
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-red-400"
+          className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-danger"
         >
           Remove
         </button>

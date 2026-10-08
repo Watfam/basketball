@@ -46,7 +46,7 @@ export default async function GameDetailPage({
 
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
         <div className="mb-5">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             {game.location === "home" ? "Home" : game.location === "away" ? "Away" : "Neutral"} ·{" "}
             {dateLabel}
             {game.game_time ? ` · ${game.game_time}` : ""}

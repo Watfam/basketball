@@ -76,7 +76,7 @@ export default async function CameraLabPage() {
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-5 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
             Camera lab
           </h1>
@@ -95,7 +95,7 @@ export default async function CameraLabPage() {
           </Link>
           <Link
             href="/lab/calibrate"
-            className="rounded-2xl bg-accent px-4 py-4 text-center text-xs font-extrabold uppercase tracking-wide text-white"
+            className="rounded-2xl bg-accent px-4 py-4 text-center text-xs font-extrabold uppercase tracking-wide text-on-accent"
           >
             Calibrate
           </Link>

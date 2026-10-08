@@ -160,12 +160,12 @@ export default async function TeamPage({
           <div className="relative">
             <div className="flex flex-wrap items-center gap-1.5">
               {defensiveLabel && (
-                <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+                <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
                   {defensiveLabel}
                 </span>
               )}
               {offensiveLabel && (
-                <span className="rounded-md border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
+                <span className="rounded-md border border-line-strong px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
                   {offensiveLabel}
                 </span>
               )}
@@ -180,7 +180,7 @@ export default async function TeamPage({
                 {focusLabels.map((label) => (
                   <span
                     key={label}
-                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent"
+                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent"
                   >
                     {label}
                   </span>
@@ -192,7 +192,7 @@ export default async function TeamPage({
               <span className="font-display text-2xl leading-none text-foreground">
                 {roster.length}
               </span>
-              <span className="ml-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+              <span className="ml-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
                 on the roster
               </span>
             </div>

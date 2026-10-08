@@ -41,9 +41,9 @@ export function HouseholdSettings({ householdId, householdName }: { householdId:
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={householdName}
-            className="mt-3 w-full rounded-xl border border-line bg-elevated px-3.5 py-2 text-sm text-foreground outline-none focus:border-red-400"
+            className="mt-3 w-full rounded-xl border border-line bg-elevated px-3.5 py-2 text-sm text-foreground outline-none focus:border-danger"
           />
-          {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
           <button
             type="button"
             onClick={handleDelete}

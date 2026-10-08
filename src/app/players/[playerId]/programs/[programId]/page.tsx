@@ -103,13 +103,13 @@ export default async function ProgramDetailPage({
               {((program.focus_areas ?? []) as string[]).map((area) => (
                 <span
                   key={area}
-                  className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white"
+                  className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent"
                 >
                   {SKILL_LABELS[area] ?? area}
                 </span>
               ))}
               {program.level && (
-                <span className="rounded-md border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
+                <span className="rounded-md border border-line-strong px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
                   {program.level}
                 </span>
               )}
@@ -156,11 +156,11 @@ export default async function ProgramDetailPage({
             {[...weeks.entries()].map(([weekNumber, weekDays]) => (
               <div key={weekNumber} className="rounded-2xl border border-line bg-surface p-4">
                 <div className="flex items-baseline justify-between">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                     Week {weekNumber}
                   </p>
                   {weekDays?.some((d) => d.is_deload) && (
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--data-cyan)]">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--data-cyan)]">
                       Deload
                     </span>
                   )}
@@ -218,7 +218,7 @@ function Metric({ value, unit }: { value: string; unit: string }) {
   return (
     <div className="flex items-baseline gap-1">
       <span className="font-display text-xl leading-none text-foreground">{value}</span>
-      <span className="text-[10px] font-extrabold uppercase tracking-wider text-foreground-mute">
+      <span className="text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
         {unit}
       </span>
     </div>

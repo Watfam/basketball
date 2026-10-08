@@ -106,7 +106,7 @@ export function FilmStudyPlayer({
         <button
           type="button"
           onClick={() => router.push(`/players/${playerId}/film`)}
-          className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+          className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
         >
           Back to Film Room
         </button>
@@ -147,7 +147,7 @@ export function FilmStudyPlayer({
 
       {atEnd ? (
         <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             Last step
           </p>
           <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
@@ -169,11 +169,11 @@ export function FilmStudyPlayer({
             type="button"
             onClick={finish}
             disabled={pending}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-50"
+            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             {pending ? "Saving…" : alreadyCompleted ? "Update takeaway" : "Finish session"}
           </button>
-          {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
 
           <button
             type="button"
@@ -186,10 +186,10 @@ export function FilmStudyPlayer({
       ) : (
         <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
               {item.film.kind ? FILM_KIND_LABELS[item.film.kind] ?? item.film.kind : "Film"}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
               {index + 1} of {items.length}
               {durationLabel(item.film.duration_seconds)
                 ? ` · ${durationLabel(item.film.duration_seconds)}`
@@ -210,7 +210,7 @@ export function FilmStudyPlayer({
               a caption. */}
           {item.prompt && (
             <div className="mt-4 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
                 Your job this clip
               </p>
               <p className="mt-1 text-sm leading-relaxed text-foreground">{item.prompt}</p>
@@ -222,7 +222,7 @@ export function FilmStudyPlayer({
               href={item.film.url as string}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
+              className="mt-4 block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
             >
               Watch film ↗
             </a>
@@ -234,7 +234,7 @@ export function FilmStudyPlayer({
 
           {(item.film.watch_for ?? []).length > 0 && (
             <div className="mt-5 border-t border-line pt-4">
-              <p className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+              <p className="mb-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
                 Watch For
               </p>
               <ul className="space-y-2">

@@ -74,7 +74,7 @@ export function TrendChart({
               x={width - padX}
               y={y(goalLine) - 4}
               textAnchor="end"
-              className="fill-[var(--foreground-mute)] text-[9px] font-bold"
+              className="fill-[var(--foreground-mute)] text-[11px] font-bold"
             >
               goal {goalLine}
             </text>
@@ -114,7 +114,7 @@ export function TrendChart({
         {labels.map((l, i) => (
           <span
             key={l + i}
-            className="text-[9px] font-bold uppercase tracking-wide text-foreground-mute"
+            className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute"
           >
             {l}
           </span>
@@ -125,7 +125,7 @@ export function TrendChart({
         {series.map((s) => (
           <span key={s.label} className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
-            <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim">
+            <span className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim">
               {s.label}
             </span>
           </span>

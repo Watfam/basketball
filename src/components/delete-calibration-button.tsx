@@ -16,7 +16,7 @@ export function DeleteCalibrationButton({ id }: { id: string }) {
           if (res.error) window.alert(res.error);
         });
       }}
-      className="mt-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute hover:text-red-400 disabled:opacity-50"
+      className="mt-1 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute hover:text-danger disabled:opacity-50"
     >
       {pending ? "Deleting…" : "Delete"}
     </button>

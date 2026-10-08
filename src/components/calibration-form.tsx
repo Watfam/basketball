@@ -56,7 +56,7 @@ export function CalibrationForm() {
         </p>
         <Link
           href="/lab/detector"
-          className="mt-4 block rounded-xl bg-accent py-3 text-center text-xs font-extrabold uppercase tracking-wide text-white"
+          className="mt-4 block rounded-xl bg-accent py-3 text-center text-xs font-extrabold uppercase tracking-wide text-on-accent"
         >
           Open the detector lab
         </Link>
@@ -107,7 +107,7 @@ export function CalibrationForm() {
   return (
     <div className="space-y-5">
       <section className="rounded-2xl border border-line bg-surface p-4">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">The camera said</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">The camera said</p>
         <p className="mt-1 text-sm text-foreground">
           {camera.length} shots, {camera.filter((c) => c === "make").length} makes ·{" "}
           <span className="text-foreground-dim">{lab.source}</span>
@@ -137,7 +137,7 @@ export function CalibrationForm() {
 
       <section className="rounded-2xl border border-line bg-surface p-4">
         <div className="flex items-baseline justify-between">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             What really happened, in order
           </p>
           <p className="text-xs font-bold tabular-nums text-foreground-dim">{truth.length} shots</p>
@@ -175,7 +175,7 @@ export function CalibrationForm() {
           <button
             type="button"
             onClick={() => add("make")}
-            className="rounded-xl bg-accent py-4 font-display text-2xl uppercase text-white"
+            className="rounded-xl bg-accent py-4 font-display text-2xl uppercase text-on-accent"
           >
             Make
           </button>
@@ -253,7 +253,7 @@ export function CalibrationForm() {
                         : `camera ${s.camera}, really ${s.truth}`}
                     {flagged ? " · flagged" : ""}
                   </span>
-                  <span className={bad ? "font-bold text-red-400" : "text-[var(--data-positive)]"}>
+                  <span className={bad ? "font-bold text-danger" : "text-[var(--data-positive)]"}>
                     {s.kind === "match" ? (bad ? "✗" : "✓") : "–"}
                   </span>
                 </div>
@@ -275,12 +275,12 @@ export function CalibrationForm() {
             placeholder="Notes: light, time of day, who shot"
             className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground"
           />
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {error && <p className="text-xs text-danger">{error}</p>}
           <button
             type="button"
             onClick={save}
             disabled={saving}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white disabled:opacity-50"
+            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save calibration"}
           </button>

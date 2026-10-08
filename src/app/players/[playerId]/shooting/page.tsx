@@ -127,7 +127,7 @@ export default async function ShootingPage({
       ) : (
         <>
           <div>
-            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Drill</p>
+            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Drill</p>
             <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[ALL, ...drills].map((d) => (
                 <Link
@@ -146,7 +146,7 @@ export default async function ShootingPage({
           </div>
 
           <div className="rounded-2xl border border-line bg-surface p-4">
-            <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+            <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
               {selected === ALL ? "All shooting" : selected} · this season, since{" "}
               {season.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </p>
@@ -195,7 +195,7 @@ export default async function ShootingPage({
           ) : (
             <div className="rounded-2xl border border-line bg-surface p-5">
               <div className="mb-3 flex items-baseline justify-between">
-                <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   {selected} · last {line.length} {line.length === 1 ? "session" : "sessions"}
                 </p>
                 {change !== null && (
