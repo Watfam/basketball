@@ -57,6 +57,9 @@ export default async function AssessmentHistoryPage({
     values: assessments.map((a) => a.ratings?.[cat.value] ?? null),
   }));
 
+  // Once measured, retesting means the combine again.
+  const measured = assessments.some((a) => a.kind === "combine");
+
   const first = assessments[0];
   const latest = assessments[assessments.length - 1];
   const ovrDelta =
@@ -93,8 +96,8 @@ export default async function AssessmentHistoryPage({
             {assessments.length === 1 ? (
               <div className="rounded-2xl border border-dashed border-line px-5 py-5 text-center">
                 <p className="text-sm leading-relaxed text-foreground-dim">
-                  This is your baseline. Rate yourself again after a block of work and this turns
-                  into a line you can actually follow.
+                  This is your baseline. Retest after a block of work and this turns into a line you
+                  can actually follow.
                 </p>
               </div>
             ) : (
@@ -134,7 +137,7 @@ export default async function AssessmentHistoryPage({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
-                          {a.kind === "onboarding" ? "Baseline" : a.kind === "annual" ? "Annual" : "Check-in"}
+                          {a.kind === "onboarding" ? "Baseline" : a.kind === "combine" ? "Combine · measured" : a.kind === "annual" ? "Annual" : "Check-in"}
                           {i === 0 && assessments.length > 1 ? " · Latest" : ""}
                         </p>
                         <p className="mt-1 text-sm font-bold text-foreground">
@@ -181,8 +184,13 @@ export default async function AssessmentHistoryPage({
           </>
         )}
 
-        <ButtonLink href={`/players/${playerId}/assessment`} variant="secondary" size="lg" block>
-          Rate yourself again
+        <ButtonLink
+          href={measured ? `/players/${playerId}/combine` : `/players/${playerId}/assessment`}
+          variant="secondary"
+          size="lg"
+          block
+        >
+          {measured ? "Retest in the combine" : "Rate yourself again"}
         </ButtonLink>
       </main>
     </div>

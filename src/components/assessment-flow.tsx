@@ -35,6 +35,11 @@ type Props = {
   previousRatings?: Record<RatingCategoryValue, number> | null;
   previousStyleTags?: StyleTagValue[] | null;
   previousGoal?: string | null;
+  /**
+   * The ratings come from the combine. A retest then updates style and
+   * goal only: a self-estimate never goes over the top of a measurement.
+   */
+  ratingsMeasured?: boolean;
 };
 
 export function AssessmentFlow({
@@ -45,6 +50,7 @@ export function AssessmentFlow({
   previousRatings = null,
   previousStyleTags = null,
   previousGoal = null,
+  ratingsMeasured = false,
 }: Props) {
   const router = useRouter();
 
@@ -52,10 +58,10 @@ export function AssessmentFlow({
   // re-asking it here unless it's genuinely unset (or, defensively, set to
   // a value that isn't one of the current position options).
   const positionAlreadyKnown = PRIMARY_POSITIONS.some((p) => p.value === initialPosition);
-  const steps = useMemo<StepKind[]>(
-    () => (positionAlreadyKnown ? ["style", "ratings", "goal"] : ["position", "style", "ratings", "goal"]),
-    [positionAlreadyKnown]
-  );
+  const steps = useMemo<StepKind[]>(() => {
+    const all: StepKind[] = positionAlreadyKnown ? ["style", "ratings", "goal"] : ["position", "style", "ratings", "goal"];
+    return ratingsMeasured ? all.filter((s) => s !== "ratings") : all;
+  }, [positionAlreadyKnown, ratingsMeasured]);
   const STEP_COUNT = steps.length;
 
   const [step, setStep] = useState(0);
