@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveCalibrationRun } from "@/app/actions";
@@ -8,6 +7,9 @@ import { align, type Outcome } from "@/lib/basketball/calibration";
 import { formatPercentage, percentage } from "@/lib/basketball/shooting";
 import { readLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Card, CardSection } from "@/components/ui/card";
+import { FormError, Input } from "@/components/ui/field";
 import exam4839 from "../../training/labels/IMG_4839-truth.json";
 import exam4840 from "../../training/labels/IMG_4840-truth.json";
 
@@ -48,19 +50,16 @@ export function CalibrationForm() {
 
   if (!lab || lab.calls.length === 0) {
     return (
-      <div className="rounded-2xl border border-line bg-surface p-5 text-sm leading-relaxed text-foreground-dim">
+      <Card className="p-5 text-sm leading-relaxed text-foreground-dim">
         <p className="font-semibold text-foreground">No camera run to score yet.</p>
         <p className="mt-2">
           Open the detector lab, choose <strong>Our ball model</strong>, and run a saved clip (every frame) or
           the live camera. Its make and miss calls are kept on this phone and appear here.
         </p>
-        <Link
-          href="/lab/detector"
-          className="mt-4 block rounded-xl bg-accent py-3 text-center text-xs font-extrabold uppercase tracking-wide text-on-accent"
-        >
+        <ButtonLink href="/lab/detector" block className="mt-4">
           Open the detector lab
-        </Link>
-      </div>
+        </ButtonLink>
+      </Card>
     );
   }
 
@@ -106,7 +105,7 @@ export function CalibrationForm() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-2xl border border-line bg-surface p-4">
+      <CardSection className="p-4">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">The camera said</p>
         <p className="mt-1 text-sm text-foreground">
           {camera.length} shots, {camera.filter((c) => c === "make").length} makes ·{" "}
@@ -117,7 +116,7 @@ export function CalibrationForm() {
           {lab.modelVersion}
         </p>
         {hasV3 && (
-          <div className="mt-2.5 grid grid-cols-2 gap-1 rounded-lg bg-[var(--raised)] p-1">
+          <div className="mt-2.5 grid grid-cols-2 gap-1 rounded-lg bg-raised p-1">
             {(["v2", "v3"] as const).map((v) => (
               <button
                 key={v}
@@ -133,9 +132,9 @@ export function CalibrationForm() {
             ))}
           </div>
         )}
-      </section>
+      </CardSection>
 
-      <section className="rounded-2xl border border-line bg-surface p-4">
+      <CardSection className="p-4">
         <div className="flex items-baseline justify-between">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             What really happened, in order
@@ -168,7 +167,7 @@ export function CalibrationForm() {
           <button
             type="button"
             onClick={() => add("miss")}
-            className="rounded-xl border border-line bg-[var(--raised)] py-4 font-display text-2xl uppercase text-foreground-dim"
+            className="rounded-xl border border-line bg-raised py-4 font-display text-2xl uppercase text-foreground-dim"
           >
             Miss
           </button>
@@ -181,37 +180,22 @@ export function CalibrationForm() {
           </button>
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={truth.length === 0}
-            onClick={() => setTruth((t) => t.slice(0, -1))}
-            className="rounded-lg border border-line px-3 py-1.5 text-[11px] font-extrabold uppercase text-foreground-dim disabled:opacity-40"
-          >
+          <Button variant="secondary" size="sm" disabled={truth.length === 0} onClick={() => setTruth((t) => t.slice(0, -1))}>
             Undo
-          </button>
-          <button
-            type="button"
-            disabled={truth.length === 0}
-            onClick={() => setTruth([])}
-            className="rounded-lg border border-line px-3 py-1.5 text-[11px] font-extrabold uppercase text-foreground-dim disabled:opacity-40"
-          >
+          </Button>
+          <Button variant="secondary" size="sm" disabled={truth.length === 0} onClick={() => setTruth([])}>
             Clear
-          </button>
+          </Button>
           {WRITTEN_LISTS.map((w) => (
-            <button
-              key={w.label}
-              type="button"
-              onClick={() => setTruth(w.results)}
-              className="rounded-lg border border-line px-3 py-1.5 text-[11px] font-extrabold uppercase text-foreground-dim"
-            >
+            <Button key={w.label} variant="secondary" size="sm" onClick={() => setTruth(w.results)}>
               {w.label}
-            </button>
+            </Button>
           ))}
         </div>
-      </section>
+      </CardSection>
 
       {result && (
-        <section className="space-y-3 rounded-2xl border border-accent bg-surface p-4">
+        <CardSection className="space-y-3 border-accent! p-4">
           <div className="flex items-end gap-3">
             <p className="font-display text-5xl leading-none text-foreground">
               {formatPercentage(percentage(result.agreed, result.shots))}
@@ -261,30 +245,23 @@ export function CalibrationForm() {
             })}
           </div>
 
-          <input
+          <Input
             value={hoop}
             onChange={(e) => setHoop(e.target.value)}
             maxLength={60}
             placeholder="Which hoop"
-            className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground"
           />
-          <input
+          <Input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             placeholder="Notes: light, time of day, who shot"
-            className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2.5 text-sm text-foreground"
           />
-          {error && <p className="text-xs text-danger">{error}</p>}
-          <button
-            type="button"
-            onClick={save}
-            disabled={saving}
-            className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent disabled:opacity-50"
-          >
+          {error && <FormError>{error}</FormError>}
+          <Button onClick={save} disabled={saving} size="lg" block>
             {saving ? "Saving…" : "Save calibration"}
-          </button>
-        </section>
+          </Button>
+        </CardSection>
       )}
     </div>
   );

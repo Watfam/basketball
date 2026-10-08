@@ -6,6 +6,7 @@ import { probeRawGpu } from "@/lib/vision/gpu-probes";
 import { gradientFrame } from "@/lib/vision/test-frame";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { describeWake, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
+import { CardSection } from "@/components/ui/card";
 
 /**
  * A fixed sequence of controlled tests, run one after another, that keeps
@@ -352,7 +353,7 @@ export function GpuDiagnostic() {
 
   return (
     <div className="space-y-4">
-      <section className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-foreground-dim">
+      <CardSection className="space-y-2 p-4 text-xs leading-relaxed text-foreground-dim">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Before you start</p>
         <ol className="list-decimal space-y-1 pl-4">
           <li>
@@ -369,9 +370,9 @@ export function GpuDiagnostic() {
           {standalone === null ? "" : standalone ? "Running as a home-screen app." : "Running in a Safari tab."} Version{" "}
           {process.env.NEXT_PUBLIC_BUILD} · {live ? describeWake(wake) : "screen kept awake while testing"}
         </p>
-      </section>
+      </CardSection>
 
-      <section className="space-y-2 rounded-2xl border border-line bg-surface p-4">
+      <CardSection className="space-y-2 p-4">
         {ARMS.map((arm) => {
           const r = results.find((x) => x.id === arm.id);
           const isRunning = runningNow === arm.id;
@@ -410,10 +411,10 @@ export function GpuDiagnostic() {
             </div>
           );
         })}
-      </section>
+      </CardSection>
 
       {crashed && (
-        <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-danger">
+        <p className="rounded-lg bg-raised p-3 text-xs leading-relaxed text-danger">
           {ARMS.find((a) => a.id === ladder?.running?.id)?.label} was cut off by the browser at about{" "}
           {fmt(ladder?.running?.beat ?? 0)} s.
         </p>
@@ -488,7 +489,7 @@ export function GpuDiagnostic() {
             rows={14}
             value={reportText(ladder, results)}
             onFocus={(e) => e.currentTarget.select()}
-            className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[11px] leading-snug text-foreground-dim"
+            className="mt-2 w-full rounded-lg border border-line bg-raised p-2 font-mono text-[11px] leading-snug text-foreground-dim"
           />
         </details>
       )}

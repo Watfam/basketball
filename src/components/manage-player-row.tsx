@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { removePlayer } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 /** One player in Manage family: their name and a guarded Remove. */
 export function ManagePlayerRow({ id, name }: { id: string; name: string }) {
@@ -15,13 +17,9 @@ export function ManagePlayerRow({ id, name }: { id: string; name: string }) {
       <div className="flex items-center justify-between gap-3">
         <p className="truncate text-sm font-semibold text-foreground">{name}</p>
         {!confirming && (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-danger"
-          >
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(true)} className="-my-1.5 -mr-3 hover:text-danger!">
             Remove
-          </button>
+          </Button>
         )}
       </div>
       {confirming && (
@@ -30,10 +28,11 @@ export function ManagePlayerRow({ id, name }: { id: string; name: string }) {
             Remove <strong>{name}</strong>? This deletes their Player Card, assessments, workouts and shooting
             history. It can&rsquo;t be undone.
           </p>
-          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+          {error && <FormError className="mt-2">{error}</FormError>}
           <div className="mt-2 flex gap-2">
-            <button
-              type="button"
+            <Button
+              variant="danger"
+              size="sm"
               disabled={pending}
               onClick={() => {
                 haptic("tap");
@@ -42,18 +41,12 @@ export function ManagePlayerRow({ id, name }: { id: string; name: string }) {
                   if (res?.error) setError(res.error);
                 });
               }}
-              className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-bold uppercase text-white disabled:opacity-50"
             >
               {pending ? "Removing…" : "Remove player"}
-            </button>
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => setConfirming(false)}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-foreground-dim"
-            >
+            </Button>
+            <Button variant="ghost" size="sm" disabled={pending} onClick={() => setConfirming(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

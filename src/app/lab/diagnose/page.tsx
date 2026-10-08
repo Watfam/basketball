@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
 import { GpuDiagnostic } from "@/components/gpu-diagnostic";
 
 export const metadata = { title: "GPU diagnostic" };
@@ -6,16 +7,7 @@ export const metadata = { title: "GPU diagnostic" };
 export default function GpuDiagnosticPage() {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href="/lab/detector"
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Detector lab
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: "/lab/detector", label: "Detector lab" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-4 px-4 py-5 sm:py-8">
         <div>

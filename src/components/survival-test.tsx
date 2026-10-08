@@ -6,6 +6,7 @@ import { probeRawGpu } from "@/lib/vision/gpu-probes";
 import { gradientFrame } from "@/lib/vision/test-frame";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { describeWake, getWakeStatus, useWakeLock } from "@/lib/use-wake-lock";
+import { CardSection } from "@/components/ui/card";
 
 /**
  * Repeated, interleaved trials of the setups that might be killing the
@@ -368,7 +369,7 @@ export function SurvivalTest() {
 
   return (
     <div className="space-y-4">
-      <section className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-foreground-dim">
+      <CardSection className="space-y-2 p-4 text-xs leading-relaxed text-foreground-dim">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">How to run it</p>
         <ol className="list-decimal space-y-1 pl-4">
           <li>Restart the iPhone first, then open this page from the home screen.</li>
@@ -385,9 +386,9 @@ export function SurvivalTest() {
           {standalone === null ? "" : standalone ? "Home-screen app." : "Safari tab."} Version{" "}
           {process.env.NEXT_PUBLIC_BUILD}
         </p>
-      </section>
+      </CardSection>
 
-      <section className="space-y-2 rounded-2xl border border-line bg-surface p-4">
+      <CardSection className="space-y-2 p-4">
         {CONFIGS.map((cfg) => {
           const s = summarize(trials, cfg);
           const isCurrent = current?.cfg === cfg.id;
@@ -412,10 +413,10 @@ export function SurvivalTest() {
         <p className="pt-1 text-[11px] text-foreground-mute">
           {doneCount} of {PLAN.length} trials done.
         </p>
-      </section>
+      </CardSection>
 
       {resuming && (
-        <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-foreground-dim">
+        <p className="rounded-lg bg-raised p-3 text-xs leading-relaxed text-foreground-dim">
           The last trial was cut off. Carrying on in {Math.max(0, countdown)} s.
         </p>
       )}
@@ -499,7 +500,7 @@ export function SurvivalTest() {
             rows={16}
             value={reportText(state, trials)}
             onFocus={(e) => e.currentTarget.select()}
-            className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[11px] leading-snug text-foreground-dim"
+            className="mt-2 w-full rounded-lg border border-line bg-raised p-2 font-mono text-[11px] leading-snug text-foreground-dim"
           />
         </details>
       )}

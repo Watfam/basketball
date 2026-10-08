@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setPlayerProfile } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 /**
  * Collects the age and gender the combine needs to pick a benchmark band.
@@ -62,12 +64,11 @@ export function BenchmarkSetup({
           <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             Birth year
           </p>
-          <input
+          <Input
             value={birthYear}
             onChange={(e) => setBirthYear(e.target.value)}
             inputMode="numeric"
             placeholder="2011"
-            className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
           />
         </div>
         <div>
@@ -86,7 +87,7 @@ export function BenchmarkSetup({
                 className={`flex-1 rounded-lg border px-2 py-2 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
                   gender === g.value
                     ? "border-accent bg-accent text-on-accent"
-                    : "border-line bg-[var(--raised)] text-foreground-dim"
+                    : "border-line bg-raised text-foreground-dim"
                 }`}
               >
                 {g.label}
@@ -96,16 +97,11 @@ export function BenchmarkSetup({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={pending || (!birthYear && !gender)}
-        className="mt-3 w-full rounded-lg border border-accent py-2 text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:bg-accent/10 disabled:opacity-40"
-      >
+      <Button variant="secondary" block onClick={save} disabled={pending || (!birthYear && !gender)} className="mt-3">
         {pending ? "Saving…" : "Save and use these benchmarks"}
-      </button>
+      </Button>
 
-      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+      {error && <FormError className="mt-2">{error}</FormError>}
     </div>
   );
 }

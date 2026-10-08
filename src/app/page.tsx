@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
@@ -9,6 +8,8 @@ import { ManagePlayerRow } from "@/components/manage-player-row";
 import { Avatar } from "@/components/avatar";
 import { EndCoachView } from "@/components/remember-profile";
 import { SignOutButton } from "@/components/sign-out-button";
+import { ButtonLink } from "@/components/ui/button";
+import { CardLink, cardClass } from "@/components/ui/card";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import { PROFILE_COOKIE, parseProfile, profileHome } from "@/lib/profile";
@@ -106,12 +107,9 @@ export default async function Home() {
         </div>
 
         {remembered && rememberedName && (
-          <Link
-            href={profileHome(remembered)}
-            className="block rounded-2xl bg-accent px-4 py-4 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-on-accent transition-colors hover:bg-accent-hover"
-          >
+          <ButtonLink href={profileHome(remembered)} size="lg" block>
             Continue as {rememberedName}
-          </Link>
+          </ButtonLink>
         )}
 
         <div className="space-y-2.5">
@@ -128,13 +126,12 @@ export default async function Home() {
               .filter(Boolean)
               .join(" · ");
             return (
-              <Link
+              <CardLink
                 key={player.id}
                 // Not assessed yet: the assessment is the only useful first stop.
                 href={assessed ? `/players/${player.id}` : `/players/${player.id}/assessment`}
-                className={`flex items-center gap-3.5 rounded-2xl border bg-surface px-4 py-3.5 transition-colors hover:border-[var(--line-strong)] ${
-                  isRemembered ? "border-accent" : "border-line"
-                }`}
+                // Important so the remembered profile's accent border beats the card's hairline.
+                className={`flex items-center gap-3.5 px-4 py-3.5 ${isRemembered ? "border-accent!" : ""}`}
               >
                 <Avatar id={player.id} name={player.display_name} />
                 <div className="min-w-0 flex-1">
@@ -146,15 +143,13 @@ export default async function Home() {
                 <span className="shrink-0 text-lg text-foreground-mute" aria-hidden>
                   ›
                 </span>
-              </Link>
+              </CardLink>
             );
           })}
 
-          <Link
+          <CardLink
             href="/coach"
-            className={`flex items-center gap-3.5 rounded-2xl border bg-surface px-4 py-3.5 transition-colors hover:border-[var(--line-strong)] ${
-              remembered?.kind === "coach" ? "border-accent" : "border-line"
-            }`}
+            className={`flex items-center gap-3.5 px-4 py-3.5 ${remembered?.kind === "coach" ? "border-accent!" : ""}`}
           >
             <span
               aria-hidden
@@ -175,11 +170,11 @@ export default async function Home() {
             <span className="shrink-0 text-lg text-foreground-mute" aria-hidden>
               ›
             </span>
-          </Link>
+          </CardLink>
         </div>
 
         {household && (
-          <details className="group rounded-2xl border border-line bg-surface">
+          <details className={`group ${cardClass}`}>
             <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
               Manage family
               <span className="text-base transition-transform group-open:rotate-90" aria-hidden>

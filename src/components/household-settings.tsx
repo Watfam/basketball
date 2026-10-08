@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { deleteHousehold } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 export function HouseholdSettings({ householdId, householdName }: { householdId: string; householdName: string }) {
   const [open, setOpen] = useState(false);
@@ -20,13 +22,9 @@ export function HouseholdSettings({ householdId, householdName }: { householdId:
 
   return (
     <div className="pt-6">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="text-xs font-semibold uppercase tracking-wide text-foreground-dim hover:text-foreground"
-      >
+      <Button variant="ghost" size="sm" onClick={() => setOpen((o) => !o)} className="-ml-3">
         Household settings
-      </button>
+      </Button>
 
       {open && (
         <div className="mt-3 rounded-2xl border border-red-500/40 bg-red-500/5 p-4">
@@ -36,22 +34,17 @@ export function HouseholdSettings({ householdId, householdName }: { householdId:
             and workout history nested under it. This can&rsquo;t be undone. Type the household
             name to confirm.
           </p>
-          <input
+          <Input
             type="text"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={householdName}
-            className="mt-3 w-full rounded-xl border border-line bg-elevated px-3.5 py-2 text-sm text-foreground outline-none focus:border-danger"
+            className="mt-3 focus:border-danger!"
           />
-          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={!canDelete || pending}
-            className="mt-3 w-full rounded-xl bg-red-500 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-40"
-          >
+          {error && <FormError className="mt-2">{error}</FormError>}
+          <Button variant="danger" block onClick={handleDelete} disabled={!canDelete || pending} className="mt-3">
             {pending ? "Deleting…" : "Delete household forever"}
-          </button>
+          </Button>
         </div>
       )}
     </div>

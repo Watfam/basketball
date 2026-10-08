@@ -9,6 +9,7 @@ import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/
 import { haptic } from "@/lib/haptics";
 import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
+import { CardSection } from "@/components/ui/card";
 
 /**
  * A lab for one question: can this phone run the detector on live video
@@ -1106,7 +1107,7 @@ export function DetectorLab() {
               { k: "Slowest 5%", v: `${fmt(report.p95Ms, 0)} ms` },
               { k: "Ball seen", v: `${fmt(report.ballPct, 0)}%` },
             ].map((t) => (
-              <div key={t.k} className="flex-1 rounded-xl bg-[var(--raised)] p-3">
+              <div key={t.k} className="flex-1 rounded-xl bg-raised p-3">
                 <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">{t.k}</p>
                 <p className="font-display mt-1 text-xl text-foreground">{t.v}</p>
               </div>
@@ -1151,7 +1152,7 @@ export function DetectorLab() {
             {report.backend === "webgpu" ? "GPU" : "CPU"}
           </p>
           {report.partial && (
-            <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-danger">
+            <p className="rounded-lg bg-raised p-3 text-xs leading-relaxed text-danger">
               This run was cut off before it finished. These numbers cover the{" "}
               {Math.round(report.frames / Math.max(0.001, report.avgFps))}s it got through.
             </p>
@@ -1185,13 +1186,13 @@ export function DetectorLab() {
               rows={10}
               value={reportText(report)}
               onFocus={(e) => e.currentTarget.select()}
-              className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] p-2 font-mono text-[11px] leading-snug text-foreground-dim"
+              className="mt-2 w-full rounded-lg border border-line bg-raised p-2 font-mono text-[11px] leading-snug text-foreground-dim"
             />
           </details>
         </section>
       )}
 
-      <section className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+      <CardSection className="space-y-3 p-4">
         <p className="pt-1 text-[11px] font-extrabold uppercase leading-none tracking-[0.14em] text-foreground-mute">Model</p>
         <div className="grid grid-cols-2 gap-2">
           {(["ball", "coco"] as const).map((m) => (
@@ -1448,7 +1449,7 @@ export function DetectorLab() {
         </p>
 
         {trail && phase === "idle" && (
-          <p className="rounded-lg bg-[var(--raised)] p-3 text-xs leading-relaxed text-foreground-dim">
+          <p className="rounded-lg bg-raised p-3 text-xs leading-relaxed text-foreground-dim">
             The last run was cut off before it finished, probably because the
             browser closed the page. It had got as far as: <strong>{trail.step}</strong>.
             Setting: {trail.backend === "webgpu" ? "GPU" : "CPU"},{" "}
@@ -1476,11 +1477,11 @@ export function DetectorLab() {
             })()}
           </p>
         )}
-      </section>
+      </CardSection>
 
 
       {savedRuns.length > 0 && (
-        <section className="space-y-2 rounded-2xl border border-line bg-surface p-4">
+        <CardSection className="space-y-2 p-4">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
             Saved runs on this phone
           </p>
@@ -1489,7 +1490,7 @@ export function DetectorLab() {
               key={r.at}
               type="button"
               onClick={() => setReport(r)}
-              className="flex w-full items-baseline justify-between gap-3 rounded-lg border border-line px-3 py-2.5 text-left text-xs active:bg-[var(--raised)]"
+              className="flex w-full items-baseline justify-between gap-3 rounded-lg border border-line px-3 py-2.5 text-left text-xs active:bg-raised"
             >
               <span className="font-semibold text-foreground">
                 {new Date(r.at).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
@@ -1506,7 +1507,7 @@ export function DetectorLab() {
           >
             Clear saved runs
           </button>
-        </section>
+        </CardSection>
       )}
     </div>
   );

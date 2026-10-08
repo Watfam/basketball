@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { createHouseholdWithFirstPlayer } from "@/app/actions";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 export function SetupFamilyForm() {
   const router = useRouter();
@@ -58,13 +60,13 @@ export function SetupFamilyForm() {
           <label className="text-xs font-semibold uppercase tracking-wide text-foreground-dim">
             Household name
           </label>
-          <input
+          <Input
             type="text"
             required
             placeholder="e.g. The Watfords"
             value={householdName}
             onChange={(e) => setHouseholdName(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-line bg-elevated px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-accent"
+            className="mt-2"
           />
         </div>
 
@@ -75,21 +77,21 @@ export function SetupFamilyForm() {
             First player
           </p>
 
-          <input
+          <Input
             type="text"
             required
             placeholder="Player name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-line bg-elevated px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-accent"
+            className="mt-2"
           />
 
-          <input
+          <Input
             type="number"
             placeholder="Birth year (optional)"
             value={birthYear}
             onChange={(e) => setBirthYear(e.target.value)}
-            className="mt-3 w-full rounded-xl border border-line bg-elevated px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-accent"
+            className="mt-3"
           />
 
           <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-foreground-dim">
@@ -119,15 +121,11 @@ export function SetupFamilyForm() {
           </div>
         </div>
 
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <FormError>{error}</FormError>}
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-50"
-        >
+        <Button type="submit" disabled={pending} size="lg" block>
           {pending ? "Setting up…" : "Create family & start assessment"}
-        </button>
+        </Button>
       </form>
     </motion.div>
   );
