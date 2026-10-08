@@ -1,7 +1,9 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-export async function middleware(request: NextRequest) {
+// Next 16 calls this "proxy" (it was "middleware"): it runs before every
+// matched request and refreshes the Supabase session cookie.
+export async function proxy(request: NextRequest) {
   return await updateSession(request);
 }
 
@@ -17,8 +19,9 @@ export const config = {
      * - the PWA manifest and app icon: browsers fetch these without
      *   cookies, so the session check bounced them to /login and the
      *   manifest came back as HTML
+     * - sw.js: the service worker that keeps the camera model on the phone
      * - public assets (svg, png, jpg, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|app-icon|ort/|models/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|app-icon|sw.js|ort/|models/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
