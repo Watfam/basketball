@@ -18,6 +18,8 @@ import {
 import { isWatchableUrl } from "@/lib/basketball/film";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
+import { Button, buttonClass } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 type Drill = {
   id: string;
@@ -300,7 +302,7 @@ export function SessionPlayer({
           Drill {activeIndex + 1}
           <span className="text-foreground-mute">/{drills.length}</span>
         </p>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           Swipe for more
         </span>
       </div>
@@ -323,16 +325,18 @@ export function SessionPlayer({
         ))}
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {error && <FormError className="mt-4">{error}</FormError>}
 
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
+        block
         onClick={skipActiveDrill}
         disabled={pending || completed.has(activeIndex)}
-        className="mt-4 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground disabled:opacity-50"
+        className="mt-4"
       >
         {completed.has(activeIndex) ? "Drill logged" : "Skip this drill"}
-      </button>
+      </Button>
 
       {/* Only offered once something has actually been logged. Finishing
           a session with nothing done used to mark it completed, which fed
@@ -346,32 +350,19 @@ export function SessionPlayer({
               Finish now with {completed.size} of {drills.length} drills logged? Whatever
               you&rsquo;ve done is already saved.
             </p>
-            <div className="mt-3 flex justify-center gap-4">
-              <button
-                type="button"
-                onClick={finishSession}
-                disabled={pending}
-                className="text-xs font-bold uppercase tracking-wide text-accent hover:text-accent-hover disabled:opacity-50"
-              >
+            <div className="mt-3 flex justify-center gap-2">
+              <Button size="sm" onClick={finishSession} disabled={pending}>
                 {pending ? "Finishing…" : "Finish now"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFinishConfirming(false)}
-                className="text-xs font-semibold text-foreground-dim hover:text-foreground"
-              >
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setFinishConfirming(false)}>
                 Keep going
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => setFinishConfirming(true)}
-            className="mt-3 w-full text-center text-xs font-semibold text-foreground-dim hover:text-foreground"
-          >
+          <Button variant="ghost" size="sm" block onClick={() => setFinishConfirming(true)} className="mt-3">
             Finish workout now
-          </button>
+          </Button>
         ))}
     </div>
   );
@@ -399,12 +390,12 @@ function DrillCard({
     <div className="panel-lit rounded-3xl border border-line bg-surface p-6 sm:p-7">
       <div className="flex flex-wrap items-center gap-2">
         {blockLabel && (
-          <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+          <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
             {blockLabel}
           </span>
         )}
         {drill.variant_label && (
-          <span className="rounded-md border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)]">
+          <span className="rounded-md border border-line-strong px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)]">
             {drill.variant_label}
           </span>
         )}
@@ -445,7 +436,7 @@ function DrillCard({
           than a link they won't follow. */}
       {film && (film.watch_for ?? []).length > 0 && (
         <div className="mt-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-3.5 py-3">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
             Watch for
           </p>
           <ul className="mt-1.5 space-y-1">
@@ -545,23 +536,24 @@ function TimerDrill({
           animate={false}
         >
           <span className="font-display text-6xl leading-none text-foreground">{secondsLeft}</span>
-          <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+          <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
             {running ? "seconds left" : "seconds"}
           </span>
         </ProgressRing>
       </div>
 
       {!running && (
-        <button
-          type="button"
+        <Button
+          size="lg"
+          block
           onClick={() => {
             haptic("tap");
             setRunning(true);
           }}
-          className="mt-6 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover active:scale-[0.99]"
+          className="mt-6"
         >
           Start
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -648,7 +640,7 @@ function RepDrill({
             animate={false}
           >
             <span className="font-display text-6xl leading-none text-foreground">{restLeft}</span>
-            <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+            <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
               seconds
             </span>
           </ProgressRing>
@@ -658,16 +650,17 @@ function RepDrill({
           Set {setsDone + 1} of {totalSets} up next
         </p>
 
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             haptic("tap");
             setRestLeft(null);
           }}
-          className="mt-3 text-xs font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
+          className="mt-3 text-accent hover:text-accent-hover"
         >
           Skip rest →
-        </button>
+        </Button>
       </div>
     );
   }
@@ -694,7 +687,7 @@ function RepDrill({
             {setsDone}
             <span className="text-foreground-mute">/{totalSets}</span>
           </span>
-          <span className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+          <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
             Tap when done
           </span>
         </ProgressRing>
@@ -740,7 +733,7 @@ function SessionComplete({
               /{totalCount}
             </span>
           </div>
-          <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
+          <p className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
             {totalCount === 1 ? "Drill logged" : "Drills logged"}
           </p>
 
@@ -756,7 +749,7 @@ function SessionComplete({
         transition={{ delay: 0.3 }}
         type="button"
         onClick={onDone}
-        className="mt-5 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+        className={buttonClass({ size: "lg", block: true, className: "mt-5" })}
       >
         Done
       </motion.button>

@@ -47,10 +47,10 @@ export function PlayerHero({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+              <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
                 {positionLabel}
               </span>
-              <span className="rounded-md border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
+              <span className="rounded-md border border-line-strong px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
                 {levelLabel}
               </span>
             </div>
@@ -65,7 +65,7 @@ export function PlayerHero({
             <span className="font-display text-gradient-accent text-[2.6rem] leading-none">
               {overall}
             </span>
-            <span className="-mt-1 text-[9px] font-extrabold uppercase tracking-[0.2em] text-foreground-dim">
+            <span className="-mt-1 text-[11px] font-extrabold uppercase tracking-[0.2em] text-foreground-dim">
               Overall
             </span>
           </ProgressRing>
@@ -85,7 +85,7 @@ export function PlayerHero({
             >
               {stat.value}
             </p>
-            <p className="mt-1.5 whitespace-nowrap text-[9px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
+            <p className="mt-1.5 whitespace-nowrap text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">
               {stat.label}
             </p>
           </div>

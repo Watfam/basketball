@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
 import { SurvivalTest } from "@/components/survival-test";
 
 export const metadata = { title: "Survival test" };
@@ -6,20 +6,11 @@ export const metadata = { title: "Survival test" };
 export default function SurvivalTestPage() {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href="/lab/diagnose"
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Diagnostic tests
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: "/lab/diagnose", label: "Diagnostic tests" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-4 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Experimental</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Experimental</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
             Survival test
           </h1>

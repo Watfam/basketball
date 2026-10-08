@@ -2,12 +2,14 @@
 
 import { useTransition } from "react";
 import { deleteCalibrationRun } from "@/app/actions";
+import { Button } from "@/components/ui/button";
 
 export function DeleteCalibrationButton({ id }: { id: string }) {
   const [pending, startTransition] = useTransition();
   return (
-    <button
-      type="button"
+    <Button
+      variant="danger"
+      size="sm"
       disabled={pending}
       onClick={() => {
         if (!window.confirm("Delete this calibration?")) return;
@@ -16,9 +18,9 @@ export function DeleteCalibrationButton({ id }: { id: string }) {
           if (res.error) window.alert(res.error);
         });
       }}
-      className="mt-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute hover:text-red-400 disabled:opacity-50"
+      className="mt-2"
     >
       {pending ? "Deleting…" : "Delete"}
-    </button>
+    </Button>
   );
 }

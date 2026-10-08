@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { addFilmResource } from "@/app/actions";
 import { FILM_KINDS, SKILL_LABELS } from "@/lib/basketball/film";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { Card, Eyebrow } from "@/components/ui/card";
+import { FormError, Input, TextArea } from "@/components/ui/field";
 
 const SKILLS = ["ball_handling", "shooting", "defense", "athleticism"];
 
@@ -68,37 +71,31 @@ export function AddFilmForm({
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4">
+    <Card className="p-4">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
           Add film
         </p>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="text-[11px] font-bold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
-        >
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)} className="-mr-3">
           Cancel
-        </button>
+        </Button>
       </div>
 
       <div className="mt-3 space-y-3">
         <Field label="Title">
-          <input
+          <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Hip switch breakdown"
-            className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
           />
         </Field>
 
         <Field label="Link">
-          <input
+          <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             inputMode="url"
             placeholder="https://youtube.com/watch?v=…"
-            className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
           />
         </Field>
 
@@ -109,10 +106,10 @@ export function AddFilmForm({
                 key={k.value}
                 type="button"
                 onClick={() => setKind(k.value)}
-                className={`rounded-lg border px-2 py-2 text-[10px] font-extrabold uppercase tracking-wide transition-colors ${
+                className={`rounded-lg border px-2 py-2 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
                   kind === k.value
-                    ? "border-accent bg-accent text-white"
-                    : "border-line bg-[var(--raised)] text-foreground-dim"
+                    ? "border-accent bg-accent text-on-accent"
+                    : "border-line bg-raised text-foreground-dim"
                 }`}
               >
                 {k.label}
@@ -134,7 +131,7 @@ export function AddFilmForm({
                       prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
                     )
                   }
-                  className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors ${
+                  className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide transition-colors ${
                     on
                       ? "border-accent bg-accent/15 text-accent"
                       : "border-line text-foreground-dim"
@@ -148,36 +145,28 @@ export function AddFilmForm({
         </Field>
 
         <Field label="Note (optional)">
-          <textarea
+          <TextArea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Why this one is worth watching"
-            className="w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
           />
         </Field>
 
-        <button
-          type="button"
-          onClick={submit}
-          disabled={pending || !title.trim() || !url.trim()}
-          className="w-full rounded-xl bg-accent py-3 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover disabled:opacity-40"
-        >
+        <Button size="lg" block onClick={submit} disabled={pending || !title.trim() || !url.trim()}>
           {pending ? "Saving…" : "Add to Film Room"}
-        </button>
+        </Button>
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <FormError>{error}</FormError>}
       </div>
-    </div>
+    </Card>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-        {label}
-      </p>
+      <Eyebrow className="mb-1.5">{label}</Eyebrow>
       {children}
     </div>
   );

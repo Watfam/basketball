@@ -1,10 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { snoozeCombine } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 /**
  * The outstanding combine.
@@ -41,7 +41,7 @@ export function CombinePrompt({
     <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-2xl border border-accent shadow-[var(--shadow-panel)]">
       <div className="court-lines absolute inset-0 opacity-60" aria-hidden />
       <div className="relative p-5">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
           {hasEverDone ? "Time to retest" : "Not measured yet"}
         </p>
         <h2 className="font-display mt-1.5 text-2xl uppercase leading-[0.98] tracking-tight text-foreground">
@@ -53,21 +53,13 @@ export function CombinePrompt({
             : "Your ratings are still a self-estimate. Nine timed and counted tests turn them into something real — and everything the app recommends gets sharper."}
         </p>
 
-        <Link
-          href={`/players/${playerId}/combine`}
-          className="mt-4 block w-full rounded-xl bg-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
-        >
+        <ButtonLink href={`/players/${playerId}/combine`} size="lg" block className="mt-4">
           {hasEverDone ? "Retest" : "Start the combine"}
-        </Link>
+        </ButtonLink>
 
-        <button
-          type="button"
-          onClick={snooze}
-          disabled={pending}
-          className="mt-2 w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim disabled:opacity-50"
-        >
+        <Button variant="ghost" size="sm" block onClick={snooze} disabled={pending} className="mt-2">
           {pending ? "…" : "Not now — remind me in a week"}
-        </button>
+        </Button>
       </div>
     </section>
   );

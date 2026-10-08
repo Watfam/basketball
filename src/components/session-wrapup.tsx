@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveSessionResults, type DrillResultInput } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input, TextArea } from "@/components/ui/field";
 
 export type WrapupRow = DrillResultInput;
 
@@ -71,28 +73,27 @@ export function SessionWrapup({
 
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => {
           haptic("tap");
           router.push(`/teams/${teamId}/practice`);
         }}
-        className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+        className="-ml-3"
       >
         ← Cancel, don&rsquo;t save
-      </button>
+      </Button>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
         <div className="flex items-baseline justify-between gap-3">
           <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
             {planTitle}
           </p>
-          <input
-            type="date"
-            value={runDate}
-            onChange={(e) => setRunDate(e.target.value)}
-            className="rounded-lg border border-line bg-[var(--raised)] px-2.5 py-1.5 text-xs text-foreground focus:border-accent focus:outline-none"
-          />
+          {/* Wrapped so the date field keeps its own width (Input is w-full). */}
+          <div className="shrink-0">
+            <Input type="date" value={runDate} onChange={(e) => setRunDate(e.target.value)} />
+          </div>
         </div>
 
         {results.length === 0 ? (
@@ -108,13 +109,13 @@ export function SessionWrapup({
                   className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-black ${
                     r.actual !== null
                       ? "bg-[var(--data-positive)]/15 text-[var(--data-positive)]"
-                      : "bg-[var(--raised)] text-foreground-mute"
+                      : "bg-raised text-foreground-mute"
                   }`}
                 >
                   {r.actual !== null ? "✓" : "?"}
                 </div>
                 <span className="flex-1 text-sm font-semibold text-foreground">{r.label}</span>
-                <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+                <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
                   Goal {r.goalTarget}
                   {r.goalUnit ? ` ${r.goalUnit}` : ""}
                 </span>
@@ -123,7 +124,7 @@ export function SessionWrapup({
                   value={r.actual ?? ""}
                   onChange={(e) => updateActual(i, e.target.value)}
                   placeholder="—"
-                  className="w-14 shrink-0 rounded-lg border border-line bg-[var(--raised)] px-1 py-1.5 text-center text-sm font-extrabold text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                  className="w-14 shrink-0 rounded-lg border border-line bg-raised px-1 py-1.5 text-center text-sm font-extrabold text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                 />
               </div>
             ))}
@@ -132,28 +133,23 @@ export function SessionWrapup({
       </section>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Post-Practice Notes
         </p>
-        <textarea
+        <TextArea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={5}
           placeholder="What worked, what to fix next time..."
-          className="mt-2 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+          className="mt-2"
         />
       </section>
 
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <FormError className="text-center">{error}</FormError>}
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40"
-      >
+      <Button size="lg" block onClick={save} disabled={pending}>
         {pending ? "Saving…" : "Save & Finish"}
-      </button>
+      </Button>
     </div>
   );
 }

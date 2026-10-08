@@ -7,6 +7,8 @@ import { ShotSessionList } from "@/components/shot-session-list";
 import { TrendChart } from "@/components/charts/trend-chart";
 import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import { describeSavedGoal } from "@/lib/basketball/goals";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 type SessionRow = {
   id: string;
@@ -127,7 +129,7 @@ export default async function ShootingPage({
       ) : (
         <>
           <div>
-            <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Drill</p>
+            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Drill</p>
             <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[ALL, ...drills].map((d) => (
                 <Link
@@ -145,8 +147,8 @@ export default async function ShootingPage({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-line bg-surface p-4">
-            <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <Card className="p-4">
+            <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
               {selected === ALL ? "All shooting" : selected} · this season, since{" "}
               {season.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </p>
@@ -163,12 +165,12 @@ export default async function ShootingPage({
                 {selected === ALL && totals.best.label ? ` · ${totals.best.label}` : ""}
               </p>
             )}
-          </div>
+          </Card>
 
           {selected === ALL ? (
             <div>
               <h2 className="mb-2.5 font-display text-xl uppercase leading-none tracking-wide text-foreground">By drill</h2>
-              <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+              <Card className="overflow-hidden">
                 {drills.map((d, i) => {
                   const t = totalSessions(sessions.filter((s) => labelOf(s) === d));
                   return (
@@ -176,7 +178,7 @@ export default async function ShootingPage({
                       key={d}
                       href={drillHref(d)}
                       scroll={false}
-                      className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${
+                      className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised ${
                         i ? "border-t border-line" : ""
                       }`}
                     >
@@ -190,12 +192,12 @@ export default async function ShootingPage({
                     </Link>
                   );
                 })}
-              </div>
+              </Card>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <Card className="p-5">
               <div className="mb-3 flex items-baseline justify-between">
-                <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   {selected} · last {line.length} {line.length === 1 ? "session" : "sessions"}
                 </p>
                 {change !== null && (
@@ -217,7 +219,7 @@ export default async function ShootingPage({
                   max={100}
                 />
               )}
-            </div>
+            </Card>
           )}
 
           <ShotSessionList
@@ -239,16 +241,7 @@ export default async function ShootingPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
         <ShootingHub

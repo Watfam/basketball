@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FilmCard, type FilmView } from "@/components/film-card";
@@ -6,6 +5,8 @@ import { FilmRoomTabs } from "@/components/film-room-tabs";
 import { AddFilmForm } from "@/components/add-film-form";
 import { EmptyState } from "@/components/empty-state";
 import { ProgressRing } from "@/components/charts/progress-ring";
+import { Card, CardLink } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   rankFilm,
   groupProFilm,
@@ -169,10 +170,10 @@ export default async function FilmRoomPage({
             {studySessions.map((s) => {
               const finished = Boolean(completedSessionIds.get(s.id));
               return (
-                <Link
+                <CardLink
                   key={s.id}
                   href={`/players/${playerId}/film/sessions/${s.id}`}
-                  className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+                  className="panel-lit overflow-hidden p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -180,7 +181,7 @@ export default async function FilmRoomPage({
                         {((s.skill_tags ?? []) as string[]).map((t) => (
                           <span
                             key={t}
-                            className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent"
+                            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent"
                           >
                             {SKILL_LABELS[t] ?? t}
                           </span>
@@ -196,15 +197,15 @@ export default async function FilmRoomPage({
                       )}
                     </div>
                     {finished && (
-                      <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
+                      <span className="shrink-0 rounded-md border border-[var(--data-positive)]/50 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--data-positive)]">
                         Done
                       </span>
                     )}
                   </div>
-                  <p className="mt-3 border-t border-line pt-2.5 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+                  <p className="mt-3 border-t border-line pt-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
                     {itemCountBySession.get(s.id) ?? 0} clips
                   </p>
-                </Link>
+                </CardLink>
               );
             })}
           </div>
@@ -251,7 +252,7 @@ export default async function FilmRoomPage({
                     {group.player}
                   </p>
                   {group.matchesPosition && (
-                    <span className="shrink-0 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[var(--data-cyan)]">
+                    <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--data-cyan)]">
                       Your position
                     </span>
                   )}
@@ -282,7 +283,7 @@ export default async function FilmRoomPage({
   const trainersTab = (
     <div className="space-y-2.5">
       {trainers.map((trainer) => (
-        <div key={trainer.id} className="rounded-2xl border border-line bg-surface p-4">
+        <Card key={trainer.id} className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
@@ -298,7 +299,7 @@ export default async function FilmRoomPage({
               {(trainer.specialty ?? []).map((s) => (
                 <span
                   key={s}
-                  className="shrink-0 text-[9px] font-extrabold uppercase tracking-[0.12em] text-accent"
+                  className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent"
                 >
                   {SKILL_LABELS[s] ?? s}
                 </span>
@@ -317,33 +318,25 @@ export default async function FilmRoomPage({
             <TrainerLink href={trainer.instagram_url} label="Instagram" />
             <TrainerLink href={trainer.website_url} label="Website" />
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   );
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            {studiedCount}/{film.length} studied
-          </span>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          {studiedCount}/{film.length} studied
+        </span>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
         <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]">
           <div className="court-lines absolute inset-0 opacity-60" aria-hidden />
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
                 Film Room
               </p>
               <h1 className="font-display mt-1.5 text-4xl uppercase leading-[0.92] tracking-tight text-foreground">
@@ -365,7 +358,7 @@ export default async function FilmRoomPage({
                 <span className="font-display text-xl leading-none text-foreground">
                   {studiedCount}
                 </span>
-                <span className="mt-0.5 text-[8px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+                <span className="mt-0.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
                   Studied
                 </span>
               </ProgressRing>
@@ -377,7 +370,7 @@ export default async function FilmRoomPage({
           <EmptyState
             eyebrow="No film yet"
             title="Nothing in the Film Room"
-            subtitle="Run supabase/seed_0005_film_room.sql to load the curriculum, or add your own film."
+            subtitle="The film lessons aren't loaded yet. Ask your coach, or add a clip of your own."
           />
         ) : (
           <FilmRoomTabs
@@ -399,7 +392,7 @@ function TrainerLink({ href, label }: { href: string | null; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-[10px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
     >
       {label} ↗
     </a>
@@ -413,7 +406,7 @@ function SectionHeading({ title, caption }: { title: string; caption?: string })
         {title}
       </h2>
       {caption && (
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {caption}
         </span>
       )}

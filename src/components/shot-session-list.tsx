@@ -5,6 +5,9 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteShotSession, restoreShotSession } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FormError } from "@/components/ui/field";
 
 export type ShotSessionListItem = {
   id: string;
@@ -118,7 +121,7 @@ export function ShotSessionList({
       )}
 
       {visible.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <Card className="overflow-hidden">
           {visible.map((s, i) => {
             const row = (
               <>
@@ -139,43 +142,40 @@ export function ShotSessionList({
             return managing ? (
               <div key={s.id} className={`flex items-center gap-3 px-4 py-3 ${border}`}>
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-3">{row}</div>
-                <button
-                  type="button"
+                <Button
+                  variant="danger"
+                  size="sm"
                   disabled={pending}
                   onClick={() => remove(s.id, s.label)}
-                  className="shrink-0 rounded-lg border border-red-400/40 px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-red-400 disabled:opacity-50"
+                  className="shrink-0"
                 >
                   Delete
-                </button>
+                </Button>
               </div>
             ) : (
               <Link
                 key={s.id}
                 href={`/players/${playerId}/shooting/${s.id}`}
-                className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${border}`}
+                className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised ${border}`}
               >
                 {row}
               </Link>
             );
           })}
-        </div>
+        </Card>
       )}
 
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error && <FormError className="mt-2">{error}</FormError>}
 
       {undo && (
         <div
           role="status"
-          className="fixed inset-x-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-line bg-[var(--raised)] px-4 py-3 shadow-lg"
+          className="fixed inset-x-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl border border-line bg-raised px-4 py-3 shadow-lg"
         >
           <p className="text-sm text-foreground">Session deleted</p>
-          <button
-            type="button"
-            onClick={restore}
-            className="text-sm font-extrabold uppercase tracking-wide text-accent"
-          >
+          <Button size="sm" onClick={restore} className="shrink-0">
             Undo
-          </button>
+          </Button>
         </div>
       )}
     </div>

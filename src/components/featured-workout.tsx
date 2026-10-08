@@ -47,15 +47,15 @@ export function FeaturedWorkout({
 
       <div className="relative px-5 pt-5">
         <div className="flex items-center gap-2">
-          <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+          <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
             Today&rsquo;s Session
           </span>
           {lastCompleted ? (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
               {lastCompleted}
             </span>
           ) : (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--data-cyan)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--data-cyan)]">
               New for you
             </span>
           )}
@@ -85,7 +85,7 @@ export function FeaturedWorkout({
                   />
                 ))}
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-foreground-dim">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-foreground-dim">
                 {DIFFICULTY_LABELS[difficulty]}
               </span>
             </div>
@@ -122,7 +122,7 @@ export function FeaturedWorkout({
             {workout.focus_areas.map((area) => (
               <span
                 key={area}
-                className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent"
+                className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent"
               >
                 {SKILL_LABELS[area] ?? area}
               </span>
@@ -142,7 +142,7 @@ function Metric({ value, unit }: { value: string; unit: string }) {
   return (
     <div className="flex items-baseline gap-1">
       <span className="font-display text-xl leading-none text-foreground">{value}</span>
-      <span className="text-[10px] font-extrabold uppercase tracking-wider text-foreground-mute">
+      <span className="text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
         {unit}
       </span>
     </div>

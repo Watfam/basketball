@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
 import { AddGameForm } from "@/components/add-game-form";
 import { gameResultLabel, isPastGame, sortGamesUpcomingFirst, sortGamesRecentFirst, type Game } from "@/lib/basketball/games";
+import { PageHeader } from "@/components/ui/page-header";
+import { CardLink } from "@/components/ui/card";
 
 function dateLabel(iso: string) {
   return new Date(iso + "T00:00:00").toLocaleDateString(undefined, {
@@ -41,11 +42,7 @@ export default async function GamesPage({
   const row = (g: Game) => {
     const result = gameResultLabel(g);
     return (
-      <Link
-        key={g.id}
-        href={`/teams/${teamId}/games/${g.id}`}
-        className="block rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
-      >
+      <CardLink key={g.id} href={`/teams/${teamId}/games/${g.id}`} className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
@@ -56,7 +53,7 @@ export default async function GamesPage({
               {g.game_time ? ` · ${g.game_time}` : ""}
             </p>
             {g.tournament_note && (
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+              <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
                 {g.tournament_note}
               </p>
             )}
@@ -67,8 +64,8 @@ export default async function GamesPage({
                 result.startsWith("W")
                   ? "bg-[var(--data-positive)]/15 text-[var(--data-positive)]"
                   : result.startsWith("L")
-                    ? "bg-red-500/10 text-red-400"
-                    : "bg-[var(--raised)] text-foreground-mute"
+                    ? "bg-red-500/10 text-danger"
+                    : "bg-raised text-foreground-mute"
               }`}
             >
               {result}
@@ -78,22 +75,13 @@ export default async function GamesPage({
         {g.notes && (
           <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-foreground-dim">{g.notes}</p>
         )}
-      </Link>
+      </CardLink>
     );
   };
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/teams/${teamId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {team.name}
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
@@ -104,13 +92,13 @@ export default async function GamesPage({
           <EmptyState
             eyebrow="Nothing scheduled"
             title="No games yet"
-            subtitle="Add one below, or pull your schedule in from MaxPreps."
+            subtitle="Add your first game below."
           />
         ) : (
           <>
             {upcoming.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                   Upcoming
                 </h2>
                 {upcoming.map(row)}
@@ -118,7 +106,7 @@ export default async function GamesPage({
             )}
             {past.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
                   Past
                 </h2>
                 {past.map(row)}

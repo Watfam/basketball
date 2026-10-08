@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/avatar";
 import { RememberProfile } from "@/components/remember-profile";
 import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
+import { HeaderLink } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { ButtonLink } from "@/components/ui/button";
 
 export const metadata = { title: "Coach" };
 
@@ -74,18 +77,13 @@ export default async function CoachHomePage() {
       <RememberProfile profile={{ kind: "coach", teamId: firstTeam?.id ?? null }} />
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="mx-auto w-full max-w-lg">
-          <Link
-            href="/"
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            Switch profile
-          </Link>
+          <HeaderLink href="/">Switch profile</HeaderLink>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
             {firstTeam && (teams ?? []).length === 1 ? firstTeam.name : "Coach home"}
           </h1>
@@ -98,7 +96,7 @@ export default async function CoachHomePage() {
               Players added on the front door, under Manage family, show up here with their shooting.
             </p>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            <Card className="overflow-hidden">
               {(players ?? []).map((p, i) => {
                 const rows = (shotRows ?? []).filter((r) => r.player_id === p.id);
                 const season = totalSessions(rows);
@@ -108,7 +106,7 @@ export default async function CoachHomePage() {
                     key={p.id}
                     // from=coach: looking at a player must not switch the phone's profile to them.
                     href={`/players/${p.id}/shooting?from=coach`}
-                    className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${
+                    className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-raised ${
                       i ? "border-t border-line" : ""
                     }`}
                   >
@@ -123,20 +121,20 @@ export default async function CoachHomePage() {
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="font-display text-xl leading-none text-accent">{formatPercentage(season.pct)}</p>
-                      <p className="text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                      <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         {season.attempts > 0 ? `${season.makes} of ${season.attempts}` : "this season"}
                       </p>
                     </div>
                   </Link>
                 );
               })}
-            </div>
+            </Card>
           )}
         </section>
 
         <section className="space-y-2.5">
           <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Camera lab</h2>
-          <div className="rounded-2xl border border-line bg-surface p-4">
+          <Card className="p-4">
             {lastRun ? (
               <>
                 <div className="flex items-end justify-between gap-3">
@@ -161,37 +159,26 @@ export default async function CoachHomePage() {
               </p>
             )}
             <div className="mt-3 grid grid-cols-3 gap-2">
-              <Link
-                href="/lab/calibrate"
-                className="rounded-xl bg-accent py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-white"
-              >
+              {/* sm: three across on a phone leaves too little width for md's padding. */}
+              <ButtonLink href="/lab/calibrate" size="sm">
                 Calibrate
-              </Link>
-              <Link
-                href="/lab/detector"
-                className="rounded-xl border border-line py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-foreground"
-              >
+              </ButtonLink>
+              <ButtonLink href="/lab/detector" variant="secondary" size="sm">
                 Detector
-              </Link>
-              <Link
-                href="/lab"
-                className="rounded-xl border border-line py-2.5 text-center text-[11px] font-extrabold uppercase tracking-wide text-foreground"
-              >
+              </ButtonLink>
+              <ButtonLink href="/lab" variant="secondary" size="sm">
                 History
-              </Link>
+              </ButtonLink>
             </div>
-          </div>
+          </Card>
         </section>
 
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
             <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Teams</h2>
-            <Link
-              href="/teams/new"
-              className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent hover:text-accent-hover"
-            >
+            <HeaderLink href="/teams/new" tone="accent">
               + New team
-            </Link>
+            </HeaderLink>
           </div>
           {(teams ?? []).length === 0 ? (
             <Link
@@ -201,12 +188,12 @@ export default async function CoachHomePage() {
               Set up a team: roster, scheme, practice plans
             </Link>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            <Card className="overflow-hidden">
               {(teams ?? []).map((t, i) => (
                 <Link
                   key={t.id}
                   href={`/teams/${t.id}`}
-                  className={`flex items-center justify-between px-4 py-3.5 transition-colors hover:bg-[var(--raised)] ${
+                  className={`flex items-center justify-between px-4 py-3.5 transition-colors hover:bg-raised ${
                     i ? "border-t border-line" : ""
                   }`}
                 >
@@ -214,7 +201,7 @@ export default async function CoachHomePage() {
                   <span className="text-xs font-extrabold uppercase tracking-wide text-accent">Open →</span>
                 </Link>
               ))}
-            </div>
+            </Card>
           )}
         </section>
       </main>

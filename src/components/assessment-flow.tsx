@@ -18,6 +18,8 @@ import {
 import { attributeTier } from "@/lib/basketball/rating";
 import { haptic } from "@/lib/haptics";
 import { PlayerCard } from "@/components/player-card";
+import { Button, buttonClass } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 type StepKind = "position" | "style" | "ratings" | "goal";
 
@@ -127,10 +129,10 @@ export function AssessmentFlow({
         primaryPosition={primaryPosition}
         styleTags={styleTags}
         ratings={ratings}
-        // A retest lands back on the hub, where the attribute radar draws
-        // the previous values underneath the new ones — that before/after
-        // is the whole point of retesting.
-        onContinue={() => router.push(isRetest ? `/players/${playerId}` : "/")}
+        // Both land on the player's own home: a retest to see the radar's
+        // before/after, a first assessment to start training (it used to go
+        // back to the profile picker, one tap from where it should be).
+        onContinue={() => router.push(`/players/${playerId}`)}
       />
     );
   }
@@ -141,7 +143,7 @@ export function AssessmentFlow({
         <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
           {isRetest ? "Retest" : playerName}
         </p>
-        <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
           Step {step + 1} of {STEP_COUNT}
         </span>
       </div>
@@ -265,24 +267,15 @@ export function AssessmentFlow({
           )}
       </motion.div>
 
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {error && <FormError className="mt-4">{error}</FormError>}
 
       <div className="mt-4 flex gap-3">
         {step > 0 && (
-          <button
-            type="button"
-            onClick={goBack}
-            className="rounded-xl border border-line px-5 py-3.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim transition-colors hover:text-foreground"
-          >
+          <Button variant="secondary" size="lg" onClick={goBack} className="px-5">
             Back
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
-          disabled={!canAdvance || pending}
-          onClick={goNext}
-          className="flex-1 rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
-        >
+        <Button size="lg" disabled={!canAdvance || pending} onClick={goNext} className="flex-1">
           {pending
             ? "Building your card…"
             : step === STEP_COUNT - 1
@@ -290,7 +283,7 @@ export function AssessmentFlow({
                 ? "See what moved"
                 : "Reveal my Player Card"
               : "Next"}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -309,7 +302,7 @@ function StepShell({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">{eyebrow}</p>
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">{eyebrow}</p>
       <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
         {title}
       </h2>
@@ -341,7 +334,7 @@ function ChoiceCard({
       } ${
         selected
           ? "border-accent bg-accent/10"
-          : "border-line bg-[var(--raised)] hover:border-accent/50"
+          : "border-line bg-raised hover:border-accent/50"
       }`}
     >
       <p
@@ -385,14 +378,14 @@ function RatingRow({
               between a 6 and a 7 — "Solid" vs "Strong" is a judgement
               they can actually make. */}
           {value > 0 && (
-            <span className="text-[10px] font-extrabold uppercase tracking-wide text-accent">
+            <span className="text-[11px] font-extrabold uppercase tracking-wide text-accent">
               {TIER_COPY[attributeTier(value)]}
             </span>
           )}
           <span className="font-display text-2xl leading-none text-foreground">
             {value > 0 ? value : "—"}
           </span>
-          <span className="text-[10px] font-bold text-foreground-mute">/{RATING_SCALE_MAX}</span>
+          <span className="text-[11px] font-bold text-foreground-mute">/{RATING_SCALE_MAX}</span>
         </span>
       </div>
 
@@ -405,10 +398,10 @@ function RatingRow({
             type="button"
             aria-label={`${label} ${n} out of ${RATING_SCALE_MAX}`}
             onClick={() => onChange(n)}
-            className={`h-9 flex-1 rounded-md border text-[10px] font-extrabold transition-colors ${
+            className={`h-9 flex-1 rounded-md border text-[11px] font-extrabold transition-colors ${
               n <= value
-                ? "border-accent bg-accent text-white"
-                : "border-line bg-[var(--raised)] text-foreground-mute hover:border-accent/50"
+                ? "border-accent bg-accent text-on-accent"
+                : "border-line bg-raised text-foreground-mute hover:border-accent/50"
             }`}
           >
             {n}
@@ -468,7 +461,7 @@ function PlayerCardReveal({
         transition={{ delay: 0.6 }}
         type="button"
         onClick={onContinue}
-        className="mt-4 w-full rounded-xl bg-accent px-4 py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99]"
+        className={buttonClass({ size: "lg", block: true, className: "mt-4" })}
       >
         Enter Hardwood Lab
       </motion.button>

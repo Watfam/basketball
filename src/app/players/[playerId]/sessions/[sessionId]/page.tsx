@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SessionPlayer, type SessionDrill } from "@/components/session-player";
 import { entriesForLevel } from "@/lib/basketball/prescription";
-import { suggestSkillLevel, type SkillLevel } from "@/lib/basketball/assessment";
+import { playerLevel } from "@/lib/basketball/assessment";
 
 export default async function SessionPage({
   params,
@@ -44,20 +44,7 @@ export default async function SessionPage({
 
   if (!user) redirect("/login");
 
-  const playerType = (player?.player_type ?? {}) as {
-    ratings?: Record<string, number>;
-    preferred_level?: SkillLevel;
-  };
-  const level: SkillLevel =
-    playerType.preferred_level ??
-    suggestSkillLevel(
-      (playerType.ratings ?? {
-        ball_handling: 0,
-        shooting: 0,
-        defense: 0,
-        athleticism: 0,
-      }) as Parameters<typeof suggestSkillLevel>[0]
-    );
+  const level = playerLevel(player?.player_type);
 
   if (error) {
     console.error("[session] fetch failed:", error);

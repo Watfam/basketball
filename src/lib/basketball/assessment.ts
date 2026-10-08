@@ -198,6 +198,20 @@ export function suggestSkillLevel(ratings: Record<RatingCategoryValue, number>):
   return "advanced";
 }
 
+/**
+ * The level a player trains at: the one they picked, else the one their
+ * ratings suggest. Takes the raw player_type JSON.
+ */
+export function playerLevel(playerType: unknown): SkillLevel {
+  const t = (playerType ?? {}) as { ratings?: Record<string, number>; preferred_level?: SkillLevel };
+  return (
+    t.preferred_level ??
+    suggestSkillLevel(
+      (t.ratings ?? { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 }) as Record<RatingCategoryValue, number>
+    )
+  );
+}
+
 export function computePlayerType(answers: AssessmentAnswers) {
   return {
     primary_position: answers.primary_position,

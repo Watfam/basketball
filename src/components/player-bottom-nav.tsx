@@ -75,7 +75,7 @@ export function PlayerBottomNav({ playerId }: { playerId: string }) {
               href={tab.href(playerId)}
               onClick={() => haptic("tap")}
               aria-current={isActive ? "page" : undefined}
-              className={`flex flex-1 flex-col items-center gap-1 rounded-xl py-2 text-[9px] font-extrabold uppercase tracking-[0.08em] transition-colors ${
+              className={`flex flex-1 flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-extrabold uppercase tracking-[0.08em] transition-colors ${
                 isActive ? "bg-accent/10 text-accent" : "text-foreground-mute hover:text-foreground-dim"
               }`}
             >

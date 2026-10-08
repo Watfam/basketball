@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { RunPracticeLink } from "@/components/run-practice-link";
 import type { TodayItem, TodayGame } from "@/lib/basketball/today";
+import { ButtonLink, buttonClass } from "@/components/ui/button";
+import { Card, CardLink, Eyebrow } from "@/components/ui/card";
 
 function dayLabel(iso: string) {
   return new Date(iso + "T00:00:00").toLocaleDateString(undefined, {
@@ -64,7 +66,7 @@ export function CoachToday({
           className="flex items-center justify-between gap-3 rounded-2xl border border-accent bg-accent/10 px-4 py-3 transition-colors hover:bg-accent/20"
         >
           <div className="min-w-0">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
               Result not logged
             </p>
             <p className="mt-0.5 truncate text-sm font-bold text-foreground">
@@ -87,23 +89,15 @@ export function CoachToday({
             Build the next plan, or add a game to the schedule.
           </p>
           <div className="mt-4 flex justify-center gap-2.5">
-            <Link
-              href={`/teams/${teamId}/practice/new`}
-              className="rounded-xl bg-accent px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
-            >
-              New plan
-            </Link>
-            <Link
-              href={`/teams/${teamId}/games`}
-              className="rounded-xl border border-line px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:border-accent hover:text-accent"
-            >
+            <ButtonLink href={`/teams/${teamId}/practice/new`}>New plan</ButtonLink>
+            <ButtonLink href={`/teams/${teamId}/games`} variant="secondary">
               Schedule
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       ) : (
-        <div className="panel-lit rounded-2xl border border-line bg-surface p-5">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <Card className="panel-lit p-5">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             {whenText(next.when, next.date)}
             {next.when !== "upcoming" ? ` · ${next.kind === "game" ? "Game" : "Practice"}` : ""}
           </p>
@@ -120,16 +114,13 @@ export function CoachToday({
               <div className="mt-4 flex gap-2.5">
                 <RunPracticeLink
                   href={`/teams/${teamId}/practice/${next.plan.id}/run`}
-                  className="flex-1 rounded-xl bg-accent py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
+                  className={buttonClass({ className: "flex-1" })}
                 >
                   Run practice
                 </RunPracticeLink>
-                <Link
-                  href={`/teams/${teamId}/practice/${next.plan.id}`}
-                  className="rounded-xl border border-line px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:border-accent hover:text-accent"
-                >
+                <ButtonLink href={`/teams/${teamId}/practice/${next.plan.id}`} variant="secondary">
                   Edit
-                </Link>
+                </ButtonLink>
               </div>
             </>
           ) : (
@@ -141,45 +132,39 @@ export function CoachToday({
                 {gameWhereWhen(next.game)}
               </p>
               <div className="mt-4 flex gap-2.5">
-                <Link
-                  href={`/teams/${teamId}/games/${next.game.id}`}
-                  className="flex-1 rounded-xl bg-accent py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-accent-hover"
-                >
+                <ButtonLink href={`/teams/${teamId}/games/${next.game.id}`} className="flex-1">
                   Open game
-                </Link>
-                <Link
-                  href={`/teams/${teamId}/scouting`}
-                  className="rounded-xl border border-line px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:border-accent hover:text-accent"
-                >
+                </ButtonLink>
+                <ButtonLink href={`/teams/${teamId}/scouting`} variant="secondary">
                   Scout
-                </Link>
+                </ButtonLink>
               </div>
             </>
           )}
-        </div>
+        </Card>
       )}
 
       {/* One line of lookahead, so the night-before view answers "and
           then what" without opening the schedule. */}
       {then && (
-        <Link
+        <CardLink
           href={
             then.kind === "practice"
               ? `/teams/${teamId}/practice/${then.plan.id}`
               : `/teams/${teamId}/games/${then.game.id}`
           }
-          className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3 transition-colors hover:border-[var(--line-strong)]"
+          className="px-4 py-3"
         >
-          <div className="min-w-0">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-              Then · {whenText(then.when, then.date)}
-            </p>
-            <p className="mt-0.5 truncate text-sm font-semibold text-foreground">
-              {then.kind === "practice" ? then.plan.title : gameLine(then.game)}
-            </p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <Eyebrow>Then · {whenText(then.when, then.date)}</Eyebrow>
+              <p className="mt-0.5 truncate text-sm font-semibold text-foreground">
+                {then.kind === "practice" ? then.plan.title : gameLine(then.game)}
+              </p>
+            </div>
+            <span className="shrink-0 text-xs font-extrabold text-foreground-mute">›</span>
           </div>
-          <span className="shrink-0 text-xs font-extrabold text-foreground-mute">›</span>
-        </Link>
+        </CardLink>
       )}
     </section>
   );

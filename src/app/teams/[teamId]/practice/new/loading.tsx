@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+
 export default function Loading() {
   return (
     <div className="flex flex-1 flex-col">
@@ -20,7 +22,7 @@ export default function Loading() {
           <div className="h-3 w-16 animate-pulse rounded-full bg-elevated" />
           <div className="mt-3 flex flex-wrap gap-1.5">
             {[0, 1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-8 w-28 animate-pulse rounded-full border border-line bg-[var(--raised)]" />
+              <div key={i} className="h-8 w-28 animate-pulse rounded-full border border-line bg-raised" />
             ))}
           </div>
         </div>
@@ -29,12 +31,12 @@ export default function Loading() {
           <div className="h-3 w-20 animate-pulse rounded-full bg-elevated" />
           <div className="grid grid-cols-2 gap-1.5">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl border border-line bg-[var(--raised)]" />
+              <div key={i} className="h-14 animate-pulse rounded-xl border border-line bg-raised" />
             ))}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-line bg-surface p-2">
+        <Card className="p-2">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
@@ -44,7 +46,7 @@ export default function Loading() {
               <div className="h-3 w-8 animate-pulse rounded-full bg-elevated" />
             </div>
           ))}
-        </div>
+        </Card>
       </main>
     </div>
   );

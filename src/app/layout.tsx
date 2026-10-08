@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ServiceWorker } from "@/components/service-worker";
 
 // Self-hosted rather than next/font/google: Google's loader fetches from
 // fonts.googleapis.com at build time, which fails in network-restricted
@@ -28,8 +29,6 @@ const bebas = localFont({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: "#f2efe9",
 };
 
@@ -53,7 +52,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`h-full antialiased ${archivo.variable} ${bebas.variable}`}>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <ServiceWorker />
+      </body>
     </html>
   );
 }

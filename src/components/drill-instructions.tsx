@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { haptic } from "@/lib/haptics";
+import { Button, buttonClass } from "@/components/ui/button";
 
 type Drill = {
   name: string;
@@ -61,18 +62,14 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
                   {drill.name}
                 </h3>
                 {drill.source_trainer && (
-                  <p className="mt-1 text-[10px] font-extrabold uppercase tracking-wider text-foreground-mute">
+                  <p className="mt-1 text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
                     {drill.source_trainer}
                   </p>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="shrink-0 rounded-lg border border-line px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
-              >
+              <Button variant="secondary" size="sm" onClick={() => setOpen(false)} className="shrink-0">
                 Close
-              </button>
+              </Button>
             </div>
 
             {drill.description && (
@@ -84,7 +81,7 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
                 {equipment.map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-foreground-dim"
+                    className="rounded-full border border-line bg-raised px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
                   >
                     {item}
                   </span>
@@ -129,7 +126,7 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
                 href={drill.video_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 block w-full rounded-xl border border-accent py-3 text-center text-sm font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent/10"
+                className={buttonClass({ variant: "secondary", size: "lg", block: true, className: "mt-6" })}
               >
                 Watch film ↗
               </a>
@@ -144,7 +141,7 @@ export function DrillInstructions({ drill }: { drill: Drill }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-5 border-t border-line pt-4">
-      <h4 className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+      <h4 className="mb-2.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
         {title}
       </h4>
       {children}

@@ -6,6 +6,8 @@ import { removeRosterPlayer, updateRosterPlayer } from "@/app/actions";
 import { rosterDisplayName, rosterPosition, isLinkedMember, type RosterMember } from "@/lib/basketball/team";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input, Select } from "@/components/ui/field";
 
 const POSITION_LABELS: Record<string, string> = Object.fromEntries(
   PRIMARY_POSITIONS.map((p) => [p.value, p.label])
@@ -60,22 +62,13 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
         <p className="text-sm text-foreground">
           Remove <strong>{name}</strong> from the roster?
         </p>
-        <div className="flex shrink-0 gap-3">
-          <button
-            type="button"
-            onClick={remove}
-            disabled={pending}
-            className="text-[11px] font-extrabold uppercase tracking-wide text-red-400 disabled:opacity-50"
-          >
+        <div className="flex shrink-0 gap-1">
+          <Button variant="danger" size="sm" onClick={remove} disabled={pending}>
             Remove
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirming(false)}
-            className="text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
-          >
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -86,44 +79,29 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
       <div className="rounded-xl border border-accent/40 bg-accent/5 p-3.5">
         <p className="text-sm font-bold text-foreground">{name}</p>
         <div className="mt-2 flex gap-2">
-          <input
-            value={jersey}
-            onChange={(e) => setJersey(e.target.value)}
-            placeholder="#"
-            className="w-16 rounded-lg border border-line bg-[var(--raised)] px-2 py-1.5 text-center text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
-          />
+          {/* The wrapper sets the width: Input is full-width by default. */}
+          <div className="w-16 shrink-0">
+            <Input value={jersey} onChange={(e) => setJersey(e.target.value)} placeholder="#" className="text-center" />
+          </div>
           {!linked && (
-            <select
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              className="flex-1 rounded-lg border border-line bg-[var(--raised)] px-2 py-1.5 text-sm text-foreground focus:border-accent focus:outline-none"
-            >
+            <Select value={position} onChange={(e) => setPosition(e.target.value)} className="flex-1">
               <option value="">No position set</option>
               {PRIMARY_POSITIONS.map((p) => (
                 <option key={p.value} value={p.value}>
                   {p.label}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
         </div>
-        {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
-        <div className="mt-2.5 flex gap-3">
-          <button
-            type="button"
-            onClick={save}
-            disabled={pending}
-            className="text-[11px] font-extrabold uppercase tracking-wide text-accent disabled:opacity-50"
-          >
+        {error && <FormError className="mt-1.5">{error}</FormError>}
+        <div className="mt-2.5 flex gap-2">
+          <Button variant="secondary" size="sm" onClick={save} disabled={pending}>
             {pending ? "Saving…" : "Save"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditing(false)}
-            className="text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
-          >
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -137,27 +115,19 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
         </span>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-foreground">{name}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
             {currentPosition ? POSITION_LABELS[currentPosition] ?? currentPosition : "No position"}
             {!linked && " · No account"}
           </p>
         </div>
       </div>
-      <div className="flex shrink-0 gap-3">
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
-        >
+      <div className="-mr-2 flex shrink-0">
+        <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
           Edit
-        </button>
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim transition-colors hover:text-red-400"
-        >
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
           Remove
-        </button>
+        </Button>
       </div>
     </div>
   );

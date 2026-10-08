@@ -6,6 +6,8 @@ import { primeAlerts, beepWarning, beepDone } from "@/lib/alerts";
 import { useWakeLock } from "@/lib/use-wake-lock";
 import type { RunnableStep } from "@/lib/basketball/practice";
 import { SessionWrapup, type WrapupRow } from "@/components/session-wrapup";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 function formatClock(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60)
@@ -212,14 +214,10 @@ export function PracticeRunner({
     <div className="theme-dark flex min-h-[100dvh] flex-col bg-background px-5 py-6 text-foreground">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
         <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={endPractice}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
+          <Button variant="ghost" size="sm" onClick={endPractice} className="-ml-3">
             ← End practice
-          </button>
-          <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          </Button>
+          <span className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
             {elapsedMinutes} / {totalMinutes} MIN
           </span>
         </div>
@@ -254,19 +252,19 @@ export function PracticeRunner({
                 <p className="font-display mt-8 text-center text-7xl tabular-nums text-foreground">
                   {formatClock(secondsLeft)}
                 </p>
-                <p className="mt-1 text-center text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+                <p className="mt-1 text-center text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
                   time on this drill
                 </p>
               </>
             ) : (
-              <div className="mt-8 rounded-2xl border border-line bg-surface p-5 text-center text-sm text-foreground-dim">
+              <Card className="mt-8 p-5 text-center text-sm text-foreground-dim">
                 No time set for this drill — tap Next when you&rsquo;re ready to move on.
-              </div>
+              </Card>
             )}
 
             {step.goal?.target ? (
-              <div className="mt-5 rounded-2xl border border-line bg-surface p-3.5">
-                <p className="text-[9.5px] font-extrabold uppercase tracking-wide text-foreground-mute">
+              <Card className="mt-5 p-3.5">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   Log the score — goal {step.goal.target}
                   {step.goal.unit ? ` ${step.goal.unit}` : ""}
                 </p>
@@ -275,22 +273,26 @@ export function PracticeRunner({
                     type="number"
                     value={scores[index] ?? ""}
                     onChange={(e) => setScores((prev) => ({ ...prev, [index]: e.target.value }))}
+                    // A tap here is a user gesture: unlock the drill-end beep with it.
+                    onFocus={primeAlerts}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.currentTarget.blur();
+                    }}
+                    enterKeyHint="done"
+                    inputMode="numeric"
                     placeholder="—"
-                    className="w-20 rounded-lg border border-[var(--line-strong)] bg-raised px-2 py-2 text-center font-display text-2xl text-foreground focus:border-accent focus:outline-none"
+                    className="w-20 rounded-lg border border-line-strong bg-raised px-2 py-2 text-center font-display text-2xl text-foreground focus:border-accent focus:outline-none"
                   />
                   {step.goal.unit && (
                     <span className="text-xs font-bold text-foreground-mute">{step.goal.unit}</span>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      primeAlerts();
-                      haptic("success");
-                    }}
-                    className="ml-auto shrink-0 rounded-lg bg-accent px-3.5 py-2 text-[10.5px] font-extrabold uppercase tracking-wide text-white"
-                  >
-                    Save
-                  </button>
+                  {/* Scores are kept as you go and saved together at the wrap-up;
+                      this used to be a "Save" button that saved nothing. */}
+                  {scores[index]?.trim() && (
+                    <span className="ml-auto shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-[var(--data-positive)]">
+                      ✓ Kept for the wrap-up
+                    </span>
+                  )}
                 </div>
                 {lastForStep !== undefined && (
                   <p className="mt-2 text-[11px] text-foreground-mute">
@@ -301,7 +303,7 @@ export function PracticeRunner({
                     </span>
                   </p>
                 )}
-              </div>
+              </Card>
             ) : null}
 
             {step.notes && (
@@ -310,6 +312,8 @@ export function PracticeRunner({
               </p>
             )}
 
+            {/* Prev / Pause / Next stay hand-built: gym-sized (py-4), with Pause
+                weighted wider, read from across the court. */}
             <div className="mt-auto flex gap-2.5 pt-8">
               <button
                 type="button"
@@ -323,7 +327,7 @@ export function PracticeRunner({
                 <button
                   type="button"
                   onClick={togglePause}
-                  className="flex-[1.4] rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-white"
+                  className="flex-[1.4] rounded-xl bg-accent py-4 text-[11px] font-extrabold uppercase tracking-wide text-on-accent"
                 >
                   {paused ? "Resume" : "Pause"}
                 </button>

@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { enrollInProgram } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/field";
 
 /**
  * Starting a program from its detail page. Confirms first when it would
@@ -38,13 +40,9 @@ export function EnrollButton({
 
   if (replacesExisting && !confirming) {
     return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="w-full rounded-xl border border-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent/10"
-      >
+      <Button variant="secondary" size="lg" block onClick={() => setConfirming(true)}>
         Switch to this program
-      </button>
+      </Button>
     );
   }
 
@@ -55,39 +53,25 @@ export function EnrollButton({
           You&rsquo;re part way through another program. Switching leaves that one behind —
           sessions you already logged stay in your history and still count.
         </p>
-        <div className="mt-3 flex justify-center gap-4">
-          <button
-            type="button"
-            onClick={enroll}
-            disabled={pending}
-            className="text-xs font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover disabled:opacity-50"
-          >
+        <div className="mt-3 flex justify-center gap-2">
+          <Button size="sm" onClick={enroll} disabled={pending}>
             {pending ? "Switching…" : "Switch anyway"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirming(false)}
-            className="text-xs font-bold uppercase tracking-wide text-foreground-dim transition-colors hover:text-foreground"
-          >
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
             Keep current
-          </button>
+          </Button>
         </div>
-        {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+        {error && <FormError className="mt-2">{error}</FormError>}
       </div>
     );
   }
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={enroll}
-        disabled={pending}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-50"
-      >
+      <Button size="lg" block onClick={enroll} disabled={pending}>
         {pending ? "Starting…" : "Start this program"}
-      </button>
-      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      </Button>
+      {error && <FormError className="mt-2">{error}</FormError>}
     </div>
   );
 }

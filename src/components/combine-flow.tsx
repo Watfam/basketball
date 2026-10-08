@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useLocalDraft } from "@/lib/use-local-draft";
 import { useRouter } from "next/navigation";
 import { submitCombine } from "@/app/actions";
 import {
@@ -15,6 +16,8 @@ import {
 import { RATING_CATEGORIES } from "@/lib/basketball/assessment";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 const CATEGORY_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -32,6 +35,18 @@ const CATEGORY_LABELS: Record<string, string> = {
  * categories they didn't measure keep their previous ratings rather than
  * being zeroed by absence.
  */
+type Progress = { index: number; scores: Record<string, number> };
+
+function parseProgress(raw: string | null): Progress {
+  try {
+    const p = JSON.parse(raw ?? "") as Partial<Progress>;
+    if (typeof p.index === "number" && p.scores && typeof p.scores === "object") return { index: p.index, scores: p.scores };
+  } catch {
+    // Nothing saved, or unreadable: start fresh.
+  }
+  return { index: 0, scores: {} };
+}
+
 export function CombineFlow({
   playerId,
   playerName,
@@ -50,8 +65,13 @@ export function CombineFlow({
   bandKnown: boolean;
 }) {
   const router = useRouter();
-  const [index, setIndex] = useState(0);
-  const [scores, setScores] = useState<Record<string, number>>({});
+  // Kept on the phone as tests are recorded, so a refresh or a stray tap
+  // on Back doesn't lose nine timed tests. Cleared once they're saved.
+  const [saved, setSaved] = useLocalDraft(`hl:combine:${playerId}`);
+  const progress = useMemo(() => parseProgress(saved), [saved]);
+  const { index, scores } = progress;
+  const setIndex = (next: (i: number) => number) =>
+    setSaved(JSON.stringify({ ...progress, index: next(progress.index) }));
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -74,9 +94,9 @@ export function CombineFlow({
     }
     haptic("step");
     setError(null);
-    setScores((prev) => ({ ...prev, [drill.id]: value }));
+    // One write: two separate ones would each start from the same old value.
+    setSaved(JSON.stringify({ index: index + 1, scores: { ...scores, [drill.id]: value } }));
     setDraft("");
-    setIndex((i) => i + 1);
   }
 
   function skip() {
@@ -106,6 +126,7 @@ export function CombineFlow({
         setError(result.error);
         return;
       }
+      setSaved(null);
       router.push(`/players/${playerId}/assessments`);
     });
   }
@@ -114,7 +135,7 @@ export function CombineFlow({
     return (
       <div className="mx-auto w-full max-w-md">
         <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             Your results
           </p>
           <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
@@ -128,7 +149,7 @@ export function CombineFlow({
               const delta = after - before;
               return (
                 <div key={cat.value} className="bg-surface px-4 py-3">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim">
                     {cat.label}
                   </p>
                   <div className="mt-1 flex items-baseline gap-2">
@@ -167,28 +188,19 @@ export function CombineFlow({
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={finish}
-            disabled={pending || recordedCount === 0}
-            className="mt-5 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover disabled:opacity-40 disabled:shadow-none"
-          >
+          <Button size="lg" block onClick={finish} disabled={pending || recordedCount === 0} className="mt-5">
             {pending ? "Saving…" : "Save my combine"}
-          </button>
+          </Button>
           {recordedCount === 0 && (
             <p className="mt-2 text-center text-xs text-foreground-dim">
               Record at least one test to save.
             </p>
           )}
-          {error && <p className="mt-2 text-center text-xs text-red-400">{error}</p>}
+          {error && <FormError className="mt-2 text-center">{error}</FormError>}
 
-          <button
-            type="button"
-            onClick={back}
-            className="mt-2 w-full text-center text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-          >
+          <Button variant="ghost" size="sm" block onClick={back} className="mt-2">
             Back
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -203,7 +215,7 @@ export function CombineFlow({
         <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
           {playerName}
         </p>
-        <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
           Test {index + 1} of {drills.length}
         </span>
       </div>
@@ -225,13 +237,13 @@ export function CombineFlow({
 
       {/* Named explicitly: a rating only means something if you know what
           it was measured against. */}
-      <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+      <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
         Scored against {BAND_LABELS[band] ?? band}
         {bandKnown ? "" : " — set age and gender for a closer match"}
       </p>
 
       <div className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           {CATEGORY_LABELS[drill.category] ?? drill.category}
         </p>
         <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-tight text-foreground">
@@ -247,7 +259,7 @@ export function CombineFlow({
             {(drill.equipment ?? []).map((e) => (
               <span
                 key={e}
-                className="rounded-full border border-line bg-[var(--raised)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-foreground-dim"
+                className="rounded-full border border-line bg-raised px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-foreground-dim"
               >
                 {e}
               </span>
@@ -257,7 +269,7 @@ export function CombineFlow({
 
         {(drill.cues ?? []).length > 0 && (
           <div className="mt-4 border-t border-line pt-4">
-            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent">
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">
               Rules
             </p>
             <ul className="space-y-1.5">
@@ -274,58 +286,46 @@ export function CombineFlow({
         <div className="mt-5 border-t border-line pt-4">
           <label
             htmlFor={`score-${drill.id}`}
-            className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.18em] text-accent"
+            className="mb-2 block text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent"
           >
             Your score — {scoreUnit(drill)}
           </label>
           <div className="flex items-center gap-3">
-            <input
+            <Input
               id={`score-${drill.id}`}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               inputMode="decimal"
               placeholder={drill.metric === "seconds" ? "13.2" : "24"}
-              className="w-full rounded-xl border border-line bg-[var(--raised)] px-3 py-3 font-display text-2xl text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+              className="rounded-xl py-3 font-display text-2xl"
             />
             {/* Live so a player sees what the number means before
                 committing to it, rather than only at the end. */}
             {previewRating !== null && (
               <div className="shrink-0 text-right">
                 <p className="font-display text-3xl leading-none text-accent">{previewRating}</p>
-                <p className="text-[9px] font-extrabold uppercase tracking-wide text-foreground-mute">
+                <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                   / 10
                 </p>
               </div>
             )}
           </div>
 
-          {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+          {error && <FormError className="mt-2">{error}</FormError>}
 
-          <button
-            type="button"
-            onClick={record}
-            className="mt-4 w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors hover:bg-accent-hover"
-          >
+          <Button size="lg" block onClick={record} className="mt-4">
             {index === drills.length - 1 ? "Record & review" : "Record & next"}
-          </button>
+          </Button>
 
-          <div className="mt-2 flex justify-center gap-5">
+          <div className="mt-2 flex justify-center gap-2">
             {index > 0 && (
-              <button
-                type="button"
-                onClick={back}
-                className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-              >
+              <Button variant="ghost" size="sm" onClick={back}>
                 Back
-              </button>
+              </Button>
             )}
-            <button
-              type="button"
-              onClick={skip}
-              className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute transition-colors hover:text-foreground-dim"
-            >
+            <Button variant="ghost" size="sm" onClick={skip}>
               Can&rsquo;t do this one
-            </button>
+            </Button>
           </div>
         </div>
       </div>

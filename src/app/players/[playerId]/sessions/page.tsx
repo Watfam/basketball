@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
+import { playerLevel } from "@/lib/basketball/assessment";
 import { SessionHistoryRow } from "@/components/session-history-row";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function SessionHistoryPage({
   params,
@@ -15,7 +17,7 @@ export default async function SessionHistoryPage({
   // Independent of each other — parallel instead of sequential.
   const [{ data: { user } }, { data: player }, { data: sessions }] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.schema("hoops").from("players").select("id, display_name").eq("id", playerId).maybeSingle(),
+    supabase.schema("hoops").from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
     // Every session regardless of status — this is the "nothing is lost"
     // view. The hub only ever surfaces the single most recent in-progress
     // session as a "continue" banner; anything older than that (or already
@@ -23,13 +25,14 @@ export default async function SessionHistoryPage({
     supabase
       .schema("hoops")
       .from("workout_sessions")
-      .select("id, status, started_at, completed_at, workouts(name, workout_drills(drill_id))")
+      .select("id, status, started_at, completed_at, workouts(name, workout_drills(drill_id, levels))")
       .eq("player_id", playerId)
       .order("started_at", { ascending: false }),
   ]);
 
   if (!user) redirect("/login");
   if (!player) notFound();
+  const level = playerLevel(player.player_type);
 
   const sessionIds = (sessions ?? []).map((s) => s.id);
   const { data: logs } = sessionIds.length
@@ -43,19 +46,11 @@ export default async function SessionHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            {sessions?.length ?? 0} {sessions?.length === 1 ? "session" : "sessions"}
-          </span>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          {sessions?.length ?? 0} {sessions?.length === 1 ? "session" : "sessions"}
+        </span>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
         <div className="mb-4">
@@ -74,11 +69,17 @@ export default async function SessionHistoryPage({
             subtitle="Start a workout from the hub and it'll show up here — finished or not."
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+          <Card className="overflow-hidden">
             {sessions.map((session, i) => {
               const workout = session.workouts as unknown as
-                | { name: string; workout_drills: unknown[] }
+                | { name: string; workout_drills: { levels: string[] | null }[] }
                 | null;
+              // Only the drills at the player's level: a workout holds every
+              // level's version of a slot, and counting them all made a
+              // finished session read "5/7".
+              const drillsAtLevel = (workout?.workout_drills ?? []).filter(
+                (d) => !d.levels || d.levels.length === 0 || d.levels.includes(level)
+              ).length;
               const date = session.completed_at ?? session.started_at;
 
               return (
@@ -87,7 +88,7 @@ export default async function SessionHistoryPage({
                   href={`/players/${playerId}/sessions/${session.id}`}
                   workoutName={workout?.name ?? "Workout"}
                   loggedCount={loggedCountBySession.get(session.id) ?? 0}
-                  totalDrills={workout?.workout_drills.length ?? 0}
+                  totalDrills={Math.max(drillsAtLevel, loggedCountBySession.get(session.id) ?? 0)}
                   dateLabel={
                     date
                       ? new Date(date).toLocaleDateString(undefined, {
@@ -101,7 +102,7 @@ export default async function SessionHistoryPage({
                 />
               );
             })}
-          </div>
+          </Card>
         )}
       </main>
     </div>

@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GameResultForm } from "@/components/game-result-form";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function GameDetailPage({
   params,
@@ -33,20 +33,11 @@ export default async function GameDetailPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href={`/teams/${teamId}/games`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Games
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/teams/${teamId}/games`, label: "Games" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
         <div className="mb-5">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             {game.location === "home" ? "Home" : game.location === "away" ? "Away" : "Neutral"} ·{" "}
             {dateLabel}
             {game.game_time ? ` · ${game.game_time}` : ""}

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SessionSummary } from "@/components/shot-summary";
 import { DeleteShotSessionButton } from "@/components/delete-shot-session-button";
 import { detectorAgreement, formatPercentage, type Shot } from "@/lib/basketball/shooting";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function ShotSessionPage({
   params,
@@ -52,16 +52,7 @@ export default async function ShotSessionPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href={`/players/${playerId}/shooting`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Shooting
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}/shooting`, label: "Shooting" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-6 px-4 py-5 sm:py-8">
         <section className="rounded-3xl border border-line bg-surface p-6">

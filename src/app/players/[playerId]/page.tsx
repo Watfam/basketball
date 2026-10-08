@@ -15,6 +15,9 @@ import { CombinePrompt } from "@/components/combine-prompt";
 import { ProgramOffer, type OfferedProgram } from "@/components/program-offer";
 import { PlayerHubTabs } from "@/components/player-hub-tabs";
 import { Avatar } from "@/components/avatar";
+import { buttonClass } from "@/components/ui/button";
+import { Card, CardLink, CardSection } from "@/components/ui/card";
+import { HeaderLink } from "@/components/ui/page-header";
 import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import {
   computeProgramProgress,
@@ -359,15 +362,10 @@ export default async function PlayerHubPage({
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}/sessions`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            History
-          </Link>
+          <HeaderLink href={`/players/${playerId}/sessions`}>History</HeaderLink>
           {/* Your picture: the one place to change who is using the phone. */}
           <Link href="/" aria-label={`${player.display_name}: switch profile`} className="flex items-center gap-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Switch</span>
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Switch</span>
             <Avatar id={playerId} name={player.display_name} size={32} />
           </Link>
         </div>
@@ -376,7 +374,7 @@ export default async function PlayerHubPage({
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
         {unfinished.length > 0 && (
           <section>
-            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
               {unfinished.length === 1
                 ? "Unfinished session"
                 : `${unfinished.length} unfinished sessions`}
@@ -435,9 +433,9 @@ export default async function PlayerHubPage({
         <section className="animate-rise">
           <Link
             href={`/players/${playerId}/shooting`}
-            className="panel-lit block overflow-hidden rounded-3xl border border-line bg-surface p-5 transition-colors hover:border-[var(--line-strong)]"
+            className="panel-lit block overflow-hidden rounded-3xl border border-line bg-surface p-5 transition-colors hover:border-line-strong"
           >
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Count your shots</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Count your shots</p>
             <div className="mt-2 flex items-end justify-between gap-3">
               <div className="min-w-0">
                 {seasonShots.attempts > 0 ? (
@@ -461,7 +459,7 @@ export default async function PlayerHubPage({
                   </>
                 )}
               </div>
-              <span className="shrink-0 rounded-xl bg-accent px-4 py-3 text-xs font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)]">
+              <span className={buttonClass({ size: "md", className: "shrink-0 shadow-lg shadow-[var(--glow)]" })}>
                 Shoot
               </span>
             </div>
@@ -477,7 +475,7 @@ export default async function PlayerHubPage({
 
         {/* Directly under the hero rather than buried at the bottom of the
             page. A quote nobody scrolls to isn't doing anything. */}
-        <blockquote className="animate-rise relative overflow-hidden rounded-2xl border-l-[3px] border-accent bg-[var(--raised)] py-4 pl-5 pr-5">
+        <blockquote className="animate-rise relative overflow-hidden rounded-2xl border-l-[3px] border-accent bg-raised py-4 pl-5 pr-5">
           <span
             className="font-display pointer-events-none absolute -right-2 -top-6 select-none text-[7rem] leading-none text-accent opacity-[0.07]"
             aria-hidden
@@ -487,7 +485,7 @@ export default async function PlayerHubPage({
           <p className="relative text-[0.95rem] font-semibold leading-snug text-foreground">
             {quote.text}
           </p>
-          <p className="relative mt-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-accent">
+          <p className="relative mt-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">
             {quote.author}
           </p>
         </blockquote>
@@ -542,7 +540,7 @@ export default async function PlayerHubPage({
             <EmptyState
               eyebrow="No workouts yet"
               title="No curated content yet"
-              subtitle="The workout library hasn't been seeded for this project yet — see supabase/seed_content.sql."
+              subtitle="The workouts aren't loaded yet. Ask your coach to set them up."
             />
           )}
         </section>
@@ -566,7 +564,7 @@ export default async function PlayerHubPage({
               className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-accent bg-accent/10 px-4 py-3 transition-colors hover:bg-accent/20"
             >
               <div className="min-w-0">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
                   Time to re-rate
                 </p>
                 <p className="mt-0.5 text-xs leading-relaxed text-foreground-dim">
@@ -614,7 +612,7 @@ export default async function PlayerHubPage({
         {recentSessions && recentSessions.length > 0 && (
           <section className="animate-rise" style={{ animationDelay: "280ms" }}>
             <SectionHeading title="Recent Sessions" />
-            <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            <Card className="overflow-hidden">
               {recentSessions.map((session, i) => {
                 const workoutName =
                   (session.workouts as unknown as { name: string } | null)?.name ?? "Workout";
@@ -641,7 +639,7 @@ export default async function PlayerHubPage({
                   </div>
                 );
               })}
-            </div>
+            </Card>
             <Link
               href={`/players/${playerId}/sessions`}
               className="mt-2.5 inline-block text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent transition-colors hover:text-accent-hover"
@@ -656,13 +654,13 @@ export default async function PlayerHubPage({
             <div className="space-y-4">
         <section className="animate-rise" style={{ animationDelay: "180ms" }}>
           <SectionHeading title="Film Room" caption={`${filmStudiedCount} studied`} />
-          <Link
+          <CardLink
             href={
               filmUpNextId
                 ? `/players/${playerId}/film?lesson=${filmUpNextId}`
                 : `/players/${playerId}/film`
             }
-            className="panel-lit block overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-[var(--line-strong)]"
+            className="panel-lit overflow-hidden p-4"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -679,13 +677,13 @@ export default async function PlayerHubPage({
                 Open →
               </span>
             </div>
-          </Link>
+          </CardLink>
         </section>
             </div>
           }
           profile={
             <div className="space-y-4">
-        <section className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <CardSection className="overflow-hidden">
           {[
             { href: `/players/${playerId}/assessments`, label: "Ratings history", sub: "Every self-rating, and how your game has changed" },
             { href: `/players/${playerId}/assessment`, label: "Rate yourself again", sub: "Updates your card and what gets recommended" },
@@ -696,7 +694,7 @@ export default async function PlayerHubPage({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-[var(--raised)] ${
+              className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised ${
                 i ? "border-t border-line" : ""
               }`}
             >
@@ -709,16 +707,16 @@ export default async function PlayerHubPage({
               </span>
             </Link>
           ))}
-        </section>
+        </CardSection>
         <section className="animate-rise" style={{ animationDelay: "240ms" }}>
           <SectionHeading title="Training Level" caption="Sets how hard your sessions run" />
-          <div className="rounded-2xl border border-line bg-surface p-4">
+          <Card className="p-4">
             <LevelPicker
               playerId={playerId}
               currentLevel={currentLevel}
               isSuggested={!playerType.preferred_level}
             />
-          </div>
+          </Card>
         </section>
             </div>
           }
@@ -735,7 +733,7 @@ function SectionHeading({ title, caption }: { title: string; caption?: string })
         {title}
       </h2>
       {caption && (
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+        <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {caption}
         </span>
       )}

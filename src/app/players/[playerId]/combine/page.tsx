@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CombineFlow } from "@/components/combine-flow";
@@ -6,6 +5,7 @@ import { BenchmarkSetup } from "@/components/benchmark-setup";
 import { EmptyState } from "@/components/empty-state";
 import { benchmarkBand, type CombineDrill } from "@/lib/basketball/combine";
 import type { Ratings } from "@/lib/basketball/rating";
+import { PageHeader } from "@/components/ui/page-header";
 
 const EMPTY_RATINGS: Ratings = { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 };
 
@@ -51,26 +51,18 @@ export default async function CombinePage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <Link
-            href={`/players/${playerId}`}
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← {player.display_name}
-          </Link>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-            Combine
-          </span>
-        </div>
-      </header>
+      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
+          Combine
+        </span>
+      </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
         {drills.length === 0 ? (
           <EmptyState
             eyebrow="No tests loaded"
             title="The combine hasn't been seeded"
-            subtitle="Run supabase/seed_0011_combine_drills.sql to load the tests."
+            subtitle="The combine tests aren't loaded yet. Ask your coach to set them up."
           />
         ) : (
           <>

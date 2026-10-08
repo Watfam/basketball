@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
@@ -63,20 +65,11 @@ export default async function CameraLabPage() {
     <div className="flex flex-1 flex-col">
       {/* Being here is coach work: make Coach the active profile. */}
       <RememberProfile profile={{ kind: "coach", teamId: firstTeam?.id ?? null }} />
-      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
-        <div className="mx-auto w-full max-w-md">
-          <Link
-            href="/coach"
-            className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
-          >
-            ← Coach
-          </Link>
-        </div>
-      </header>
+      <PageHeader back={{ href: "/coach", label: "Coach" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-5 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
             Camera lab
           </h1>
@@ -87,25 +80,19 @@ export default async function CameraLabPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
-          <Link
-            href="/lab/detector"
-            className="rounded-2xl border border-line bg-surface px-4 py-4 text-center text-xs font-extrabold uppercase tracking-wide text-foreground"
-          >
+          <ButtonLink href="/lab/detector" variant="secondary" size="lg">
             Detector lab
-          </Link>
-          <Link
-            href="/lab/calibrate"
-            className="rounded-2xl bg-accent px-4 py-4 text-center text-xs font-extrabold uppercase tracking-wide text-white"
-          >
+          </ButtonLink>
+          <ButtonLink href="/lab/calibrate" size="lg">
             Calibrate
-          </Link>
+          </ButtonLink>
         </div>
 
         {byVersion.size > 0 && (
           <section className="space-y-2">
             <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Accuracy</h2>
             {[...byVersion.entries()].map(([version, v]) => (
-              <div key={version} className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3">
+              <Card key={version} className="flex items-center justify-between px-4 py-3">
                 <div>
                   <p className="text-sm font-semibold text-foreground">Rule {version}</p>
                   <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
@@ -115,7 +102,7 @@ export default async function CameraLabPage() {
                 <p className="font-display text-3xl leading-none text-foreground">
                   {formatPercentage(percentage(v.agreed, v.shots))}
                 </p>
-              </div>
+              </Card>
             ))}
           </section>
         )}
@@ -131,7 +118,7 @@ export default async function CameraLabPage() {
               subtitle="Shoot a set with the camera counting, write down every result, and calibrate it here."
             />
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+            <Card className="overflow-hidden">
               {runs.map((r, i) => (
                 <div key={r.id} className={`px-4 py-3 ${i ? "border-t border-line" : ""}`}>
                   <div className="flex items-baseline justify-between gap-3">
@@ -150,7 +137,7 @@ export default async function CameraLabPage() {
                   <DeleteCalibrationButton id={r.id} />
                 </div>
               ))}
-            </div>
+            </Card>
           )}
         </section>
       </main>

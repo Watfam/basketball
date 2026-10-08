@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createTeam, updateTeam } from "@/app/actions";
 import { DEFENSIVE_SCHEMES, OFFENSIVE_SCHEMES, TEAM_FOCUS_AREAS } from "@/lib/basketball/taxonomy";
 import { haptic } from "@/lib/haptics";
+import { Button } from "@/components/ui/button";
+import { FormError, Input } from "@/components/ui/field";
 
 type ExistingTeam = {
   id: string;
@@ -68,7 +70,7 @@ export function TeamForm({ existing }: { existing?: ExistingTeam }) {
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Team Name
         </p>
         <input
@@ -98,7 +100,7 @@ export function TeamForm({ existing }: { existing?: ExistingTeam }) {
       />
 
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
           Season Focus
         </p>
         <p className="mt-1 text-xs text-foreground-dim">
@@ -113,7 +115,7 @@ export function TeamForm({ existing }: { existing?: ExistingTeam }) {
               className={`rounded-xl border px-3 py-2.5 text-left text-xs font-bold leading-tight transition-colors ${
                 focusAreas.includes(f.value)
                   ? "border-accent bg-accent/10 text-accent"
-                  : "border-line bg-[var(--raised)] text-foreground-dim hover:border-accent/50"
+                  : "border-line bg-raised text-foreground-dim hover:border-accent/50"
               }`}
             >
               {f.label}
@@ -122,16 +124,11 @@ export function TeamForm({ existing }: { existing?: ExistingTeam }) {
         </div>
       </section>
 
-      {error && <p className="text-center text-sm text-red-400">{error}</p>}
+      {error && <FormError className="text-center">{error}</FormError>}
 
-      <button
-        type="button"
-        onClick={submit}
-        disabled={pending || !name.trim()}
-        className="w-full rounded-xl bg-accent py-3.5 text-sm font-extrabold uppercase tracking-[0.12em] text-white shadow-lg shadow-[var(--glow)] transition-colors hover:bg-accent-hover active:scale-[0.99] disabled:opacity-40 disabled:shadow-none"
-      >
+      <Button size="lg" block onClick={submit} disabled={pending || !name.trim()}>
         {pending ? "Saving…" : existing ? "Save changes" : "Create team"}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -153,7 +150,7 @@ function SchemeSection({
 }) {
   return (
     <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-      <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent">{title}</p>
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">{title}</p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {options.map((opt) => (
           <button
@@ -166,7 +163,7 @@ function SchemeSection({
             className={`rounded-xl border px-3 py-2.5 text-left text-xs font-bold leading-tight transition-colors ${
               value === opt.value
                 ? "border-accent bg-accent/10 text-accent"
-                : "border-line bg-[var(--raised)] text-foreground-dim hover:border-accent/50"
+                : "border-line bg-raised text-foreground-dim hover:border-accent/50"
             }`}
           >
             {opt.label}
@@ -174,11 +171,11 @@ function SchemeSection({
         ))}
       </div>
       {value === "custom" && (
-        <input
+        <Input
           value={customValue}
           onChange={(e) => onCustomChange(e.target.value)}
           placeholder="Name your scheme"
-          className="mt-3 w-full rounded-lg border border-line bg-[var(--raised)] px-3 py-2 text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+          className="mt-3"
         />
       )}
     </section>

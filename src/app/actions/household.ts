@@ -1,0 +1,126 @@
+"use server";
+
+/** The family: households and players, and signing out. */
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
+
+/**
+ * Combined first-run flow: "Set up your family." Creates the household and
+ * the first player profile together in one submit, so a new user never sees
+ * a bare "create household" screen with nothing in it yet. Every player
+ * added after this one goes through `addPlayer` instead.
+ */
+export async function createHouseholdWithFirstPlayer(formData: FormData) {
+  const householdName = String(formData.get("household_name") ?? "").trim();
+  const displayName = String(formData.get("display_name") ?? "").trim();
+  const birthYearRaw = String(formData.get("birth_year") ?? "").trim();
+  const primaryPosition = String(formData.get("primary_position") ?? "").trim();
+
+  if (!householdName) return { error: "Household name is required." };
+  if (!displayName) return { error: "Player name is required." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const { data: household, error: householdError } = await supabase
+    .schema("hoops")
+    .from("households")
+    .insert({ owner_id: user.id, name: householdName })
+    .select("id")
+    .single();
+
+  if (householdError) return { error: householdError.message };
+
+  const { data: player, error: playerError } = await supabase
+    .schema("hoops")
+    .from("players")
+    .insert({
+      household_id: household.id,
+      display_name: displayName,
+      birth_year: birthYearRaw ? Number(birthYearRaw) : null,
+      primary_position: primaryPosition || null,
+    })
+    .select("id")
+    .single();
+
+  if (playerError) return { error: playerError.message };
+
+  revalidatePath("/");
+  return { error: null, playerId: player.id as string };
+}
+
+export async function addPlayer(formData: FormData) {
+  const householdId = String(formData.get("household_id") ?? "");
+  const displayName = String(formData.get("display_name") ?? "").trim();
+  const birthYearRaw = String(formData.get("birth_year") ?? "").trim();
+  const primaryPosition = String(formData.get("primary_position") ?? "").trim();
+
+  if (!householdId || !displayName) {
+    return { error: "Player name is required." };
+  }
+
+  const supabase = await createClient();
+  const { data: player, error } = await supabase
+    .schema("hoops")
+    .from("players")
+    .insert({
+      household_id: householdId,
+      display_name: displayName,
+      birth_year: birthYearRaw ? Number(birthYearRaw) : null,
+      primary_position: primaryPosition || null,
+    })
+    .select("id")
+    .single();
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null, playerId: player.id as string };
+}
+
+/**
+ * Removes a single player profile and everything nested under it
+ * (assessments, workout sessions — cascades via FK) without touching the
+ * household. RLS (players_household_owner_all) already scopes this to
+ * players in the caller's own household, so there's nothing extra to
+ * check here.
+ */
+export async function removePlayer(playerId: string) {
+  if (!playerId) return { error: "Missing player." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("players").delete().eq("id", playerId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null };
+}
+
+/**
+ * Deletes the caller's household and every player nested under it
+ * (cascades via FK). RLS (household_owner_all) already scopes this to
+ * households the caller owns.
+ */
+export async function deleteHousehold(householdId: string) {
+  if (!householdId) return { error: "Missing household." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("hoops").from("households").delete().eq("id", householdId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/");
+  return { error: null };
+}

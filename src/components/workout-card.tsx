@@ -1,6 +1,7 @@
 import { StartSessionButton } from "@/components/start-session-button";
 import { computeWorkoutDifficulty } from "@/lib/basketball/workout-matching";
 import { type LevelTarget } from "@/lib/basketball/prescription";
+import { Card } from "@/components/ui/card";
 
 const SKILL_LABELS: Record<string, string> = {
   ball_handling: "Ball Handling",
@@ -77,14 +78,14 @@ export function WorkoutCard({
   const pips = difficulty ? DIFFICULTY_PIPS[difficulty] : 0;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+    <Card id={`workout-${workout.id}`} className="scroll-mt-16 overflow-hidden">
       <div className="px-5 pt-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             {workout.focus_areas?.map((area) => (
               <span
                 key={area}
-                className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-accent"
+                className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent"
               >
                 {SKILL_LABELS[area] ?? area}
               </span>
@@ -102,7 +103,7 @@ export function WorkoutCard({
                   />
                 ))}
               </div>
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-foreground-mute">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
                 {DIFFICULTY_LABELS[difficulty]}
               </span>
             </div>
@@ -139,7 +140,7 @@ export function WorkoutCard({
                   )}
                 </p>
                 {drill.source_trainer && (
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground-mute">
+                  <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
                     {drill.source_trainer}
                   </p>
                 )}
@@ -155,7 +156,7 @@ export function WorkoutCard({
                     href={drill.video_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] font-extrabold uppercase tracking-wider text-accent transition-colors hover:text-accent-hover"
+                    className="text-[11px] font-extrabold uppercase tracking-wider text-accent transition-colors hover:text-accent-hover"
                   >
                     Film ↗
                   </a>
@@ -171,7 +172,7 @@ export function WorkoutCard({
           <StartSessionButton playerId={playerId} workoutId={workout.id} fullWidth />
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -179,7 +180,7 @@ function Metric({ value, unit }: { value: string; unit: string }) {
   return (
     <div className="flex items-baseline gap-1">
       <span className="font-display text-lg leading-none text-foreground">{value}</span>
-      <span className="text-[10px] font-extrabold uppercase tracking-wider text-foreground-mute">
+      <span className="text-[11px] font-extrabold uppercase tracking-wider text-foreground-mute">
         {unit}
       </span>
     </div>

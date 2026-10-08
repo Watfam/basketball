@@ -1,3 +1,5 @@
+import { Card } from "@/components/ui/card";
+
 export default function Loading() {
   return (
     <div className="flex flex-1 flex-col">
@@ -9,7 +11,7 @@ export default function Loading() {
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-5 px-4 py-5 sm:py-8">
         <div className="h-6 w-28 animate-pulse rounded-full bg-elevated" />
-        <div className="h-14 animate-pulse rounded-2xl border border-line bg-surface" />
+        <Card className="h-14 animate-pulse" />
         <div className="space-y-2">
           <div className="h-3 w-24 animate-pulse rounded-full bg-elevated" />
           <div className="flex flex-wrap gap-1.5">
