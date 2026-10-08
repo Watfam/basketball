@@ -85,7 +85,7 @@ export default async function ProgramDetailPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/players/${playerId}`, label: "Back" }} />
+      <PageHeader back={{ href: `/players/${playerId}/workouts`, label: "Train" }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]">

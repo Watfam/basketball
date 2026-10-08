@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { syncShotSession, deleteShotSession } from "@/app/actions";
 import {
@@ -593,12 +592,6 @@ export function ShootingHub({
     <div className="space-y-6">
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
-        <p className="mt-1 text-xs font-bold text-foreground-dim">
-          Shooting as <span className="text-foreground">{playerName.trim().split(/\s+/)[0]}</span> ·{" "}
-          <Link href="/" className="font-extrabold uppercase tracking-wide text-accent">
-            Switch
-          </Link>
-        </p>
         {recent.length > 0 && (
           <div className="mt-3">
             <Eyebrow className="mb-1.5">

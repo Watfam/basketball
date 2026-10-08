@@ -34,6 +34,8 @@ export async function enrollInProgram(playerId: string, programId: string) {
   if (error) return { error: error.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 
@@ -58,6 +60,8 @@ export async function completeProgram(playerId: string) {
   if (error) return { error: error.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 
@@ -80,6 +84,8 @@ export async function leaveProgram(playerId: string) {
   if (error) return { error: error.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 

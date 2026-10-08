@@ -177,5 +177,7 @@ export async function setPreferredLevel(playerId: string, level: SkillLevel) {
   if (error) return { error: error.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }

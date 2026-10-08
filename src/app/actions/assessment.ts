@@ -64,6 +64,7 @@ export async function submitAssessment(
 
   revalidatePath("/");
   revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null, computed };
 }
 
@@ -102,6 +103,7 @@ export async function setPlayerProfile(
 
   revalidatePath(`/players/${playerId}/combine`);
   revalidatePath(`/players/${playerId}`);
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }
 
@@ -176,6 +178,8 @@ export async function submitCombine(
   if (updateError) return { error: updateError.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   revalidatePath(`/players/${playerId}/assessments`);
   return { error: null };
 }
@@ -210,5 +214,7 @@ export async function snoozeCombine(playerId: string) {
   if (error) return { error: error.message };
 
   revalidatePath(`/players/${playerId}`);
+
+  revalidatePath(`/players/${playerId}/me`);
   return { error: null };
 }

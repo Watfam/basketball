@@ -24,9 +24,9 @@ export function TrainingLoadPanel({
       <div className="flex items-start justify-between gap-3 px-5 pt-5">
         <div>
           <h2 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
-            Training Load
+            Your work
           </h2>
-          <p className="mt-1 text-xs text-foreground-dim">Sessions completed per week</p>
+          <p className="mt-1 text-xs text-foreground-dim">Workouts, shooting, film and the combine, per week</p>
         </div>
 
         <div className="shrink-0 text-right">
@@ -39,7 +39,7 @@ export function TrainingLoadPanel({
               hitTarget ? "text-[var(--data-positive)]" : "text-foreground-mute"
             }`}
           >
-            {hitTarget ? "Target hit" : "This week"}
+            {hitTarget ? "Target hit" : "Days this week"}
           </p>
         </div>
       </div>

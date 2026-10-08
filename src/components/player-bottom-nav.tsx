@@ -17,7 +17,7 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
     "aria-hidden": true,
   };
   switch (tab) {
-    case "home":
+    case "today":
       return (
         <svg {...common}>
           <path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z" />

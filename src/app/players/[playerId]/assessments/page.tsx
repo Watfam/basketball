@@ -66,7 +66,7 @@ export default async function AssessmentHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+      <PageHeader back={{ href: `/players/${playerId}/me`, label: "Me" }}>
         <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
           {assessments.length} {assessments.length === 1 ? "check-in" : "check-ins"}
         </span>

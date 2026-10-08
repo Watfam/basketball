@@ -1,22 +1,22 @@
 import { Card } from "@/components/ui/card";
 
+/** Today's shape: header, the week, the next-up card, two quick starts. */
 export default function Loading() {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b border-line px-6 py-4">
-        <div className="h-3 w-12 animate-pulse rounded-full bg-elevated" />
+      <header className="border-b border-line px-5 py-2.5">
+        <div className="mx-auto flex max-w-lg items-center gap-2.5">
+          <div className="h-8 w-8 animate-pulse rounded-full bg-elevated" />
+          <div className="h-4 w-32 animate-pulse rounded-full bg-elevated" />
+        </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-8 px-4 py-8 sm:py-12">
-        <div className="h-64 animate-pulse rounded-3xl border-2 border-line bg-elevated" />
-        <Card className="h-16 animate-pulse" />
-        <div>
-          <div className="h-3 w-20 animate-pulse rounded-full bg-elevated" />
-          <Card className="mt-3 h-40 animate-pulse" />
-        </div>
-        <div>
-          <div className="h-3 w-32 animate-pulse rounded-full bg-elevated" />
-          <div className="mt-3 h-14 animate-pulse rounded-xl border border-line bg-surface" />
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
+        <Card className="h-24 animate-pulse" />
+        <div className="h-56 animate-pulse rounded-3xl border border-line bg-elevated" />
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="h-28 animate-pulse" />
+          <Card className="h-28 animate-pulse" />
         </div>
       </main>
     </div>

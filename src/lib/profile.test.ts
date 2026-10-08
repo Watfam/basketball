@@ -25,13 +25,15 @@ test("each profile has a home", () => {
 
 test("the bottom bar lights the right tab and hides on full-screen screens", () => {
   const b = `/players/${id}`;
-  assert.equal(activePlayerTab(b, id), "home");
+  assert.equal(activePlayerTab(b, id), "today");
   assert.equal(activePlayerTab(`${b}/shooting/abc`, id), "shoot");
-  assert.equal(activePlayerTab(`${b}/film/sessions/x`, id), "film");
+  assert.equal(activePlayerTab(`${b}/film/sessions/x`, id), "train");
   assert.equal(activePlayerTab(`${b}/workouts`, id), "train");
+  assert.equal(activePlayerTab(`${b}/sessions`, id), "train");
+  assert.equal(activePlayerTab(`${b}/me`, id), "me");
   assert.equal(activePlayerTab(`${b}/assessments`, id), "me");
   assert.equal(activePlayerTab(b, id, "tab=profile"), "me");
-  assert.equal(activePlayerTab(b, id, "from=coach"), "home");
+  assert.equal(activePlayerTab(b, id, "from=coach"), "today");
   assert.equal(activePlayerTab("/teams/x", id), null);
   assert.equal(isImmersivePlayerRoute(`${b}/sessions/abc`), true);
   assert.equal(isImmersivePlayerRoute(`${b}/assessment`), true);

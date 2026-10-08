@@ -51,7 +51,7 @@ export default async function CombinePage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/players/${playerId}`, label: player.display_name }}>
+      <PageHeader back={{ href: `/players/${playerId}/me`, label: "Me" }}>
         <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
           Combine
         </span>
