@@ -36,6 +36,12 @@ export function createCountingCore(options: {
   scale: number;
   /** Measure the size from the ball; off for the exam clips. */
   autoSize: boolean;
+  /**
+   * When a new size applies. Live: between shots. A saved clip's quick
+   * sizing pass (the camera lab) applies it at once, since it isn't
+   * counting yet.
+   */
+  rescale?: "between-shots" | "at-once";
 }) {
   const { frameW, frameH, rim } = options;
   const clamp = (s: number) => Math.min(SCALE_LIMITS[1], Math.max(SCALE_LIMITS[0], s));
@@ -65,6 +71,7 @@ export function createCountingCore(options: {
      * keep `counted` ones) and whether the window changed for the next.
      */
     push(timeMs: number, balls: Box[]): { calls: ShotCall[]; windowChanged: boolean } {
+      const atOnce = options.rescale === "at-once";
       // Not while a new size waits: those sightings are at the old size.
       if (sizer && !sizerDone && pending === null) {
         const st = sizer.push(timeMs, balls, win.rim);
@@ -82,7 +89,7 @@ export function createCountingCore(options: {
       const calls = counter.push(timeMs, balls);
 
       let windowChanged = false;
-      if (pending !== null && counter.isIdle()) {
+      if (pending !== null && (atOnce || counter.isIdle())) {
         scale = pending;
         pending = null;
         win = hoopWindow(frameW, frameH, rim, scale);
