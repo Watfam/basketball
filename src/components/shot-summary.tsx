@@ -27,9 +27,11 @@ export function ShotStrip({
         const mark = s.made
           ? "border-[var(--data-positive)] bg-[var(--data-positive)]"
           : "border-foreground-mute bg-transparent";
-        const label = `Shot ${s.seq}: ${s.made ? "made" : "missed"}${
+        const label = `Shot ${s.seq}: ${s.made ? "made" : "missed"}${s.flagged ? ", camera not sure" : ""}${
           onToggle ? ". Tap to change." : ""
         }`;
+        // The camera's unsure calls carry a ring, so they're easy to find and check.
+        const ring = s.flagged ? " ring-2 ring-accent ring-offset-2 ring-offset-background" : "";
         return onToggle ? (
           <button
             key={s.seq}
@@ -37,14 +39,14 @@ export function ShotStrip({
             role="listitem"
             aria-label={label}
             onClick={() => onToggle(s.seq)}
-            className={`h-6 w-6 rounded-full border-2 transition-transform active:scale-90 ${mark}`}
+            className={`h-6 w-6 rounded-full border-2 transition-transform active:scale-90 ${mark}${ring}`}
           />
         ) : (
           <span
             key={s.seq}
             role="listitem"
             aria-label={label}
-            className={`h-4 w-4 rounded-full border-2 ${mark}`}
+            className={`h-4 w-4 rounded-full border-2 ${mark}${ring}`}
           />
         );
       })}

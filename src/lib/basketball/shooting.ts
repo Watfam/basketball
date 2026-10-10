@@ -40,6 +40,12 @@ export type Shot = {
    * Kept so detector accuracy can be measured from real use.
    */
   detectedMade: boolean | null;
+  /** Camera only: the rule wasn't sure (src/lib/vision/shotRules.ts FLAG); worth a look. */
+  flagged?: boolean;
+  /** Camera only: ms from the start of the set to the ball reaching the rim. */
+  tMs?: number;
+  /** In a camera set, a shot the player added because the camera missed it. */
+  addedByHand?: boolean;
 };
 
 /** Seq is always 1..n with no gaps, so a snapshot can be upserted on it. */
@@ -52,9 +58,10 @@ export function addShot(
   made: boolean,
   zone: ZoneKey | null,
   source: ShotSource = "manual",
-  detectedMade: boolean | null = null
+  detectedMade: boolean | null = null,
+  extra: Pick<Shot, "flagged" | "tMs" | "addedByHand"> = {}
 ): Shot[] {
-  return [...shots, { seq: shots.length + 1, made, zone, source, detectedMade }];
+  return [...shots, { seq: shots.length + 1, made, zone, source, detectedMade, ...extra }];
 }
 
 export function undoLastShot(shots: Shot[]): Shot[] {

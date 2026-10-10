@@ -28,6 +28,11 @@ import { haptic } from "@/lib/haptics";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { useWakeLock } from "@/lib/use-wake-lock";
 import { SessionSummary, ShotStrip } from "@/components/shot-summary";
+import { CameraPanel } from "@/components/camera-panel";
+import { useCameraCounter } from "@/lib/vision/use-camera-counter";
+import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
+import { CAMERA_TRIAL_KEY } from "@/lib/vision/camera-trial";
+import type { ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
@@ -57,6 +62,10 @@ type Draft = {
   goal?: Goal | null;
   /** Drafts from the first version of this, which only counted shots. */
   stopAt?: number | null;
+  /** Counted by the camera (taps can still add a shot it missed). */
+  mode?: "camera";
+  /** Where the rim was aimed, as fractions of the picture, once counting started. */
+  camera?: { rimX: number; rimY: number } | null;
   /** Bumped on every edit; a session is synced once syncedRev catches up. */
   rev: number;
   syncedRev: number;
@@ -65,6 +74,8 @@ type Draft = {
 type SyncState = "saved" | "saving" | "offline";
 
 const SOUND_KEY = "hl:shots:sound";
+/** "camera" or "tap": the last way of counting chosen. */
+const COUNT_KEY = "hl:shots:count";
 const GOAL_KEY = "hl:shots:goal";
 /** The first version stored only a shot count, here. */
 const LEGACY_STOP_AT_KEY = "hl:shots:stopAt";
@@ -159,6 +170,14 @@ export function ShootingHub({
   const [recentRaw, setRecentRaw] = useLocalDraft(recentKey(playerId));
   const recent = useMemo(() => parseRecent(recentRaw), [recentRaw]);
 
+  const [trialRaw] = useLocalDraft(CAMERA_TRIAL_KEY);
+  const cameraAllowed = trialRaw === "on";
+  const [countRaw, setCountRaw] = useLocalDraft(COUNT_KEY);
+  const countWithCamera = cameraAllowed && countRaw === "camera";
+  // The last call, shown big for a moment: the shooter is 15 feet away.
+  const [lastCall, setLastCall] = useState<{ made: boolean; flagged: boolean; at: number } | null>(null);
+  const [reviewing, setReviewing] = useState(false);
+
   const [labelInput, setLabelInput] = useState("");
   const [syncState, setSyncState] = useState<SyncState>("saved");
   const [ending, setEnding] = useState(false);
@@ -187,6 +206,42 @@ export function ShootingHub({
     },
     [key]
   );
+
+  /** A shot the camera decided: added like a tap, marked as the camera's. */
+  const onCameraShot = useCallback(
+    (call: ShotCall) => {
+      const made = call.v2 === "make";
+      // The call's clock is performance.now(); the set's is the wall clock.
+      const wallAt = Date.now() - (performance.now() - call.firstMs);
+      edit((d) => ({
+        ...d,
+        shots: addShot(d.shots, made, d.zone, "camera", made, {
+          flagged: call.flagged,
+          tMs: Math.max(0, wallAt - Date.parse(d.startedAt)),
+        }),
+      }));
+      if (readDraft(SOUND_KEY) === "on") blipShot(made);
+      haptic(made ? "success" : "tap");
+      setLastCall({ made, flagged: call.flagged, at: Date.now() });
+    },
+    [edit]
+  );
+  const camera = useCameraCounter({ onShot: onCameraShot });
+  // Remember where the rim was once counting starts, for the saved set.
+  useEffect(() => {
+    if (camera.phase !== "counting") return;
+    try {
+      const aim = JSON.parse(readDraft("hl:lab:rim") ?? "null") as { x: number; y: number } | null;
+      if (aim) edit((d) => ({ ...d, camera: { rimX: aim.x, rimY: aim.y } }));
+    } catch {
+      // No aim saved; the set is kept without it.
+    }
+  }, [camera.phase, edit]);
+  useEffect(() => {
+    if (!lastCall) return;
+    const id = setTimeout(() => setLastCall(null), 1800);
+    return () => clearTimeout(id);
+  }, [lastCall]);
 
   const runSync = useCallback(
     async (ended: boolean): Promise<boolean> => {
@@ -219,7 +274,14 @@ export function ShootingHub({
             zone: s.zone,
             source: s.source,
             detectedMade: s.detectedMade,
+            flagged: s.flagged,
+            tMs: s.tMs ?? null,
+            addedByHand: s.addedByHand,
           })),
+          camera:
+            d.mode === "camera" && d.camera
+              ? { ruleVersion: RULE_VERSION, modelVersion: MODEL_VERSION, rimX: d.camera.rimX, rimY: d.camera.rimY }
+              : null,
         });
         if (res.error || !res.sessionId) throw new Error(res.error ?? "Sync failed");
 
@@ -294,16 +356,26 @@ export function ShootingHub({
         shots: [],
         zone: null,
         goal: chosen,
+        ...(countWithCamera ? { mode: "camera" as const, camera: null } : {}),
         rev: 1,
         syncedRev: 0,
       } satisfies Draft)
     );
+    if (countWithCamera) {
+      // Calls are heard, not watched: sound on for a camera set.
+      setSoundRaw("on");
+      setReviewing(false);
+    }
   }
 
   function log(made: boolean) {
     haptic("tap");
     if (sound) blipShot(made);
-    edit((d) => ({ ...d, shots: addShot(d.shots, made, d.zone) }));
+    // In a camera set, a tap is a shot the camera missed.
+    edit((d) => ({
+      ...d,
+      shots: addShot(d.shots, made, d.zone, "manual", null, d.mode === "camera" ? { addedByHand: true } : {}),
+    }));
   }
 
   function undo() {
@@ -321,8 +393,18 @@ export function ShootingHub({
     edit((d) => ({ ...d, zone: d.zone === zone ? null : zone }));
   }
 
+  /** End a camera set: decide the shots still in the air, then check the unsure ones before saving. */
+  function endCameraSet() {
+    camera.stop();
+    const d = parseDraft(readDraft(key));
+    if (d && d.shots.some((s) => s.flagged)) setReviewing(true);
+    else void finish();
+  }
+
   async function finish() {
-    if (!draft || draft.shots.length === 0) return;
+    if (camera.phase !== "idle") camera.stop();
+    const fresh = parseDraft(readDraft(key));
+    if (!fresh || fresh.shots.length === 0) return;
     setEnding(true);
     setError(null);
 
@@ -356,6 +438,7 @@ export function ShootingHub({
     });
     writeDraft(key, null);
     setEnding(false);
+    setReviewing(false);
     router.refresh();
   }
 
@@ -363,6 +446,8 @@ export function ShootingHub({
     if (!draft) return;
     const hasShots = draft.shots.length > 0;
     if (hasShots && !window.confirm(`Throw away these ${draft.shots.length} shots?`)) return;
+    camera.stop();
+    setReviewing(false);
     haptic("tap");
     const sessionId = draft.sessionId;
     writeDraft(key, null);
@@ -397,7 +482,10 @@ export function ShootingHub({
     }
     if (autoFinished.current || ending) return;
     autoFinished.current = true;
-    void finish();
+    // A camera set still gets its unsure calls checked before it saves.
+    // (Out of the effect's own pass, like finish's awaits, so it doesn't set state mid-render.)
+    if (parseDraft(readDraft(key))?.mode === "camera") setTimeout(endCameraSet, 0);
+    else void finish();
     // finish reads everything it needs from storage, not from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reachedStop, ending]);
@@ -473,6 +561,12 @@ export function ShootingHub({
             </button>
           </div>
 
+          {draft.mode === "camera" && !reviewing && (
+            <div className="mt-4">
+              <CameraPanel camera={camera} />
+            </div>
+          )}
+
           <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
             {draft.label || "Shooting session"} · {playerName}
             {activeGoal && <span className="text-foreground-mute"> · {describeGoal(activeGoal)}</span>}
@@ -492,7 +586,19 @@ export function ShootingHub({
             </div>
           )}
 
-          <div className="mt-2 flex items-end gap-4">
+          <div className="relative mt-2 flex items-end gap-4">
+            {lastCall && (
+              // The camera's call, big enough to read from the shot.
+              <p
+                aria-live="assertive"
+                className={`absolute inset-0 z-10 flex items-center justify-center rounded-2xl font-display text-7xl uppercase ${
+                  lastCall.made ? "bg-[var(--data-positive)] text-[#070d18]" : "bg-raised text-foreground"
+                }`}
+              >
+                {lastCall.made ? "Make" : "Miss"}
+                {lastCall.flagged ? "?" : ""}
+              </p>
+            )}
             <p className="font-display text-8xl leading-[0.85] tabular-nums text-foreground">
               {sum.makes}
               <span className="text-foreground-mute">/{sum.attempts}</span>
@@ -512,7 +618,10 @@ export function ShootingHub({
           <div className="mt-4 min-h-[2rem]">
             <ShotStrip shots={draft.shots} onToggle={flip} limit={20} />
             {draft.shots.length > 0 && (
-              <p className="mt-2 text-[11px] text-foreground-mute">Tap a shot to flip it.</p>
+              <p className="mt-2 text-[11px] text-foreground-mute">
+                Tap a shot to flip it.
+                {draft.mode === "camera" && draft.shots.some((s) => s.flagged) ? " Ringed: the camera wasn't sure." : ""}
+              </p>
             )}
           </div>
 
@@ -539,6 +648,43 @@ export function ShootingHub({
             </div>
           </div>
 
+          {draft.mode === "camera" ? (
+            <div className="mt-auto pt-6">
+              {reviewing ? (
+                <FlaggedReview shots={draft.shots} onFlip={flip} />
+              ) : (
+                <>
+                  <Eyebrow className="mb-1.5">Camera missed one? Add it</Eyebrow>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <Button variant="secondary" size="md" onClick={() => log(false)} disabled={ending}>
+                      + Miss
+                    </Button>
+                    <Button variant="secondary" size="md" onClick={() => log(true)} disabled={ending}>
+                      + Make
+                    </Button>
+                  </div>
+                </>
+              )}
+              {error && <p className="mt-3 text-center text-xs text-accent">{error}</p>}
+              <div className="mt-3 flex gap-2.5">
+                <Button
+                  variant="secondary"
+                  onClick={undo}
+                  disabled={draft.shots.length === 0 || ending}
+                  className="flex-1 py-4"
+                >
+                  Undo
+                </Button>
+                <Button
+                  onClick={reviewing ? () => void finish() : endCameraSet}
+                  disabled={draft.shots.length === 0 || ending}
+                  className="flex-[1.6] py-4"
+                >
+                  {ending ? "Saving…" : reviewing ? "Save set" : "End session"}
+                </Button>
+              </div>
+            </div>
+          ) : (
           <div className="mt-auto pt-6">
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -580,6 +726,7 @@ export function ShootingHub({
               </Button>
             </div>
           </div>
+          )}
         </div>
       </div>
     );
@@ -663,17 +810,41 @@ export function ShootingHub({
             How to count
           </Eyebrow>
           <div className="grid grid-cols-2 gap-2">
-            <div
-              aria-current="true"
-              className="rounded-xl border border-accent bg-accent/10 px-3 py-2.5"
-            >
-              <p className="text-xs font-extrabold uppercase tracking-wide text-accent">Tap counter</p>
-              <p className="mt-0.5 text-[11px] text-foreground-dim">Tap make or miss yourself</p>
-            </div>
-            <div aria-disabled="true" className="rounded-xl border border-dashed border-line px-3 py-2.5 opacity-70">
-              <p className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Camera · soon</p>
-              <p className="mt-0.5 text-[11px] text-foreground-mute">Phone on a stand counts for you</p>
-            </div>
+            {(
+              [
+                { id: "tap", title: "Tap counter", sub: "Tap make or miss yourself" },
+                { id: "camera", title: "Camera · trial", sub: "Phone on a stand counts for you" },
+              ] as const
+            ).map((opt) => {
+              const selected = opt.id === "camera" ? countWithCamera : !countWithCamera;
+              if (opt.id === "camera" && !cameraAllowed) {
+                return (
+                  <div key={opt.id} aria-disabled="true" className="rounded-xl border border-dashed border-line px-3 py-2.5 opacity-70">
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Camera · soon</p>
+                    <p className="mt-0.5 text-[11px] text-foreground-mute">Your coach switches it on</p>
+                  </div>
+                );
+              }
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    haptic("tap");
+                    setCountRaw(opt.id);
+                  }}
+                  className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                    selected ? "border-accent bg-accent/10" : "border-line"
+                  }`}
+                >
+                  <p className={`text-xs font-extrabold uppercase tracking-wide ${selected ? "text-accent" : "text-foreground-dim"}`}>
+                    {opt.title}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-foreground-dim">{opt.sub}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -787,5 +958,43 @@ function GoalResult({
     <p className={`mt-1 text-sm font-extrabold ${state.reached && !state.capped ? "text-accent" : "text-foreground-dim"}`}>
       {text}
     </p>
+  );
+}
+
+/**
+ * Before a camera set is saved: the few calls the camera wasn't sure of,
+ * one tap each to put right. A kid won't review fifty shots; three, yes.
+ */
+function FlaggedReview({ shots, onFlip }: { shots: Shot[]; onFlip: (seq: number) => void }) {
+  const flagged = shots.filter((s) => s.flagged);
+  return (
+    <section className="rounded-2xl border border-accent bg-surface p-4">
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
+        Check {flagged.length} {flagged.length === 1 ? "shot" : "shots"} before saving
+      </p>
+      <p className="mt-1 text-xs text-foreground-dim">The camera wasn&rsquo;t sure about these. Tap to change any it got wrong.</p>
+      <ul className="mt-3 divide-y divide-line">
+        {flagged.map((s) => (
+          <li key={s.seq} className="flex items-center justify-between gap-3 py-2">
+            <span className="text-sm font-semibold text-foreground">Shot {s.seq}</span>
+            <div className="grid grid-cols-2 gap-1 rounded-lg bg-raised p-1">
+              {[true, false].map((made) => (
+                <button
+                  key={String(made)}
+                  type="button"
+                  aria-pressed={s.made === made}
+                  onClick={() => s.made !== made && onFlip(s.seq)}
+                  className={`min-h-9 rounded-md px-3 text-xs font-extrabold uppercase tracking-wide ${
+                    s.made === made ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
+                  }`}
+                >
+                  {made ? "Make" : "Miss"}
+                </button>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
