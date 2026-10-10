@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GameResultForm } from "@/components/game-result-form";
 import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { canCoachTeam } from "@/lib/basketball/team-access";
 
 export default async function GameDetailPage({
   params,
@@ -24,6 +26,7 @@ export default async function GameDetailPage({
 
   if (!user) redirect("/login");
   if (!game) notFound();
+  const canEdit = await canCoachTeam(supabase, teamId, user.id);
 
   const dateLabel = new Date(game.game_date + "T00:00:00").toLocaleDateString(undefined, {
     weekday: "long",
@@ -50,13 +53,25 @@ export default async function GameDetailPage({
           )}
         </div>
 
-        <GameResultForm
-          teamId={teamId}
-          gameId={game.id}
-          initialTeamScore={game.team_score}
-          initialOpponentScore={game.opponent_score}
-          initialNotes={game.notes}
-        />
+        {canEdit ? (
+          <GameResultForm
+            teamId={teamId}
+            gameId={game.id}
+            initialTeamScore={game.team_score}
+            initialOpponentScore={game.opponent_score}
+            initialNotes={game.notes}
+          />
+        ) : (
+          <Card className="p-4">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Result</p>
+            <p className="mt-1 font-display text-4xl leading-none text-foreground">
+              {game.team_score !== null && game.opponent_score !== null
+                ? `${game.team_score}–${game.opponent_score}`
+                : "Not played yet"}
+            </p>
+            {game.notes && <p className="mt-3 whitespace-pre-wrap text-sm text-foreground-dim">{game.notes}</p>}
+          </Card>
+        )}
       </main>
     </div>
   );

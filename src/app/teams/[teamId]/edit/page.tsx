@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { TeamForm } from "@/components/team-form";
+import { DeleteTeamButton } from "@/components/delete-team-button";
 
 export default async function EditTeamPage({
   params,
@@ -17,13 +18,15 @@ export default async function EditTeamPage({
     supabase
       .schema("hoops")
       .from("teams")
-      .select("id, name, defensive_scheme, defensive_scheme_custom, offensive_scheme, offensive_scheme_custom, focus_areas")
+      .select("id, owner_id, name, defensive_scheme, defensive_scheme_custom, offensive_scheme, offensive_scheme_custom, focus_areas")
       .eq("id", teamId)
       .maybeSingle(),
   ]);
 
   if (!user) redirect("/login");
   if (!team) notFound();
+  // Only the owner edits or deletes the team.
+  if (team.owner_id !== user.id) redirect(`/teams/${teamId}`);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -36,6 +39,7 @@ export default async function EditTeamPage({
           </h1>
         </div>
         <TeamForm existing={team} />
+        <DeleteTeamButton teamId={team.id} teamName={team.name} />
       </main>
     </div>
   );

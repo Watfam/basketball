@@ -207,7 +207,13 @@ export default async function TeamPage({
           ) : (
             <Card className="divide-y divide-line px-3">
               {roster.map((member) => (
-                <RosterRow key={member.id} member={member} teamId={teamId} />
+                <RosterRow
+                  key={member.id}
+                  member={member}
+                  teamId={teamId}
+                  canEdit={isOwner}
+                  linkable={(ownPlayers ?? []).filter((p) => !linkedPlayerIds.has(p.id))}
+                />
               ))}
             </Card>
           )}

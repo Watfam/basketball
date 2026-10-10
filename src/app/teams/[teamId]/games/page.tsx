@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
 import { AddGameForm } from "@/components/add-game-form";
+import { canCoachTeam } from "@/lib/basketball/team-access";
 import { gameResultLabel, isPastGame, sortGamesUpcomingFirst, sortGamesRecentFirst, type Game } from "@/lib/basketball/games";
 import { PageHeader } from "@/components/ui/page-header";
 import { CardLink } from "@/components/ui/card";
@@ -34,6 +35,7 @@ export default async function GamesPage({
 
   if (!user) redirect("/login");
   if (!team) notFound();
+  const canEdit = await canCoachTeam(supabase, teamId, user.id);
 
   const all = (games ?? []) as Game[];
   const upcoming = sortGamesUpcomingFirst(all.filter((g) => !isPastGame(g.game_date)));
@@ -115,7 +117,7 @@ export default async function GamesPage({
           </>
         )}
 
-        <AddGameForm teamId={teamId} />
+        {canEdit && <AddGameForm teamId={teamId} />}
       </main>
     </div>
   );

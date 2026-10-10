@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader, HeaderLink } from "@/components/ui/page-header";
+import { canCoachTeam } from "@/lib/basketball/team-access";
 import { CardLink } from "@/components/ui/card";
 
 export default async function ScoutingNotesPage({
@@ -26,13 +27,16 @@ export default async function ScoutingNotesPage({
 
   if (!user) redirect("/login");
   if (!team) notFound();
+  const canEdit = await canCoachTeam(supabase, teamId, user.id);
 
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader back={{ href: "/coach", label: "Coach" }}>
-        <HeaderLink href={`/teams/${teamId}/scouting/new`} tone="accent">
-          + New note
-        </HeaderLink>
+        {canEdit && (
+          <HeaderLink href={`/teams/${teamId}/scouting/new`} tone="accent">
+            + New note
+          </HeaderLink>
+        )}
       </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-3 px-4 py-5 sm:py-8">
