@@ -606,3 +606,29 @@ the window is cut with ffmpeg (bicubic) rather than the browser's canvas, so a b
   was worse on the clean clip, so it stays a trial and V2 stays live.
 - **V2 on the four new clips, whole list as the denominator:** 4867 15/16, 4866 17/19, 4851 15/18, 4844 8/14: 55 of 67 (82%); without
   4844 47 of 53 (89%). Same-angle unseen clips so far (4840, 4867, 4866): 60 of 67 (90%).
+
+### Rule V4 (trial) registered BEFORE the next fresh clip (2026-10-10) - where the ball crosses the rim line
+Of the 82 shots V2 called a make across IMG_4836-4867 (six clips), 16 were really misses, and 16 of V2's 17 errors on the new clips
+are misses called makes; so the lever is telling real makes from false ones. Features tried on those 82 (tools/42-features.py, from
+the detections only): sightings above the rim (no separation: makes 0-21, misses 0-27), ball size at the rim (weak: misses median
+1.01x the clip's size above the rim, makes 0.9x, with outliers both ways), the climb back up after reaching the rim (too noisy:
+it picks up rebounds), fall speed (V3: failed on 4867), and where the ball crosses the rim line (separates).
+- **Crossing**: no real make of 55 measurable crossed more than 12 px from the rim's x; 9 of the 15 measurable false makes crossed 23 to
+  58 px out, a ball dropping beside the net, or hitting it from outside. The rest crossed inside the ring (a rim bounce straight down)
+  or could not be measured, and this cue does not help with them.
+- **Aim error** would shift every crossing, and a fixed 20 px limit breaks real makes when the rim is tapped 20 px off. So the centre is
+  the median crossing of the session's V2 makes (needs 5), and until then the tapped rim with the limit widened to 30 (20 plus the
+  tap's own 10 px). Checked by shifting the rim: V4 is at least as good as V2 on every clip at a shift of -20, -10, +10 and +20 px.
+- **V4 = V2, except a make crossing more than 20 px from the centre (30 before 5 crossings are known) is a miss.** It can only turn
+  makes into misses. Limits set from the rim's geometry (about 45 px across, so half is 22) and the tap's accuracy, once, before
+  scoring the rolling version; the 15 px and 25 px alternatives were looked at in the first (offline) pass and not used.
+- **In-sample** (all six clips are design clips now; this is not a test): V2 109 of 126, V4 116 of 126 (92%): 4839 26 to 26, 4840 28 to 31,
+  4867 15 to 15, 4866 17 to 18, 4851 15 to 16, 4844 8 to 10. No make broken. V3 on the same clips: 112 (tuned on two of them).
+- Left over: rim bounces that drop straight through the ring's x, and a person hiding the ball. About 7 false makes remain across the
+  six clips, 4 of them on 4844.
+- Exam: the next fresh clip at the usual or zoomed angle with Matt's written list. Score V2, V3 and V4 in one run and report all
+  three, plus the flag. Nothing is changed before the report. V2 stays the live rule until then; the Calibrate screen has a V4 (trial)
+  switch next to V3, and the lab now saves V4's calls.
+- Tooling: `tools/41-run.mjs` scores a clip with the app's counting core (`--segments` for a clip whose camera moved, `PAIRS_OUT` to
+  export every shot's evidence), `tools/43-run-tests.mjs` runs the vision tests on Node 20 (which cannot run `npm test`), `tools/22`
+  takes `SCALE` and `START`.

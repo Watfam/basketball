@@ -271,3 +271,59 @@ test("rolls on the rim: through the middle stays a make, knocked down fast is a 
   assert.deepEqual([b.v2, b.v3], ["make", "miss"], "knocked down fast beside the net");
   assert.deepEqual([c.v2, c.v3], ["miss", "miss"], "slow roll off the side");
 });
+
+// Clips, with the rim's place in their hoop window (the window is cut at the scale the camera lab's sizing settled on).
+const v4Clips = [
+  { clip: "4839", rim: { x: 192, y: 190 } },
+  { clip: "4840", rim: { x: 192, y: 190 } },
+  { clip: "4867", rim: { x: 192, y: 190 } },
+  { clip: "4866", rim: { x: 192.2, y: 190.1 } },
+  { clip: "4851", rim: { x: 191.9, y: 190.3 } },
+];
+
+async function agreement(rule: "v2" | "v3" | "v4", shiftX = 0) {
+  const { align } = await import("../basketball/calibration.ts");
+  const out: Record<string, number> = {};
+  for (const { clip, rim } of v4Clips) {
+    const dets = (JSON.parse(fs.readFileSync(path.join(root, `training/fixtures/dets5-${clip}.json`), "utf8")) as { detections: Det[] }).detections;
+    const truth = (JSON.parse(fs.readFileSync(path.join(root, `training/labels/IMG_${clip}-truth.json`), "utf8")) as { results: ("make" | "miss")[] }).results;
+    const calls = runCounter(dets, { x: rim.x + shiftX, y: rim.y }, Math.max(...dets.map((d) => d.f)) + 200).filter((c) => c.counted);
+    for (const c of calls) {
+      if (c.v2 === "miss") assert.equal(c[rule], "miss", `${clip}: ${rule} made a miss into a make`);
+    }
+    out[clip] = align(calls.map((c) => c[rule]), truth).agreed;
+  }
+  return out;
+}
+
+const sum = (o: Record<string, number>) => Object.values(o).reduce((a, b) => a + b, 0);
+
+test("trial rule V4 (in-sample, 112 shots on five clips): 106 right against V2's 101, and never turns a miss into a make", async () => {
+  const v2: Record<string, number> = await agreement("v2");
+  const v4: Record<string, number> = await agreement("v4");
+  for (const clip of Object.keys(v2)) assert.ok(v4[clip] >= v2[clip], `${clip}: V4 ${v4[clip]} below V2 ${v2[clip]}`);
+  assert.equal(sum(v2), 101);
+  assert.deepEqual(v4, { "4839": 26, "4840": 31, "4851": 16, "4866": 18, "4867": 15 });
+});
+
+test("trial rule V4 keeps its edge over V2 when the rim is tapped 10 or 20 px off", async () => {
+  for (const shift of [-20, -10, 10, 20]) {
+    const v2: Record<string, number> = await agreement("v2", shift);
+    const v4: Record<string, number> = await agreement("v4", shift);
+    for (const clip of Object.keys(v2)) assert.ok(v4[clip] >= v2[clip], `shift ${shift}, ${clip}: V4 ${v4[clip]} below V2 ${v2[clip]}`);
+    assert.ok(sum(v4) >= sum(v2) + 3, `shift ${shift}: V4 ${sum(v4)} against V2 ${sum(v2)}`);
+  }
+});
+
+test("V4: a ball that crosses the rim line far from the rim's centre is a miss, one through the middle stays a make", () => {
+  const rim = { x: 192, y: 190 };
+  const dets: Det[] = [];
+  const ball = (f: number, x: number, y: number) => dets.push({ f, x1: x - 11, y1: y - 11, x2: x + 11, y2: y + 11 });
+  // A falls through the middle slowly (net catches it); B falls 40 px to the side, past where the net hangs, also slowly.
+  for (let k = 0; k < 24; k += 1) ball(100 + k, 192, 140 + 5 * k);
+  for (let k = 0; k < 24; k += 1) ball(400 + k, 232, 140 + 5 * k);
+  const [a, b] = runCounter(dets, rim, 700).filter((c) => c.counted);
+  assert.deepEqual([a.v2, a.v4], ["make", "make"]);
+  assert.ok(b.cross !== null && Math.abs(b.cross - 40) < 2, `crossing ${b.cross}`);
+  assert.deepEqual([b.v2, b.v4], ["make", "miss"]);
+});

@@ -33,7 +33,9 @@ function countClip(detsFile: string, rimX: number, rimY: number, mode: string, s
   }
   calls.push(...core.flush());
   console.log(`${detsFile.split("/").pop()}: sizing ${JSON.stringify(core.sizing)}; scale ${core.scale}`);
-  return calls.filter((c) => c.counted && c.firstMs >= fromMs && c.firstMs < toMs);
+  const kept = calls.filter((c) => c.counted && c.firstMs >= fromMs && c.firstMs < toMs);
+  for (const c of kept) Object.assign(c, { dets: detsFile, rimWin: { ...core.window.rim } });
+  return kept;
 }
 
 let shots: ShotCall[] = [];
@@ -84,20 +86,21 @@ else {
   console.log("written shots never seen:", path.filter((p) => p[2] === "unseen").map((p) => `#${p[1] + 1}`).join(", ") || "none");
 }
 console.log("alignment:", how);
-console.log("cand   time   V1    V2    V3    flag  fall   written");
-const tally = { v1: 0, v2: 0, v3: 0 };
+if (process.env.PAIRS_OUT) fs.writeFileSync(process.env.PAIRS_OUT, JSON.stringify(pairs.map(({ c, t }) => ({ ...c, truth: t }))));
+console.log("cand   time   V1    V2    V3    V4    flag  cross  written");
+const tally = { v1: 0, v2: 0, v3: 0, v4: 0 };
 let wrongV2 = 0, caughtV2 = 0, flagged = 0;
 for (const { c, t } of pairs) {
-  tally.v1 += c.v1 === t ? 1 : 0; tally.v2 += c.v2 === t ? 1 : 0; tally.v3 += c.v3 === t ? 1 : 0;
+  tally.v1 += c.v1 === t ? 1 : 0; tally.v2 += c.v2 === t ? 1 : 0; tally.v3 += c.v3 === t ? 1 : 0; tally.v4 += c.v4 === t ? 1 : 0;
   if (c.flagged) flagged += 1;
   if (c.v2 !== t) { wrongV2 += 1; if (c.flagged) caughtV2 += 1; }
-  const mark = c.v2 === t && c.v3 === t ? "" : c.v2 !== t && c.v3 === t ? "  <- V2 wrong, V3 right" : c.v2 === t && c.v3 !== t ? "  <- V3 wrong, V2 right" : "  <- both wrong";
-  console.log(`${String(c.n).padStart(3)}  ${(c.firstMs / 1000).toFixed(1).padStart(6)}s  ${c.v1.padEnd(5)} ${c.v2.padEnd(5)} ${c.v3.padEnd(5)} ${c.flagged ? "FLAG " : "     "} ${c.fall === null ? "  -  " : c.fall.toFixed(1).padStart(5)}  ${t}${mark}`);
+  const mark = c.v2 === t && c.v4 === t ? "" : c.v2 !== t && c.v4 === t ? "  <- V2 wrong, V4 right" : c.v2 === t && c.v4 !== t ? "  <- V4 wrong, V2 right" : "  <- both wrong";
+  console.log(`${String(c.n).padStart(3)}  ${(c.firstMs / 1000).toFixed(1).padStart(6)}s  ${c.v1.padEnd(5)} ${c.v2.padEnd(5)} ${c.v3.padEnd(5)} ${c.v4.padEnd(5)} ${c.flagged ? "FLAG " : "     "} ${c.cross === null ? "   -  " : c.cross.toFixed(0).padStart(5)}  ${t}${mark}`);
 }
 const n = pairs.length, pc = (x: number) => `${x} of ${n} (${Math.round((100 * x) / n)}%)`;
-console.log(`\nV1 ${pc(tally.v1)}; V2 ${pc(tally.v2)}; V3 ${pc(tally.v3)}`);
+console.log(`\nV1 ${pc(tally.v1)}; V2 ${pc(tally.v2)}; V3 ${pc(tally.v3)}; V4 ${pc(tally.v4)}`);
 console.log(`flag: ${flagged} of ${n} shots flagged (${Math.round((100 * flagged) / n)}%), catching ${caughtV2} of ${wrongV2} wrong V2 calls`);
-for (const k of ["v1", "v2", "v3"] as const) {
+for (const k of ["v1", "v2", "v3", "v4"] as const) {
   const m = shots.filter((c) => c[k] === "make").length;
   console.log(`${k} totals: ${m} makes, ${shots.length - m} misses (written ${truth.filter((x) => x === "make").length} / ${truth.filter((x) => x === "miss").length})`);
 }

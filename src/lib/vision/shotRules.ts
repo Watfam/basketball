@@ -128,6 +128,48 @@ export function fallSpeed(seen: Seen[], first: number, rim: { x: number; y: numb
   return a && b && b.f > a.f ? (b.y - a.y) / (b.f - a.f) : null;
 }
 
+/**
+ * Rule V4, a trial (2026-10-10): V2, except that a make whose ball crossed the rim line well off the rim's
+ * centre is a miss. A ball that goes through has to cross inside the ring; one that bounces off the rim and
+ * drops by the net, or hits the net from outside, crosses farther out.
+ *
+ * Where the ball crosses the rim line is read from two consecutive sightings (at most 6 reference frames
+ * apart, the ball moving down) that straddle the line, within 80 px sideways. Aim error would shift every
+ * crossing, so the centre used is not the tapped rim but the median crossing of this session's V2 makes so
+ * far. The limit, 20 px, is a little under half the rim's width (the rim is about 45 px across in the 416 px
+ * window at every size, see autoSize.ts), set from the geometry before looking at the numbers. Until 5
+ * crossings are known the tapped rim is the centre and the limit is 30 px: the 20 plus the 10 px the tap
+ * can be off by (training/README.md, "How exactly must the rim be tapped?").
+ *
+ * Found AFTER seeing IMG_4836 to IMG_4867 (six clips, 82 V2 makes of which 16 were really misses): in-sample
+ * it fixes 7 of the 16 and breaks no real make, but nothing about new footage follows from that. The next
+ * fresh clip is its test, scored beside V2 and V3 with nothing changed first (training/README.md).
+ */
+export const CROSS = {
+  lookBackFrames: 45,
+  maxGapFrames: 6,
+  maxSideways: 80,
+  minCrossings: 5,
+  limit: 20,
+  /** Before the session has taught its own centre: the tapped rim, with the tap's own error added. */
+  earlyLimit: 30,
+} as const;
+
+/** How far from the rim's x the ball crossed the rim line going down, px, or null if two sightings never straddled it. */
+export function rimCrossing(seen: Seen[], first: number, rim: { x: number; y: number }): number | null {
+  const near = seen.filter((s) => s.f >= first - CROSS.lookBackFrames && s.f <= first + RULE.windowV2 && Math.abs(cx(s.box) - rim.x) <= CROSS.maxSideways);
+  for (let i = 0; i + 1 < near.length; i += 1) {
+    const a = near[i];
+    const b = near[i + 1];
+    const ya = cy(a.box);
+    const yb = cy(b.box);
+    if (b.f - a.f >= 1 && b.f - a.f <= CROSS.maxGapFrames && ya < rim.y && yb >= rim.y) {
+      return cx(a.box) + ((cx(b.box) - cx(a.box)) * (rim.y - ya)) / (yb - ya) - rim.x;
+    }
+  }
+  return null;
+}
+
 export type ShotCall = {
   /** 1, 2, 3... in the order shots were decided. */
   n: number;
@@ -152,6 +194,11 @@ export type ShotCall = {
   belowMinDx: number | null;
   /** Rule V3 (trial, see FALL): V2 with fast falls past the rim called misses. */
   v3: Outcome;
+  /** Rule V4 (trial, see CROSS): V2 with makes that crossed the rim line far off its centre called misses. */
+  v4: Outcome;
+  /** Where the ball crossed the rim line, px from the rim's x (null if not followed), and the session centre it was judged against. */
+  cross: number | null;
+  crossCentre: number | null;
   /** The tracked ball's fall past the rim, px per reference frame; null when it couldn't be followed. */
   fall: number | null;
   /** Worth a look in review; see FLAG. Only V2 makes are ever flagged. */
@@ -244,6 +291,7 @@ export function createShotCounter(rim: { x: number; y: number }) {
   let closed: Group[] = [];
   let lastFrame = Number.NEGATIVE_INFINITY;
   let n = 0;
+  const crossings: number[] = [];
 
   const decide = (shot: Group): ShotCall => {
     const counted = shot.sightings >= RULE.minZoneSightings;
@@ -252,6 +300,12 @@ export function createShotCounter(rim: { x: number; y: number }) {
     const reasons = flagReasons({ ...called, zoneSightings: shot.sightings });
     const fall = called.v2 === "make" ? fallSpeed(history, shot.first, rim) : null;
     const v3: Outcome = called.v2 === "make" && fall !== null && fall > FALL.netMax ? "miss" : called.v2;
+    const cross = called.v2 === "make" ? rimCrossing(history, shot.first, rim) : null;
+    if (cross !== null && counted) crossings.push(cross);
+    const learned = crossings.length >= CROSS.minCrossings;
+    const crossCentre = learned ? median(crossings) : null;
+    const v4: Outcome =
+      cross !== null && Math.abs(cross - (crossCentre ?? 0)) > (learned ? CROSS.limit : CROSS.earlyLimit) ? "miss" : called.v2;
     return {
       n: counted ? n : 0,
       first: shot.first,
@@ -261,6 +315,9 @@ export function createShotCounter(rim: { x: number; y: number }) {
       counted,
       ...called,
       v3,
+      v4,
+      cross,
+      crossCentre,
       fall,
       flagged: reasons.length > 0,
       flagReasons: reasons,
@@ -296,7 +353,7 @@ export function createShotCounter(rim: { x: number; y: number }) {
       while (closed.length && f >= closed[0].first + RULE.windowV2 - 1) done.push(decide(closed.shift() as Group));
 
       // Keep only what an undecided shot can still look at.
-      const keepFrom = closed.length ? closed[0].first : open ? open.first : f - RULE.windowV2;
+      const keepFrom = (closed.length ? closed[0].first : open ? open.first : f - RULE.windowV2) - CROSS.lookBackFrames;
       if (history.length && history[0].f < keepFrom) history = history.filter((s) => s.f >= keepFrom);
       return done;
     },

@@ -28,8 +28,8 @@ export function CalibrationForm() {
   const router = useRouter();
   const [lab, setLab] = useState<LabCalls | null | undefined>(undefined);
   const [truth, setTruth] = useState<Outcome[]>([]);
-  // V2 is the registered rule; V3 is the trial (src/lib/vision/shotRules.ts, FALL).
-  const [rule, setRule] = useState<"v2" | "v3">("v2");
+  // V2 is the registered rule; V3 and V4 are trials (src/lib/vision/shotRules.ts, FALL and CROSS).
+  const [rule, setRule] = useState<"v2" | "v3" | "v4">("v2");
   const [hoop, setHoop] = useState("Driveway");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -39,10 +39,12 @@ export function CalibrationForm() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setLab(readLabCalls()), []);
 
-  const hasV3 = Boolean(lab?.calls.length && lab.calls.every((c) => c.v3));
+  const hasTrials = Boolean(lab?.calls.length && lab.calls.every((c) => c.v3));
+  const hasV4 = Boolean(lab?.calls.length && lab.calls.every((c) => c.v4));
+  const shown = rule === "v4" && hasV4 ? "v4" : rule === "v3" && hasTrials ? "v3" : "v2";
   const camera = useMemo(
-    () => (lab?.calls ?? []).map((c) => (rule === "v3" && c.v3 ? c.v3 : c.v2)),
-    [lab, rule]
+    () => (lab?.calls ?? []).map((c) => (shown === "v4" && c.v4 ? c.v4 : shown === "v3" && c.v3 ? c.v3 : c.v2)),
+    [lab, shown]
   );
   const result = useMemo(() => (truth.length && camera.length ? align(camera, truth) : null), [camera, truth]);
 
@@ -75,7 +77,7 @@ export function CalibrationForm() {
       const res = await saveCalibrationRun({
         source: `${lab.source}${result.method === "aligned" ? ", lined up (flatters the camera)" : ""}`,
         hoopLabel: hoop,
-        ruleVersion: rule === "v3" && hasV3 ? "v3" : lab.ruleVersion,
+        ruleVersion: shown === "v2" ? lab.ruleVersion : shown,
         modelVersion: lab.modelVersion,
         shots: result.shots,
         agreed: result.agreed,
@@ -112,12 +114,12 @@ export function CalibrationForm() {
           <span className="text-foreground-dim">{lab.source}</span>
         </p>
         <p className="mt-0.5 text-[11px] text-foreground-mute">
-          {new Date(lab.at).toLocaleString()} · rule {rule === "v3" && hasV3 ? "v3 (trial)" : lab.ruleVersion} ·{" "}
+          {new Date(lab.at).toLocaleString()} · rule {shown === "v2" ? lab.ruleVersion : `${shown} (trial)`} ·{" "}
           {lab.modelVersion}
         </p>
-        {hasV3 && (
-          <div className="mt-2.5 grid grid-cols-2 gap-1 rounded-lg bg-raised p-1">
-            {(["v2", "v3"] as const).map((v) => (
+        {hasTrials && (
+          <div className={`mt-2.5 grid gap-1 rounded-lg bg-raised p-1 ${hasV4 ? "grid-cols-3" : "grid-cols-2"}`}>
+            {(hasV4 ? (["v2", "v3", "v4"] as const) : (["v2", "v3"] as const)).map((v) => (
               <button
                 key={v}
                 type="button"
@@ -127,7 +129,7 @@ export function CalibrationForm() {
                   rule === v ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
                 }`}
               >
-                {v === "v2" ? "Rule V2" : "Rule V3 (trial)"}
+                {v === "v2" ? "Rule V2" : v === "v3" ? "V3 (trial)" : "V4 (trial)"}
               </button>
             ))}
           </div>

@@ -508,7 +508,7 @@ export function DetectorLab() {
         for (const c of calls) {
           if (!c.counted) continue;
           shotsRun = { shots: shotsRun.shots + 1, makes: shotsRun.makes + (c.v2 === "make" ? 1 : 0) };
-          runCalls.push({ v1: c.v1, v2: c.v2, v3: c.v3, flagged: c.flagged, atMs: Math.round(c.firstMs) });
+          runCalls.push({ v1: c.v1, v2: c.v2, v3: c.v3, v4: c.v4, flagged: c.flagged, atMs: Math.round(c.firstMs) });
           setShots({ ...shotsRun, last: c });
         }
       };
