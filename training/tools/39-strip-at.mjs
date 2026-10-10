@@ -7,7 +7,7 @@ import fs from "node:fs";
 import jpeg from "jpeg-js";
 
 const [, , VIDEO, CX, CY, RX, RY, STEP, OUT, ...items] = process.argv;
-const FPS = 30000 / 1001, TILE = 160, CROP = 150, COLS = 14, step = Number(STEP);
+const FPS = 30000 / 1001, TILE = 160, CROP = Number(process.env.CROP ?? 150), COLS = 14, step = Number(STEP);
 const nativeX = Number(CX) + Number(RX), nativeY = Number(CY) + Number(RY);
 const ox0 = Math.max(0, Math.round(nativeX - CROP / 2)), oy0 = Math.max(0, Math.round(nativeY - CROP / 2 + 35));
 const W = COLS * TILE, H = items.length * TILE, buf = Buffer.alloc(W * H * 4, 30);

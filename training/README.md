@@ -579,3 +579,30 @@ changed after seeing the result. Pinned at scale 1 and with auto sizing the outp
 - Unseen-clip tally for V2: 4840 28 of 32, 4867 15 of 16 = 43 of 48 (90%); the 4867 sample alone is small (95% interval roughly
   72% to 99%).
 - Not yet checked on the other three new clips (4844, 4851, 4866); they test other scales and angles.
+
+### Exams 4-6 on the other three new clips (2026-10-10): IMG_4866, IMG_4851, IMG_4844 - ball-5, the app's counting core, V2 / V3 / flag
+Method as for exam 3: hoop window placed from one full-resolution frame before scoring (size from the backboard width against
+training's 145 px, rim by eye), ball-5 on every frame (`tools/22`, `SCALE`, `START`), the app's own counting core (`tools/41-run.mjs`)
+with auto sizing on (it confirmed each size), matched to Matt's list. Nothing about the rules was changed. Caveat for all three: the
+window scale was set from the backboard first and the sizer then confirmed it, rather than starting at 1.0 and finding it, and
+the window is cut with ffmpeg (bicubic) rather than the browser's canvas, so a borderline shot could tip.
+- **IMG_4866** (usual spot, zoomed; scale 1.9, ball 24.7 px): 19 shots found, 19 written, 1 to 1. V1 18 of 19 (95%), V2 17 of 19 (89%),
+  V3 17 of 19. Both V2 errors are misses called makes (shots 1 and 4, falls 10.4), both flagged. Flag: 5 of 19 shots (26%), catches 2 of 2.
+  V1 beat V2 by one shot (V2's longer window turned shot 1 into a make).
+- **IMG_4851** (side-on wide; scale 1.24, ball 24.2 px): 17 found, 18 written, so matched by alignment, which flatters the rule: V1,
+  V2 and V3 each 15 of 17 aligned; one written shot (#12) was never seen as a candidate, so 15 of 18 against the whole list. Errors:
+  shot 2 a miss called a make (flagged); shot 12 a miss called a make (not flagged).
+  Flag: 5 of 17 (29%), catches 1 of 2. Partly NOT fresh: Matt's earlier trimmed pieces of this same recording (12 shots) were used to
+  build auto sizing, so it is not a clean exam.
+- **IMG_4844** (very zoomed, rim 100 px from the top edge, steep angle; scale 2.0): the camera MOVED between 63 and 64 s. The rim sat
+  at about (845, 100) before and (952, 100) after (checked at full resolution at 56-66, 100 and 150 s), and the first scoring, with one fixed rim
+  (840, 115), got 6 of 13. Redone as two windows (rim (840,100) up to 63.5 s, (952,100) after; a shot at 63.2 s that straddles the
+  move is dropped): 15 candidates, 14 written, aligned: V1 6 of 14 (43%), V2 8 of 14 (57%), V3 8 of 14 (57%); flag 6 of 14 (43%) catching
+  4 of 6 wrong calls. Only 774 ball detections in 3 minutes, against about 1000 on the other clips, and the strips show the ball
+  mostly hidden behind the board or in front of the net at this angle. Not usable as it stands, and the rule has no cue for it.
+- A phone that is bumped mid-session silently breaks counting (the rim is where it was tapped). Worth a "the hoop moved, re-aim"
+  check: the camera lab/Shoot could compare the live hoop window with the one taken at aiming.
+- **V3 across the new clips:** 4867 13/16 (V2 15), 4866 17/19 (V2 17), 4851 15/17 (V2 15), 4844 8/14 (V2 8). V3 was never better than V2 and
+  was worse on the clean clip, so it stays a trial and V2 stays live.
+- **V2 on the four new clips, whole list as the denominator:** 4867 15/16, 4866 17/19, 4851 15/18, 4844 8/14: 55 of 67 (82%); without
+  4844 47 of 53 (89%). Same-angle unseen clips so far (4840, 4867, 4866): 60 of 67 (90%).

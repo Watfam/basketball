@@ -8,13 +8,17 @@ import fs from "node:fs";
 import { preprocess, decode } from "../work/yolox.mjs";
 
 const [, , VIDEO, CX, CY, OUT, MINARG = "0.2"] = process.argv;
+// SCALE (env, default 1): cut a window of 416 x SCALE camera pixels and shrink it to 416, as the app does for zoomed or distant setups.
+const SCALE = Number(process.env.SCALE ?? 1), CUT = Math.round(416 * SCALE);
 const SIZE = 416, PIECE = 30, FB = SIZE * SIZE * 3;
 ort.env.wasm.numThreads = 1;
 const session = await ort.InferenceSession.create(new Uint8Array(fs.readFileSync(process.env.MODEL)), { executionProviders: ["wasm"] });
 const dur = Number(spawnSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", VIDEO]).stdout.toString());
-const out = []; let frameBase = 0;
-for (let s = 0; s < dur; s += PIECE) {
-  const r = spawnSync("ffmpeg", ["-nostdin", "-loglevel", "error", "-ss", String(s), "-t", String(PIECE), "-i", VIDEO, "-an", "-vf", `fps=30000/1001,crop=${SIZE}:${SIZE}:${CX}:${CY}`, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], { maxBuffer: 1024 * 1024 * 1024 });
+// START (env, seconds, default 0): skip the start of the clip; frame numbers still count from the clip start.
+const START = Number(process.env.START ?? 0);
+const out = []; let frameBase = Math.round((START * 30000) / 1001);
+for (let s = START; s < dur; s += PIECE) {
+  const r = spawnSync("ffmpeg", ["-nostdin", "-loglevel", "error", "-ss", String(s), "-t", String(PIECE), "-i", VIDEO, "-an", "-vf", `fps=30000/1001,crop=${CUT}:${CUT}:${CX}:${CY}${CUT === SIZE ? "" : `,scale=${SIZE}:${SIZE}`}`, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], { maxBuffer: 1024 * 1024 * 1024 });
   const n = Math.floor(r.stdout.length / FB);
   for (let i = 0; i < n; i++) {
     const px = r.stdout.subarray(i * FB, (i + 1) * FB), rgba = new Uint8ClampedArray(SIZE * SIZE * 4);
@@ -27,5 +31,5 @@ for (let s = 0; s < dur; s += PIECE) {
   frameBase += n;
   console.log(`piece ${s}-${s + PIECE}s, frames ${frameBase}, detections ${out.length}`);
 }
-fs.writeFileSync(OUT, JSON.stringify({ video: VIDEO, cropX: Number(CX), cropY: Number(CY), size: SIZE, frames: frameBase, fps: 30000 / 1001, detections: out }));
+fs.writeFileSync(OUT, JSON.stringify({ video: VIDEO, cropX: Number(CX), cropY: Number(CY), cropSize: CUT, size: SIZE, frames: frameBase, fps: 30000 / 1001, detections: out }));
 console.log("DONE");
