@@ -128,7 +128,7 @@ export default async function TeamPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: "/coach", label: "Coach home" }}>
+      <PageHeader back={{ href: "/coach", label: "Coach" }}>
         <HeaderLink href="/lab">Camera lab</HeaderLink>
         {isOwner && <HeaderLink href={`/teams/${teamId}/edit`}>Edit</HeaderLink>}
       </PageHeader>

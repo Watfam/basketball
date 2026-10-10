@@ -85,12 +85,43 @@ export default async function CoachHomePage() {
         <div>
           <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
           <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
-            {firstTeam && (teams ?? []).length === 1 ? firstTeam.name : "Coach home"}
+            Coach home
           </h1>
         </div>
 
         <section className="space-y-2.5">
-          <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Players</h2>
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Teams</h2>
+            <HeaderLink href="/teams/new" tone="accent">
+              + New team
+            </HeaderLink>
+          </div>
+          {(teams ?? []).length === 0 ? (
+            <Link
+              href="/teams/new"
+              className="block rounded-2xl border border-dashed border-line px-4 py-4 text-center text-sm font-semibold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
+            >
+              Set up a team: roster, scheme, practice plans
+            </Link>
+          ) : (
+            <Card className="overflow-hidden">
+              {(teams ?? []).map((t, i) => (
+                <Link
+                  key={t.id}
+                  href={`/teams/${t.id}`}
+                  className={`flex items-center justify-between px-4 py-3.5 transition-colors hover:bg-raised ${
+                    i ? "border-t border-line" : ""
+                  }`}
+                >
+                  <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">{t.name}</p>
+                  <span className="text-xs font-extrabold uppercase tracking-wide text-accent">Open →</span>
+                </Link>
+              ))}
+            </Card>
+          )}
+        </section>
+        <section className="space-y-2.5">
+          <SectionTitle title="Family players" caption="Shooting this season" />
           {(players ?? []).length === 0 ? (
             <p className="rounded-2xl border border-dashed border-line px-4 py-4 text-sm text-foreground-dim">
               Players added on the front door, under Manage family, show up here with their shooting.
@@ -133,7 +164,7 @@ export default async function CoachHomePage() {
         </section>
 
         <section className="space-y-2.5">
-          <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Camera lab</h2>
+          <SectionTitle title="Camera lab" caption="How well the camera counts" />
           <Card className="p-4">
             {lastRun ? (
               <>
@@ -173,38 +204,16 @@ export default async function CoachHomePage() {
           </Card>
         </section>
 
-        <section className="space-y-2.5">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Teams</h2>
-            <HeaderLink href="/teams/new" tone="accent">
-              + New team
-            </HeaderLink>
-          </div>
-          {(teams ?? []).length === 0 ? (
-            <Link
-              href="/teams/new"
-              className="block rounded-2xl border border-dashed border-line px-4 py-4 text-center text-sm font-semibold text-foreground-dim transition-colors hover:border-accent hover:text-accent"
-            >
-              Set up a team: roster, scheme, practice plans
-            </Link>
-          ) : (
-            <Card className="overflow-hidden">
-              {(teams ?? []).map((t, i) => (
-                <Link
-                  key={t.id}
-                  href={`/teams/${t.id}`}
-                  className={`flex items-center justify-between px-4 py-3.5 transition-colors hover:bg-raised ${
-                    i ? "border-t border-line" : ""
-                  }`}
-                >
-                  <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">{t.name}</p>
-                  <span className="text-xs font-extrabold uppercase tracking-wide text-accent">Open →</span>
-                </Link>
-              ))}
-            </Card>
-          )}
-        </section>
       </main>
+    </div>
+  );
+}
+
+function SectionTitle({ title, caption }: { title: string; caption: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">{title}</h2>
+      <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">{caption}</span>
     </div>
   );
 }

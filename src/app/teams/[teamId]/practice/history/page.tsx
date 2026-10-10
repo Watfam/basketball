@@ -73,7 +73,7 @@ export default async function PracticeHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice Plans" }} />
+      <PageHeader back={{ href: "/coach", label: "Coach" }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">

@@ -70,8 +70,7 @@ export default async function PracticePlansPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }}>
-        <HeaderLink href={`/teams/${teamId}/practice/history`}>History</HeaderLink>
+      <PageHeader back={{ href: "/coach", label: "Coach" }}>
         <HeaderLink href={`/teams/${teamId}/practice/new`} tone="accent">
           + New plan
         </HeaderLink>

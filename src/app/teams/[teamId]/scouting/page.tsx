@@ -29,7 +29,7 @@ export default async function ScoutingNotesPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }}>
+      <PageHeader back={{ href: "/coach", label: "Coach" }}>
         <HeaderLink href={`/teams/${teamId}/scouting/new`} tone="accent">
           + New note
         </HeaderLink>
