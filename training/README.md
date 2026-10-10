@@ -559,3 +559,23 @@ five misses in a row in 4851 and the overwritten last mark in 4866.
 - 4844 (very zoomed, rim near the top edge), 4866 (zoomed, usual spot) and 4851 (side-on wide, a full-length version of the five
   trimmed clips used earlier, 12 of whose shots are probably in it) test other angles and scales with the app's auto sizing.
 - None of the four may be used to change the model or any rule before its score is reported.
+Matt confirmed the transcription is accurate for all four lists (2026-10-10).
+
+### FRESH EXAM 3: IMG_4867 (usual spot and zoom), 2026-10-10 - V2 vs V3 vs the flag, as registered on 2026-10-06
+Matt's list: 16 shots (9 makes, 7 misses). Hoop window (826, 284), rim at native (1018, 474) = (192, 190) in the window, backboard
+about 145 px wide (training 140-150), so scale 1; auto sizing agrees (ball 24.7 px, scale stays 1). ball-5 detections on every frame
+(`tools/22`), then the app's own counting core (`tools/41-run.mjs`, which runs `src/lib/vision/counting.ts`). The core found exactly
+16 shots, so the match to Matt's list is 1 to 1 in order. The window and rim were placed before looking at any call. Nothing was
+changed after seeing the result. Pinned at scale 1 and with auto sizing the output is identical.
+- V1: 13 of 16 (81%). V2: **15 of 16 (94%)**. V3: **13 of 16 (81%)**. V2's totals 10 makes / 6 misses against 9 / 7; V3's 6 / 10.
+- Worth-a-look flag: 3 of 16 shots flagged (19%), catching the 1 wrong V2 call (target: most errors caught with under 25% flagged: met,
+  on one error).
+- V2's one error: shot 3, a miss called a make, the same kind as before, flagged.
+- **V3 FAILED this exam.** It turned three real makes into misses (shots 2, 4, 7), and fixed one V2 error (shot 3). The tracked fall
+  speeds past the rim: makes 2, 4, 7 fell 11.4-11.7 px/frame, make 8 7.7, make 9 10.3, makes 12, 14, 16 7.5-8.1; the one miss V3 caught fell
+  11.7. On 4839 + 4840 the line between makes (up to 9.5) and rim-bounce misses (11.1 and up) looked clean; on this clip makes fall as
+  fast as the miss, so fall speed alone does not separate them. The in-sample 59 of 60 does not carry over: V3 stays a trial and must
+  not count live. V2 stays the app's rule.
+- Unseen-clip tally for V2: 4840 28 of 32, 4867 15 of 16 = 43 of 48 (90%); the 4867 sample alone is small (95% interval roughly
+  72% to 99%).
+- Not yet checked on the other three new clips (4844, 4851, 4866); they test other scales and angles.
