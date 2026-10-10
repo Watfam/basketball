@@ -592,7 +592,7 @@ export function ShootingHub({
               <p
                 aria-live="assertive"
                 className={`absolute inset-0 z-10 flex items-center justify-center rounded-2xl font-display text-7xl uppercase ${
-                  lastCall.made ? "bg-[var(--data-positive)] text-white" : "bg-raised text-foreground"
+                  lastCall.made ? "bg-[var(--data-positive)] text-[#070d18]" : "bg-raised text-foreground"
                 }`}
               >
                 {lastCall.made ? "Make" : "Miss"}
