@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createDetector, nextVideoFrame, yieldToMain, type Backend, type Detector, type ModelId } from "@/lib/vision/detector";
 import { MODEL_INPUT, blockMotion, boxToFrame, createMotionGate, hoopWindow, luma, type Crop } from "@/lib/vision/roi";
-import { AUTO_SIZE, createAutoSizer } from "@/lib/vision/autoSize";
-import { REFERENCE_FPS, createShotCounter, type ShotCall } from "@/lib/vision/shotRules";
+import { AUTO_SIZE } from "@/lib/vision/autoSize";
+import { createCountingCore } from "@/lib/vision/counting";
+import { REFERENCE_FPS, type ShotCall } from "@/lib/vision/shotRules";
 import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
 import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
@@ -77,7 +78,6 @@ const TRAINED_BALL_WIDTH = 22;
 /** The size can't go beyond these (the window would be tiny or bigger than the frame). */
 const SCALE_MIN = 0.5;
 const SCALE_MAX = 4;
-const SCALE_LIMITS = [SCALE_MIN, SCALE_MAX] as const;
 /**
  * Below this much room above the rim (model px; training had 190) the
  * window is jammed against the top of the picture and part of the ball's
@@ -497,11 +497,9 @@ export function DetectorLab() {
         : `no camera: a fixed ${work.width}×${work.height} picture`;
       if (short1080) note(`camera gave ${video.videoWidth}x${video.videoHeight}, not 1080p`);
 
-      // The make/miss rule, fed every frame the ball model sees. A saved
-      // clip is timed by its own clock, so a slow phone gets the same frame
-      // numbers the offline tools used; it restarts when the clip loops.
-      // Made once the rim is aimed (below), at the rim's real place in the window.
-      let counter: ReturnType<typeof createShotCounter> | null = null;
+      // The counting core (made once the rim is aimed, below) is fed every
+      // frame the ball model sees. A saved clip is timed by its own clock, so
+      // a slow phone gets the same frame numbers the offline tools used.
       const nearRimWidths: number[] = [];
       let clipTimeMs = -1;
       let shotsRun = { shots: 0, makes: 0 };
@@ -516,9 +514,9 @@ export function DetectorLab() {
       };
       /** One pass is one set: count what is still open, keep the calls, stop counting. */
       const finishCounting = () => {
-        if (!counter) return;
-        takeCalls(counter.flush());
-        counter = null;
+        if (!core) return;
+        takeCalls(core.flush());
+        core = null;
         saveLabCalls({
           at: runAt,
           source:
@@ -683,23 +681,46 @@ export function DetectorLab() {
         lastPaint = 0;
       }
 
-      // The rule watches the rim where it really is in the window: at its
-      // trained spot normally, elsewhere when the window met an edge.
+      // Counting runs on the same core as the Shoot screen
+      // (src/lib/vision/counting.ts): the window, sizing from the ball, the
+      // rule. Live (and a clip in real time): counting starts at once at the
+      // remembered size, and a new size applies between shots. A clip read
+      // frame by frame: a quick first pass (every second frame) sizes it,
+      // then counting starts again from the first frame at that size.
       let aimed = windowed && useCamera ? hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, scaleRef.current) : null;
-      // Sizing from the ball. Live (and a clip in real time): counting starts
-      // at once at the remembered size, and a correction is applied between
-      // shots. A clip read frame by frame: a quick first pass (every second
-      // frame) measures the ball, then counting starts from the first frame.
-      const sizer = aimed && !pinSizeRef.current ? createAutoSizer() : null;
-      let sizingPass = Boolean(sizer && exactClip);
-      let sizerDone = !sizer;
-      let pendingScale: number | null = null;
-      let sizerHave = 0;
+      const autoSize = Boolean(aimed) && !pinSizeRef.current;
+      let sizingPass = autoSize && exactClip;
+      const makeCore = (scale: number, sizing: boolean) =>
+        createCountingCore({
+          frameW: video.videoWidth,
+          frameH: video.videoHeight,
+          rim: rimRef.current,
+          scale,
+          autoSize: sizing || (autoSize && !exactClip),
+          rescale: sizing ? "at-once" : "between-shots",
+        });
+      let core = aimed ? makeCore(scaleRef.current, sizingPass) : null;
       let restartClip = false;
-      let sizingSummary = sizer ? "" : `x${scaleRef.current.toFixed(2)}, pinned to the training size`;
-      setSizing(sizer ? `Measuring the ball: 0 of ${AUTO_SIZE.flights} shots` : null);
+      let sizingSummary = autoSize ? "" : `x${scaleRef.current.toFixed(2)}, pinned to the training size`;
+      let lastSizing = "";
+      /** Show and log the core's sizing as it moves on. */
+      const followSizing = (c: NonNullable<typeof core>) => {
+        const st = c.sizing;
+        const key = JSON.stringify(st);
+        if (key === lastSizing) return;
+        lastSizing = key;
+        if (st.kind === "measuring") setSizing(`Measuring the ball: ${st.have} of ${st.need} shots`);
+        else if (st.kind === "checking") {
+          note(`ball says size x${scaleRef.current.toFixed(2)} -> x${st.scale.toFixed(2)}`);
+          setSizing(`Size x${st.scale.toFixed(2)} · checking it`);
+        } else if (st.kind === "set") {
+          sizingSummary = `x${st.scale.toFixed(2)}, measured from the ball (${st.ballWidth.toFixed(1)} px in the air; training ${AUTO_SIZE.referenceWidth})`;
+          note(`ball in the air ${st.ballWidth.toFixed(1)} px: size x${st.scale.toFixed(2)} kept`);
+          setSizing(`Size x${st.scale.toFixed(2)} · set from the ball`);
+        }
+      };
+      setSizing(autoSize ? `Measuring the ball: 0 of ${AUTO_SIZE.flights} shots` : null);
       if (aimed) {
-        counter = createShotCounter(aimed.rim);
         note(
           `aimed: rim (${Math.round(rimRef.current.x * video.videoWidth)}, ${Math.round(rimRef.current.y * video.videoHeight)}), ` +
             `size x${scaleRef.current.toFixed(2)}, rim in window (${aimed.rim.x.toFixed(0)}, ${aimed.rim.y.toFixed(0)})`
@@ -721,14 +742,14 @@ export function DetectorLab() {
         const elapsed = (frameStart - startedAt) / 1000;
         if (elapsed >= runSeconds) break;
         if (exactClip) {
-          if (frameIdx >= clipFrames && sizingPass) {
+          if (frameIdx >= clipFrames && sizingPass && core) {
             // The whole clip measured without settling: keep the size, count.
             sizingPass = false;
-            sizerDone = true;
-            sizingSummary = `x${scaleRef.current.toFixed(2)}, kept (too few sightings of the ball in the air to measure)`;
+            sizingSummary = `x${core.scale.toFixed(2)}, kept (too few sightings of the ball in the air to measure)`;
             setSizing(null);
             frameIdx = 0;
-            if (aimed) counter = createShotCounter(aimed.rim);
+            core = makeCore(core.scale, false);
+            aimed = core.window;
           }
           if (frameIdx >= clipFrames) break;
           // The middle of the frame, so rounding never lands on a neighbour.
@@ -739,8 +760,9 @@ export function DetectorLab() {
         let crop: Crop | null = null;
         if (useCamera && windowed) {
           // Only the window's pixels are read: 416x416 instead of a whole frame.
-          crop = (aimed as NonNullable<typeof aimed>).crop;
-          wctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, work.width, work.height);
+          const c = (core?.window ?? (aimed as NonNullable<typeof aimed>)).crop;
+          crop = c;
+          wctx.drawImage(video, c.sx, c.sy, c.sw, c.sh, 0, 0, work.width, work.height);
           img = wctx.getImageData(0, 0, work.width, work.height);
         } else if (useCamera) {
           wctx.drawImage(video, 0, 0, work.width, work.height);
@@ -772,57 +794,37 @@ export function DetectorLab() {
         const ballClass = detector?.ballClass ?? -1;
         const balls = detections.filter((d) => d.classId === ballClass);
         const hasBall = balls.length > 0;
-        // Not while a correction waits: those sightings are at the old size.
-        if (sizer && aimed && !sizerDone && pendingScale === null) {
-          const st = sizer.push(frameClipMs, balls, aimed.rim);
-          if (st.kind === "collecting") {
-            if (st.have !== sizerHave) {
-              sizerHave = st.have;
-              setSizing(`Measuring the ball: ${st.have} of ${st.need} shots`);
-            }
-          } else {
-            const next = Math.min(SCALE_LIMITS[1], Math.max(SCALE_LIMITS[0], scaleRef.current * (st.kind === "rescale" ? st.factor : 1)));
-            note(`ball in the air ${st.ballWidth.toFixed(1)} px (training ${AUTO_SIZE.referenceWidth}): ${st.kind === "rescale" ? `size x${scaleRef.current.toFixed(2)} -> x${next.toFixed(2)}` : "size kept"}`);
-            if (st.kind === "rescale") {
-              if (sizingPass) {
-                setScale(next);
-                aimed = hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, next);
-              } else pendingScale = next;
-              setSizing(`Size x${next.toFixed(2)} · checking it`);
-              sizerHave = 0;
-            } else {
-              sizerDone = true;
-              sizingSummary = `x${scaleRef.current.toFixed(2)}, measured from the ball (${st.ballWidth.toFixed(1)} px in the air; training ${AUTO_SIZE.referenceWidth})`;
-              setSizing(`Size x${scaleRef.current.toFixed(2)} · set from the ball`);
-              if (sizingPass) {
-                sizingPass = false;
-                restartClip = true;
-                // The window may have moved against an edge at the new size.
-                counter = createShotCounter(aimed.rim);
-              }
-            }
+        if (core && sizingPass) {
+          // The sizing pass: calls are ignored, only the size matters.
+          const { windowChanged } = core.push(frameClipMs, balls);
+          if (windowChanged) setScale(core.scale);
+          followSizing(core);
+          if (core.sizing.kind === "set") {
+            sizingPass = false;
+            restartClip = true;
+            core = makeCore(core.scale, false);
+            aimed = core.window;
           }
-        }
-        // A size correction waits for a moment with no shot under way.
-        if (pendingScale !== null && counter && aimed && counter.isIdle()) {
-          setScale(pendingScale);
-          aimed = hoopWindow(video.videoWidth, video.videoHeight, rimRef.current, pendingScale);
-          counter = createShotCounter(aimed.rim);
-          pendingScale = null;
-        }
-        // The frame that ended the sizing pass isn't counted: counting starts from the clip's first frame.
-        if (counter && !sizingPass && !restartClip) {
+        } else if (core && !restartClip) {
+          // The frame that ended the sizing pass isn't counted: counting starts from the clip's first frame.
           if (frameClipMs < clipTimeMs) {
             // The clip looped: that pass was the set. Counting it twice
             // would double every shot.
             finishCounting();
           } else {
             clipTimeMs = frameClipMs;
-            takeCalls(counter.push(frameClipMs, balls));
+            const { calls, windowChanged } = core.push(frameClipMs, balls);
+            takeCalls(calls);
+            if (windowChanged) {
+              setScale(core.scale);
+              aimed = core.window;
+            }
+            if (autoSize && !exactClip) followSizing(core);
             // Ball size near the rim, to check the size setting against training's 22 px.
-            if (aimed && nearRimWidths.length < 5000) {
+            if (nearRimWidths.length < 5000) {
+              const rim = core.window.rim;
               for (const b of balls) {
-                if (Math.abs((b.x1 + b.x2) / 2 - aimed.rim.x) <= 55 && Math.abs((b.y1 + b.y2) / 2 - aimed.rim.y) <= 50) {
+                if (Math.abs((b.x1 + b.x2) / 2 - rim.x) <= 55 && Math.abs((b.y1 + b.y2) / 2 - rim.y) <= 50) {
                   nearRimWidths.push(b.x2 - b.x1);
                 }
               }

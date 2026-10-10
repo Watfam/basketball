@@ -46,6 +46,8 @@ export type Shot = {
   tMs?: number;
   /** In a camera set, a shot the player added because the camera missed it. */
   addedByHand?: boolean;
+  /** Camera only, on this phone only: the shot's replay (src/lib/vision/replay-store.ts). Never synced. */
+  replayId?: string;
 };
 
 /** Seq is always 1..n with no gaps, so a snapshot can be upserted on it. */
@@ -59,7 +61,7 @@ export function addShot(
   zone: ZoneKey | null,
   source: ShotSource = "manual",
   detectedMade: boolean | null = null,
-  extra: Pick<Shot, "flagged" | "tMs" | "addedByHand"> = {}
+  extra: Pick<Shot, "flagged" | "tMs" | "addedByHand" | "replayId"> = {}
 ): Shot[] {
   return [...shots, { seq: shots.length + 1, made, zone, source, detectedMade, ...extra }];
 }

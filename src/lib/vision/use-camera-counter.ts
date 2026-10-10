@@ -6,6 +6,8 @@ import { MODEL_INPUT, blockMotion, createMotionGate, hoopWindow, luma } from "@/
 import { createCountingCore, SCALE_LIMITS, type SizingStatus } from "@/lib/vision/counting";
 import type { ShotCall } from "@/lib/vision/shotRules";
 import { readDraft, writeDraft } from "@/lib/use-local-draft";
+import { CLIP, createReplayBuffer } from "@/lib/vision/replay-buffer";
+import { saveReplay } from "@/lib/vision/replay-store";
 
 /**
  * The camera, as a shot counter, for the Shoot screen.
@@ -35,6 +37,9 @@ export const MIN_ROOM_ABOVE = 120;
 const SLOW_FPS = 10;
 /** No ball at all for this long while counting: the hoop may have left the picture. */
 const NO_BALL_MS = 60_000;
+/** Replay frames: the hoop close-up, this many px square, as JPEG. About 15 KB a frame. */
+const REPLAY_SIZE = 288;
+const REPLAY_QUALITY = 0.6;
 
 export type CameraHealth = {
   fps: number;
@@ -62,7 +67,11 @@ function readAim(): Aim {
   return { ...DEFAULT_RIM, scale: 1 };
 }
 
-export function useCameraCounter({ onShot }: { onShot: (call: ShotCall) => void }) {
+/**
+ * `onShot` gets each counted shot and the id of its replay: the clip is
+ * saved on the phone a moment later (src/lib/vision/replay-store.ts).
+ */
+export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId: string) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const zoomRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<CameraPhase>("idle");
@@ -75,7 +84,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall) => void 
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<Promise<Detector> | null>(null);
   const runRef = useRef(0);
-  const flushRef = useRef<(() => ShotCall[]) | null>(null);
+  const flushRef = useRef<(() => void) | null>(null);
   const onShotRef = useRef(onShot);
   useEffect(() => {
     onShotRef.current = onShot;
@@ -227,7 +236,28 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall) => void 
       scale: aimRef.current.scale,
       autoSize: true,
     });
-    flushRef.current = () => core.flush();
+    // Replays: the last 6 s of the close-up, and each shot's clip cut from it.
+    const replay = createReplayBuffer<Blob>(6000);
+    const shot = document.createElement("canvas");
+    shot.width = shot.height = REPLAY_SIZE;
+    const shotCtx = shot.getContext("2d");
+    let encoding = false;
+    const keepClip = (c: ShotCall, wait: boolean) => {
+      const id = `shot-${Math.round(c.firstMs)}`;
+      const save = () => {
+        const frames = replay
+          .between(c.firstMs - CLIP.beforeMs, c.firstMs + CLIP.afterMs)
+          .map((x) => ({ t: x.t - c.firstMs, blob: x.item }));
+        if (frames.length) void saveReplay({ id, frames });
+      };
+      // The call comes 1.3-2.3 s after the rim; wait for the rest of the clip.
+      if (wait) setTimeout(save, 900);
+      else save();
+      return id;
+    };
+    flushRef.current = () => {
+      for (const c of core.flush()) if (c.counted) onShotRef.current(c, keepClip(c, false));
+    };
     const gate = createMotionGate({ threshold: MOTION_THRESHOLD, holdMs: STILL_HOLD_MS });
     const work = document.createElement("canvas");
     work.width = work.height = MODEL_INPUT;
@@ -247,6 +277,19 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall) => void 
       const { crop } = core.window;
       ctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, MODEL_INPUT, MODEL_INPUT);
       const img = ctx.getImageData(0, 0, MODEL_INPUT, MODEL_INPUT);
+      // One frame encoding at a time: if the phone falls behind, a frame is skipped, not queued.
+      if (shotCtx && !encoding) {
+        encoding = true;
+        shotCtx.drawImage(work, 0, 0, REPLAY_SIZE, REPLAY_SIZE);
+        shot.toBlob(
+          (blob) => {
+            encoding = false;
+            if (blob) replay.push(t0, blob);
+          },
+          "image/jpeg",
+          REPLAY_QUALITY
+        );
+      }
       cur = luma(img.data, cur ?? undefined);
       const moved = prev ? blockMotion(prev, cur, MODEL_INPUT, MODEL_INPUT) : 255;
       [prev, cur] = [cur, prev];
@@ -266,7 +309,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall) => void 
       if (run !== runRef.current) return;
       if (balls.length) lastBallAt = t0;
       const { calls, windowChanged } = core.push(t0, balls);
-      for (const c of calls) if (c.counted) onShotRef.current(c);
+      for (const c of calls) if (c.counted) onShotRef.current(c, keepClip(c, true));
       if (windowChanged) {
         aimRef.current = { ...aimRef.current, scale: core.scale };
         saveAim();
@@ -300,7 +343,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall) => void 
   const stop = useCallback(() => {
     const flush = flushRef.current;
     flushRef.current = null;
-    if (flush) for (const c of flush()) if (c.counted) onShotRef.current(c);
+    flush?.();
     teardown();
     setPhase("idle");
     setHealth(null);

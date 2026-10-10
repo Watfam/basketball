@@ -32,6 +32,8 @@ import { CameraPanel } from "@/components/camera-panel";
 import { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_TRIAL_KEY } from "@/lib/vision/camera-trial";
+import { clearReplays } from "@/lib/vision/replay-store";
+import { ReplayViewer } from "@/components/replay-viewer";
 import type { ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
@@ -209,7 +211,7 @@ export function ShootingHub({
 
   /** A shot the camera decided: added like a tap, marked as the camera's. */
   const onCameraShot = useCallback(
-    (call: ShotCall) => {
+    (call: ShotCall, replayId: string) => {
       const made = call.v2 === "make";
       // The call's clock is performance.now(); the set's is the wall clock.
       const wallAt = Date.now() - (performance.now() - call.firstMs);
@@ -218,6 +220,7 @@ export function ShootingHub({
         shots: addShot(d.shots, made, d.zone, "camera", made, {
           flagged: call.flagged,
           tMs: Math.max(0, wallAt - Date.parse(d.startedAt)),
+          replayId,
         }),
       }));
       if (readDraft(SOUND_KEY) === "on") blipShot(made);
@@ -361,6 +364,8 @@ export function ShootingHub({
         syncedRev: 0,
       } satisfies Draft)
     );
+    // Replays belong to one set; anything left from an earlier one goes.
+    void clearReplays();
     if (countWithCamera) {
       // Calls are heard, not watched: sound on for a camera set.
       setSoundRaw("on");
@@ -437,6 +442,8 @@ export function ShootingHub({
       goal: draftGoal(snapshot),
     });
     writeDraft(key, null);
+    // Saved: the replays have done their job and are deleted from the phone.
+    void clearReplays();
     setEnding(false);
     setReviewing(false);
     router.refresh();
@@ -448,6 +455,7 @@ export function ShootingHub({
     if (hasShots && !window.confirm(`Throw away these ${draft.shots.length} shots?`)) return;
     camera.stop();
     setReviewing(false);
+    void clearReplays();
     haptic("tap");
     const sessionId = draft.sessionId;
     writeDraft(key, null);
@@ -967,16 +975,24 @@ function GoalResult({
  */
 function FlaggedReview({ shots, onFlip }: { shots: Shot[]; onFlip: (seq: number) => void }) {
   const flagged = shots.filter((s) => s.flagged);
+  const [watching, setWatching] = useState<Shot | null>(null);
   return (
     <section className="rounded-2xl border border-accent bg-surface p-4">
       <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
         Check {flagged.length} {flagged.length === 1 ? "shot" : "shots"} before saving
       </p>
-      <p className="mt-1 text-xs text-foreground-dim">The camera wasn&rsquo;t sure about these. Tap to change any it got wrong.</p>
+      <p className="mt-1 text-xs text-foreground-dim">
+        The camera wasn&rsquo;t sure about these. Watch the replay, then tap to change any it got wrong.
+      </p>
       <ul className="mt-3 divide-y divide-line">
         {flagged.map((s) => (
           <li key={s.seq} className="flex items-center justify-between gap-3 py-2">
             <span className="text-sm font-semibold text-foreground">Shot {s.seq}</span>
+            {s.replayId && (
+              <Button variant="secondary" size="sm" onClick={() => setWatching(s)} className="ml-auto">
+                Watch
+              </Button>
+            )}
             <div className="grid grid-cols-2 gap-1 rounded-lg bg-raised p-1">
               {[true, false].map((made) => (
                 <button
@@ -995,6 +1011,9 @@ function FlaggedReview({ shots, onFlip }: { shots: Shot[]; onFlip: (seq: number)
           </li>
         ))}
       </ul>
+      {watching?.replayId && (
+        <ReplayViewer replayId={watching.replayId} title={`Shot ${watching.seq}`} onClose={() => setWatching(null)} />
+      )}
     </section>
   );
 }
