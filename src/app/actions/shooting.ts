@@ -19,7 +19,12 @@ export type ShotSyncInput = {
     zone: string | null;
     source: string;
     detectedMade: boolean | null;
+    flagged?: boolean;
+    tMs?: number | null;
+    addedByHand?: boolean;
   }[];
+  /** A camera set: how it was counted, for measuring the camera from real use. */
+  camera?: { ruleVersion: string; modelVersion: string; rimX: number; rimY: number } | null;
 };
 
 const VALID_GOAL_KINDS = new Set(["shots", "makes", "time", "streak"]);
@@ -70,6 +75,15 @@ export async function syncShotSession(input: ShotSyncInput) {
   const supabase = await createClient();
   const label = input.label?.trim().slice(0, 60) || null;
   const source = input.shots.some((s) => s.source === "camera") ? "camera" : "manual";
+  const cam = input.camera ?? null;
+  const cameraColumns = cam
+    ? {
+        rule_version: cam.ruleVersion.slice(0, 20),
+        model_version: cam.modelVersion.slice(0, 40),
+        rim_x: Math.min(1, Math.max(0, cam.rimX)),
+        rim_y: Math.min(1, Math.max(0, cam.rimY)),
+      }
+    : {};
   const goalColumns = {
     goal_kind: goal?.kind ?? null,
     goal_target: goal?.target ?? null,
@@ -89,7 +103,7 @@ export async function syncShotSession(input: ShotSyncInput) {
       supabase
         .schema("hoops")
         .from("shot_sessions")
-        .update({ label, source, ended_at: endedAt, makes, attempts, ...(withGoal ? goalColumns : {}) })
+        .update({ label, source, ended_at: endedAt, makes, attempts, ...cameraColumns, ...(withGoal ? goalColumns : {}) })
         .eq("id", sessionId as string)
         .eq("player_id", input.playerId)
         .select("id");
@@ -115,6 +129,7 @@ export async function syncShotSession(input: ShotSyncInput) {
           ended_at: endedAt,
           makes,
           attempts,
+          ...cameraColumns,
           ...(withGoal ? goalColumns : {}),
         })
         .select("id")
@@ -138,6 +153,9 @@ export async function syncShotSession(input: ShotSyncInput) {
           zone: s.zone,
           source: s.source,
           detected_made: s.detectedMade,
+          flagged: Boolean(s.flagged),
+          added_by_hand: Boolean(s.addedByHand),
+          t_ms: typeof s.tMs === "number" && s.tMs >= 0 ? Math.round(s.tMs) : null,
         })),
         { onConflict: "session_id,seq" }
       );
