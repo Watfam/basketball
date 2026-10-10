@@ -78,6 +78,10 @@ export default async function Home() {
         : undefined;
 
   const teamCount = (teams ?? []).length;
+  // A coach with one team goes straight to it; the coach home (family
+  // players, camera lab, more teams) is one tap back from there.
+  const continueHref =
+    remembered?.kind === "coach" && teamCount === 1 ? `/teams/${(teams ?? [])[0].id}` : remembered ? profileHome(remembered) : "/";
 
   return (
     <div className="flex flex-1 flex-col">
@@ -107,7 +111,7 @@ export default async function Home() {
         </div>
 
         {remembered && rememberedName && (
-          <ButtonLink href={profileHome(remembered)} size="lg" block>
+          <ButtonLink href={continueHref} size="lg" block>
             Continue as {rememberedName}
           </ButtonLink>
         )}

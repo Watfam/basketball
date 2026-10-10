@@ -13,7 +13,7 @@ export default async function NewTeamPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: "/", label: "Home" }} width="md" />
+      <PageHeader back={{ href: "/coach", label: "Coach" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
         <div className="mb-5">

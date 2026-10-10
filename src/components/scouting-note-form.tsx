@@ -13,7 +13,7 @@ type ExistingNote = {
   notes: Record<string, string> | null;
 };
 
-const SECTIONS = [
+export const SCOUTING_SECTIONS = [
   { key: "personnel", label: "Personnel", placeholder: "Who to know — their best player, who guards who, matchups you want or don't want" },
   { key: "tendencies", label: "Tendencies", placeholder: "What they run, when they press, how they close games out" },
   { key: "game_plan", label: "Our Game Plan", placeholder: "What we're doing about it" },
@@ -86,7 +86,7 @@ export function ScoutingNoteForm({
         />
       </section>
 
-      {SECTIONS.map((s) => (
+      {SCOUTING_SECTIONS.map((s) => (
         <section key={s.key} className="panel-lit rounded-3xl border border-line bg-surface p-6">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
             {s.label}

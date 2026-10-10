@@ -36,7 +36,7 @@ export default async function EditPracticePlanPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice Plans" }} width="md">
+      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice" }} width="md">
         {/* RunPracticeLink (not HeaderLink) so the tap also unlocks audio; same look and tap area as a HeaderLink. */}
         <RunPracticeLink
           href={`/teams/${teamId}/practice/${planId}/run`}
