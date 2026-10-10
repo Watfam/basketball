@@ -83,8 +83,7 @@ export default async function CoachHomePage() {
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-5 sm:py-8">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Coach</p>
-          <h1 className="font-display mt-1 text-3xl uppercase leading-none tracking-wide text-foreground">
+          <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
             Coach home
           </h1>
         </div>
