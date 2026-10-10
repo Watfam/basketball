@@ -548,3 +548,14 @@ Decision: size from the ball, automatically, over the first warm-up shots; the r
   Offline at x1.2 and x1.3 it was 11 of 12; the lab's clip was a re-encode, so a borderline shot can tip.
 Next rule idea, not done: count a "below the net" sighting only on the ball's own followed path (V3's tracker), which would
 also have stopped the ground-bounce make at x1.0.
+
+### Four new clips and Matt's written lists (2026-10-10)
+IMG_4844, IMG_4851, IMG_4866, IMG_4867 (1080p HEVC with audio, 2-3 min each) were added to Training Video/. Matt's handwritten lists
+(photo, transcribed here; saved as labels/IMG_48xx-truth.json, in shot order): 4844 14 shots (7 makes, 7 misses); 4851 18 (9, 9);
+4866 19 (11, 8); 4867 16 (9, 7). The transcription from the photo is mine and still needs Matt's confirmation, particularly the
+five misses in a row in 4851 and the overwritten last mark in 4866.
+- 4867 is the usual spot and zoom: it is the true third fresh clip for the exam registered on 2026-10-06 (V2 and V3 scored in
+  the same run, flag catch rate and share flagged, nothing tuned before the report).
+- 4844 (very zoomed, rim near the top edge), 4866 (zoomed, usual spot) and 4851 (side-on wide, a full-length version of the five
+  trimmed clips used earlier, 12 of whose shots are probably in it) test other angles and scales with the app's auto sizing.
+- None of the four may be used to change the model or any rule before its score is reported.
