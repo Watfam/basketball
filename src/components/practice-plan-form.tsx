@@ -8,6 +8,7 @@ import {
   totalMinutes,
   emptyBlock,
   cleanBlocks,
+  withKeys,
   parsePastedList,
   matchDrillName,
   generateSkeleton,
@@ -44,6 +45,8 @@ type DrillOption = { id: string; name: string };
  * but stay collapsed until tapped open, and a plan can be built entirely
  * without ever touching them.
  */
+const newBlockKey = () => `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+
 export function PracticePlanForm({
   teamId,
   existing,
@@ -62,8 +65,10 @@ export function PracticePlanForm({
   const [title, setTitle] = useState(existing?.title ?? "");
   const [date, setDate] = useState(existing?.practice_date ?? "");
   const [focusAreas, setFocusAreas] = useState<string[]>(existing?.focus_areas ?? []);
-  const [blocks, setBlocks] = useState<PracticeBlock[]>(
-    existing?.blocks && existing.blocks.length > 0 ? existing.blocks : [emptyBlock()]
+  // Saved blocks without a key are keyed by where they sat, so a rename in
+  // this edit can still carry the drill's history (src/lib/basketball/practice.ts).
+  const [blocks, setBlocks] = useState<PracticeBlock[]>(() =>
+    existing?.blocks && existing.blocks.length > 0 ? withKeys(existing.blocks, newBlockKey, true) : [emptyBlock()]
   );
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
@@ -220,7 +225,8 @@ export function PracticePlanForm({
   }
 
   function save() {
-    const finalBlocks = cleanBlocks(blocks);
+    // Every block leaves with a key, new ones a fresh one.
+    const finalBlocks = cleanBlocks(withKeys(blocks, newBlockKey));
     if (!title.trim()) {
       setError("Give the plan a title.");
       return;

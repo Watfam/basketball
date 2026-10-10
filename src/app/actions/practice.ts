@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { renamedDrills, type PracticeBlock } from "@/lib/basketball/practice";
 
 /**
  * Creates or updates a practice plan. One action handles both — a plan
@@ -30,12 +31,34 @@ export async function savePracticePlan(
   };
 
   if (planId) {
+    // A drill renamed in the plan keeps its history: its scores in this
+    // plan's practices move to the new name (history matches by name).
+    const { data: before } = await supabase.schema("hoops").from("practice_plans").select("blocks").eq("id", planId).maybeSingle();
+    const renames = renamedDrills((before?.blocks ?? []) as PracticeBlock[], (input.blocks ?? []) as PracticeBlock[]);
+
     const { error } = await supabase
       .schema("hoops")
       .from("practice_plans")
       .update(payload)
       .eq("id", planId);
     if (error) return { error: error.message };
+
+    if (renames.length) {
+      const { data: sessions } = await supabase.schema("hoops").from("practice_sessions").select("id").eq("plan_id", planId);
+      const ids = (sessions ?? []).map((s: { id: string }) => s.id);
+      if (ids.length) {
+        for (const r of renames) {
+          await supabase
+            .schema("hoops")
+            .from("practice_drill_results")
+            .update({ label: r.to })
+            .eq("team_id", teamId)
+            .eq("label", r.from)
+            .in("session_id", ids);
+        }
+      }
+      revalidatePath(`/teams/${teamId}/practice/history`);
+    }
     revalidatePath(`/teams/${teamId}/practice`);
     return { error: null, planId };
   }

@@ -6,6 +6,7 @@ import { primeAlerts, beepWarning, beepDone } from "@/lib/alerts";
 import { useWakeLock } from "@/lib/use-wake-lock";
 import type { RunnableStep } from "@/lib/basketball/practice";
 import { SessionWrapup, type WrapupRow } from "@/components/session-wrapup";
+import { DrillInstructions, type DrillNotes } from "@/components/drill-instructions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -39,6 +40,7 @@ export function PracticeRunner({
   steps,
   totalMinutes,
   lastResults = {},
+  drills = {},
 }: {
   teamId: string;
   planId: string;
@@ -46,6 +48,8 @@ export function PracticeRunner({
   steps: RunnableStep[];
   totalMinutes: number;
   lastResults?: Record<string, number>;
+  /** Library drills by id, for steps that matched one. */
+  drills?: Record<string, DrillNotes>;
 }) {
   const [mode, setMode] = useState<"running" | "wrapup">("running");
   const [index, setIndex] = useState(0);
@@ -305,6 +309,12 @@ export function PracticeRunner({
                 )}
               </Card>
             ) : null}
+
+            {step.drillId && drills[step.drillId] && (
+              <div className="mt-4">
+                <DrillInstructions drill={drills[step.drillId]} />
+              </div>
+            )}
 
             {step.notes && (
               <p className="mt-4 rounded-xl bg-raised p-3 text-xs leading-relaxed text-foreground-dim">

@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PracticeRunner } from "@/components/practice-runner";
 import { toRunnableSteps, totalMinutes, type PracticeBlock } from "@/lib/basketball/practice";
+import type { DrillNotes } from "@/components/drill-instructions";
 
 export default async function RunPracticePage({
   params,
@@ -37,6 +38,18 @@ export default async function RunPracticePage({
 
   const blocks = (plan.blocks ?? []) as PracticeBlock[];
 
+  // Coaching notes for drills that matched the library, shown as "How to do this" while running.
+  const drillIds = [...new Set(blocks.map((b) => b.drillId).filter((id): id is string => Boolean(id)))];
+  const { data: drillRows } = drillIds.length
+    ? await supabase
+        .schema("hoops")
+        .from("drills")
+        .select("id, name, description, video_url, source_trainer, setup, cues, common_mistakes, equipment")
+        .in("id", drillIds)
+    : { data: [] };
+  const drills: Record<string, DrillNotes> = {};
+  for (const d of (drillRows ?? []) as (DrillNotes & { id: string })[]) drills[d.id] = d;
+
   const lastResults: Record<string, number> = {};
   (history ?? []).forEach((r) => {
     if (r.actual !== null && !(r.label in lastResults)) {
@@ -52,6 +65,7 @@ export default async function RunPracticePage({
       steps={toRunnableSteps(blocks)}
       totalMinutes={totalMinutes(blocks)}
       lastResults={lastResults}
+      drills={drills}
     />
   );
 }
