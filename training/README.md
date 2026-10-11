@@ -722,3 +722,24 @@ whole outline, from clips at other angles, zooms and light, may fix the boxes at
   Promote ball-6 only if: no fewer shots found and no fewer calls right than ball-5 in either window on 4874 (20 shots, so one or two
   shots is noise and is reported as such), the sizer's pick on 4874 lies within 0.85-1.15, and the kids-clip precision is not clearly lower.
   Otherwise ball-5 stays.
+
+### Round-six dataset built (dataset14 -> dataset_v6.zip, 2026-10-11)
+`tools/44-round6.mjs`: circles, then render. Round five's set (dataset13) plus, from nine sources (IMG_4839, 4840, 4844 at its two camera
+positions, 4851, 4866, 4867, 4872, 4873), every ball-5 proposal (score >= 0.4, every 2nd frame) that an independent circle-edge fit on the
+native picture confirmed, boxed by the circle. 693 circles passed the first test (support >= 0.7, centre and size agree with the proposal);
+a first eye check of 144 tiles still showed about 15-20% bad (4 faces, about 6 backboard shadows, about 5 small boxes beside a real ball whose
+ball had no box), so two more tests were added and the numbers stored with each circle (`o45`: share of the circle's inside that is saturated
+orange; `elsewhere`: strongly orange pixels elsewhere in the picture, in ball areas, minus the source's median): o45 >= 0.6 and
+elsewhere-median < 0.5 (IMG_4844 exempt from the colour test, its balls are dark against the sky). 548 circles left (4839 109, 4840 94,
+4844a 10, 4844b 39, 4851 73, 4866 90, 4867 81, 4872 25, 4873 27). Eye check of the filtered set, 48 random per source (all of the small
+ones), nine sheets, about 400 tiles: boxes on real balls and tight everywhere, no face, no shadow, no unboxed second ball seen; 4844's
+balls are all dribbles on the pavement at the start of the clip (real balls, not shots).
+- Measured ball width from the circles (native px, the window then cut at width/23.7 of 416): 4839 24, 4840 26, 4844 50, 4851 30, 4866 44,
+  4867 24, 4872 28, 4873 46. Ball-5's own box width near the rim on 4872 was 16.5, so its boxes are about 59% of the ball there; the circle width
+  can read somewhat high on a blurred ball (halo), which is accepted.
+- Each kept frame is rendered twice (REPEATS) as a 416 px window at 0.8-1.25x of its source's own scale, ball placed within 15% of centre, so
+  the same ball is 19-30 px wide; boxes follow exactly. New pictures: train 904, val 54, test 138 (1096 in all, 904 train + val + test split by
+  time within each source). Merged: train 5392 pictures (4112 with a ball), val 746 (392), test 1131 (801). No negatives added from the new clips.
+- Held out, verified in the file lists: no IMG_4874 and no kids-clip picture (two old file names contain "4874" by coincidence).
+- `Training Video/dataset_v6.zip` (573 MB, top folder `dataset`), notebook `colab/train_ball_detector.ipynb` now reads it and writes to
+  `hardwood-lab/out6`. Matt runs it in Colab, then the round-six exam above is run with the new `ball-6.onnx`.
