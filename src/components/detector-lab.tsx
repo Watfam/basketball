@@ -5,7 +5,7 @@ import { createDetector, nextVideoFrame, yieldToMain, type Backend, type Detecto
 import { MODEL_INPUT, blockMotion, boxToFrame, createMotionGate, hoopWindow, luma, type Crop } from "@/lib/vision/roi";
 import { AUTO_SIZE } from "@/lib/vision/autoSize";
 import { createCountingCore } from "@/lib/vision/counting";
-import { REFERENCE_FPS, liveCall, type ShotCall } from "@/lib/vision/shotRules";
+import { LIVE_RULE, REFERENCE_FPS, liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
 import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
@@ -109,7 +109,7 @@ type Report = {
   io?: string;
   backend: Backend;
   model?: ModelId;
-  /** Ball model only: shots and V2 makes counted by the make/miss rule. */
+  /** Ball model only: shots and makes counted by the make/miss rule. */
   shots?: { shots: number; makes: number };
   /** Ball model only: rim size setting and the median ball width near the rim, model px. */
   scale?: number;
@@ -170,7 +170,7 @@ function reportText(report: Report) {
     `Video: ${report.video}   Model load: ${fmt(report.loadMs, 0)} ms`,
     `Frames: ${report.frames}   Average: ${fmt(report.avgFps)} fps   Slowest 5%: ${fmt(report.p95Ms, 0)} ms`,
     `Frames with a ball: ${fmt(report.ballPct, 0)}%`,
-    ...(report.shots ? [`Shots counted: ${report.shots.shots}, makes (rule V2): ${report.shots.makes}`] : []),
+    ...(report.shots ? [`Shots counted: ${report.shots.shots}, makes (rule ${LIVE_RULE.toUpperCase()}): ${report.shots.makes}`] : []),
     ...(report.scale !== undefined
       ? [
           `Rim size setting: x${report.scale.toFixed(2)} · ball near the rim: ${
