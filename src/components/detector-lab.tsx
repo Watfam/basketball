@@ -5,7 +5,7 @@ import { createDetector, nextVideoFrame, yieldToMain, type Backend, type Detecto
 import { MODEL_INPUT, blockMotion, boxToFrame, createMotionGate, hoopWindow, luma, type Crop } from "@/lib/vision/roi";
 import { AUTO_SIZE } from "@/lib/vision/autoSize";
 import { createCountingCore } from "@/lib/vision/counting";
-import { REFERENCE_FPS, type ShotCall } from "@/lib/vision/shotRules";
+import { REFERENCE_FPS, liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { MODEL_VERSION, RULE_VERSION, saveLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
 import { haptic } from "@/lib/haptics";
 import { describeWake, getWakeStatus, useWakeLock, useWakeStatus } from "@/lib/use-wake-lock";
@@ -507,7 +507,7 @@ export function DetectorLab() {
       const takeCalls = (calls: ShotCall[]) => {
         for (const c of calls) {
           if (!c.counted) continue;
-          shotsRun = { shots: shotsRun.shots + 1, makes: shotsRun.makes + (c.v2 === "make" ? 1 : 0) };
+          shotsRun = { shots: shotsRun.shots + 1, makes: shotsRun.makes + (liveCall(c) === "make" ? 1 : 0) };
           runCalls.push({ v1: c.v1, v2: c.v2, v3: c.v3, v4: c.v4, flagged: c.flagged, atMs: Math.round(c.firstMs) });
           setShots({ ...shotsRun, last: c });
         }
@@ -995,7 +995,7 @@ export function DetectorLab() {
         {shots && (
           <div className="absolute right-2 top-2 rounded-md bg-black/70 px-2 py-1 text-right text-[11px] font-bold tabular-nums text-white">
             {shots.makes}/{shots.shots} made
-            {shots.last ? ` · last: ${shots.last.v2}` : ""}
+            {shots.last ? ` · last: ${liveCall(shots.last)}` : ""}
           </div>
         )}
         {sizing && phase === "running" && !aiming && (

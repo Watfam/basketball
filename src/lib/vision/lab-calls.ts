@@ -1,5 +1,5 @@
 import { readDraft, writeDraft } from "@/lib/use-local-draft";
-import type { Outcome } from "@/lib/vision/shotRules";
+import { LIVE_RULE, type Outcome } from "@/lib/vision/shotRules";
 
 /**
  * The shot-by-shot calls of the last Camera lab run with the ball model,
@@ -33,5 +33,5 @@ export function readLabCalls(): LabCalls | null {
 }
 
 /** What the app's counting software is, recorded with every calibration. */
-export const RULE_VERSION = "v2";
+export const RULE_VERSION = LIVE_RULE;
 export const MODEL_VERSION = "ball-5";

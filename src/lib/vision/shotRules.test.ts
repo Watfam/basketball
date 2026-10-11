@@ -17,7 +17,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { REFERENCE_FPS, RULE, createShotCounter, inZone, type Box, type ShotCall } from "./shotRules.ts";
+import { LIVE_RULE, REFERENCE_FPS, RULE, createShotCounter, inZone, liveCall, type Box, type ShotCall } from "./shotRules.ts";
 
 type Det = Box & { f: number };
 
@@ -326,4 +326,7 @@ test("V4: a ball that crosses the rim line far from the rim's centre is a miss, 
   assert.deepEqual([a.v2, a.v4], ["make", "make"]);
   assert.ok(b.cross !== null && Math.abs(b.cross - 40) < 2, `crossing ${b.cross}`);
   assert.deepEqual([b.v2, b.v4], ["make", "miss"]);
+  // The app counts with V4, so the ball that crossed far out is a miss on screen, the one through the middle a make.
+  assert.equal(LIVE_RULE, "v4");
+  assert.deepEqual([liveCall(a), liveCall(b)], ["make", "miss"]);
 });

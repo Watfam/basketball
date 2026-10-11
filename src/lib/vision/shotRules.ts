@@ -129,7 +129,7 @@ export function fallSpeed(seen: Seen[], first: number, rim: { x: number; y: numb
 }
 
 /**
- * Rule V4, a trial (2026-10-10): V2, except that a make whose ball crossed the rim line well off the rim's
+ * Rule V4, live since 2026-10-11 (a trial when registered on 2026-10-10): V2, except that a make whose ball crossed the rim line well off the rim's
  * centre is a miss. A ball that goes through has to cross inside the ring; one that bounces off the rim and
  * drops by the net, or hits the net from outside, crosses farther out.
  *
@@ -141,9 +141,9 @@ export function fallSpeed(seen: Seen[], first: number, rim: { x: number; y: numb
  * crossings are known the tapped rim is the centre and the limit is 30 px: the 20 plus the 10 px the tap
  * can be off by (training/README.md, "How exactly must the rim be tapped?").
  *
- * Found AFTER seeing IMG_4836 to IMG_4867 (six clips, 82 V2 makes of which 16 were really misses): in-sample
- * it fixes 7 of the 16 and breaks no real make, but nothing about new footage follows from that. The next
- * fresh clip is its test, scored beside V2 and V3 with nothing changed first (training/README.md).
+ * Found AFTER seeing IMG_4836 to IMG_4867 (six clips, 82 V2 makes of which 16 were really misses). Its test was
+ * IMG_4872 to IMG_4874, scored beside V2 and V3 with nothing changed first: never worse than V2 on any clip,
+ * 1 to 3 shots better, no real make broken (training/README.md).
  */
 export const CROSS = {
   lookBackFrames: 45,
@@ -169,6 +169,13 @@ export function rimCrossing(seen: Seen[], first: number, rim: { x: number; y: nu
   }
   return null;
 }
+
+/**
+ * The rule the app counts with. V4 since 2026-10-11 (Matt's decision after the IMG_4872-4874 exams: never worse
+ * than V2 on any clip, better by 1 to 3 shots, breaks no make). Everything that turns a ShotCall into a make or
+ * a miss goes through liveCall, so promoting a rule is a change here only.
+ */
+export const LIVE_RULE = "v4" as const;
 
 export type ShotCall = {
   /** 1, 2, 3... in the order shots were decided. */
@@ -272,6 +279,11 @@ export function flagReasons(call: Pick<ShotCall, "v2" | "belowWidth" | "belowMin
   if ((call.belowMinDx ?? 0) >= FLAG.offCentre) reasons.push("off_centre");
   if (call.zoneSightings >= FLAG.longAtRim) reasons.push("long_at_rim");
   return reasons;
+}
+
+/** Make or miss, by the rule the app counts with (LIVE_RULE). */
+export function liveCall(call: Pick<ShotCall, "v1" | "v2" | "v3" | "v4">): Outcome {
+  return call[LIVE_RULE];
 }
 
 /**

@@ -692,3 +692,10 @@ Matt's, the shots are matched to the pinned run's 1-to-1 timeline by time (withi
   4872: #1 (miss called make, crossing -9), #5 (a make called a miss).
 - Fixtures: `training/fixtures/dets5-4872(-found).json`, `dets5-4873-s1.json` (scale 1) and `dets5-4873-found.json` (x1.616), `dets5-4874(-found).json`
   (ball boxes only). 4874 stays held out from any training or tuning.
+
+### V4 promoted to the live rule (Matt's decision, 2026-10-11)
+After the IMG_4872/4873/4874 exams (above) Matt chose to make V4 the rule the app counts with. `LIVE_RULE = "v4"` and `liveCall()` in
+`src/lib/vision/shotRules.ts` are now the one place that says which rule counts; the Shoot screen, the camera lab and the saved
+`rule_version` follow it, and Calibrate opens on the live rule (V2 and V3 stay selectable to compare). The worth-a-look flag is
+unchanged (defined on V2 makes); a shot V4 turns into a miss can still carry the ring. Not yet measured on a phone: the first live
+V4 session, and the earlier note still stands that V4's centre is learned from a session's first 5 crossings.

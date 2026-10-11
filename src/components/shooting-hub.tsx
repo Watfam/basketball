@@ -34,7 +34,7 @@ import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_TRIAL_KEY } from "@/lib/vision/camera-trial";
 import { clearReplays } from "@/lib/vision/replay-store";
 import { ReplayViewer } from "@/components/replay-viewer";
-import type { ShotCall } from "@/lib/vision/shotRules";
+import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
@@ -212,7 +212,7 @@ export function ShootingHub({
   /** A shot the camera decided: added like a tap, marked as the camera's. */
   const onCameraShot = useCallback(
     (call: ShotCall, replayId: string) => {
-      const made = call.v2 === "make";
+      const made = liveCall(call) === "make";
       // The call's clock is performance.now(); the set's is the wall clock.
       const wallAt = Date.now() - (performance.now() - call.firstMs);
       edit((d) => ({

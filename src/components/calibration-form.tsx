@@ -6,6 +6,7 @@ import { saveCalibrationRun } from "@/app/actions";
 import { align, type Outcome } from "@/lib/basketball/calibration";
 import { formatPercentage, percentage } from "@/lib/basketball/shooting";
 import { readLabCalls, type LabCalls } from "@/lib/vision/lab-calls";
+import { LIVE_RULE } from "@/lib/vision/shotRules";
 import { haptic } from "@/lib/haptics";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardSection } from "@/components/ui/card";
@@ -28,8 +29,9 @@ export function CalibrationForm() {
   const router = useRouter();
   const [lab, setLab] = useState<LabCalls | null | undefined>(undefined);
   const [truth, setTruth] = useState<Outcome[]>([]);
-  // V2 is the registered rule; V3 and V4 are trials (src/lib/vision/shotRules.ts, FALL and CROSS).
-  const [rule, setRule] = useState<"v2" | "v3" | "v4">("v2");
+  // The run is shown under the rule the app counts with (LIVE_RULE); V2 and V3 can be looked at for comparison.
+  const [picked, setPicked] = useState<"v2" | "v3" | "v4" | null>(null);
+  const rule = picked ?? LIVE_RULE;
   const [hoop, setHoop] = useState("Driveway");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,7 @@ export function CalibrationForm() {
       const res = await saveCalibrationRun({
         source: `${lab.source}${result.method === "aligned" ? ", lined up (flatters the camera)" : ""}`,
         hoopLabel: hoop,
-        ruleVersion: shown === "v2" ? lab.ruleVersion : shown,
+        ruleVersion: shown,
         modelVersion: lab.modelVersion,
         shots: result.shots,
         agreed: result.agreed,
@@ -114,7 +116,7 @@ export function CalibrationForm() {
           <span className="text-foreground-dim">{lab.source}</span>
         </p>
         <p className="mt-0.5 text-[11px] text-foreground-mute">
-          {new Date(lab.at).toLocaleString()} · rule {shown === "v2" ? lab.ruleVersion : `${shown} (trial)`} ·{" "}
+          {new Date(lab.at).toLocaleString()} · rule {shown === "v3" ? "v3 (trial)" : shown} ·{" "}
           {lab.modelVersion}
         </p>
         {hasTrials && (
@@ -123,13 +125,13 @@ export function CalibrationForm() {
               <button
                 key={v}
                 type="button"
-                onClick={() => setRule(v)}
+                onClick={() => setPicked(v)}
                 aria-pressed={rule === v}
                 className={`rounded-md py-1.5 text-[11px] font-extrabold uppercase tracking-wide ${
                   rule === v ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
                 }`}
               >
-                {v === "v2" ? "Rule V2" : v === "v3" ? "V3 (trial)" : "V4 (trial)"}
+                {`${v === "v3" ? "V3 (trial)" : v.toUpperCase()}${v === LIVE_RULE ? " (live)" : ""}`}
               </button>
             ))}
           </div>
