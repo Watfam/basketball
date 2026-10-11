@@ -649,3 +649,46 @@ exist, and nothing in any rule, the model or the sizer is changed before the rep
   run, matched to Matt's list 1 to 1 where the counts agree (alignment, said so, if not). V2 is the registered rule and V4 the trial being
   tested (registered 2026-10-10); report all four and every shot where they differ. Pass line for promoting V4: not worse than V2 on any of
   the three clips and better in total on 4872 + 4874 (the unzoomed ones), with the flag catching most errors on under 25% of shots.
+
+### EXAMS 7-9 on IMG_4872, IMG_4873, IMG_4874 (2026-10-11), as registered above
+Matt's lists (each row came with his own totals, which my transcription matches): 4872 23 shots (13 makes, 10 misses); 4873 22 (10, 12);
+4874 20 (12, 8). Windows placed before any detection; ball-5 on every frame; the app's counting core (`tools/41-run.mjs`).
+Two ways of scoring, because the sizer changed the answer: **pinned** = window at scale 1 all clip long (one window, valid, and it found
+every written shot on 4872 and 4874, so it lines up 1 to 1 with Matt's list), and **sizer** = the app's own behaviour: let auto sizing find
+the size from a first pass (saved-clip style), then count from frame 0 in that window (detections re-run there). Where counts differ from
+Matt's, the shots are matched to the pinned run's 1-to-1 timeline by time (within 1.5 s) so the score is not flattered by self-alignment.
+- **Auto sizing from scale 1, IMG_4873 (iPhone 1x, the dynamic-resize test): it worked.** From a start at x1 it settled on **x1.62**
+  after 27 s (ball 37.5 px against training's 23.7), unaided. The backboard says about x1.77 (257 px against 145), so the ball says
+  9% less than the backboard. Counted in that window: 24 candidates for 22 written shots (3 extras, 1 written shot never seen); aligned,
+  V1/V2/V3/V4 all 20 of 21 aligned (20 of 22 against the whole list). At x1 the same clip found only 18 of 22 shots (ball 38 px, the model
+  has not seen balls that big), so the resize clearly helped, but the 3 extra candidates are shots that were not there (not yet looked at).
+- **Auto sizing on the two wide clips, 4872 and 4874: it misled.** The ball measured 16.5 px (4872) and 17.2 px (4874) in the scale-1 window,
+  against 22.8-24.5 on earlier clips, so the sizer moved the window to x0.72 and x0.73. But the backboards are 138 and 136 px (training 145) and
+  the ball in the frame looks about 22 px wide, so the model's boxes are tight on this ball for a reason I have not found (not a different
+  ball, as far as the picture shows). Shrinking the window cost shots: at x1 every written shot was found (23 of 23, 20 of 20), in the sizer
+  window 21 of 23 (4872) and 17 of 20 plus 1 extra (4874). Whether the model copes better with small balls than large ones is suggested by this
+  (17 px balls: everything found at x1; 38 px: 4 of 22 lost), but it is two clips, and 4874 is held out, so the sizer's tolerance has NOT
+  been changed. It needs a decision, see below.
+- **Rule scores against the whole written list** (unfound shots count as wrong):
+  | clip | window | V1 | V2 | V3 | V4 |
+  |---|---|---|---|---|---|
+  | 4872 | pinned x1 | 18/23 | 19/23 (83%) | 18/23 | **21/23 (91%)** |
+  | 4872 | sizer x0.72 | 20/23 | 20/23 (87%) | 18/23 | 20/23 (87%) |
+  | 4874 | pinned x1 | 14/20 | 15/20 (75%) | 16/20 | 16/20 (80%) |
+  | 4874 | sizer x0.73 | 12/20 | 14/20 (70%) | 13/20 | 15/20 (75%) |
+  | 4873 | sizer x1.62 | 20 of 21 aligned for every rule (flatters; 24 candidates, 22 written) |
+  Pooled over 4872 + 4874 + 4873: V2 54 of 65 (83%) and V4 55 of 65 (85%) in the sizer windows; pinned (4872 + 4874 only) V2 34 of 43, V4 37 of 43.
+- **V4 (registered 2026-10-10) against its pass line:** (1) not worse than V2 on any clip: met, in both windows. It differs from V2 on 3 shots
+  in the pinned run (4872 #2 crossing 40 and #15 crossing -32, 4874 #17 crossing 35, all real misses, all fixed) and 1 in the sizer
+  windows (4874 #5, a real miss called a make, crossing -36, fixed), and it broke no real make anywhere (the scorer's self-aligned table
+  showed one "V4 wrong" on 4874 that was a mis-lineup; by time the shot is a miss). (2) better in total on 4872 + 4874: met, +3 pinned,
+  +1 in the sizer windows. (3) the flag catching most errors on under 25% of shots: NOT clearly met: 22% flagged and 3 of 4 errors
+  caught on 4872 pinned, 25% and 2 of 5 on 4874 pinned, 14-29% and 0-1 caught in the sizer windows. V4 has therefore NOT been
+  promoted: it is better, but only by 1 to 3 shots in 43 to 65, and the third condition is mixed.
+- **V3** was the worst rule on the unzoomed clips again (4872: 18 of 23 at both windows, below V2; 4874 pinned 16, sizer 13).
+  It has now failed to beat V2 on 5 of the 6 clips it was not tuned on.
+- **What still goes wrong**, from the pinned run, 4874: written #2 and #13 (makes the camera called misses: shot #2 not seen at the rim, #13 the ball
+  hidden), #5 (a miss called make, crossing -26, under V4's early 30 px limit), #12 (miss called make crossing -1: a rim bounce straight down).
+  4872: #1 (miss called make, crossing -9), #5 (a make called a miss).
+- Fixtures: `training/fixtures/dets5-4872(-found).json`, `dets5-4873-s1.json` (scale 1) and `dets5-4873-found.json` (x1.616), `dets5-4874(-found).json`
+  (ball boxes only). 4874 stays held out from any training or tuning.
