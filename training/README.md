@@ -632,3 +632,20 @@ it picks up rebounds), fall speed (V3: failed on 4867), and where the ball cross
 - Tooling: `tools/41-run.mjs` scores a clip with the app's counting core (`--segments` for a clip whose camera moved, `PAIRS_OUT` to
   export every shot's evidence), `tools/43-run-tests.mjs` runs the vision tests on Node 20 (which cannot run `npm test`), `tools/22`
   takes `SCALE` and `START`.
+
+### Exam clips IMG_4872, IMG_4873, IMG_4874: procedure registered 2026-10-11, BEFORE any detection or call has been looked at
+Matt filmed three clips (1080p HEVC with audio, 2.4-2.6 min each). His written lists are coming; nothing is scored until they
+exist, and nothing in any rule, the model or the sizer is changed before the report.
+- **IMG_4872**: usual wide shot, backboard about 138 px (training 145), so scale 1. **IMG_4874**: usual wide shot, backboard about 136 px, scale 1.
+  Matt's note: 4874 is kept as a held-out clip for scoring anything retrained, so it must NOT be used to tune or train anything.
+- **IMG_4873**: iPhone 1x lens instead of 0.5x, backboard about 257 px, so about 1.77x the training size. This is the test of the app finding
+  its own zoom. It starts at scale 1 (the remembered size) and the sizer must find the right one from the ball, unaided. The honest
+  report says what size it found, how many shots it needed, whether it found any size at all at x1 (the model has only seen balls of about
+  22 px, and this ball would be about 40), and how the calls score afterwards. I place the hoop on the picture by eye (as the player
+  would tap it), but do not set the scale from the backboard for this clip, unlike 4866 and 4844.
+- Rims placed at full resolution from one frame each, before any detection: 4872 (1038, 462), 4873 (1040, 508), 4874 (1008, 520) in the
+  1920x1080 frame; scale-1 windows at (846, 272), (848, 318), (816, 330).
+- Scoring: ball-5, every frame (`tools/22`), the app's counting core (`tools/41-run.mjs`, auto sizing on), V1/V2/V3/V4 and the flag in one
+  run, matched to Matt's list 1 to 1 where the counts agree (alignment, said so, if not). V2 is the registered rule and V4 the trial being
+  tested (registered 2026-10-10); report all four and every shot where they differ. Pass line for promoting V4: not worse than V2 on any of
+  the three clips and better in total on 4872 + 4874 (the unzoomed ones), with the flag catching most errors on under 25% of shots.
