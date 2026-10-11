@@ -699,3 +699,26 @@ After the IMG_4872/4873/4874 exams (above) Matt chose to make V4 the rule the ap
 `rule_version` follow it, and Calibrate opens on the live rule (V2 and V3 stay selectable to compare). The worth-a-look flag is
 unchanged (defined on V2 makes); a shot V4 turns into a miss can still carry the ring. Not yet measured on a phone: the first live
 V4 session, and the earlier note still stands that V4's centre is learned from a session's first 5 crossings.
+
+### Round six: plan and exam, registered 2026-10-11 BEFORE any round-six model exists
+Matt: promote V4 (done) and train on the older clips, holding out IMG_4874. Why a retrain is worth trying: ball-5's boxes on the
+blurry wide clips (IMG_4872, 4874) cover only the core of the ball (about 70% of its width; seen on 18 exact-frame crops of 4872), which
+made the app's auto sizing read the ball as small and shrink the window, losing 2 to 4 shots per clip. Training on boxes that follow the ball's
+whole outline, from clips at other angles, zooms and light, may fix the boxes at their source.
+- **Data** (tools/44-round6.mjs): round five's set (dataset13) plus, from IMG_4839, 4840, 4844 (two camera positions), 4851, 4866, 4867, 4872
+  and 4873, every ball-5 proposal (score >= 0.4, every 2nd frame) that an independent circle-edge fit on the native picture confirms (support
+  >= 0.7, centre inside the proposal's neighbourhood, size 0.6-1.9x the proposal), boxed by the circle, not by the model; frames where a second
+  ball may be present are dropped; up to 300 per source; windows cut at 0.8-1.25x of each source's own measured ball scale, so the same
+  ball appears 19-30 px wide. Random 48-box eye-check sheet per source before anything is trained on it.
+  Left out and NEVER touched: **IMG_4874** and the kids clip B1689585. No negatives from the new clips (a shooter holds a ball in too many
+  frames, the round-two lesson); round five's negatives stay.
+- **Known limits**: positives only where ball-5 already proposes a ball, so this teaches box size, zoom and angle, not recall; the motion-based
+  "hard positives" (balls ball-5 misses) are a possible round 6b if the exam says recall is the problem.
+- **Exam** (ball-6 against ball-5, same tools, same windows, V4 as the live rule), all on 4874 and the kids clip:
+  1. 4874 shot calls, pinned at x1 and in the sizer's own window: shots found out of 20 and calls right out of 20 for each model.
+  2. The scale the sizer picks on 4874 with each model (the backboard says about 0.94; ball-5 said 0.73). Not tuned, only reported.
+  3. How the model's box width at the rim compares with the ball's circle-fit width on 4874 (a measurement, no training on it).
+  4. Kids clip, round-five protocol (every box looked at): precision and any new kind of false box.
+  Promote ball-6 only if: no fewer shots found and no fewer calls right than ball-5 in either window on 4874 (20 shots, so one or two
+  shots is noise and is reported as such), the sizer's pick on 4874 lies within 0.85-1.15, and the kids-clip precision is not clearly lower.
+  Otherwise ball-5 stays.
