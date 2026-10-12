@@ -53,34 +53,34 @@ export function ReplayViewer({ replayId, title, onClose }: { replayId: string; t
   const atRim = frame ? frame.t >= 0 && frame.t < 150 : false;
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-4">
+    <div role="dialog" aria-modal="true" aria-label={title} className="theme-dark fixed inset-0 z-[60] flex items-center justify-center bg-background/90 p-4 text-foreground">
       <div className="w-full max-w-sm space-y-3">
-        <div className="flex items-center justify-between text-white">
+        <div className="flex items-center justify-between">
           <p className="text-sm font-extrabold uppercase tracking-wide">{title}</p>
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-white/80 hover:text-white">
+          <Button variant="ghost" size="sm" onClick={onClose}>
             Close
           </Button>
         </div>
-        <div className="relative aspect-square overflow-hidden rounded-2xl bg-black">
+        <div className="relative aspect-square overflow-hidden rounded-2xl bg-surface">
           {frame ? (
             // eslint-disable-next-line @next/next/no-img-element -- a local blob frame, not a page image
             <img src={frame.url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-white/70">
+            <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-foreground-dim">
               {missing ? "No replay for this shot (the phone couldn't keep it)." : "Loading the replay…"}
             </p>
           )}
           {frame && (
             <span
-              className={`absolute left-2 top-2 rounded-md px-2 py-0.5 text-[11px] font-bold text-white ${
-                atRim ? "bg-[var(--accent)]" : "bg-black/60"
+              className={`absolute left-2 top-2 rounded-md px-2 py-0.5 text-[11px] font-bold ${
+                atRim ? "bg-accent text-on-accent" : "bg-background/80 text-foreground"
               }`}
             >
               {atRim ? "At the rim" : `${(frame.t / 1000).toFixed(1)} s`}
             </span>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/10 p-1">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-raised p-1">
           {[true, false].map((s) => (
             <button
               key={String(s)}
@@ -88,14 +88,14 @@ export function ReplayViewer({ replayId, title, onClose }: { replayId: string; t
               aria-pressed={slow === s}
               onClick={() => setSlow(s)}
               className={`min-h-10 rounded-lg text-xs font-extrabold uppercase tracking-wide ${
-                slow === s ? "bg-white text-black" : "text-white/80"
+                slow === s ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
               }`}
             >
               {s ? "Half speed" : "Full speed"}
             </button>
           ))}
         </div>
-        <p className="text-center text-xs text-white/60">Kept on this phone until the set is saved, then deleted.</p>
+        <p className="text-center text-xs text-foreground-mute">Kept on this phone until the set is saved, then deleted.</p>
       </div>
     </div>
   );

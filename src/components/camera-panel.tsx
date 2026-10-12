@@ -36,7 +36,7 @@ export function CameraPanel({ camera }: { camera: Camera }) {
 
   return (
     <section className="space-y-3">
-      <div className={`relative overflow-hidden rounded-2xl bg-black ${aiming ? "" : "h-28"}`}>
+      <div className={`relative overflow-hidden rounded-2xl bg-background ${aiming ? "" : "h-28"}`}>
         <video
           ref={videoRef}
           muted
@@ -50,7 +50,7 @@ export function CameraPanel({ camera }: { camera: Camera }) {
           }}
         />
         {phase === "starting" && (
-          <p className="absolute inset-0 flex items-center justify-center text-sm text-white/80">Opening the camera…</p>
+          <p className="absolute inset-0 flex items-center justify-center text-sm text-foreground-dim">Opening the camera…</p>
         )}
         {phase === "counting" && <CountingBadge health={health} loadingStep={loadingStep} />}
       </div>
@@ -64,7 +64,7 @@ export function CameraPanel({ camera }: { camera: Camera }) {
             ref={zoomRef}
             width={416}
             height={416}
-            className="block aspect-square w-full touch-none rounded-xl bg-black"
+            className="block aspect-square w-full touch-none rounded-xl bg-background"
             onPointerDown={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               camera.aimInZoom((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
@@ -104,8 +104,8 @@ function CountingBadge({ health, loadingStep }: { health: Camera["health"]; load
   return (
     <p
       role="status"
-      className={`absolute inset-x-2 bottom-2 rounded-md px-2 py-1 text-center text-xs font-bold text-white ${
-        warn ? "bg-red-700/90" : "bg-black/65"
+      className={`absolute inset-x-2 bottom-2 rounded-md px-2 py-1 text-center text-xs font-bold ${
+        warn ? "bg-danger text-on-accent" : "bg-background/80 text-foreground"
       }`}
     >
       {text}
