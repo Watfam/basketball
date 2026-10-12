@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/button";
-import { CameraTrialToggle } from "@/components/camera-trial-toggle";
+import { CameraSwitchToggle } from "@/components/camera-switch-toggle";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { redirect } from "next/navigation";
@@ -80,7 +80,7 @@ export default async function CameraLabPage() {
           </p>
         </div>
 
-        <CameraTrialToggle />
+        <CameraSwitchToggle />
 
         <div className="grid grid-cols-2 gap-2.5">
           <ButtonLink href="/lab/detector" variant="secondary" size="lg">

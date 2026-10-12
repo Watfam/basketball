@@ -31,7 +31,7 @@ import { SessionSummary, ShotStrip } from "@/components/shot-summary";
 import { CameraPanel } from "@/components/camera-panel";
 import { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
-import { CAMERA_TRIAL_KEY } from "@/lib/vision/camera-trial";
+import { CAMERA_SWITCH_KEY } from "@/lib/vision/camera-switch";
 import { clearReplays } from "@/lib/vision/replay-store";
 import { ReplayViewer } from "@/components/replay-viewer";
 import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
@@ -172,8 +172,8 @@ export function ShootingHub({
   const [recentRaw, setRecentRaw] = useLocalDraft(recentKey(playerId));
   const recent = useMemo(() => parseRecent(recentRaw), [recentRaw]);
 
-  const [trialRaw] = useLocalDraft(CAMERA_TRIAL_KEY);
-  const cameraAllowed = trialRaw === "on";
+  const [switchRaw] = useLocalDraft(CAMERA_SWITCH_KEY);
+  const cameraAllowed = switchRaw !== "off";
   const [countRaw, setCountRaw] = useLocalDraft(COUNT_KEY);
   const countWithCamera = cameraAllowed && countRaw === "camera";
   // The last call, shown big for a moment: the shooter is 15 feet away.
@@ -813,6 +813,7 @@ export function ShootingHub({
           );
         })()}
 
+        {cameraAllowed && (
         <div className="mt-5">
           <Eyebrow className="mb-1.5">
             How to count
@@ -821,18 +822,10 @@ export function ShootingHub({
             {(
               [
                 { id: "tap", title: "Tap counter", sub: "Tap make or miss yourself" },
-                { id: "camera", title: "Camera · trial", sub: "Phone on a stand counts for you" },
+                { id: "camera", title: "Camera", sub: "Phone on a stand counts; you check the unsure ones" },
               ] as const
             ).map((opt) => {
               const selected = opt.id === "camera" ? countWithCamera : !countWithCamera;
-              if (opt.id === "camera" && !cameraAllowed) {
-                return (
-                  <div key={opt.id} aria-disabled="true" className="rounded-xl border border-dashed border-line px-3 py-2.5 opacity-70">
-                    <p className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Camera · soon</p>
-                    <p className="mt-0.5 text-[11px] text-foreground-mute">Your coach switches it on</p>
-                  </div>
-                );
-              }
               return (
                 <button
                   key={opt.id}
@@ -855,6 +848,7 @@ export function ShootingHub({
             })}
           </div>
         </div>
+        )}
 
         <div className="mt-5">
           <Eyebrow className="mb-1.5">

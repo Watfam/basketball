@@ -152,6 +152,39 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     }
   }, [teardown]);
 
+  /**
+   * The phone left the app (a call, another app, the screen locking) and came back, or another app took the camera. iOS pauses the
+   * picture while the page is hidden: a paused video is started again, and a camera that ended is an error with a way back in,
+   * not a counter that silently sees nothing. Shots already decided are kept.
+   */
+  useEffect(() => {
+    if (phase !== "counting" && phase !== "aiming") return;
+    const track = streamRef.current?.getVideoTracks()[0];
+    const interrupted = () => {
+      const flush = flushRef.current;
+      flushRef.current = null;
+      flush?.();
+      setError("The camera was interrupted (another app, a call or the screen locking). Open it again to carry on: your shots so far are kept.");
+      setPhase("error");
+      teardown();
+    };
+    const resume = () => {
+      if (document.visibilityState !== "visible") return;
+      if (track && track.readyState === "ended") {
+        interrupted();
+        return;
+      }
+      const v = videoRef.current;
+      if (v && v.paused) void v.play().catch(() => {});
+    };
+    track?.addEventListener("ended", interrupted);
+    document.addEventListener("visibilitychange", resume);
+    return () => {
+      track?.removeEventListener("ended", interrupted);
+      document.removeEventListener("visibilitychange", resume);
+    };
+  }, [phase, teardown]);
+
   /** The close-up while aiming: the window the model will see, with the rim mark and its allowance. */
   useEffect(() => {
     if (phase !== "aiming") return;

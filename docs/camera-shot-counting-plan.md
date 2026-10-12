@@ -162,3 +162,19 @@ Depends on A and B for the live count; the setup and tap-counter paths can ship 
 
 A first (it can end the project cheaply), then B and C in parallel, then F and G (mostly independent of the camera), then D and E, then H. The tap counter and the stats screens deliver value on their own even if the camera never clears the bar.
 - Design polish (2026-10-06): front door with avatar profile cards (Overall, season shooting %) and a Coach card, Manage family folded below; coach home at /coach (players with season % and sessions this week, latest calibration with Calibrate / Detector / History, teams), and the coach looking at a player no longer switches the phone's profile; player Home has the avatar switcher, the big Shoot card first and a Me tab in the bottom bar; Shoot setup shows the last-six make % and How to count (Tap counter, Camera soon); Calibrate lets a dot be tapped to flip it.
+
+## Status, 2026-10-11: camera counting is on for players
+
+- **On by default.** The Camera option appears in every player's Shoot setup ("How to count": Tap counter or Camera; the choice is remembered per
+  phone). The coach's Camera lab keeps a per-phone **off switch** (`CAMERA_SWITCH_KEY`, `src/lib/vision/camera-switch.ts`) for a phone that runs hot or
+  has a broken camera; nothing stored means on.
+- **What runs:** ball-6 model, hoop window sized from the ball, rule V4 (`LIVE_RULE`), 15 fps on CPU with still frames skipped, 10 fps floor
+  warning, replays kept on the phone only until the set is saved. Unsure calls are ringed and checked before saving; a shot the camera missed
+  is added with + Miss / + Make; taps never go away.
+- **Measured (offline, same pipeline):** about 88-91% of shots right on 8 labelled clips (86-88% on clips the rule was not designed on); about 96% if the
+  player confirms the ringed shots; makes read about 9% high. Details and every test are in `training/README.md`.
+- **Not yet measured:** a second 10-minute live run on a phone with ball-6 and V4 (speed and heat over a whole session), and live accuracy
+  against a written list. The first live run (ball-5) lost speed to heat (20 to 12 fps in 10 minutes) before the motion gate and 15 fps cap.
+- **Known limits:** a phone bumped mid-set silently counts the wrong place (no "hoop moved" check yet); someone in a red shirt near the hoop can
+  produce an occasional phantom shot (ball-6 boxed a red shirt in the kids clip); the camera was tested on the family driveway hoop only;
+  leaving the app mid-set now stops the camera with a clear message and a way back in (shots so far are kept).
