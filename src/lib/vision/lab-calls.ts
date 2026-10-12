@@ -34,4 +34,4 @@ export function readLabCalls(): LabCalls | null {
 
 /** What the app's counting software is, recorded with every calibration. */
 export const RULE_VERSION = LIVE_RULE;
-export const MODEL_VERSION = "ball-5";
+export const MODEL_VERSION = "ball-6";

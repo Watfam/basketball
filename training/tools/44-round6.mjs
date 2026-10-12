@@ -278,3 +278,25 @@ if (phase === "render") {
   for (const s of ["train", "val", "test"]) console.log(`MERGED ${s}: ${merged[s].images.length} pictures, ${merged[s].annotations.length} with a ball`);
   console.log("DONE");
 }
+
+if (phase === "measure") {
+  // Read-only: how wide is the model's box compared with the ball's own circle, on a clip that is NOT a training source (IMG_4874).
+  //   node 44-round6.mjs measure <dets json> <video> [how many=60]
+  // Writes nothing under labels/, and 4874 is not in SOURCES, so render can never pick it up.
+  const detsFile = process.argv[3], video = process.argv[4], want = Number(process.argv[5] || 60);
+  const d = JSON.parse(fs.readFileSync(detsFile, "utf8")), k = (d.cropSize ?? 416) / SIZE;
+  const air = d.detections.filter((q) => q.score >= 0.4 && q.f % 2 === 0 && Math.abs((q.x1 + q.x2) / 2 - 192) < 70 && (q.y1 + q.y2) / 2 > 60 && (q.y1 + q.y2) / 2 < 175)
+    .map((q) => ({ f: q.f, cx: d.cropX + ((q.x1 + q.x2) / 2) * k, cy: d.cropY + ((q.y1 + q.y2) / 2) * k, w: (q.x2 - q.x1) * k }));
+  seed = 4874; const pool = [...air], pick = []; while (pick.length < want && pool.length) pick.push(pool.splice(Math.floor(rand() * pool.length), 1)[0]);
+  const byFrame = new Map(pick.map((q) => [q.f, q])), last = Math.max(...byFrame.keys()), ratios = [], circles = [], boxes = [];
+  for await (const { n, img } of frames(video)) {
+    if (n > last) break;
+    const q = byFrame.get(n); if (!q) continue;
+    const ox = Math.max(0, Math.min(FW - WIN, Math.round(q.cx - WIN / 2))), oy = Math.max(0, Math.min(FH - WIN, Math.round(q.cy - WIN / 2)));
+    const c = findCircle(img, ox, oy, Math.max(8, q.w * 0.6));
+    if (!c || c.support < Number(process.env.SUPPORT ?? 0.7) || Math.hypot(ox + c.cx - q.cx, oy + c.cy - q.cy) > c.r + 2) continue;
+    ratios.push(q.w / (2 * c.r + 2)); circles.push(2 * c.r + 2); boxes.push(q.w);
+  }
+  const med = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)];
+  console.log(`${detsFile.split("/").pop()}: ${ratios.length} balls measured (of ${pick.length} sampled); median box width ${med(boxes).toFixed(1)} px, circle width ${med(circles).toFixed(1)} px, box/circle ${med(ratios).toFixed(2)}`);
+}

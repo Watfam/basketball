@@ -743,3 +743,29 @@ balls are all dribbles on the pavement at the start of the clip (real balls, not
 - Held out, verified in the file lists: no IMG_4874 and no kids-clip picture (two old file names contain "4874" by coincidence).
 - `Training Video/dataset_v6.zip` (573 MB, top folder `dataset`), notebook `colab/train_ball_detector.ipynb` now reads it and writes to
   `hardwood-lab/out6`. Matt runs it in Colab, then the round-six exam above is run with the new `ball-6.onnx`.
+
+### ROUND SIX EXAM: ball-6 against ball-5 (2026-10-11), as registered above. Colab test: 95% found at 0.25, 0 of 330 made up (round five: 95%, 0).
+Same-clip test, not the exam. The exam is on IMG_4874 and the kids clip, neither ever trained on.
+1. **IMG_4874 shot calls (20 written), V4 live rule, matched by shot time to the 1-to-1 ball-5 timeline.** ball-6 at x1: 19 of the 20 written shots
+   found plus 1 extra candidate (94.6 s), written #11 never found; ball-5 at x1: 20 of 20, no extras. Calls right out of 20 (whole list): ball-6 V4 17,
+   ball-5 V4 16 (V1: 15 against 14, V2: 15 against 15, V3: 15 against 16). In each model's OWN sizer window, the way the app really runs: ball-6 stays at x1
+   (so found 19, right 17) and ball-5 shrinks to x0.73 (found 17, right 15, from the earlier exam). 20 shots, so one or two shots is noise.
+2. **The size the sizer picks on 4874:** ball-6 **x1.00** (ball measured 24.7 px); ball-5 x0.73 (17.2 px). The backboard says about 0.94. Pass.
+3. **Box width against the ball:** in exact-frame crops of 18 balls both models box, ball-5's box covers the core of the ball (about 17 px on a ball of about
+   21) and ball-6's box encloses the whole ball with a 1-2 px margin (about 24-25), the training convention. The automatic circle-fit measure on 4874 is NOT
+   reliable (only 14-19 of 100-150 balls pass the fit, median 16 px, which does not match what the crops show) and is reported as such, not used. Some of the
+   crops have the ball offset from both boxes, because frame numbers drift slightly in long clips; the box sizes are read where the two line up.
+4. **Kids clip B1689585, round-five protocol (1 window a second, score >= 0.25), all 263 detections looked at:** ball-6 263 detections (ball-5: 105), about 231
+   on a ball (88%; ball-5 about 95 of 105, about 90%), so about 2.4 times as many real balls. 32 false boxes: **15 on the man's red shirt** (torso boxes, 3 at
+   score 0.31-0.43 but 5 at 0.61-0.85, so confident), **15 on dark round shadows on the backboard** (ball-5: about 5), 2 on heads. The red-shirt boxes are
+   the same size as the balls in that setup (box widths 24-44 px for nearly all detections), so a size cap cannot remove them.
+   Recall is clearly better; precision a little lower, with a worse kind of mistake (confident boxes on a red shirt).
+5. **Phantom shots in two clips with a red shirt near the hoop** (4851, 4872; their ball positives were in training but red torsos were never labelled, so
+   this is fair for phantoms): ball-6 found the same shots as ball-5 (23 and 17) with one extra candidate at 0.0 s on 4872, none on 4851; matched to Matt's lists
+   V4 got 23 of 23 and 16 of 17 right (in-sample for those two clips, not an exam).
+- **Decision: promote ball-6**, because it meets the line registered before training (sizer 1.00; no fewer calls right on 4874, one fewer shot found at x1
+  which was declared noise; kids-clip precision not clearly lower). `public/models/ball-6.onnx` replaces ball-5 (kept in git history, so a rollback is
+  one commit), `MODEL_VERSION` is "ball-6". Camera counting is still a per-phone trial switch, so the exposure is Matt's own phone.
+- **What to watch**: phantom shots when someone in a red shirt stands near the hoop, and extra boxes on the ball's shadow on the backboard. Round 7, if
+  they show up in a live session: hard negatives of red-shirt torsos and backboard shadows from clips that are not 4874 or the kids clip, each checked by eye
+  (round four's shadow set is the model for it).
