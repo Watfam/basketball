@@ -769,3 +769,27 @@ Same-clip test, not the exam. The exam is on IMG_4874 and the kids clip, neither
 - **What to watch**: phantom shots when someone in a red shirt stands near the hoop, and extra boxes on the ball's shadow on the backboard. Round 7, if
   they show up in a live session: hard negatives of red-shirt torsos and backboard shadows from clips that are not 4874 or the kids clip, each checked by eye
   (round four's shadow set is the model for it).
+
+### Extra make/miss cues from the same single side view: all tested leave-one-clip-out, none helps as a verdict (2026-10-11)
+Matt ruled out a second or overhead angle (too much setup for the kids), so only cues from the one side-view footage were tried. Base: V4 with ball-5 over
+the 8 labelled clips (IMG_4839, 4840, 4844, 4851, 4866, 4867, 4872, 4874; 169 matched shots of 170 written): 153 right (91%, mostly in-sample for V4; on the
+two clips it was not designed on, 4872 and 4874, 37 of 43 = 86%, and with ball-6 on 4874 38 of 43 = 88%). The 16 wrong calls: 12 misses called makes (the ball
+fell near the ring line: a rim bounce straight down, or no measurable crossing), 4 makes called misses (no ball seen below the net). Makes are over-counted:
+100 called against 92 written (+9%). Each cue is used to demote a V4 "make" to a miss; thresholds were chosen on seven clips and scored on the eighth,
+rotating through all eight (`tools/45-kink.py`, `46-audio.py`, `47-net.mjs`; their per-shot tables are in training/work, not committed).
+- **Rim-contact kink** (biggest velocity change of one followed ball near the rim): false makes median 15.8, real makes 6.1, but real makes also show big changes
+  (the net catching the ball, a track hopping to another object): best in-sample threshold fixes 7 and breaks 7; held out, net +2 shots.
+- **Impact sound** (peak level in a 0.6 s window around the rim contact, above 3 kHz): false makes median 16 against 8.6 for real makes, large overlap, sharpness no
+  different; held out, net -5. Kink and sound together: net 0. (Caveat: voices and the ball on concrete add noise; the narrated clips could leak the answer
+  through speech, so a good score here would have needed more scepticism, and there is none to need.)
+- **Net movement** (brightness change in the net's patch after the ball leaves, relative to the clip's median): this separates the groups (false makes median 1.8,
+  real makes 4.1 times the clip's median), but only 12 of 100 "make" calls are wrong, so even this cue, used as a verdict, breaks more real makes than it fixes
+  (held out: net -4 shots for the late net, -12 for the pass-through).
+- **Why no single cue works as a verdict:** the wrong calls are about 1 in 8 of the makes, so a cue has to be very sharp (roughly 95% separation) to net a gain.
+  These are 70-80%.
+- **As a prompt, not a verdict**, quiet net after a "make" added to the worth-a-look ring: ring 24% of shots now catches 9 of 16 wrong calls (95.9% right if
+  every ringed shot is re-checked); with t = 2.0 the ring is 30% and catches 11 of 16 (97.0%); beyond t = 2.5 it plateaus at 12 of 16 (97.6%) for 36% or more. About
+  +1 point for 6% more checking, in-sample, with a clip-relative baseline a live session would have to learn. Not built; reported so the choice is Matt's.
+- **Conclusion:** from one side view the automatic ceiling looks like about 88-91% per shot (12 of the 16 remaining mistakes are rim bounces that look like makes),
+  and about 96% when the player confirms the ringed shots. A different view (overhead, as in NOAH) or a rim sensor would change the ceiling; neither fits Matt's
+  setup. The remaining lever inside this constraint is the check step, not the detector.
