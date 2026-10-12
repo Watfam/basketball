@@ -170,7 +170,8 @@ A first (it can end the project cheaply), then B and C in parallel, then F and G
   has a broken camera; nothing stored means on.
 - **What runs:** ball-6 model, hoop window sized from the ball, rule V4 (`LIVE_RULE`), 15 fps on CPU with still frames skipped, 10 fps floor
   warning, replays kept on the phone only until the set is saved. Unsure calls are ringed and checked before saving; a shot the camera missed
-  is added with + Miss / + Make; taps never go away.
+  is added with + Miss / + Make; taps never go away. Ending a camera set always opens a review before saving: the unsure calls up front, every shot
+  in order under "All shots" (time into the set, Watch replay while the phone still has it, one tap to change the call) (`src/components/shot-review.tsx`).
 - **Measured (offline, same pipeline):** about 88-91% of shots right on 8 labelled clips (86-88% on clips the rule was not designed on); about 96% if the
   player confirms the ringed shots; makes read about 9% high. Details and every test are in `training/README.md`.
 - **Not yet measured:** a second 10-minute live run on a phone with ball-6 and V4 (speed and heat over a whole session), and live accuracy

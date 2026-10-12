@@ -33,7 +33,7 @@ import { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_SWITCH_KEY } from "@/lib/vision/camera-switch";
 import { clearReplays } from "@/lib/vision/replay-store";
-import { ReplayViewer } from "@/components/replay-viewer";
+import { ShotReview } from "@/components/shot-review";
 import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
@@ -398,11 +398,12 @@ export function ShootingHub({
     edit((d) => ({ ...d, zone: d.zone === zone ? null : zone }));
   }
 
-  /** End a camera set: decide the shots still in the air, then check the unsure ones before saving. */
+  /** End a camera set: decide the shots still in the air, then review the calls before saving. */
   function endCameraSet() {
     camera.stop();
     const d = parseDraft(readDraft(key));
-    if (d && d.shots.some((s) => s.flagged)) setReviewing(true);
+    // Always a look before saving: the unsure calls up front, every shot a tap away.
+    if (d && d.shots.length > 0) setReviewing(true);
     else void finish();
   }
 
@@ -490,7 +491,7 @@ export function ShootingHub({
     }
     if (autoFinished.current || ending) return;
     autoFinished.current = true;
-    // A camera set still gets its unsure calls checked before it saves.
+    // A camera set still gets its calls reviewed before it saves.
     // (Out of the effect's own pass, like finish's awaits, so it doesn't set state mid-render.)
     if (parseDraft(readDraft(key))?.mode === "camera") setTimeout(endCameraSet, 0);
     else void finish();
@@ -659,7 +660,7 @@ export function ShootingHub({
           {draft.mode === "camera" ? (
             <div className="mt-auto pt-6">
               {reviewing ? (
-                <FlaggedReview shots={draft.shots} onFlip={flip} />
+                <ShotReview shots={draft.shots} onFlip={flip} />
               ) : (
                 <>
                   <Eyebrow className="mb-1.5">Camera missed one? Add it</Eyebrow>
@@ -960,54 +961,5 @@ function GoalResult({
     <p className={`mt-1 text-sm font-extrabold ${state.reached && !state.capped ? "text-accent" : "text-foreground-dim"}`}>
       {text}
     </p>
-  );
-}
-
-/**
- * Before a camera set is saved: the few calls the camera wasn't sure of,
- * one tap each to put right. A kid won't review fifty shots; three, yes.
- */
-function FlaggedReview({ shots, onFlip }: { shots: Shot[]; onFlip: (seq: number) => void }) {
-  const flagged = shots.filter((s) => s.flagged);
-  const [watching, setWatching] = useState<Shot | null>(null);
-  return (
-    <section className="rounded-2xl border border-accent bg-surface p-4">
-      <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
-        Check {flagged.length} {flagged.length === 1 ? "shot" : "shots"} before saving
-      </p>
-      <p className="mt-1 text-xs text-foreground-dim">
-        The camera wasn&rsquo;t sure about these. Watch the replay, then tap to change any it got wrong.
-      </p>
-      <ul className="mt-3 divide-y divide-line">
-        {flagged.map((s) => (
-          <li key={s.seq} className="flex items-center justify-between gap-3 py-2">
-            <span className="text-sm font-semibold text-foreground">Shot {s.seq}</span>
-            {s.replayId && (
-              <Button variant="secondary" size="sm" onClick={() => setWatching(s)} className="ml-auto">
-                Watch
-              </Button>
-            )}
-            <div className="grid grid-cols-2 gap-1 rounded-lg bg-raised p-1">
-              {[true, false].map((made) => (
-                <button
-                  key={String(made)}
-                  type="button"
-                  aria-pressed={s.made === made}
-                  onClick={() => s.made !== made && onFlip(s.seq)}
-                  className={`min-h-9 rounded-md px-3 text-xs font-extrabold uppercase tracking-wide ${
-                    s.made === made ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
-                  }`}
-                >
-                  {made ? "Make" : "Miss"}
-                </button>
-              ))}
-            </div>
-          </li>
-        ))}
-      </ul>
-      {watching?.replayId && (
-        <ReplayViewer replayId={watching.replayId} title={`Shot ${watching.seq}`} onClose={() => setWatching(null)} />
-      )}
-    </section>
   );
 }
