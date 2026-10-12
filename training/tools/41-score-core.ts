@@ -26,7 +26,10 @@ function countClip(detsFile: string, rimX: number, rimY: number, mode: string, s
   const byFrame = new Map<number, Dets["detections"]>();
   for (const x of d.detections) byFrame.set(x.f, [...(byFrame.get(x.f) ?? []), x]);
   const calls: ShotCall[] = [];
+  // THIN=n feeds every nth frame only, as a phone running at 30/n fps would (design-time check of the rule at lower frame rates).
+  const thin = Number(process.env.THIN ?? 1);
   for (let f = 0; f < d.frames; f += 1) {
+    if (thin > 1 && f % thin !== 0) continue;
     const r = core.push((f * 1000) / REFERENCE_FPS, byFrame.get(f) ?? []);
     if (r.windowChanged) console.error(`window changed at frame ${f}: scale now ${core.scale}`);
     calls.push(...r.calls);

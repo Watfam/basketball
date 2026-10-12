@@ -48,6 +48,8 @@ export type Shot = {
   addedByHand?: boolean;
   /** Camera only, on this phone only: the shot's replay (src/lib/vision/replay-store.ts). Never synced. */
   replayId?: string;
+  /** Camera only, on this phone only: why the camera rang this call (src/lib/vision/shotRules.ts FLAG), for the camera report. Never synced. */
+  flagReasons?: string[];
 };
 
 /** Seq is always 1..n with no gaps, so a snapshot can be upserted on it. */
@@ -61,7 +63,7 @@ export function addShot(
   zone: ZoneKey | null,
   source: ShotSource = "manual",
   detectedMade: boolean | null = null,
-  extra: Pick<Shot, "flagged" | "tMs" | "addedByHand" | "replayId"> = {}
+  extra: Pick<Shot, "flagged" | "tMs" | "addedByHand" | "replayId" | "flagReasons"> = {}
 ): Shot[] {
   return [...shots, { seq: shots.length + 1, made, zone, source, detectedMade, ...extra }];
 }

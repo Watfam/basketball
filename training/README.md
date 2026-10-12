@@ -793,3 +793,21 @@ rotating through all eight (`tools/45-kink.py`, `46-audio.py`, `47-net.mjs`; the
 - **Conclusion:** from one side view the automatic ceiling looks like about 88-91% per shot (12 of the 16 remaining mistakes are rim bounces that look like makes),
   and about 96% when the player confirms the ringed shots. A different view (overhead, as in NOAH) or a rim sensor would change the ceiling; neither fits Matt's
   setup. The remaining lever inside this constraint is the check step, not the detector.
+
+### First live session on Matt's phone, and what it showed (2026-10-12)
+Matt shot a camera set on the phone (stand, ball-6, V4): 77 shots, 41 makes (53.2%), 7 minutes, about 45 of the 77 shots ringed "unsure". He tapped End
+session expecting a review afterwards and never got to one: the review was a panel at the bottom of the counter (a long list above a Save set button
+in the same place as End session), its state was only in memory (lost if the phone restarted when it was unhooked from the stand), and it listed every ringed
+shot, so a set like this had a 45-row review. The set saved, which deletes the replays, so that set cannot be reviewed any more. Fixed (shot-review.tsx, the
+Shoot screen): End session opens a screen of its own; the review state is stored in the set so a restart comes back to it; Save set is locked for the first
+1.2 s and shows the live total; the unsure list shows the 12 most unsure first with "Show more"; Keep shooting returns to the counter; "Copy camera report"
+gives the ring reasons, speed and size of a set (the reasons are kept per shot on the phone, never synced).
+- **Why 58% rung is unexplained.** Offline the ring is 18-20% at phone frame rates with ball-6 (30 fps 32%, 15 fps 18%, 10 fps 20%); a phone running very
+  slowly does not raise it (7.5 fps 24%, 5 fps 17%) but loses shots (37, 30 and 27 of 43 found); a rim tapped 10-20 px off raises it to 22-35%
+  (`tools/48-aim-shift.mjs`). None reaches 58%, so the next session's camera report is how it will be found.
+- **Ring at phone speed (ball-5, 7 clips, V4).** 30 fps: ring 22%, catches 7 of 12 wrong calls, 96.8% right if the ringed are re-checked; 15 fps: 19%, 4 of 11, 95.4%;
+  10 fps: 19%, 5 of 11, 95.8%. The "long at the rim" reason counts detections (20 at 30 fps) so it fires once at 15 fps instead of 20 times. As a time
+  span it can be made frame-rate independent (>= 30 reference frames: ring 26% at 30, 15 and 10 fps, catches 6 of 12 / 5 of 11 / 5 of 11, about 96.0% re-checked) but gains
+  only about half a point for about 7 points more ringing, so it has NOT been changed. The earlier "about 96% if the player confirms the ringed shots" holds at
+  30 fps; at the phone's 15 fps it is about 95.4%.
+- Reasons, 8 clips at 30 fps (ball-5): wide_below rings 6 shots, catches 3 wrong calls, none only it catches; off_centre 26 / 6 / 1; long_at_rim 21 / 6 / 2.

@@ -68,6 +68,10 @@ type Draft = {
   mode?: "camera";
   /** Where the rim was aimed, as fractions of the picture, once counting started. */
   camera?: { rimX: number; rimY: number } | null;
+  /** The set has ended and is being reviewed before saving; kept here so a restarted phone comes back to the review. */
+  reviewing?: boolean;
+  /** How the camera ran (speed, size), noted when the set ends, for the camera report. This phone only. */
+  cameraStats?: { avgFps: number; minFps: number; slowSeen: boolean; scale: number | null; ballWidth: number | null };
   /** Bumped on every edit; a session is synced once syncedRev catches up. */
   rev: number;
   syncedRev: number;
@@ -178,7 +182,6 @@ export function ShootingHub({
   const countWithCamera = cameraAllowed && countRaw === "camera";
   // The last call, shown big for a moment: the shooter is 15 feet away.
   const [lastCall, setLastCall] = useState<{ made: boolean; flagged: boolean; at: number } | null>(null);
-  const [reviewing, setReviewing] = useState(false);
 
   const [labelInput, setLabelInput] = useState("");
   const [syncState, setSyncState] = useState<SyncState>("saved");
@@ -219,6 +222,7 @@ export function ShootingHub({
         ...d,
         shots: addShot(d.shots, made, d.zone, "camera", made, {
           flagged: call.flagged,
+          flagReasons: call.flagReasons,
           tMs: Math.max(0, wallAt - Date.parse(d.startedAt)),
           replayId,
         }),
@@ -230,6 +234,22 @@ export function ShootingHub({
     [edit]
   );
   const camera = useCameraCounter({ onShot: onCameraShot });
+  const reviewing = Boolean(draft?.mode === "camera" && draft.reviewing);
+  // How the camera ran this set: speed and size, kept as it goes and noted in the set when it ends.
+  const runRef = useRef({ n: 0, sum: 0, min: Number.POSITIVE_INFINITY, slowSeen: false, scale: null as number | null, ballWidth: null as number | null });
+  useEffect(() => {
+    const h = camera.health;
+    if (!h) return;
+    const r = runRef.current;
+    r.n += 1;
+    r.sum += h.fps;
+    r.min = Math.min(r.min, h.fps);
+    if (h.slow) r.slowSeen = true;
+    if (h.sizing?.kind === "set") {
+      r.scale = h.sizing.scale;
+      r.ballWidth = h.sizing.ballWidth;
+    }
+  }, [camera.health]);
   // Remember where the rim was once counting starts, for the saved set.
   useEffect(() => {
     if (camera.phase !== "counting") return;
@@ -369,7 +389,7 @@ export function ShootingHub({
     if (countWithCamera) {
       // Calls are heard, not watched: sound on for a camera set.
       setSoundRaw("on");
-      setReviewing(false);
+      runRef.current = { n: 0, sum: 0, min: Number.POSITIVE_INFINITY, slowSeen: false, scale: null, ballWidth: null };
     }
   }
 
@@ -402,9 +422,50 @@ export function ShootingHub({
   function endCameraSet() {
     camera.stop();
     const d = parseDraft(readDraft(key));
-    // Always a look before saving: the unsure calls up front, every shot a tap away.
-    if (d && d.shots.length > 0) setReviewing(true);
-    else void finish();
+    // Always a look before saving, on a screen of its own: the unsure calls up front, every shot a tap away.
+    if (d && d.shots.length > 0) {
+      const r = runRef.current;
+      edit((x) => ({
+        ...x,
+        reviewing: true,
+        cameraStats: r.n > 0 ? { avgFps: r.sum / r.n, minFps: r.min, slowSeen: r.slowSeen, scale: r.scale, ballWidth: r.ballWidth } : x.cameraStats,
+      }));
+    } else void finish();
+  }
+
+  /** Back from the review to the counter (ended too soon). */
+  function keepShooting() {
+    haptic("tap");
+    edit((d) => ({ ...d, reviewing: false }));
+  }
+
+  /** The numbers behind a camera set, to paste into a message when something looks off. */
+  function cameraReport(): string {
+    const d = parseDraft(readDraft(key));
+    if (!d) return "";
+    const cam = d.shots.filter((s) => s.source === "camera");
+    const ringed = cam.filter((s) => s.flagged);
+    const reasons: Record<string, number> = {};
+    for (const s of ringed) for (const r of s.flagReasons ?? []) reasons[r] = (reasons[r] ?? 0) + 1;
+    const changed = cam.filter((s) => s.detectedMade !== null && s.detectedMade !== s.made).length;
+    const st = d.cameraStats;
+    let aim = "";
+    try {
+      aim = readDraft("hl:lab:rim") ?? "";
+    } catch {
+      // No aim saved.
+    }
+    return [
+      `Camera report: rule ${RULE_VERSION}, model ${MODEL_VERSION}, build ${process.env.NEXT_PUBLIC_BUILD ?? "?"}`,
+      `Set: ${d.shots.length} shots, ${d.shots.filter((s) => s.made).length} makes (${cam.length} counted by the camera, ${d.shots.length - cam.length} added by hand)`,
+      `Ringed unsure: ${ringed.length} of ${cam.length} (${cam.length ? Math.round((100 * ringed.length) / cam.length) : 0}%); reasons ${JSON.stringify(reasons)}`,
+      `Calls changed in review: ${changed}`,
+      st
+        ? `Speed: average ${st.avgFps.toFixed(1)} fps, slowest ${st.minFps.toFixed(1)}, slow warning ${st.slowSeen ? "yes" : "no"}; size x${st.scale?.toFixed(2) ?? "?"} (ball ${st.ballWidth?.toFixed(1) ?? "?"} px)`
+        : "Speed: not recorded",
+      `Aim: ${aim || "not saved"}`,
+      `Phone: ${typeof navigator === "undefined" ? "?" : navigator.userAgent.slice(0, 90)}`,
+    ].join("\n");
   }
 
   async function finish() {
@@ -446,7 +507,6 @@ export function ShootingHub({
     // Saved: the replays have done their job and are deleted from the phone.
     void clearReplays();
     setEnding(false);
-    setReviewing(false);
     router.refresh();
   }
 
@@ -455,7 +515,6 @@ export function ShootingHub({
     const hasShots = draft.shots.length > 0;
     if (hasShots && !window.confirm(`Throw away these ${draft.shots.length} shots?`)) return;
     camera.stop();
-    setReviewing(false);
     void clearReplays();
     haptic("tap");
     const sessionId = draft.sessionId;
@@ -530,6 +589,23 @@ export function ShootingHub({
     );
   }
 
+  // ---- A camera set that has ended: review it before it is saved --------
+  if (draft && reviewing) {
+    return (
+      <ShotReview
+        shots={draft.shots}
+        label={draft.label}
+        playerName={playerName}
+        saving={ending}
+        error={error}
+        onFlip={flip}
+        onSave={() => void finish()}
+        onKeepShooting={keepShooting}
+        report={cameraReport}
+      />
+    );
+  }
+
   // ---- In a session: the counter ---------------------------------------
   if (draft) {
     const sum = summarize(draft.shots);
@@ -570,7 +646,7 @@ export function ShootingHub({
             </button>
           </div>
 
-          {draft.mode === "camera" && !reviewing && (
+          {draft.mode === "camera" && (
             <div className="mt-4">
               <CameraPanel camera={camera} />
             </div>
@@ -659,21 +735,15 @@ export function ShootingHub({
 
           {draft.mode === "camera" ? (
             <div className="mt-auto pt-6">
-              {reviewing ? (
-                <ShotReview shots={draft.shots} onFlip={flip} />
-              ) : (
-                <>
-                  <Eyebrow className="mb-1.5">Camera missed one? Add it</Eyebrow>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <Button variant="secondary" size="md" onClick={() => log(false)} disabled={ending}>
-                      + Miss
-                    </Button>
-                    <Button variant="secondary" size="md" onClick={() => log(true)} disabled={ending}>
-                      + Make
-                    </Button>
-                  </div>
-                </>
-              )}
+              <Eyebrow className="mb-1.5">Camera missed one? Add it</Eyebrow>
+              <div className="grid grid-cols-2 gap-2.5">
+                <Button variant="secondary" size="md" onClick={() => log(false)} disabled={ending}>
+                  + Miss
+                </Button>
+                <Button variant="secondary" size="md" onClick={() => log(true)} disabled={ending}>
+                  + Make
+                </Button>
+              </div>
               {error && <p className="mt-3 text-center text-xs text-accent">{error}</p>}
               <div className="mt-3 flex gap-2.5">
                 <Button
@@ -684,12 +754,8 @@ export function ShootingHub({
                 >
                   Undo
                 </Button>
-                <Button
-                  onClick={reviewing ? () => void finish() : endCameraSet}
-                  disabled={draft.shots.length === 0 || ending}
-                  className="flex-[1.6] py-4"
-                >
-                  {ending ? "Saving…" : reviewing ? "Save set" : "End session"}
+                <Button onClick={endCameraSet} disabled={draft.shots.length === 0 || ending} className="flex-[1.6] py-4">
+                  End session
                 </Button>
               </div>
             </div>
