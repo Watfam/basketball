@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/empty-state";
 import { DeleteCalibrationButton } from "@/components/delete-calibration-button";
 import { RememberProfile } from "@/components/remember-profile";
 import { formatPercentage, percentage } from "@/lib/basketball/shooting";
+import { RealSets } from "@/components/real-sets";
+import { summarizeRealSets, type RealSetSession, type RealSetShot } from "@/lib/vision/real-sets";
 
 export const metadata = { title: "Camera lab" };
 
@@ -53,6 +55,38 @@ export default async function CameraLabPage() {
       .maybeSingle(),
   ]);
   const runs = (runRows ?? []) as Run[];
+
+  // Real sets shot with the camera, newest first, with their shots (the API returns at most 1000 rows a request, so page through them).
+  const { data: sessionRows } = await supabase
+    .schema("hoops")
+    .from("shot_sessions")
+    .select("id, player_id, started_at, ended_at, label, attempts, makes, rule_version, model_version, rim_x, rim_y, is_test")
+    .eq("source", "camera")
+    .is("deleted_at", null)
+    .order("started_at", { ascending: false })
+    .limit(40);
+  const realSessions = (sessionRows ?? []) as RealSetSession[];
+  const realShots: RealSetShot[] = [];
+  if (realSessions.length > 0) {
+    for (let from = 0; ; from += 1000) {
+      const { data } = await supabase
+        .schema("hoops")
+        .from("shots")
+        .select("session_id, source, made, detected_made, flagged, added_by_hand")
+        .in("session_id", realSessions.map((x) => x.id))
+        .order("session_id")
+        .order("seq")
+        .range(from, from + 999);
+      realShots.push(...((data ?? []) as RealSetShot[]));
+      if (!data || data.length < 1000) break;
+    }
+  }
+  const realSets = summarizeRealSets(realSessions, realShots);
+  const playerIds = [...new Set(realSessions.map((x) => x.player_id))];
+  const { data: playerRows } = playerIds.length
+    ? await supabase.schema("hoops").from("players").select("id, display_name").in("id", playerIds)
+    : { data: [] as { id: string; display_name: string }[] };
+  const playerNames = Object.fromEntries((playerRows ?? []).map((p) => [p.id, p.display_name as string]));
 
   // Accuracy per counting version: a new rule or model starts a fresh line.
   const byVersion = new Map<string, { shots: number; agreed: number; runs: number }>();
@@ -109,6 +143,8 @@ export default async function CameraLabPage() {
             ))}
           </section>
         )}
+
+        <RealSets sets={realSets} playerNames={playerNames} />
 
         <section className="space-y-2">
           <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Calibrations</h2>

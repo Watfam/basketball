@@ -181,3 +181,8 @@ A first (it can end the project cheaply), then B and C in parallel, then F and G
 - **Known limits:** a phone bumped mid-set silently counts the wrong place (no "hoop moved" check yet); someone in a red shirt near the hoop can
   produce an occasional phantom shot (ball-6 boxed a red shirt in the kids clip); the camera was tested on the family driveway hoop only;
   leaving the app mid-set now stops the camera with a clear message and a way back in (shots so far are kept).
+- **Real sets (2026-10-12):** the Camera lab lists every saved camera set with what the camera rang unsure, what players changed in review, shots added by hand, and
+  the camera's makes against the final ones (`src/components/real-sets.tsx`, `src/lib/vision/real-sets.ts`). Changes are only those made in review, so the
+  card shows changes against all shots (a floor) and against only the sets where something was changed (a ceiling). First four real sets (all rule v4, ball-6):
+  161 shots, 5 changed (3.1% of all, 7.8% in the two sets with changes), camera makes 92 against 87 final (+6%), 0 added by hand; the one set shot at a rim lowered to 9 ft
+  and never reviewed rang 53% (the others 5-16%), cause unknown.
