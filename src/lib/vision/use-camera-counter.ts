@@ -5,6 +5,7 @@ import { createDetector, nextVideoFrame, type Detector } from "@/lib/vision/dete
 import { MODEL_INPUT, blockMotion, createMotionGate, hoopWindow, luma } from "@/lib/vision/roi";
 import { MATCH_FAIR, MATCH_H, MATCH_STRONG, MATCH_W, findHoop, type HoopMatch, type HoopRef } from "@/lib/vision/hoop-match";
 import { HOOP_REF_KEY, decodeRef, encodeRef } from "@/lib/vision/hoop-ref-store";
+import { SLOW_FPS, SPEED_FRAMES, speedVerdict } from "@/lib/vision/speed-check";
 import { createCountingCore, SCALE_LIMITS, type SizingStatus } from "@/lib/vision/counting";
 import type { ShotCall } from "@/lib/vision/shotRules";
 import { readDraft, writeDraft } from "@/lib/use-local-draft";
@@ -35,8 +36,6 @@ const MOTION_THRESHOLD = 6;
 const STILL_HOLD_MS = 1500;
 /** Model px above the rim below which part of the ball's way in is out of the picture (training had 190). */
 export const MIN_ROOM_ABOVE = 120;
-/** Below this the rule starts missing shots (training/README.md: it holds at 15, not much under). */
-const SLOW_FPS = 10;
 /** No ball at all for this long while counting: the hoop may have left the picture. */
 const NO_BALL_MS = 60_000;
 /** Replay frames: the hoop close-up, this many px square, as JPEG. About 15 KB a frame. */
@@ -66,6 +65,9 @@ export type FindState =
   | { kind: "fair"; score: number }
   /** No saved hoop, no match, or the player aimed by hand. */
   | { kind: "none" };
+
+/** Whether this phone can run the ball model fast enough, timed while the player aims. */
+export type SpeedState = { kind: "idle" | "checking" | "ok" } | { kind: "slow"; fps: number };
 
 /** Seconds of "Hoop found" before counting starts by itself. */
 const AUTO_START_S = 3;
@@ -114,6 +116,8 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
   const [autoIn, setAutoIn] = useState<number | null>(null);
   /** The rim has a position the player (or the finder) chose, not just the default. */
   const [aimed, setAimed] = useState(false);
+  const [speed, setSpeed] = useState<SpeedState>({ kind: "idle" });
+  const speedRef = useRef<Promise<void> | null>(null);
 
   const aimRef = useRef<Aim>({ ...DEFAULT_RIM, scale: 1 });
   const refRef = useRef<HoopRef | null>(null);
@@ -152,6 +156,34 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     if (!video?.videoWidth) return;
     const win = hoopWindow(video.videoWidth, video.videoHeight, aimRef.current, aimRef.current.scale);
     setTight(win.roomAbove < MIN_ROOM_ABOVE);
+  }, []);
+
+  /** Times a few frames of picture grab and model on this phone, while the player aims. */
+  const checkSpeed = useCallback(async (run: number) => {
+    setSpeed({ kind: "checking" });
+    try {
+      const detector = await detectorRef.current;
+      const video = videoRef.current;
+      if (!detector || !video?.videoWidth || run !== runRef.current) return;
+      const work = document.createElement("canvas");
+      work.width = work.height = MODEL_INPUT;
+      const ctx = work.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+      const times: number[] = [];
+      for (let i = 0; i < SPEED_FRAMES; i += 1) {
+        const t0 = performance.now();
+        const { crop } = hoopWindow(video.videoWidth, video.videoHeight, aimRef.current, aimRef.current.scale);
+        ctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, MODEL_INPUT, MODEL_INPUT);
+        await detector.detect(ctx.getImageData(0, 0, MODEL_INPUT, MODEL_INPUT));
+        times.push(performance.now() - t0);
+        if (run !== runRef.current) return;
+      }
+      const v = speedVerdict(times);
+      if (run === runRef.current) setSpeed(v.kind === "slow" ? { kind: "slow", fps: v.fps } : { kind: "ok" });
+    } catch {
+      // The model failing to load is reported when counting starts; the check just passes.
+      if (run === runRef.current) setSpeed({ kind: "ok" });
+    }
   }, []);
 
   /**
@@ -209,6 +241,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     setPhase("starting");
     setFind({ kind: "idle" });
     setAutoIn(null);
+    setSpeed({ kind: "idle" });
     handAimedRef.current = false;
     const saved = savedAim();
     aimRef.current = saved ?? { ...DEFAULT_RIM, scale: 1 };
@@ -235,6 +268,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       await video.play();
       if (!video.videoWidth) throw new Error("The camera gave no picture.");
       setPhase("aiming");
+      speedRef.current = checkSpeed(run);
       void autoFind(run);
     } catch (e) {
       if (run !== runRef.current) return;
@@ -249,7 +283,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       setPhase("error");
       teardown();
     }
-  }, [teardown, autoFind]);
+  }, [teardown, autoFind, checkSpeed]);
 
   /**
    * The phone left the app (a call, another app, the screen locking) and came back, or another app took the camera. iOS pauses the
@@ -322,6 +356,8 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     if (!video?.videoWidth || !detectorRef.current) return;
     setAutoIn(null);
     setPhase("counting");
+    // A speed check still running shares the model; let it finish.
+    await speedRef.current?.catch(() => {});
     let detector: Detector;
     try {
       setLoadingStep("Loading the ball model");
@@ -460,6 +496,8 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
   /** A confident match counts down, then starts counting by itself. */
   useEffect(() => {
     if (phase !== "aiming" || find.kind !== "strong" || autoIn === null) return;
+    // Held while the phone is being timed, and for good if it is too slow: the warning needs reading first.
+    if (speed.kind === "checking" || speed.kind === "slow") return;
     if (autoIn <= 0) {
       // Out of the effect's own pass: counting starts by setting state.
       const id = setTimeout(() => void startCounting(), 0);
@@ -467,7 +505,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     }
     const id = setTimeout(() => setAutoIn(autoIn - 1), 1000);
     return () => clearTimeout(id);
-  }, [phase, find, autoIn, startCounting]);
+  }, [phase, find, autoIn, speed, startCounting]);
 
   /** Stop the camera. Shots still being decided are decided now and passed to onShot. */
   const stop = useCallback(() => {
@@ -479,5 +517,5 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     setHealth(null);
   }, [teardown]);
 
-  return { videoRef, phase, error, health, tight, loadingStep, find, autoIn, aimed, start, aimAt, cancelAuto, getAim, startCounting, stop };
+  return { videoRef, phase, error, health, tight, loadingStep, find, autoIn, aimed, speed, start, aimAt, cancelAuto, getAim, startCounting, stop };
 }

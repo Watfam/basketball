@@ -449,6 +449,14 @@ export function ShootingHub({
     } else void finish();
   }
 
+  /** The phone is too slow for the camera: carry on this set by tapping, keeping what is counted so far. */
+  function switchToTaps() {
+    haptic("tap");
+    camera.stop();
+    edit((d) => ({ ...d, mode: undefined, camera: null }));
+    void clearReplays();
+  }
+
   /** Back from the review to the counter (ended too soon). */
   function keepShooting() {
     haptic("tap");
@@ -660,6 +668,7 @@ export function ShootingHub({
           onFlip={flip}
           onEnd={endCameraSet}
           onDiscard={discard}
+          onUseTaps={switchToTaps}
         />
       );
     }

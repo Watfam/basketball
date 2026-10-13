@@ -37,6 +37,8 @@ export type StageProps = {
   onFlip: (seq: number) => void;
   onEnd: () => void;
   onDiscard: () => void;
+  /** Give up on the camera for this set and count by tapping, keeping any shots so far. */
+  onUseTaps: () => void;
 };
 
 /**
@@ -84,7 +86,7 @@ export function CameraStage(props: StageProps) {
       </div>
 
       {aiming ? (
-        <AimPanel camera={camera} onDiscard={props.onDiscard} />
+        <AimPanel camera={camera} onDiscard={props.onDiscard} onUseTaps={props.onUseTaps} />
       ) : (
         <>
           <Bar {...props} bug={bug} />
@@ -203,13 +205,14 @@ function SetupCard({ error, start }: { error: string | null; start: Camera["star
 
 /* ---- Aiming -------------------------------------------------------------- */
 
-function AimPanel({ camera, onDiscard }: { camera: Camera; onDiscard: () => void }) {
-  const { phase, tight, find, autoIn, aimed } = camera;
+function AimPanel({ camera, onDiscard, onUseTaps }: { camera: Camera; onDiscard: () => void; onUseTaps: () => void }) {
+  const { phase, tight, find, autoIn, aimed, speed } = camera;
+  const slow = speed.kind === "slow";
   const ready = phase === "aiming";
   let message: string;
   if (!ready) message = "Opening the camera…";
   else if (find.kind === "searching") message = "Looking for your hoop… or touch the picture and slide to the front of the rim.";
-  else if (find.kind === "strong") message = `Hoop found. Counting starts in ${autoIn ?? 0}…`;
+  else if (find.kind === "strong") message = speed.kind === "checking" ? "Hoop found. Checking this phone is fast enough…" : `Hoop found. Counting starts in ${autoIn ?? 0}…`;
   else if (find.kind === "fair") message = "Is this the rim? If not, touch the picture and slide it there, then lift.";
   else message = aimed ? "Slide to move the ring onto the front of the rim, then lift. Ready when it is." : "Touch the picture and slide to the front of the rim, then lift.";
 
@@ -219,6 +222,15 @@ function AimPanel({ camera, onDiscard }: { camera: Camera; onDiscard: () => void
         <p role="status" className="text-sm font-semibold text-foreground">
           {message}
         </p>
+        {speed.kind === "checking" && find.kind !== "strong" && ready && (
+          <p className="mt-1 text-xs text-foreground-mute">Checking this phone is fast enough for the camera…</p>
+        )}
+        {slow && (
+          <p className="mt-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger">
+            This phone runs the camera at about {Math.round(speed.fps)} frames a second, and it needs 10 or more to catch every shot
+            (a warm phone does this: shade it or let it cool). Counting by tapping is safer for this set.
+          </p>
+        )}
         {tight && (
           <p className="mt-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger">
             The rim is too near the top of the picture, so the ball&rsquo;s way in is cut off. Tilt the phone down or step back.
@@ -234,16 +246,22 @@ function AimPanel({ camera, onDiscard }: { camera: Camera; onDiscard: () => void
             Aim again
           </Button>
         )}
+        {slow && (
+          <Button size="lg" onClick={onUseTaps} className="order-1 col-span-2 landscape:order-none landscape:min-w-44">
+            Count by tapping
+          </Button>
+        )}
         <Button
-          size="lg"
-          disabled={!ready || !aimed}
+          variant={slow ? "secondary" : "primary"}
+          size={slow ? "md" : "lg"}
+          disabled={!ready || !aimed || speed.kind === "checking"}
           onClick={() => {
             primeAlerts();
             void camera.startCounting();
           }}
-          className="order-1 col-span-2 landscape:order-none landscape:min-w-44"
+          className={slow ? "order-2 landscape:order-none" : "order-1 col-span-2 landscape:order-none landscape:min-w-44"}
         >
-          {find.kind === "strong" ? "Start now" : "Start counting"}
+          {slow ? "Count anyway" : find.kind === "strong" ? "Start now" : "Start counting"}
         </Button>
       </div>
     </div>
