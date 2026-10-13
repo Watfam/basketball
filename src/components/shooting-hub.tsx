@@ -34,6 +34,7 @@ import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_SWITCH_KEY } from "@/lib/vision/camera-switch";
 import { clearReplays } from "@/lib/vision/replay-store";
 import { ShotReview } from "@/components/shot-review";
+import { SoundCheck } from "@/components/sound-controls";
 import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
@@ -994,6 +995,7 @@ export function ShootingHub({
         <p className="mt-2.5 text-center text-[11px] text-foreground-mute">
           Keeping the same name each time is what makes your progress line up.
         </p>
+        <SoundCheck className="mt-3 flex flex-col items-center" />
       </section>
 
       {children}

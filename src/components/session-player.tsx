@@ -18,6 +18,10 @@ import {
 import { isWatchableUrl } from "@/lib/basketball/film";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
+import { beepDone, beepWarning, primeAlerts } from "@/lib/alerts";
+import { useDrillSound } from "@/lib/use-drill-sound";
+import { useWakeLock } from "@/lib/use-wake-lock";
+import { DrillSoundControls } from "@/components/sound-controls";
 import { Button, buttonClass } from "@/components/ui/button";
 import { FormError } from "@/components/ui/field";
 
@@ -504,6 +508,9 @@ function TimerDrill({
   const [running, setRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(targetSeconds);
   const doneRef = useRef(false);
+  const [soundOn] = useDrillSound();
+  // A locked screen stops the countdown and its beeps: keep the screen on while it runs.
+  useWakeLock(running && secondsLeft > 0);
 
   // Ticks in real time once started, whether or not this card is the one
   // currently in view — swiping over to peek at the next drill shouldn't
@@ -515,10 +522,13 @@ function TimerDrill({
       if (!doneRef.current) {
         doneRef.current = true;
         haptic("success");
+        if (soundOn) beepDone();
         onComplete(targetSeconds);
       }
       return;
     }
+    // Ten seconds out: three quick beeps, once (not for a drill that is itself ten seconds or less).
+    if (secondsLeft === 10 && targetSeconds > 10 && soundOn) beepWarning();
     if (secondsLeft <= 10) haptic("tap");
     const timeout = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(timeout);
@@ -547,6 +557,8 @@ function TimerDrill({
           size="lg"
           block
           onClick={() => {
+            // A tap: the one moment the phone lets the timer's sounds be unlocked.
+            primeAlerts();
             haptic("tap");
             setRunning(true);
           }}
@@ -555,6 +567,7 @@ function TimerDrill({
           Start
         </Button>
       )}
+      <DrillSoundControls />
     </div>
   );
 }
@@ -584,6 +597,7 @@ function RepDrill({
   const [setsDone, setSetsDone] = useState(0);
   const [restLeft, setRestLeft] = useState<number | null>(null);
   const doneRef = useRef(false);
+  const [soundOn] = useDrillSound();
 
   const resting = restLeft !== null;
 
@@ -595,20 +609,25 @@ function RepDrill({
       const next = restLeft - 1;
       if (next <= 0) {
         haptic("success");
+        if (soundOn) beepDone();
         setRestLeft(null);
         return;
       }
       // A single cue at 10 seconds out, not a buzz every second — this is
       // a "get ready" nudge, and the work timer already owns the
       // buzz-down-to-zero pattern.
-      if (next === 10) haptic("tap");
+      if (next === 10) {
+        haptic("tap");
+        if (soundOn) beepWarning();
+      }
       setRestLeft(next);
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [restLeft]);
+  }, [restLeft, soundOn]);
 
   function logSet() {
     if (doneRef.current || resting) return;
+    primeAlerts();
     haptic("tap");
     const next = setsDone + 1;
     setSetsDone(next);

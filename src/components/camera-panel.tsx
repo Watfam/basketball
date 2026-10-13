@@ -2,6 +2,7 @@
 
 import type { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { haptic } from "@/lib/haptics";
+import { primeAlerts } from "@/lib/alerts";
 import { Button } from "@/components/ui/button";
 
 type Camera = ReturnType<typeof useCameraCounter>;
@@ -24,7 +25,11 @@ export function CameraPanel({ camera }: { camera: Camera }) {
           <li>3. The whole net in view, and the phone out of the sun.</li>
         </ol>
         {error && <p className="mt-3 text-xs font-semibold text-danger">{error}</p>}
-        <Button size="lg" block className="mt-4" onClick={() => void camera.start()}>
+        <Button size="lg" block className="mt-4" onClick={() => {
+            // A tap: unlocks the make/miss blips, which a page reload had lost.
+            primeAlerts();
+            void camera.start();
+          }}>
           {error ? "Try the camera again" : "Open the camera"}
         </Button>
         <video ref={videoRef} className="hidden" muted playsInline />
@@ -77,7 +82,10 @@ export function CameraPanel({ camera }: { camera: Camera }) {
               step back.
             </p>
           )}
-          <Button size="lg" block disabled={phase !== "aiming"} onClick={() => void camera.startCounting()}>
+          <Button size="lg" block disabled={phase !== "aiming"} onClick={() => {
+              primeAlerts();
+              void camera.startCounting();
+            }}>
             Start counting
           </Button>
           <p className="text-center text-xs text-foreground-mute">

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { haptic } from "@/lib/haptics";
 import { primeAlerts, beepWarning, beepDone } from "@/lib/alerts";
 import { useWakeLock } from "@/lib/use-wake-lock";
+import { SoundCheck } from "@/components/sound-controls";
 import type { RunnableStep } from "@/lib/basketball/practice";
 import { SessionWrapup, type WrapupRow } from "@/components/session-wrapup";
 import { Button } from "@/components/ui/button";
@@ -221,6 +222,7 @@ export function PracticeRunner({
             {elapsedMinutes} / {totalMinutes} MIN
           </span>
         </div>
+        <SoundCheck className="mt-1 flex flex-col items-start" />
         <div className="mt-3 h-1 overflow-hidden rounded-full bg-raised">
           <div
             className="h-full rounded-full bg-accent transition-[width]"

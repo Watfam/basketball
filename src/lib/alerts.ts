@@ -15,6 +15,28 @@
 let ctx: AudioContext | null = null;
 
 type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
+type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
+
+/**
+ * Tells iOS this page's sound is media, like a music app's, not a ringtone.
+ * Without it the phone's silent switch mutes Web Audio completely, and a
+ * shooter or a drill timer on a phone left on silent hears nothing (the
+ * Audio Session API, Safari 16.4 and later; elsewhere there is no switch to
+ * obey and this does nothing).
+ */
+function setMediaAudioSession() {
+  try {
+    const session = (navigator as AudioSessionNavigator).audioSession;
+    if (session && session.type !== "playback") session.type = "playback";
+  } catch {
+    // Not supported here.
+  }
+}
+
+/** Starts the audio clock again if the phone paused it (a call, another app, the screen locking); Safari calls that state "interrupted". */
+function ensureRunning() {
+  if (ctx && (ctx.state as string) !== "running" && (ctx.state as string) !== "closed") void ctx.resume().catch(() => {});
+}
 
 /**
  * Must be called from inside a real user gesture (a tap), once, before
@@ -27,9 +49,10 @@ type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
  */
 export function primeAlerts() {
   if (typeof window === "undefined") return;
+  setMediaAudioSession();
 
   if (ctx) {
-    if (ctx.state === "suspended") void ctx.resume();
+    ensureRunning();
     return;
   }
 
@@ -38,6 +61,10 @@ export function primeAlerts() {
 
   try {
     ctx = new AudioCtor();
+    // Coming back to the app after another app or the lock screen had the audio: start it again.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") ensureRunning();
+    });
     // Playing one silent sample inside the gesture is what actually
     // unlocks playback on iOS; constructing the context isn't enough.
     const buffer = ctx.createBuffer(1, 1, 22050);
@@ -57,12 +84,12 @@ export function primeAlerts() {
  */
 export function beep(
   times = 1,
-  { frequency = 880, duration = 0.14, gap = 0.2, volume = 0.3 } = {}
+  { frequency = 880, duration = 0.14, gap = 0.2, volume = 0.3, delay = 0 } = {}
 ) {
   if (!ctx) return;
-  if (ctx.state === "suspended") void ctx.resume();
+  ensureRunning();
 
-  const start = ctx.currentTime;
+  const start = ctx.currentTime + delay;
   for (let i = 0; i < times; i += 1) {
     const at = start + i * gap;
     const osc = ctx.createOscillator();
@@ -105,4 +132,24 @@ export function blipShot(made: boolean) {
     duration: made ? 0.08 : 0.12,
     volume: 0.2,
   });
+}
+
+/** What the sound system is doing right now, for the sound check and for reports. */
+export function audioStatus(): { state: string; session: string | null } {
+  const session = typeof navigator === "undefined" ? undefined : (navigator as AudioSessionNavigator).audioSession;
+  return { state: ctx ? String(ctx.state) : "not started", session: session?.type ?? null };
+}
+
+/**
+ * Plays what a player is promised: a high blip (make), a low blip (miss) and
+ * the three warning beeps, a moment apart. Call it from a tap. The phone's
+ * silent switch can't be read from a web page, so this is the one way to
+ * know the sound is really coming out.
+ */
+export function soundCheck() {
+  setMediaAudioSession();
+  beep(1, { frequency: 1040, duration: 0.08, volume: 0.3 });
+  beep(1, { frequency: 330, duration: 0.12, volume: 0.3, delay: 0.5 });
+  beep(3, { frequency: 880, duration: 0.1, gap: 0.16, volume: 0.3, delay: 1.0 });
+  return audioStatus();
 }
