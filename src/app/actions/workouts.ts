@@ -5,6 +5,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { type SkillLevel } from "@/lib/basketball/assessment";
+import { hasRealWork } from "@/lib/basketball/session-logs";
 import { revalidatePlayerSessionViews } from "./revalidate";
 
 /**
@@ -97,6 +98,18 @@ export async function completeWorkoutSession(sessionId: string) {
   if (!sessionId) return { error: "Missing session." };
 
   const supabase = await createClient();
+
+  // A session where every drill was skipped did no work: it is thrown away like an empty one,
+  // not completed into the streak and the totals.
+  const { data: logs, error: logsError } = await supabase.schema("hoops").from("session_logs").select("metrics").eq("session_id", sessionId);
+  if (logsError) return { error: logsError.message };
+  if (!hasRealWork(logs ?? [])) {
+    const { error } = await supabase.schema("hoops").from("workout_sessions").delete().eq("id", sessionId);
+    if (error) return { error: error.message };
+    revalidatePlayerSessionViews();
+    return { error: null, discarded: true };
+  }
+
   const { error } = await supabase
     .schema("hoops")
     .from("workout_sessions")
@@ -106,7 +119,7 @@ export async function completeWorkoutSession(sessionId: string) {
   if (error) return { error: error.message };
 
   revalidatePlayerSessionViews();
-  return { error: null };
+  return { error: null, discarded: false };
 }
 
 /**
@@ -118,8 +131,8 @@ export async function completeWorkoutSession(sessionId: string) {
  * which counted toward the streak, the session total, the milestones and
  * the training-load charts despite nothing having been done.
  *
- * Deliberately refuses to delete a session that has logs: once a player
- * has actually done a drill, leaving is "save and come back," never
+ * Deliberately refuses to delete a session with drills actually done (skips
+ * don't count): once a player has done a drill, leaving is "save and come back," never
  * "discard."
  */
 export async function discardWorkoutSession(sessionId: string) {
@@ -127,14 +140,11 @@ export async function discardWorkoutSession(sessionId: string) {
 
   const supabase = await createClient();
 
-  const { count, error: countError } = await supabase
-    .schema("hoops")
-    .from("session_logs")
-    .select("id", { count: "exact", head: true })
-    .eq("session_id", sessionId);
+  const { data: logs, error: countError } = await supabase.schema("hoops").from("session_logs").select("metrics").eq("session_id", sessionId);
 
   if (countError) return { error: countError.message };
-  if ((count ?? 0) > 0) return { error: null, kept: true };
+  // Skipped drills are not work: a session of only those is discarded like an empty one.
+  if (hasRealWork(logs ?? [])) return { error: null, kept: true };
 
   const { error } = await supabase
     .schema("hoops")

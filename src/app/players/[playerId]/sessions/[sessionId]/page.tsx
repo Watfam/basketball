@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SessionPlayer, type SessionDrill } from "@/components/session-player";
 import { entriesForLevel } from "@/lib/basketball/prescription";
 import { playerLevel } from "@/lib/basketball/assessment";
+import { isSkippedLog } from "@/lib/basketball/session-logs";
 
 export default async function SessionPage({
   params,
@@ -39,7 +40,7 @@ export default async function SessionPage({
     // Entries already logged in a previous visit — lets the player resume
     // where they left off instead of redoing everything or losing progress
     // if they closed the app mid-workout.
-    supabase.schema("hoops").from("session_logs").select("workout_drill_id").eq("session_id", sessionId),
+    supabase.schema("hoops").from("session_logs").select("workout_drill_id, metrics").eq("session_id", sessionId),
   ]);
 
   if (!user) redirect("/login");
@@ -91,6 +92,10 @@ export default async function SessionPage({
         isDeload={programDay?.is_deload ?? false}
         alreadyCompleted={session.status === "completed"}
         initialLoggedEntryIds={(existingLogs ?? [])
+          .map((log) => log.workout_drill_id)
+          .filter((id): id is string => Boolean(id))}
+        initialSkippedEntryIds={(existingLogs ?? [])
+          .filter((log) => isSkippedLog(log.metrics))
           .map((log) => log.workout_drill_id)
           .filter((id): id is string => Boolean(id))}
       />

@@ -90,6 +90,8 @@ type Props = {
   // session — lets a player leave mid-workout and pick back up later
   // instead of losing progress or redoing what they already did.
   initialLoggedEntryIds: string[];
+  // The subset of those that were skipped, not done.
+  initialSkippedEntryIds?: string[];
 };
 
 /**
@@ -116,6 +118,7 @@ export function SessionPlayer({
   isDeload = false,
   alreadyCompleted,
   initialLoggedEntryIds,
+  initialSkippedEntryIds = [],
 }: Props) {
   const router = useRouter();
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -129,8 +132,18 @@ export function SessionPlayer({
     return indexes;
   }, [drills, initialLoggedEntryIds]);
 
+  // Skipped drills are logged (so they aren't offered again) but are not work done.
+  const [skipped, setSkipped] = useState<Set<number>>(() => {
+    const ids = new Set(initialSkippedEntryIds);
+    const indexes = new Set<number>();
+    drills.forEach((d, i) => {
+      if (ids.has(d.id)) indexes.add(i);
+    });
+    return indexes;
+  });
   const [activeIndex, setActiveIndex] = useState(0);
   const [completed, setCompleted] = useState<Set<number>>(initialCompleted);
+  const doneCount = completed.size - [...skipped].filter((i) => completed.has(i)).length;
   const [progressByIndex, setProgressByIndex] = useState<Record<number, number>>({});
   const [finished, setFinished] = useState(alreadyCompleted);
   const [finishConfirming, setFinishConfirming] = useState(false);
@@ -186,6 +199,10 @@ export function SessionPlayer({
         setError(result.error);
         return;
       }
+      if (result?.discarded) {
+        router.push(`/players/${playerId}`);
+        return;
+      }
       haptic("success");
       setFinished(true);
     });
@@ -223,7 +240,7 @@ export function SessionPlayer({
   function exitSession() {
     haptic("tap");
     startTransition(async () => {
-      if (completed.size === 0) await discardWorkoutSession(sessionId);
+      if (doneCount === 0) await discardWorkoutSession(sessionId);
       router.push(`/players/${playerId}`);
     });
   }
@@ -231,6 +248,7 @@ export function SessionPlayer({
   function skipActiveDrill() {
     if (completed.has(activeIndex)) return;
     haptic("tap");
+    setSkipped((prev) => new Set(prev).add(activeIndex));
     const drill = drills[activeIndex];
     handleDrillComplete(activeIndex, {
       drill_id: drill.drill_id,
@@ -243,7 +261,7 @@ export function SessionPlayer({
     return (
       <SessionComplete
         workoutName={workoutName}
-        loggedCount={completed.size}
+        loggedCount={doneCount}
         totalCount={drills.length}
         onDone={() => router.push(`/players/${playerId}`)}
       />
@@ -265,14 +283,14 @@ export function SessionPlayer({
           type="button"
           onClick={exitSession}
           disabled={pending}
-          className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground disabled:opacity-50"
+          className="-my-3 -ml-2 py-3 pl-2 pr-4 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground disabled:opacity-50"
         >
           {/* Two different exits behind one control, because the right
               behaviour depends on whether any work happened. Nothing
               logged: the session is discarded outright. Something logged:
               it stays resumable from the hub's Continue banner, since
               every drill is saved the moment it's finished. */}
-          {completed.size === 0 ? "← Cancel" : "← Save & exit"}
+          {doneCount === 0 ? "← Cancel" : "← Save & exit"}
         </button>
         <span className="truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
           {programLabel ?? workoutName}
@@ -339,7 +357,7 @@ export function SessionPlayer({
         disabled={pending || completed.has(activeIndex)}
         className="mt-4"
       >
-        {completed.has(activeIndex) ? "Drill logged" : "Skip this drill"}
+        {skipped.has(activeIndex) ? "Drill skipped" : completed.has(activeIndex) ? "Drill logged" : "Skip this drill"}
       </Button>
 
       {/* Only offered once something has actually been logged. Finishing
@@ -347,11 +365,11 @@ export function SessionPlayer({
           the streak, the session count and the milestones with sessions
           where no work happened — the "0 of 2 drills · DONE" rows. With
           nothing logged the only way out is Cancel, which discards. */}
-      {completed.size > 0 &&
+      {doneCount > 0 &&
         (finishConfirming ? (
           <div className="mt-3 rounded-xl border border-line bg-surface px-4 py-3 text-center">
             <p className="text-sm text-foreground">
-              Finish now with {completed.size} of {drills.length} drills logged? Whatever
+              Finish now with {doneCount} of {drills.length} drills done? Whatever
               you&rsquo;ve done is already saved.
             </p>
             <div className="mt-3 flex justify-center gap-2">
@@ -505,35 +523,71 @@ function TimerDrill({
   onProgress: (fraction: number) => void;
   onComplete: (actualSeconds: number) => void;
 }) {
-  const [running, setRunning] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "running" | "paused">("idle");
   const [secondsLeft, setSecondsLeft] = useState(targetSeconds);
+  const running = phase === "running";
   const doneRef = useRef(false);
+  const warnedRef = useRef(false);
+  // The clock is the wall clock, not a chain of one-second timeouts: a phone that dims or backgrounds the page
+  // freezes those, and a drill would run long.
+  const endAtRef = useRef(0);
+  const remainingMsRef = useRef(targetSeconds * 1000);
+  const callbacks = useRef({ onProgress, onComplete });
+  useEffect(() => {
+    callbacks.current = { onProgress, onComplete };
+  });
   const [soundOn] = useDrillSound();
   // A locked screen stops the countdown and its beeps: keep the screen on while it runs.
   useWakeLock(running && secondsLeft > 0);
 
   // Ticks in real time once started, whether or not this card is the one
-  // currently in view — swiping over to peek at the next drill shouldn't
+  // currently in view: swiping over to peek at the next drill shouldn't
   // pause a timer for an exercise you're still physically doing.
   useEffect(() => {
     if (!running) return;
-    onProgress((targetSeconds - secondsLeft) / targetSeconds);
+    const tick = () => setSecondsLeft(Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000)));
+    const id = setInterval(tick, 200);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [running]);
+
+  useEffect(() => {
+    if (phase === "idle") return;
+    callbacks.current.onProgress((targetSeconds - secondsLeft) / targetSeconds);
     if (secondsLeft <= 0) {
       if (!doneRef.current) {
         doneRef.current = true;
         haptic("success");
         if (soundOn) beepDone();
-        onComplete(targetSeconds);
+        callbacks.current.onComplete(targetSeconds);
       }
       return;
     }
+    if (!running) return;
     // Ten seconds out: three quick beeps, once (not for a drill that is itself ten seconds or less).
-    if (secondsLeft === 10 && targetSeconds > 10 && soundOn) beepWarning();
+    if (secondsLeft === 10 && targetSeconds > 10 && soundOn && !warnedRef.current) {
+      warnedRef.current = true;
+      beepWarning();
+    }
     if (secondsLeft <= 10) haptic("tap");
-    const timeout = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, secondsLeft]);
+  }, [phase, secondsLeft, running, soundOn, targetSeconds]);
+
+  function start() {
+    // A tap: the one moment the phone lets the timer's sounds be unlocked.
+    primeAlerts();
+    haptic("tap");
+    endAtRef.current = Date.now() + remainingMsRef.current;
+    setPhase("running");
+  }
+
+  function pause() {
+    haptic("tap");
+    remainingMsRef.current = Math.max(0, endAtRef.current - Date.now());
+    setPhase("paused");
+  }
 
   return (
     <div className="text-center">
@@ -547,24 +601,19 @@ function TimerDrill({
         >
           <span className="font-display text-6xl leading-none text-foreground">{secondsLeft}</span>
           <span className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">
-            {running ? "seconds left" : "seconds"}
+            {phase === "idle" ? "seconds" : phase === "paused" ? "paused" : "seconds left"}
           </span>
         </ProgressRing>
       </div>
 
-      {!running && (
-        <Button
-          size="lg"
-          block
-          onClick={() => {
-            // A tap: the one moment the phone lets the timer's sounds be unlocked.
-            primeAlerts();
-            haptic("tap");
-            setRunning(true);
-          }}
-          className="mt-6"
-        >
-          Start
+      {phase !== "running" && secondsLeft > 0 && (
+        <Button size="lg" block onClick={start} className="mt-6">
+          {phase === "paused" ? "Resume" : "Start"}
+        </Button>
+      )}
+      {running && secondsLeft > 0 && (
+        <Button variant="secondary" size="lg" block onClick={pause} className="mt-6">
+          Pause
         </Button>
       )}
       <DrillSoundControls />
@@ -601,29 +650,40 @@ function RepDrill({
 
   const resting = restLeft !== null;
 
-  // Every state change happens inside the timeout callback rather than in
-  // the effect body, so this never sets state during render/commit.
+  // Wall-clock, like the drill timer: a dimmed or backgrounded page freezes a chain of timeouts.
+  const restEndRef = useRef(0);
+  const warnedRestRef = useRef(false);
+  const soundRef = useRef(soundOn);
   useEffect(() => {
-    if (restLeft === null) return;
-    const timeout = setTimeout(() => {
-      const next = restLeft - 1;
-      if (next <= 0) {
+    soundRef.current = soundOn;
+  });
+  useEffect(() => {
+    if (!resting) return;
+    const tick = () => {
+      const left = Math.ceil((restEndRef.current - Date.now()) / 1000);
+      if (left <= 0) {
         haptic("success");
-        if (soundOn) beepDone();
+        if (soundRef.current) beepDone();
         setRestLeft(null);
         return;
       }
-      // A single cue at 10 seconds out, not a buzz every second — this is
+      // A single cue at 10 seconds out, not a buzz every second: this is
       // a "get ready" nudge, and the work timer already owns the
       // buzz-down-to-zero pattern.
-      if (next === 10) {
+      if (left <= 10 && !warnedRestRef.current) {
+        warnedRestRef.current = true;
         haptic("tap");
-        if (soundOn) beepWarning();
+        if (soundRef.current) beepWarning();
       }
-      setRestLeft(next);
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [restLeft, soundOn]);
+      setRestLeft(left);
+    };
+    const id = setInterval(tick, 250);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [resting]);
 
   function logSet() {
     if (doneRef.current || resting) return;
@@ -640,7 +700,18 @@ function RepDrill({
       return;
     }
 
+    restEndRef.current = Date.now() + REST_SECONDS * 1000;
+    warnedRestRef.current = false;
     setRestLeft(REST_SECONDS);
+  }
+
+  // A set tapped by mistake: take it back and leave the rest.
+  function undoSet() {
+    haptic("tap");
+    const prev = Math.max(0, setsDone - 1);
+    setSetsDone(prev);
+    onProgress(prev / totalSets);
+    setRestLeft(null);
   }
 
   if (resting) {
@@ -679,6 +750,9 @@ function RepDrill({
           className="mt-3 text-accent hover:text-accent-hover"
         >
           Skip rest →
+        </Button>
+        <Button variant="ghost" size="sm" onClick={undoSet} className="mt-1 block w-full">
+          Tapped by mistake? Undo that set
         </Button>
       </div>
     );
