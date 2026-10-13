@@ -819,3 +819,8 @@ Matt finds the two-step tap to aim clumsy, especially from a landscape stand. Tw
   Same place 0 px error (match 0.72); slightly different 4-7 px (0.46-0.55); more different 19-22 px (0.26-0.28); a different lens or a side angle (4851, 4866, 4873) wrong
   with a low match (0.19). Error is in 416 px window units (20 is the allowance). So: match >= 0.4 can aim by itself, 0.25-0.4 shows the guess to confirm, below that
   the player aims by hand (press, hold and slide with a magnifier). 10 pairs only, three clips of the same hoop and phone, so the thresholds are a starting point.
+
+### The app's hoop-matching module on the same ten pairs (2026-10-13), `src/lib/vision/hoop-match.ts`, `tools/51-hoop-match-check.mjs`
+Coarse-to-fine port of tools/50 (half size at seven sizes, then full size near the best). Score >= 0.40 starts by itself, 0.25-0.40 asks, below that aim by hand:
+same place 0.72, error 0 px; 4839 to 4872 / 4874 and 4874 to 4872 0.46-0.55, error 4-7 px; 4839 to 4867, 4867 to 4874 / 4872 0.29-0.30, error 20-28 px (asked, not started);
+4839 to 4851 / 4866 / 4873 (side angle, other lens) 0.16-0.20, wrong by 183-414 px (aim by hand). No wrongly auto-started case in the ten. About 0.75 s per match on this laptop.
