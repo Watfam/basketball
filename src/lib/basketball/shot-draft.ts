@@ -6,6 +6,9 @@ import { parseGoal, type Goal } from "./goals.ts";
  * counter does is an edit of this; src/components/shooting-hub.tsx owns the storing.
  */
 
+/** Where a player's set in progress is kept on this phone. */
+export const draftKey = (playerId: string) => `hl:shots:${playerId}:draft`;
+
 export type Draft = {
   v: 1;
   sessionId: string | null;

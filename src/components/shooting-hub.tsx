@@ -39,7 +39,7 @@ import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
-import { clockStart, draftGoal, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
+import { clockStart, draftGoal, draftKey, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
 import { buildCameraReport, formatCameraReport } from "@/lib/basketball/camera-report";
 
 /**
@@ -81,7 +81,6 @@ function parseRecent(raw: string | null): Setup[] {
 }
 
 const setupKey = (s: Setup) => `${s.label.trim().toLowerCase()}|${s.goal ? describeGoal(s.goal) : ""}`;
-const draftKey = (playerId: string) => `hl:shots:${playerId}:draft`;
 
 const DEFAULT_LABELS = [
   "Free throws",

@@ -6,6 +6,7 @@ import { FeaturedWorkout } from "@/components/featured-workout";
 import { ProgramPanel } from "@/components/program-panel";
 import { CombinePrompt } from "@/components/combine-prompt";
 import { PlayerTabHeader } from "@/components/player-tab-header";
+import { ResumeShotSet } from "@/components/resume-shot-set";
 import { EmptyState } from "@/components/empty-state";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardLink } from "@/components/ui/card";
@@ -173,6 +174,8 @@ export default async function TodayPage({
       <PlayerTabHeader playerId={playerId} name={player.display_name} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
+        <ResumeShotSet playerId={playerId} />
+
         <WeekStrip week={week} streakWeeks={streakWeeks} />
 
         <section aria-label="Next up" className="animate-rise space-y-2">
