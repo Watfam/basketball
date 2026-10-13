@@ -6,9 +6,9 @@ import { ZONES, type Shot, type ZoneKey } from "@/lib/basketball/shooting";
 import type { Goal } from "@/lib/basketball/goals";
 import { describeGoal } from "@/lib/basketball/goals";
 import { scoreBug, type ScoreBug } from "@/lib/basketball/score-bug";
-import { pictureFraction } from "@/lib/vision/contain";
 import { haptic } from "@/lib/haptics";
 import { primeAlerts } from "@/lib/alerts";
+import { AimCanvas } from "@/components/aim-canvas";
 import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 
@@ -46,7 +46,7 @@ export type StageProps = {
  */
 export function CameraStage(props: StageProps) {
   const { camera, shots, goal, elapsedMs, lastCall } = props;
-  const { phase, videoRef, zoomRef } = camera;
+  const { phase, videoRef } = camera;
   const bug = scoreBug(shots, goal, elapsedMs);
   const [menu, setMenu] = useState(false);
   const aiming = phase === "aiming" || phase === "starting";
@@ -63,7 +63,15 @@ export function CameraStage(props: StageProps) {
             playsInline
             className="absolute inset-0 h-full w-full object-contain"
           />
-          {aiming && <AimLayer aim={camera.aimAt} ready={phase === "aiming"} videoRef={videoRef} />}
+          {aiming && (
+            <AimCanvas
+              videoRef={videoRef}
+              getAim={camera.getAim}
+              onAim={camera.aimAt}
+              active={phase === "aiming"}
+              tone={camera.find.kind === "strong" || camera.find.kind === "fair" ? "found" : "hand"}
+            />
+          )}
           {phase === "starting" && (
             <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-foreground-dim">
               Opening the camera…
@@ -76,7 +84,7 @@ export function CameraStage(props: StageProps) {
       </div>
 
       {aiming ? (
-        <AimPanel camera={camera} zoomRef={zoomRef} onDiscard={props.onDiscard} />
+        <AimPanel camera={camera} onDiscard={props.onDiscard} />
       ) : (
         <>
           <Bar {...props} bug={bug} />
@@ -132,11 +140,16 @@ function TopBar({ camera, sound, syncText, syncOffline, setMenu, menuOpen, aimin
 }
 
 function cameraStatus(camera: Camera): { text: string; warn: boolean } {
-  const { phase, health, loadingStep, error } = camera;
+  const { phase, health, loadingStep, error, find } = camera;
   if (phase === "error") return { text: error ? "Camera stopped" : "Camera off", warn: true };
   if (phase === "idle") return { text: "Camera off", warn: false };
   if (phase === "starting") return { text: "Opening…", warn: false };
-  if (phase === "aiming") return { text: "Aim at the rim", warn: false };
+  if (phase === "aiming") {
+    if (find.kind === "searching") return { text: "Looking for the hoop…", warn: false };
+    if (find.kind === "strong") return { text: "Hoop found", warn: false };
+    if (find.kind === "fair") return { text: "Is this the rim?", warn: false };
+    return { text: "Aim at the rim", warn: false };
+  }
   if (loadingStep) return { text: "Getting ready…", warn: false };
   if (health?.slow) return { text: "Phone slowing down: shade it or rest", warn: true };
   if (health?.noBall) return { text: "No ball seen for a minute: is the hoop in view?", warn: true };
@@ -190,62 +203,49 @@ function SetupCard({ error, start }: { error: string | null; start: Camera["star
 
 /* ---- Aiming -------------------------------------------------------------- */
 
-/** Tap the picture where the rim is; the close-up below shows what the model will see. */
-function AimLayer({ aim, ready, videoRef }: { aim: Camera["aimAt"]; ready: boolean; videoRef: React.RefObject<HTMLVideoElement | null> }) {
-  return (
-    <div
-      className="absolute inset-0 z-10 touch-none"
-      onPointerDown={(e) => {
-        if (!ready) return;
-        const video = videoRef.current;
-        if (!video?.videoWidth) return;
-        const r = e.currentTarget.getBoundingClientRect();
-        const f = pictureFraction(e.clientX - r.left, e.clientY - r.top, { w: r.width, h: r.height }, { w: video.videoWidth, h: video.videoHeight });
-        if (!f) return;
-        aim(f.x, f.y);
-        haptic("tap");
-      }}
-    />
-  );
-}
+function AimPanel({ camera, onDiscard }: { camera: Camera; onDiscard: () => void }) {
+  const { phase, tight, find, autoIn, aimed } = camera;
+  const ready = phase === "aiming";
+  let message: string;
+  if (!ready) message = "Opening the camera…";
+  else if (find.kind === "searching") message = "Looking for your hoop… or touch the picture and slide to the front of the rim.";
+  else if (find.kind === "strong") message = `Hoop found. Counting starts in ${autoIn ?? 0}…`;
+  else if (find.kind === "fair") message = "Is this the rim? If not, touch the picture and slide it there, then lift.";
+  else message = aimed ? "Slide to move the ring onto the front of the rim, then lift. Ready when it is." : "Touch the picture and slide to the front of the rim, then lift.";
 
-function AimPanel({ camera, zoomRef, onDiscard }: { camera: Camera; zoomRef: React.RefObject<HTMLCanvasElement | null>; onDiscard: () => void }) {
-  const { phase, tight } = camera;
   return (
-    <div className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-y-0 landscape:right-0 landscape:z-30 landscape:w-[min(44vh,16rem)] landscape:justify-center landscape:bg-background/80 landscape:pr-[max(0.75rem,env(safe-area-inset-right))]">
-      <p className="text-sm font-semibold text-foreground">
-        Tap the hoop in the picture, then tap the front of the rim in the close-up.
-      </p>
-      <canvas
-        ref={zoomRef}
-        width={416}
-        height={416}
-        className="block aspect-square w-full touch-none rounded-xl bg-background landscape:max-h-[40vh] landscape:w-auto landscape:self-center"
-        onPointerDown={(e) => {
-          const r = e.currentTarget.getBoundingClientRect();
-          camera.aimInZoom((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
-          haptic("tap");
-        }}
-      />
-      {tight && (
-        <p className="rounded-lg bg-danger/10 px-3 py-2 text-xs font-semibold text-danger">
-          The rim is too near the top of the picture, so the ball&rsquo;s way in is cut off. Tilt the phone down or step back.
+    <div className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-x-0 landscape:bottom-0 landscape:z-30 landscape:flex-row landscape:items-center landscape:gap-4 landscape:bg-background/85 landscape:pl-[max(0.75rem,env(safe-area-inset-left))] landscape:pr-[max(0.75rem,env(safe-area-inset-right))] landscape:backdrop-blur">
+      <div className="min-w-0 flex-1">
+        <p role="status" className="text-sm font-semibold text-foreground">
+          {message}
         </p>
-      )}
-      <Button
-        size="lg"
-        block
-        disabled={phase !== "aiming"}
-        onClick={() => {
-          primeAlerts();
-          void camera.startCounting();
-        }}
-      >
-        Start counting
-      </Button>
-      <Button variant="ghost" size="sm" onClick={onDiscard}>
-        Cancel this set
-      </Button>
+        {tight && (
+          <p className="mt-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger">
+            The rim is too near the top of the picture, so the ball&rsquo;s way in is cut off. Tilt the phone down or step back.
+          </p>
+        )}
+      </div>
+      <div className="grid shrink-0 grid-cols-2 items-center gap-2 landscape:flex">
+        <Button variant="ghost" size="sm" onClick={onDiscard} className="order-2 landscape:order-none">
+          Cancel set
+        </Button>
+        {find.kind === "strong" && (
+          <Button variant="secondary" size="md" onClick={camera.cancelAuto} className="order-2 landscape:order-none">
+            Aim again
+          </Button>
+        )}
+        <Button
+          size="lg"
+          disabled={!ready || !aimed}
+          onClick={() => {
+            primeAlerts();
+            void camera.startCounting();
+          }}
+          className="order-1 col-span-2 landscape:order-none landscape:min-w-44"
+        >
+          {find.kind === "strong" ? "Start now" : "Start counting"}
+        </Button>
+      </div>
     </div>
   );
 }

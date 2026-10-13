@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDetector, nextVideoFrame, type Detector } from "@/lib/vision/detector";
 import { MODEL_INPUT, blockMotion, createMotionGate, hoopWindow, luma } from "@/lib/vision/roi";
+import { MATCH_FAIR, MATCH_H, MATCH_STRONG, MATCH_W, findHoop, type HoopMatch, type HoopRef } from "@/lib/vision/hoop-match";
+import { HOOP_REF_KEY, decodeRef, encodeRef } from "@/lib/vision/hoop-ref-store";
 import { createCountingCore, SCALE_LIMITS, type SizingStatus } from "@/lib/vision/counting";
 import type { ShotCall } from "@/lib/vision/shotRules";
 import { readDraft, writeDraft } from "@/lib/use-local-draft";
@@ -54,7 +56,36 @@ export type CameraHealth = {
 
 type Aim = { x: number; y: number; scale: number };
 
-function readAim(): Aim {
+/** Looking for the hoop where the last set had it. */
+export type FindState =
+  | { kind: "idle" }
+  | { kind: "searching" }
+  /** Found with confidence: counting starts by itself after a short, cancellable countdown. */
+  | { kind: "strong"; score: number }
+  /** Found, but the player should look first. */
+  | { kind: "fair"; score: number }
+  /** No saved hoop, no match, or the player aimed by hand. */
+  | { kind: "none" };
+
+/** Seconds of "Hoop found" before counting starts by itself. */
+const AUTO_START_S = 3;
+
+let matchCanvas: HTMLCanvasElement | null = null;
+/** The camera picture as a MATCH_W x MATCH_H grey picture, for finding the hoop. */
+function grabGray(video: HTMLVideoElement): Uint8Array | null {
+  if (!video.videoWidth) return null;
+  matchCanvas ??= document.createElement("canvas");
+  matchCanvas.width = MATCH_W;
+  matchCanvas.height = MATCH_H;
+  const ctx = matchCanvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.drawImage(video, 0, 0, MATCH_W, MATCH_H);
+  return luma(ctx.getImageData(0, 0, MATCH_W, MATCH_H).data);
+}
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+function savedAim(): Aim | null {
   try {
     const a = JSON.parse(readDraft(AIM_KEY) ?? "null") as Partial<Aim> | null;
     if (a && typeof a.x === "number" && typeof a.y === "number" && a.x >= 0 && a.x <= 1 && a.y >= 0 && a.y <= 1) {
@@ -64,7 +95,7 @@ function readAim(): Aim {
   } catch {
     // Nothing usable saved.
   }
-  return { ...DEFAULT_RIM, scale: 1 };
+  return null;
 }
 
 /**
@@ -73,14 +104,21 @@ function readAim(): Aim {
  */
 export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId: string) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const zoomRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<CameraPhase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [health, setHealth] = useState<CameraHealth | null>(null);
   const [tight, setTight] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string | null>(null);
+  const [find, setFind] = useState<FindState>({ kind: "idle" });
+  /** Seconds left before a confident match starts counting; null when nothing is counting down. */
+  const [autoIn, setAutoIn] = useState<number | null>(null);
+  /** The rim has a position the player (or the finder) chose, not just the default. */
+  const [aimed, setAimed] = useState(false);
 
   const aimRef = useRef<Aim>({ ...DEFAULT_RIM, scale: 1 });
+  const refRef = useRef<HoopRef | null>(null);
+  /** The player has put a finger on the picture: whatever the finder says no longer applies. */
+  const handAimedRef = useRef(false);
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<Promise<Detector> | null>(null);
   const runRef = useRef(0);
@@ -108,6 +146,60 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
 
   useEffect(() => teardown, [teardown]);
 
+  /** Is the hoop window too near the top of the picture for the ball's way in? */
+  const refreshTight = useCallback(() => {
+    const video = videoRef.current;
+    if (!video?.videoWidth) return;
+    const win = hoopWindow(video.videoWidth, video.videoHeight, aimRef.current, aimRef.current.scale);
+    setTight(win.roomAbove < MIN_ROOM_ABOVE);
+  }, []);
+
+  /**
+   * The camera has just opened: look for the hoop where the last set had it. The picture needs a moment to settle (exposure), so
+   * the look is made twice if the first is weak. A player's touch on the picture ends all of this.
+   */
+  const autoFind = useCallback(
+    async (run: number) => {
+      const ref = refRef.current;
+      if (!ref) {
+        setFind({ kind: "none" });
+        return;
+      }
+      setFind({ kind: "searching" });
+      let best: HoopMatch | null = null;
+      for (const wait of [700, 1800]) {
+        await sleep(wait);
+        if (run !== runRef.current || handAimedRef.current) return;
+        const video = videoRef.current;
+        const frame = video ? grabGray(video) : null;
+        if (!frame) continue;
+        const m = await findHoop(ref, frame, () => sleep(0));
+        if (run !== runRef.current || handAimedRef.current) return;
+        if (!best || m.score > best.score) best = m;
+        if (m.score >= MATCH_STRONG) break;
+      }
+      if (!best || best.score < MATCH_FAIR) {
+        setFind({ kind: "none" });
+        return;
+      }
+      aimRef.current = {
+        x: best.rim.x,
+        y: best.rim.y,
+        scale: Math.min(SCALE_LIMITS[1], Math.max(SCALE_LIMITS[0], ref.scale * best.sizeRatio)),
+      };
+      saveAim();
+      setAimed(true);
+      refreshTight();
+      if (best.score >= MATCH_STRONG) {
+        setFind({ kind: "strong", score: best.score });
+        setAutoIn(AUTO_START_S);
+      } else {
+        setFind({ kind: "fair", score: best.score });
+      }
+    },
+    [refreshTight]
+  );
+
   /** Open the camera and start loading the model; then aim. */
   const start = useCallback(async () => {
     teardown();
@@ -115,7 +207,13 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     setError(null);
     setHealth(null);
     setPhase("starting");
-    aimRef.current = readAim();
+    setFind({ kind: "idle" });
+    setAutoIn(null);
+    handAimedRef.current = false;
+    const saved = savedAim();
+    aimRef.current = saved ?? { ...DEFAULT_RIM, scale: 1 };
+    setAimed(saved !== null);
+    refRef.current = decodeRef(readDraft(HOOP_REF_KEY));
     // The model loads while the camera opens and the player aims.
     detectorRef.current = createDetector("wasm", (s) => setLoadingStep(s), { model: "ball", threads: 1 });
     detectorRef.current.catch(() => {});
@@ -137,6 +235,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       await video.play();
       if (!video.videoWidth) throw new Error("The camera gave no picture.");
       setPhase("aiming");
+      void autoFind(run);
     } catch (e) {
       if (run !== runRef.current) return;
       const name = e instanceof DOMException ? e.name : "";
@@ -150,7 +249,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       setPhase("error");
       teardown();
     }
-  }, [teardown]);
+  }, [teardown, autoFind]);
 
   /**
    * The phone left the app (a call, another app, the screen locking) and came back, or another app took the camera. iOS pauses the
@@ -185,68 +284,43 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     };
   }, [phase, teardown]);
 
-  /** The close-up while aiming: the window the model will see, with the rim mark and its allowance. */
+  /** The size warning while aiming: the window the model will see must have room above the rim. */
   useEffect(() => {
     if (phase !== "aiming") return;
-    let live = true;
-    const draw = () => {
-      if (!live) return;
-      const video = videoRef.current;
-      const zoom = zoomRef.current;
-      if (video?.videoWidth) {
-        const win = hoopWindow(video.videoWidth, video.videoHeight, aimRef.current, aimRef.current.scale);
-        setTight(win.roomAbove < MIN_ROOM_ABOVE);
-        const z = zoom?.getContext("2d");
-        if (zoom && z) {
-          const k = zoom.width / MODEL_INPUT;
-          z.drawImage(video, win.crop.sx, win.crop.sy, win.crop.sw, win.crop.sh, 0, 0, zoom.width, zoom.height);
-          const zx = win.rim.x * k;
-          const zy = win.rim.y * k;
-          z.strokeStyle = "rgba(255,255,255,0.5)";
-          z.lineWidth = 2;
-          z.beginPath();
-          z.arc(zx, zy, 20 * k, 0, Math.PI * 2);
-          z.stroke();
-          z.strokeStyle = "#ff6a1a";
-          z.lineWidth = 3;
-          z.beginPath();
-          z.moveTo(zx - 18, zy);
-          z.lineTo(zx + 18, zy);
-          z.moveTo(zx, zy - 18);
-          z.lineTo(zx, zy + 18);
-          z.stroke();
-        }
+    refreshTight();
+  }, [phase, refreshTight]);
+
+  /** The rim is here (fractions of the picture). `commit: false` while a finger is still sliding. */
+  const aimAt = useCallback(
+    (fx: number, fy: number, commit = true) => {
+      handAimedRef.current = true;
+      setAutoIn(null);
+      setFind((f) => (f.kind === "none" ? f : { kind: "none" }));
+      setAimed(true);
+      aimRef.current = { ...aimRef.current, x: Math.min(1, Math.max(0, fx)), y: Math.min(1, Math.max(0, fy)) };
+      if (commit) {
+        saveAim();
+        refreshTight();
       }
-      setTimeout(draw, 66);
-    };
-    draw();
-    return () => {
-      live = false;
-    };
-  }, [phase]);
+    },
+    [refreshTight]
+  );
 
-  /** A tap on the whole picture: the rim is there (fractions of the picture). */
-  const aimAt = useCallback((fx: number, fy: number) => {
-    aimRef.current = { ...aimRef.current, x: Math.min(1, Math.max(0, fx)), y: Math.min(1, Math.max(0, fy)) };
-    saveAim();
+  /** Ends the "Hoop found" countdown and leaves the aim to the player. */
+  const cancelAuto = useCallback(() => {
+    handAimedRef.current = true;
+    setAutoIn(null);
+    setFind({ kind: "none" });
   }, []);
 
-  /** A tap in the close-up: the rim is there (fractions of the close-up). */
-  const aimInZoom = useCallback((fx: number, fy: number) => {
-    const video = videoRef.current;
-    if (!video?.videoWidth) return;
-    const win = hoopWindow(video.videoWidth, video.videoHeight, aimRef.current, aimRef.current.scale);
-    const cx = win.crop.sx + fx * win.crop.sw;
-    const cy = win.crop.sy + fy * win.crop.sh;
-    aimRef.current = { ...aimRef.current, x: cx / video.videoWidth, y: cy / video.videoHeight };
-    saveAim();
-  }, []);
+  const getAim = useCallback(() => aimRef.current, []);
 
   /** Aimed: count. Waits for the model if it's still loading. */
   const startCounting = useCallback(async () => {
     const run = runRef.current;
     const video = videoRef.current;
     if (!video?.videoWidth || !detectorRef.current) return;
+    setAutoIn(null);
     setPhase("counting");
     let detector: Detector;
     try {
@@ -261,6 +335,13 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       return;
     }
     if (run !== runRef.current) return;
+
+    // Remember this hoop: next time the camera opens, it is looked for here.
+    const frame = grabGray(video);
+    if (frame) {
+      refRef.current = { gray: frame, rim: { x: aimRef.current.x, y: aimRef.current.y }, scale: aimRef.current.scale };
+      writeDraft(HOOP_REF_KEY, encodeRef(refRef.current));
+    }
 
     const core = createCountingCore({
       frameW: video.videoWidth,
@@ -346,6 +427,10 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       if (windowChanged) {
         aimRef.current = { ...aimRef.current, scale: core.scale };
         saveAim();
+        if (refRef.current) {
+          refRef.current = { ...refRef.current, scale: core.scale };
+          writeDraft(HOOP_REF_KEY, encodeRef(refRef.current));
+        }
       }
 
       const now = performance.now();
@@ -372,6 +457,18 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     }
   }, [teardown]);
 
+  /** A confident match counts down, then starts counting by itself. */
+  useEffect(() => {
+    if (phase !== "aiming" || find.kind !== "strong" || autoIn === null) return;
+    if (autoIn <= 0) {
+      // Out of the effect's own pass: counting starts by setting state.
+      const id = setTimeout(() => void startCounting(), 0);
+      return () => clearTimeout(id);
+    }
+    const id = setTimeout(() => setAutoIn(autoIn - 1), 1000);
+    return () => clearTimeout(id);
+  }, [phase, find, autoIn, startCounting]);
+
   /** Stop the camera. Shots still being decided are decided now and passed to onShot. */
   const stop = useCallback(() => {
     const flush = flushRef.current;
@@ -382,5 +479,5 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     setHealth(null);
   }, [teardown]);
 
-  return { videoRef, zoomRef, phase, error, health, tight, loadingStep, start, aimAt, aimInZoom, startCounting, stop };
+  return { videoRef, phase, error, health, tight, loadingStep, find, autoIn, aimed, start, aimAt, cancelAuto, getAim, startCounting, stop };
 }
