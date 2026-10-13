@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { saveGameResult, deleteGame } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { FormError, TextArea } from "@/components/ui/field";
 
 export function GameResultForm({
@@ -112,9 +113,7 @@ export function GameResultForm({
         {pending ? "Saving…" : "Save"}
       </Button>
 
-      <Button variant="danger" size="sm" block onClick={remove} disabled={deleting}>
-        {deleting ? "Removing…" : "Remove this game"}
-      </Button>
+      <ConfirmDelete label="Remove this game" question="Remove this game and its result? This can't be undone." busyLabel="Removing…" busy={deleting} onConfirm={remove} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { saveScoutingNote, deleteScoutingNote } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { FormError, TextArea } from "@/components/ui/field";
 
 type ExistingNote = {
@@ -108,9 +109,7 @@ export function ScoutingNoteForm({
       </Button>
 
       {existing && (
-        <Button variant="danger" size="sm" block onClick={remove} disabled={deleting}>
-          {deleting ? "Deleting…" : "Delete this note"}
-        </Button>
+        <ConfirmDelete label="Delete this note" question="Delete this scouting note? This can't be undone." busy={deleting} onConfirm={remove} />
       )}
     </div>
   );

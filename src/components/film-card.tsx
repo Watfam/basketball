@@ -288,7 +288,7 @@ export function FilmCard({
                       href={searchUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 block text-center text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+                      className="-mb-3 mt-0 block py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
                     >
                       {trainer?.youtube_url ? `${trainer.name}'s channel ↗` : "Search YouTube ↗"}
                     </a>

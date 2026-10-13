@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { submitAssessment } from "@/app/actions";
@@ -145,6 +146,13 @@ export function AssessmentFlow({
 
   return (
     <div className="mx-auto w-full max-w-md">
+      {/* The bottom bar is hidden here, and a first assessment is where a new profile lands from every tab: always a way out. */}
+      <Link
+        href={isRetest ? `/players/${playerId}/me` : "/"}
+        className="-my-3 mb-1 inline-flex items-center py-3 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+      >
+        {isRetest ? "← Cancel" : "← Switch profile"}
+      </Link>
       <div className="mb-3 flex items-baseline justify-between">
         <p className="font-display text-xl uppercase leading-none tracking-wide text-foreground">
           {isRetest ? "Retest" : playerName}

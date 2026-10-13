@@ -392,7 +392,7 @@ function TrainerLink({ href, label }: { href: string | null; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
+      className="-my-3 inline-flex items-center py-3 text-[11px] font-extrabold uppercase tracking-wide text-accent transition-colors hover:text-accent-hover"
     >
       {label} ↗
     </a>

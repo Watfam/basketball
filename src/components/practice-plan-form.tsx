@@ -19,6 +19,7 @@ import {
 } from "@/lib/basketball/practice";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
+import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { Card } from "@/components/ui/card";
 import { FormError, Input, TextArea } from "@/components/ui/field";
 
@@ -747,9 +748,7 @@ export function PracticePlanForm({
       </Button>
 
       {existing && (
-        <Button variant="danger" size="sm" block onClick={remove} disabled={deleting}>
-          {deleting ? "Deleting…" : "Delete this plan"}
-        </Button>
+        <ConfirmDelete label="Delete this plan" question="Delete this practice plan? This can't be undone." busy={deleting} onConfirm={remove} />
       )}
     </div>
   );

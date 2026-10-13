@@ -445,7 +445,7 @@ function DrillCard({
               href={film.url as string}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)] transition-colors hover:opacity-80"
+              className="-my-3 inline-flex items-center py-3 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--data-cyan)] transition-colors hover:opacity-80"
             >
               Watch film ↗
             </a>

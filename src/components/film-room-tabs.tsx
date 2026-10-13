@@ -39,6 +39,7 @@ export function FilmRoomTabs({
           <button
             key={t.value}
             type="button"
+            aria-pressed={tab === t.value}
             onClick={() => {
               haptic("tap");
               setTab(t.value);

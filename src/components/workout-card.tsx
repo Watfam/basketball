@@ -156,7 +156,7 @@ export function WorkoutCard({
                     href={drill.video_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[11px] font-extrabold uppercase tracking-wider text-accent transition-colors hover:text-accent-hover"
+                    className="-my-3 inline-flex items-center py-3 text-[11px] font-extrabold uppercase tracking-wider text-accent transition-colors hover:text-accent-hover"
                   >
                     Film ↗
                   </a>
