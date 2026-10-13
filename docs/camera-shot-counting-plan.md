@@ -186,3 +186,7 @@ A first (it can end the project cheaply), then B and C in parallel, then F and G
   card shows changes against all shots (a floor) and against only the sets where something was changed (a ceiling). First four real sets (all rule v4, ball-6):
   161 shots, 5 changed (3.1% of all, 7.8% in the two sets with changes), camera makes 92 against 87 final (+6%), 0 added by hand; the one set shot at a rim lowered to 9 ft
   and never reviewed rang 53% (the others 5-16%), cause unknown.
+- **Start flow (2026-10-13):** a timed set's clock starts with the first shot, not the tap on Start shooting, so opening the camera and aiming never eats the minute (the
+  header reads "1:00 left · starts with your first shot"); the saved summary's duration and pace now count from that first shot. Choosing Camera and tapping Start shooting
+  opens the camera straight away (that tap is the gesture the camera needs), so there is no separate "Open the camera" step. Still to come from the approved landscape
+  design: the layout, the hoop re-found from the last aim (auto-start on a strong match, confirm on a fair one), and press-hold-slide aiming with a magnifier.

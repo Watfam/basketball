@@ -55,6 +55,11 @@ type Draft = {
   sessionId: string | null;
   label: string;
   startedAt: string;
+  /**
+   * When the set's clock started: its first shot, not the tap on Start shooting, so setting up (opening the camera, aiming) never
+   * eats a timed set. Null until then. Sets begun before this existed have none and use startedAt.
+   */
+  clockStartedAt?: string | null;
   shots: Shot[];
   /** Sticky: stays on the last chosen spot until changed. */
   zone: ZoneKey | null;
@@ -113,6 +118,10 @@ function parseRecent(raw: string | null): Setup[] {
 
 const setupKey = (s: Setup) => `${s.label.trim().toLowerCase()}|${s.goal ? describeGoal(s.goal) : ""}`;
 const draftKey = (playerId: string) => `hl:shots:${playerId}:draft`;
+
+/** When a set's clock started (ms), or null if it is waiting for the first shot. */
+const clockStart = (d: Pick<Draft, "startedAt" | "clockStartedAt">): number | null =>
+  d.clockStartedAt === undefined ? Date.parse(d.startedAt) : d.clockStartedAt ? Date.parse(d.clockStartedAt) : null;
 
 const DEFAULT_LABELS = [
   "Free throws",
@@ -221,6 +230,7 @@ export function ShootingHub({
       const wallAt = Date.now() - (performance.now() - call.firstMs);
       edit((d) => ({
         ...d,
+        ...(d.clockStartedAt === null ? { clockStartedAt: new Date(wallAt).toISOString() } : {}),
         shots: addShot(d.shots, made, d.zone, "camera", made, {
           flagged: call.flagged,
           flagReasons: call.flagReasons,
@@ -289,7 +299,8 @@ export function ShootingHub({
             const g = draftGoal(d);
             if (!g) return null;
             // A streak that ran into the 100-shot cap ended, but wasn't reached.
-            const state = goalState(g, d.shots, Date.now() - Date.parse(d.startedAt));
+            const c0 = clockStart(d);
+            const state = goalState(g, d.shots, c0 === null ? 0 : Date.now() - c0);
             return { kind: g.kind, target: g.target, reached: state.reached && !state.capped };
           })(),
           shots: d.shots.map((s) => ({
@@ -377,6 +388,7 @@ export function ShootingHub({
         sessionId: null,
         label: label.trim(),
         startedAt: new Date().toISOString(),
+        clockStartedAt: null,
         shots: [],
         zone: null,
         goal: chosen,
@@ -391,6 +403,8 @@ export function ShootingHub({
       // Calls are heard, not watched: sound on for a camera set.
       setSoundRaw("on");
       runRef.current = { n: 0, sum: 0, min: Number.POSITIVE_INFINITY, slowSeen: false, scale: null, ballWidth: null };
+      // The tap on Start shooting is the gesture that lets the camera open, so open it now: no second "Open the camera" step.
+      void camera.start();
     }
   }
 
@@ -400,6 +414,7 @@ export function ShootingHub({
     // In a camera set, a tap is a shot the camera missed.
     edit((d) => ({
       ...d,
+      ...(d.clockStartedAt === null ? { clockStartedAt: new Date().toISOString() } : {}),
       shots: addShot(d.shots, made, d.zone, "manual", null, d.mode === "camera" ? { addedByHand: true } : {}),
     }));
   }
@@ -500,7 +515,7 @@ export function ShootingHub({
     setFinished({
       label: snapshot.label || null,
       shots: snapshot.shots,
-      startedAt: snapshot.startedAt,
+      startedAt: new Date(clockStart(snapshot) ?? Date.parse(snapshot.startedAt)).toISOString(),
       endedAt: new Date().toISOString(),
       goal: draftGoal(snapshot),
     });
@@ -537,7 +552,9 @@ export function ShootingHub({
     return () => clearInterval(id);
   }, [timed]);
   const progress =
-    draft && activeGoal ? goalState(activeGoal, draft.shots, Math.max(0, now - Date.parse(draft.startedAt))) : null;
+    draft && activeGoal
+      ? goalState(activeGoal, draft.shots, (() => { const c0 = clockStart(draft); return c0 === null ? 0 : Math.max(0, now - c0); })())
+      : null;
 
   // The goal is reached: save the set at once. A ref keeps it to one
   // attempt per set; an Undo back below the goal arms it again. A set with
@@ -664,7 +681,11 @@ export function ShootingHub({
                   activeGoal.kind === "time" && progress.fraction > 0.85 ? "text-accent" : "text-foreground"
                 }`}
               >
-                {progress.reached && draft.shots.length === 0 ? "Time's up" : progress.label}
+                {progress.reached && draft.shots.length === 0
+                  ? "Time's up"
+                  : activeGoal.kind === "time" && clockStart(draft) === null
+                    ? `${progress.label} · starts with your first shot`
+                    : progress.label}
               </p>
               <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-raised">
                 <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress.fraction * 100}%` }} />
