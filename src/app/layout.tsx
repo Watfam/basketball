@@ -44,8 +44,11 @@ export const metadata: Metadata = {
     title: "Hardwood Lab",
   },
   icons: {
-    icon: "/app-icon",
-    apple: "/app-icon",
+    icon: [
+      { url: "/icons/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
   },
 };
 

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { FormError, Input } from "@/components/ui/field";
-
+import { BrandLockup } from "@/components/brand";
 type Mode = "sign_in" | "sign_up";
 
 export default function LoginPage() {
@@ -65,10 +65,8 @@ function LoginForm() {
   return (
     <div className="court-glow flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm rounded-3xl border border-line bg-surface p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">
-          Hardwood Lab
-        </p>
-        <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">
+        <BrandLockup size={44} />
+        <h1 className="mt-5 text-2xl font-extrabold tracking-tight text-foreground">
           {mode === "sign_in" ? "Welcome back" : "Start your team"}
         </h1>
         <p className="mt-1 text-sm text-foreground-dim">

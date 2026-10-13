@@ -13,7 +13,7 @@ import { CardLink, cardClass } from "@/components/ui/card";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import { PROFILE_COOKIE, parseProfile, profileHome } from "@/lib/profile";
-
+import { BrandLockup } from "@/components/brand";
 /**
  * The front door: who is using the app on this phone. One tap on a
  * profile, remembered after that, and nothing later asks again
@@ -83,9 +83,9 @@ export default async function Home() {
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="min-w-0">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">Hardwood Lab</p>
+          <BrandLockup size={30} />
           {household && (
-            <p className="mt-0.5 truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
+            <p className="mt-1 truncate text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
               {household.name}
             </p>
           )}
