@@ -811,3 +811,11 @@ gives the ring reasons, speed and size of a set (the reasons are kept per shot o
   only about half a point for about 7 points more ringing, so it has NOT been changed. The earlier "about 96% if the player confirms the ringed shots" holds at
   30 fps; at the phone's 15 fps it is about 95.4%.
 - Reasons, 8 clips at 30 fps (ball-5): wide_below rings 6 shots, catches 3 wrong calls, none only it catches; off_centre 26 / 6 / 1; long_at_rim 21 / 6 / 2.
+
+### Aiming without two taps (2026-10-12): what works and what doesn't
+Matt finds the two-step tap to aim clumsy, especially from a landscape stand. Two ways of finding the rim without being tapped were tested on the setups where its place is known (`tools/49-rim-finder.mjs`, `tools/50-hoop-register.mjs`):
+- **Finding a red-orange steady arc: does not work.** Bricks, trees and shirts give 100 to 1000 look-alike blobs per clip; the best guess was hundreds of pixels off in 7 of 10 setups and nothing at all in the rest.
+- **Re-finding the hoop from the last aim, by matching a saved edge picture of it (backboard, rim, net) against today's picture at several sizes: works when the phone is placed similarly.**
+  Same place 0 px error (match 0.72); slightly different 4-7 px (0.46-0.55); more different 19-22 px (0.26-0.28); a different lens or a side angle (4851, 4866, 4873) wrong
+  with a low match (0.19). Error is in 416 px window units (20 is the allowance). So: match >= 0.4 can aim by itself, 0.25-0.4 shows the guess to confirm, below that
+  the player aims by hand (press, hold and slide with a magnifier). 10 pairs only, three clips of the same hoop and phone, so the thresholds are a starting point.
