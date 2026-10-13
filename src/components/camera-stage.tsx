@@ -1,0 +1,434 @@
+"use client";
+
+import { useState } from "react";
+import type { useCameraCounter } from "@/lib/vision/use-camera-counter";
+import { ZONES, type Shot, type ZoneKey } from "@/lib/basketball/shooting";
+import type { Goal } from "@/lib/basketball/goals";
+import { describeGoal } from "@/lib/basketball/goals";
+import { scoreBug, type ScoreBug } from "@/lib/basketball/score-bug";
+import { pictureFraction } from "@/lib/vision/contain";
+import { haptic } from "@/lib/haptics";
+import { primeAlerts } from "@/lib/alerts";
+import { BrandMark } from "@/components/brand";
+import { Button } from "@/components/ui/button";
+
+type Camera = ReturnType<typeof useCameraCounter>;
+
+export type StageProps = {
+  camera: Camera;
+  shots: Shot[];
+  label: string;
+  playerName: string;
+  goal: Goal | null;
+  /** Ms since the set's first shot; null until it has one. */
+  elapsedMs: number | null;
+  lastCall: { made: boolean; flagged: boolean; at: number } | null;
+  sound: boolean;
+  onToggleSound: () => void;
+  zone: ZoneKey | null;
+  onZone: (z: ZoneKey) => void;
+  syncText: string;
+  syncOffline: boolean;
+  /** A problem saving, from the hub. */
+  error: string | null;
+  ending: boolean;
+  onLog: (made: boolean) => void;
+  onUndo: () => void;
+  onFlip: (seq: number) => void;
+  onEnd: () => void;
+  onDiscard: () => void;
+};
+
+/**
+ * The camera set's screen: the live picture with a score bar over its lower
+ * third on a sideways phone (the phone sits on a stand, so the picture gets the
+ * whole screen), and the same pieces stacked under the picture when held upright.
+ */
+export function CameraStage(props: StageProps) {
+  const { camera, shots, goal, elapsedMs, lastCall } = props;
+  const { phase, videoRef, zoomRef } = camera;
+  const bug = scoreBug(shots, goal, elapsedMs);
+  const [menu, setMenu] = useState(false);
+  const aiming = phase === "aiming" || phase === "starting";
+  const showSetup = phase === "idle" || phase === "error";
+
+  return (
+    <div className="theme-dark fixed inset-0 z-50 flex select-none flex-col overflow-y-auto bg-background text-foreground landscape:overflow-hidden">
+      {/* The picture. Sideways it fills the screen; upright it is a 16:9 strip at the top. */}
+      <div className="relative w-full shrink-0 bg-black pt-[env(safe-area-inset-top)] landscape:absolute landscape:inset-0 landscape:pt-0">
+        <div className="relative aspect-video w-full landscape:aspect-auto landscape:h-full">
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-contain"
+          />
+          {aiming && <AimLayer aim={camera.aimAt} ready={phase === "aiming"} videoRef={videoRef} />}
+          {phase === "starting" && (
+            <p className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-foreground-dim">
+              Opening the camera…
+            </p>
+          )}
+          {showSetup && <SetupCard error={camera.error} start={camera.start} />}
+          {lastCall && <CallFlash call={lastCall} />}
+          <TopBar {...props} aiming={aiming} menuOpen={menu} setMenu={setMenu} />
+        </div>
+      </div>
+
+      {aiming ? (
+        <AimPanel camera={camera} zoomRef={zoomRef} onDiscard={props.onDiscard} />
+      ) : (
+        <>
+          <Bar {...props} bug={bug} />
+          <Dots shots={shots} onFlip={props.onFlip} />
+          <Controls {...props} />
+        </>
+      )}
+
+      {menu && <Menu {...props} close={() => setMenu(false)} />}
+    </div>
+  );
+}
+
+/* ---- The picture's overlays -------------------------------------------- */
+
+function TopBar({ camera, sound, syncText, syncOffline, setMenu, menuOpen, aiming }: StageProps & { aiming: boolean; menuOpen: boolean; setMenu: (v: boolean) => void }) {
+  const status = cameraStatus(camera);
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-2 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] landscape:pt-[max(0.5rem,env(safe-area-inset-top))]">
+      <span
+        role="status"
+        className={`pointer-events-auto min-w-0 truncate rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide ${
+          status.warn ? "bg-danger text-on-accent" : "bg-background/70 text-foreground-dim"
+        }`}
+      >
+        {status.text}
+      </span>
+      <span className={`flex items-center gap-2 ${aiming ? "hidden" : ""}`}>
+        <span
+          aria-live="polite"
+          className={`rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${
+            syncOffline ? "text-accent" : "text-foreground-mute"
+          }`}
+        >
+          {syncText}
+        </span>
+        <button
+          type="button"
+          aria-label="More: sound, spot, undo, discard"
+          aria-expanded={menuOpen}
+          onClick={() => {
+            haptic("tap");
+            setMenu(!menuOpen);
+          }}
+          className="pointer-events-auto grid h-11 w-11 place-items-center rounded-full bg-background/70 text-lg font-extrabold leading-none text-foreground"
+        >
+          <span aria-hidden="true">⋯</span>
+          <span className="sr-only">{sound ? "Sound on" : "Sound off"}</span>
+        </button>
+      </span>
+    </div>
+  );
+}
+
+function cameraStatus(camera: Camera): { text: string; warn: boolean } {
+  const { phase, health, loadingStep, error } = camera;
+  if (phase === "error") return { text: error ? "Camera stopped" : "Camera off", warn: true };
+  if (phase === "idle") return { text: "Camera off", warn: false };
+  if (phase === "starting") return { text: "Opening…", warn: false };
+  if (phase === "aiming") return { text: "Aim at the rim", warn: false };
+  if (loadingStep) return { text: "Getting ready…", warn: false };
+  if (health?.slow) return { text: "Phone slowing down: shade it or rest", warn: true };
+  if (health?.noBall) return { text: "No ball seen for a minute: is the hoop in view?", warn: true };
+  if (health?.sizing?.kind === "measuring") return { text: `Sizing up · ${health.sizing.have} of ${health.sizing.need}`, warn: false };
+  if (health?.sizing?.kind === "checking") return { text: "Adjusting the size", warn: false };
+  return { text: "Watching the hoop", warn: false };
+}
+
+function CallFlash({ call }: { call: { made: boolean; flagged: boolean; at: number } }) {
+  return (
+    <p
+      key={call.at}
+      aria-live="assertive"
+      className={`pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-2xl px-8 py-3 font-display text-6xl uppercase leading-none shadow-lg landscape:left-[18%] landscape:top-[38%] landscape:text-7xl ${
+        call.made ? "bg-data-positive text-on-accent" : "bg-raised text-foreground"
+      }`}
+    >
+      {call.made ? "Make" : "Miss"}
+      {call.flagged ? "?" : ""}
+    </p>
+  );
+}
+
+function SetupCard({ error, start }: { error: string | null; start: Camera["start"] }) {
+  return (
+    <div className="absolute inset-0 z-10 grid place-items-center overflow-y-auto bg-background/85 p-4 landscape:pb-28 landscape:pt-12">
+      <section className="w-full max-w-sm rounded-2xl border border-line bg-surface p-4">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">Set up the camera</p>
+        <ol className="mt-2 space-y-1 text-sm text-foreground">
+          <li>1. Phone on a stand or fence, sideways, behind the shooter.</li>
+          <li>2. The hoop in the top half of the picture, sky or wall above the rim.</li>
+          <li>3. The whole net in view, and the phone out of the sun.</li>
+        </ol>
+        {error && <p className="mt-3 text-xs font-semibold text-danger">{error}</p>}
+        <Button
+          size="lg"
+          block
+          className="mt-3"
+          onClick={() => {
+            // A tap: unlocks the make/miss blips, which a page reload had lost.
+            primeAlerts();
+            void start();
+          }}
+        >
+          {error ? "Try the camera again" : "Open the camera"}
+        </Button>
+      </section>
+    </div>
+  );
+}
+
+/* ---- Aiming -------------------------------------------------------------- */
+
+/** Tap the picture where the rim is; the close-up below shows what the model will see. */
+function AimLayer({ aim, ready, videoRef }: { aim: Camera["aimAt"]; ready: boolean; videoRef: React.RefObject<HTMLVideoElement | null> }) {
+  return (
+    <div
+      className="absolute inset-0 z-10 touch-none"
+      onPointerDown={(e) => {
+        if (!ready) return;
+        const video = videoRef.current;
+        if (!video?.videoWidth) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        const f = pictureFraction(e.clientX - r.left, e.clientY - r.top, { w: r.width, h: r.height }, { w: video.videoWidth, h: video.videoHeight });
+        if (!f) return;
+        aim(f.x, f.y);
+        haptic("tap");
+      }}
+    />
+  );
+}
+
+function AimPanel({ camera, zoomRef, onDiscard }: { camera: Camera; zoomRef: React.RefObject<HTMLCanvasElement | null>; onDiscard: () => void }) {
+  const { phase, tight } = camera;
+  return (
+    <div className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-y-0 landscape:right-0 landscape:z-30 landscape:w-[min(44vh,16rem)] landscape:justify-center landscape:bg-background/80 landscape:pr-[max(0.75rem,env(safe-area-inset-right))]">
+      <p className="text-sm font-semibold text-foreground">
+        Tap the hoop in the picture, then tap the front of the rim in the close-up.
+      </p>
+      <canvas
+        ref={zoomRef}
+        width={416}
+        height={416}
+        className="block aspect-square w-full touch-none rounded-xl bg-background landscape:max-h-[40vh] landscape:w-auto landscape:self-center"
+        onPointerDown={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          camera.aimInZoom((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+          haptic("tap");
+        }}
+      />
+      {tight && (
+        <p className="rounded-lg bg-danger/10 px-3 py-2 text-xs font-semibold text-danger">
+          The rim is too near the top of the picture, so the ball&rsquo;s way in is cut off. Tilt the phone down or step back.
+        </p>
+      )}
+      <Button
+        size="lg"
+        block
+        disabled={phase !== "aiming"}
+        onClick={() => {
+          primeAlerts();
+          void camera.startCounting();
+        }}
+      >
+        Start counting
+      </Button>
+      <Button variant="ghost" size="sm" onClick={onDiscard}>
+        Cancel this set
+      </Button>
+    </div>
+  );
+}
+
+/* ---- The score bar ------------------------------------------------------- */
+
+function Cell({ label, children, tone = "normal", className = "" }: { label: string; children: React.ReactNode; tone?: "normal" | "hot" | "dim"; className?: string }) {
+  const color = tone === "hot" ? "text-accent" : tone === "dim" ? "text-foreground-mute" : "text-foreground";
+  return (
+    <div className={`flex min-w-0 flex-col justify-center px-3 ${className}`}>
+      <span className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-foreground-mute">{label}</span>
+      <span className={`font-display text-3xl leading-none tabular-nums ${color} landscape:text-[1.7rem]`}>{children}</span>
+    </div>
+  );
+}
+
+function Bar(p: StageProps & { bug: ScoreBug }) {
+  const { bug, label, playerName, goal } = p;
+  const streakLabel = bug.streak.kind === "miss" ? "Misses" : "Streak";
+  const clock = bug.clock;
+  const progress = clock.fraction ?? bug.goal?.fraction ?? null;
+  return (
+    <section
+      aria-label="Score"
+      className="relative shrink-0 border-t border-line bg-background/90 backdrop-blur pb-[env(safe-area-inset-bottom)] landscape:absolute landscape:inset-x-0 landscape:bottom-0 landscape:z-20 landscape:pl-[env(safe-area-inset-left)] landscape:pr-[env(safe-area-inset-right)]"
+    >
+      {progress !== null && (
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-raised">
+          <div className="h-full bg-accent transition-[width]" style={{ width: `${progress * 100}%` }} />
+        </div>
+      )}
+      <p className="truncate px-4 pt-2.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent landscape:hidden">
+        {label || "Shooting session"} · {playerName}
+        {goal && <span className="text-foreground-mute"> · {describeGoal(goal)}</span>}
+      </p>
+      <div className="grid grid-cols-3 gap-y-2.5 py-2.5 landscape:flex landscape:items-stretch landscape:gap-0 landscape:divide-x landscape:divide-line landscape:py-1.5">
+        <div className="hidden min-w-0 items-center gap-2.5 pl-3 pr-4 landscape:flex">
+          <BrandMark size={28} />
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground">{label || "Shooting"}</span>
+            <span className="truncate text-[10px] font-bold uppercase tracking-wide text-foreground-mute">
+              {playerName}
+              {goal && ` · ${describeGoal(goal)}`}
+            </span>
+          </span>
+        </div>
+        <Cell label="Makes">
+          {bug.makes}
+          <span className="text-foreground-mute">/{bug.attempts}</span>
+        </Cell>
+        <Cell label="FG" tone={bug.attempts === 0 ? "dim" : "normal"}>
+          {bug.pct}
+        </Cell>
+        <Cell label={clock.mode === "down" ? "Left" : "Time"} tone={clock.urgent ? "hot" : clock.mode === "waiting" ? "dim" : "normal"} className={clock.urgent ? "motion-safe:animate-pulse" : ""}>
+          {clock.text}
+        </Cell>
+        <Cell label={streakLabel} tone={bug.streak.hot ? "hot" : bug.streak.kind === "none" ? "dim" : "normal"}>
+          {bug.streak.kind === "none" ? "—" : bug.streak.n}
+        </Cell>
+        <Cell label="Best run" tone={bug.best === 0 ? "dim" : "normal"}>
+          {bug.best}
+        </Cell>
+        {bug.goal && (
+          <Cell label="Goal" className="landscape:min-w-0">
+            <span className="text-xl landscape:text-[1.15rem]">{bug.goal.label}</span>
+          </Cell>
+        )}
+        <div className="hidden flex-1 items-center justify-end pl-3 pr-3 landscape:flex">
+          <Button onClick={p.onEnd} disabled={p.shots.length === 0 || p.ending} size="md">
+            End
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---- Recent shots, add/undo/end ------------------------------------------- */
+
+function Dots({ shots, onFlip }: { shots: Shot[]; onFlip: (seq: number) => void }) {
+  const visible = shots.slice(-16);
+  if (visible.length === 0) return <div className="hidden" />;
+  return (
+    <div className="px-4 pt-3 landscape:absolute landscape:bottom-[4.6rem] landscape:left-3 landscape:z-20 landscape:p-0 landscape:pl-[env(safe-area-inset-left)]">
+      <div
+        role="list"
+        aria-label="Recent shots. Tap one to flip it."
+        className="inline-flex gap-1.5 rounded-full px-0.5 py-1 landscape:bg-background/70 landscape:px-2.5 landscape:py-1.5"
+      >
+        {visible.map((s) => (
+          <button
+            key={s.seq}
+            type="button"
+            role="listitem"
+            aria-label={`Shot ${s.seq}: ${s.made ? "made" : "missed"}${s.flagged ? ", camera not sure" : ""}. Tap to change.`}
+            onClick={() => onFlip(s.seq)}
+            className={`h-6 w-6 shrink-0 rounded-full border-2 transition-transform active:scale-90 landscape:h-5 landscape:w-5 ${
+              s.made ? "border-[var(--data-positive)] bg-[var(--data-positive)]" : "border-foreground-mute bg-transparent"
+            }${s.flagged ? " ring-2 ring-accent ring-offset-2 ring-offset-background" : ""}`}
+          />
+        ))}
+      </div>
+      {visible.some((s) => s.flagged) && <p className="mt-1.5 text-[11px] text-foreground-mute landscape:hidden">Ringed: the camera wasn&rsquo;t sure.</p>}
+    </div>
+  );
+}
+
+function Controls({ onLog, onUndo, onEnd, shots, ending, error }: StageProps) {
+  return (
+    <div className="mt-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 landscape:absolute landscape:right-0 landscape:top-1/2 landscape:z-20 landscape:-translate-y-[60%] landscape:p-0 landscape:pr-[max(0.5rem,env(safe-area-inset-right))]">
+      <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute landscape:hidden">Camera missed one? Add it</p>
+      <div className="grid grid-cols-2 gap-2.5 landscape:flex landscape:flex-col landscape:gap-2">
+        <Button variant="secondary" onClick={() => onLog(true)} disabled={ending} className="landscape:bg-background/75 landscape:px-3">
+          + Make
+        </Button>
+        <Button variant="secondary" onClick={() => onLog(false)} disabled={ending} className="landscape:bg-background/75 landscape:px-3">
+          + Miss
+        </Button>
+        <Button variant="secondary" onClick={onUndo} disabled={shots.length === 0 || ending} className="col-span-2 landscape:col-span-1 landscape:bg-background/75 landscape:px-3">
+          Undo
+        </Button>
+      </div>
+      {error && <p className="mt-3 text-center text-xs text-accent landscape:absolute landscape:right-2 landscape:top-full landscape:w-48 landscape:rounded-lg landscape:bg-background/90 landscape:p-2">{error}</p>}
+      <Button onClick={onEnd} disabled={shots.length === 0 || ending} size="lg" block className="mt-3 landscape:hidden">
+        {ending ? "Saving…" : "End session"}
+      </Button>
+    </div>
+  );
+}
+
+/* ---- ⋯ menu ----------------------------------------------------------------- */
+
+function Menu({ sound, onToggleSound, zone, onZone, onUndo, onDiscard, shots, ending, syncText, close }: StageProps & { close: () => void }) {
+  return (
+    <>
+      <button type="button" aria-label="Close menu" className="fixed inset-0 z-40 cursor-default" onClick={close} />
+      <div
+        role="dialog"
+        aria-label="More"
+        className="fixed right-2 top-14 z-50 max-h-[calc(100dvh-4rem)] w-72 space-y-4 overflow-y-auto rounded-2xl border border-line bg-surface p-4 shadow-xl landscape:right-[max(0.5rem,env(safe-area-inset-right))] landscape:top-12"
+      >
+        <button
+          type="button"
+          onClick={() => {
+            primeAlerts();
+            onToggleSound();
+          }}
+          aria-pressed={sound}
+          className="flex w-full items-center justify-between rounded-xl bg-raised px-4 py-3 text-sm font-bold text-foreground"
+        >
+          <span>Make / miss sound</span>
+          <span className={sound ? "text-accent" : "text-foreground-mute"}>{sound ? "On" : "Off"}</span>
+        </button>
+
+        <div>
+          <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-mute">Spot (stays until you change it)</p>
+          <div className="flex flex-wrap gap-1.5">
+            {ZONES.map((z) => (
+              <button
+                key={z.key}
+                type="button"
+                onClick={() => onZone(z.key)}
+                aria-pressed={zone === z.key}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
+                  zone === z.key ? "border-accent bg-accent text-on-accent" : "border-line bg-raised text-foreground-dim"
+                }`}
+              >
+                {z.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <Button variant="secondary" size="md" className="flex-1" disabled={shots.length === 0 || ending} onClick={onUndo}>
+            Undo last
+          </Button>
+          <Button variant="danger" size="md" className="flex-1" onClick={onDiscard}>
+            Discard set
+          </Button>
+        </div>
+        <p className="text-center text-[11px] text-foreground-mute">{syncText}</p>
+      </div>
+    </>
+  );
+}

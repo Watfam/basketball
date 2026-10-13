@@ -28,7 +28,7 @@ import { haptic } from "@/lib/haptics";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { useWakeLock } from "@/lib/use-wake-lock";
 import { SessionSummary, ShotStrip } from "@/components/shot-summary";
-import { CameraPanel } from "@/components/camera-panel";
+import { CameraStage } from "@/components/camera-stage";
 import { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_SWITCH_KEY } from "@/lib/vision/camera-switch";
@@ -546,11 +546,13 @@ export function ShootingHub({
   const activeGoal = draft ? draftGoal(draft) : null;
   const [now, setNow] = useState(() => Date.now());
   const timed = activeGoal?.kind === "time";
+  // A camera set shows its clock whether or not it has a time goal.
+  const ticking = timed || draft?.mode === "camera";
   useEffect(() => {
-    if (!timed) return;
+    if (!ticking) return;
     const id = setInterval(() => setNow(Date.now()), 500);
     return () => clearInterval(id);
-  }, [timed]);
+  }, [ticking]);
   const progress =
     draft && activeGoal
       ? goalState(activeGoal, draft.shots, (() => { const c0 = clockStart(draft); return c0 === null ? 0 : Math.max(0, now - c0); })())
@@ -634,6 +636,34 @@ export function ShootingHub({
           ? "Saving…"
           : "Saved";
 
+    if (draft.mode === "camera") {
+      const c0 = clockStart(draft);
+      return (
+        <CameraStage
+          camera={camera}
+          shots={draft.shots}
+          label={draft.label}
+          playerName={playerName}
+          goal={activeGoal}
+          elapsedMs={c0 === null ? null : Math.max(0, now - c0)}
+          lastCall={lastCall}
+          sound={sound}
+          onToggleSound={() => setSoundRaw(sound ? "off" : "on")}
+          zone={draft.zone}
+          onZone={chooseZone}
+          syncText={syncText}
+          syncOffline={syncState === "offline"}
+          error={error}
+          ending={ending}
+          onLog={log}
+          onUndo={undo}
+          onFlip={flip}
+          onEnd={endCameraSet}
+          onDiscard={discard}
+        />
+      );
+    }
+
     return (
       <div className="theme-dark court-glow fixed inset-0 z-50 flex select-none flex-col overflow-y-auto bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] text-foreground">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
@@ -664,12 +694,6 @@ export function ShootingHub({
             </button>
           </div>
 
-          {draft.mode === "camera" && (
-            <div className="mt-4">
-              <CameraPanel camera={camera} />
-            </div>
-          )}
-
           <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">
             {draft.label || "Shooting session"} · {playerName}
             {activeGoal && <span className="text-foreground-mute"> · {describeGoal(activeGoal)}</span>}
@@ -694,18 +718,6 @@ export function ShootingHub({
           )}
 
           <div className="relative mt-2 flex items-end gap-4">
-            {lastCall && (
-              // The camera's call, big enough to read from the shot.
-              <p
-                aria-live="assertive"
-                className={`absolute inset-0 z-10 flex items-center justify-center rounded-2xl font-display text-7xl uppercase ${
-                  lastCall.made ? "bg-data-positive text-on-accent" : "bg-raised text-foreground"
-                }`}
-              >
-                {lastCall.made ? "Make" : "Miss"}
-                {lastCall.flagged ? "?" : ""}
-              </p>
-            )}
             <p className="font-display text-8xl leading-[0.85] tabular-nums text-foreground">
               {sum.makes}
               <span className="text-foreground-mute">/{sum.attempts}</span>
@@ -727,7 +739,6 @@ export function ShootingHub({
             {draft.shots.length > 0 && (
               <p className="mt-2 text-[11px] text-foreground-mute">
                 Tap a shot to flip it.
-                {draft.mode === "camera" && draft.shots.some((s) => s.flagged) ? " Ringed: the camera wasn't sure." : ""}
               </p>
             )}
           </div>
@@ -755,33 +766,6 @@ export function ShootingHub({
             </div>
           </div>
 
-          {draft.mode === "camera" ? (
-            <div className="mt-auto pt-6">
-              <Eyebrow className="mb-1.5">Camera missed one? Add it</Eyebrow>
-              <div className="grid grid-cols-2 gap-2.5">
-                <Button variant="secondary" size="md" onClick={() => log(false)} disabled={ending}>
-                  + Miss
-                </Button>
-                <Button variant="secondary" size="md" onClick={() => log(true)} disabled={ending}>
-                  + Make
-                </Button>
-              </div>
-              {error && <p className="mt-3 text-center text-xs text-accent">{error}</p>}
-              <div className="mt-3 flex gap-2.5">
-                <Button
-                  variant="secondary"
-                  onClick={undo}
-                  disabled={draft.shots.length === 0 || ending}
-                  className="flex-1 py-4"
-                >
-                  Undo
-                </Button>
-                <Button onClick={endCameraSet} disabled={draft.shots.length === 0 || ending} className="flex-[1.6] py-4">
-                  End session
-                </Button>
-              </div>
-            </div>
-          ) : (
           <div className="mt-auto pt-6">
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -823,7 +807,6 @@ export function ShootingHub({
               </Button>
             </div>
           </div>
-          )}
         </div>
       </div>
     );
