@@ -176,7 +176,7 @@ export function ShotReview({
             value={shownReport}
             rows={6}
             onFocus={(e) => e.currentTarget.select()}
-            className="mt-2 w-full rounded-lg border border-line bg-surface p-2 text-[11px] text-foreground"
+            className="mt-2 w-full rounded-lg border border-line bg-surface p-2 text-base text-foreground"
           />
         )}
       </div>

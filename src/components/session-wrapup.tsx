@@ -124,7 +124,7 @@ export function SessionWrapup({
                   value={r.actual ?? ""}
                   onChange={(e) => updateActual(i, e.target.value)}
                   placeholder="—"
-                  className="w-14 shrink-0 rounded-lg border border-line bg-raised px-1 py-1.5 text-center text-sm font-extrabold text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                  className="w-14 shrink-0 rounded-lg border border-line bg-raised px-1 py-1.5 text-center text-base font-extrabold text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                 />
               </div>
             ))}

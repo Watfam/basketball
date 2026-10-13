@@ -493,7 +493,7 @@ export function PracticePlanForm({
                     value={block.label}
                     onChange={(e) => updateBlock(i, { label: e.target.value })}
                     placeholder="Group name (optional)"
-                    className="min-w-0 flex-1 bg-transparent text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim placeholder:text-foreground-mute placeholder:font-bold focus:text-foreground focus:outline-none"
+                    className="min-w-0 flex-1 bg-transparent text-base font-extrabold uppercase tracking-wide text-foreground-dim placeholder:text-foreground-mute placeholder:font-bold focus:text-foreground focus:outline-none"
                   />
                   {groupTotal > 0 && (
                     <span className="shrink-0 text-[11px] font-extrabold text-foreground-mute">
@@ -551,7 +551,7 @@ export function PracticePlanForm({
                     onChange={(e) => updateBlock(i, { label: e.target.value })}
                     onKeyDown={(e) => handleKeyDown(e, i)}
                     placeholder="Drill or activity name"
-                    className="min-w-0 flex-1 bg-transparent py-1 text-sm font-semibold text-foreground placeholder:text-foreground-mute placeholder:font-normal focus:outline-none"
+                    className="min-w-0 flex-1 bg-transparent py-1 text-base font-semibold text-foreground placeholder:text-foreground-mute placeholder:font-normal focus:outline-none"
                   />
                   {block.minutes ? (
                     <span className="shrink-0 text-[11px] font-extrabold text-foreground-mute">
@@ -626,7 +626,7 @@ export function PracticePlanForm({
                         value={block.minutes || ""}
                         onChange={(e) => updateBlock(i, { minutes: Number(e.target.value) || undefined })}
                         placeholder="—"
-                        className="w-16 rounded-md border border-line bg-surface px-2 py-1 text-center text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                        className="w-16 rounded-md border border-line bg-surface px-2 py-1 text-center text-base text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -642,7 +642,7 @@ export function PracticePlanForm({
                           })
                         }
                         placeholder="—"
-                        className="w-16 rounded-md border border-line bg-surface px-2 py-1 text-center text-sm text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                        className="w-16 rounded-md border border-line bg-surface px-2 py-1 text-center text-base text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                       />
                       <input
                         type="text"
@@ -653,7 +653,7 @@ export function PracticePlanForm({
                           })
                         }
                         placeholder="unit — pts, makes, reps"
-                        className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-xs text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                        className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-base text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                       />
                     </div>
                     {groups.length > 1 && (
@@ -667,7 +667,7 @@ export function PracticePlanForm({
                             if (e.target.value === "") return;
                             moveBlockToGroup(i, Number(e.target.value));
                           }}
-                          className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-xs text-foreground focus:border-accent focus:outline-none"
+                          className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2 py-1 text-base text-foreground focus:border-accent focus:outline-none"
                         >
                           <option value="">Choose a group…</option>
                           {groups
@@ -685,7 +685,7 @@ export function PracticePlanForm({
                       onChange={(e) => updateBlock(i, { notes: e.target.value })}
                       rows={2}
                       placeholder="Notes (optional)"
-                      className="w-full rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
+                      className="w-full rounded-md border border-line bg-surface px-2.5 py-1.5 text-base text-foreground placeholder:text-foreground-mute focus:border-accent focus:outline-none"
                     />
                     {/* -mx-3 lines the button text up with the fields above;
                         wraps on narrow phones now that each has a tap area. */}
