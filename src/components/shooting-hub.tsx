@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
 import { clockStart, draftGoal, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
+import { buildCameraReport, formatCameraReport } from "@/lib/basketball/camera-report";
 
 /**
  * The session lives on the phone first.
@@ -263,7 +264,7 @@ export function ShootingHub({
           })),
           camera:
             d.mode === "camera" && d.camera
-              ? { ruleVersion: RULE_VERSION, modelVersion: MODEL_VERSION, rimX: d.camera.rimX, rimY: d.camera.rimY }
+              ? { ruleVersion: RULE_VERSION, modelVersion: MODEL_VERSION, rimX: d.camera.rimX, rimY: d.camera.rimY, report: currentReport(d) }
               : null,
         });
         if (res.error || !res.sessionId) throw new Error(res.error ?? "Sync failed");
@@ -411,33 +412,28 @@ export function ShootingHub({
     edit((d) => ({ ...d, reviewing: false }));
   }
 
-  /** The numbers behind a camera set, to paste into a message when something looks off. */
-  function cameraReport(): string {
-    const d = parseDraft(readDraft(key));
-    if (!d) return "";
-    const cam = d.shots.filter((s) => s.source === "camera");
-    const ringed = cam.filter((s) => s.flagged);
-    const reasons: Record<string, number> = {};
-    for (const s of ringed) for (const r of s.flagReasons ?? []) reasons[r] = (reasons[r] ?? 0) + 1;
-    const changed = cam.filter((s) => s.detectedMade !== null && s.detectedMade !== s.made).length;
-    const st = d.cameraStats;
-    let aim = "";
+  /** The numbers behind a camera set, from this phone's draft. */
+  function currentReport(d: Draft) {
+    let aim: string | null = null;
     try {
-      aim = readDraft("hl:lab:rim") ?? "";
+      aim = readDraft("hl:lab:rim");
     } catch {
       // No aim saved.
     }
-    return [
-      `Camera report: rule ${RULE_VERSION}, model ${MODEL_VERSION}, build ${process.env.NEXT_PUBLIC_BUILD ?? "?"}`,
-      `Set: ${d.shots.length} shots, ${d.shots.filter((s) => s.made).length} makes (${cam.length} counted by the camera, ${d.shots.length - cam.length} added by hand)`,
-      `Ringed unsure: ${ringed.length} of ${cam.length} (${cam.length ? Math.round((100 * ringed.length) / cam.length) : 0}%); reasons ${JSON.stringify(reasons)}`,
-      `Calls changed in review: ${changed}`,
-      st
-        ? `Speed: average ${st.avgFps.toFixed(1)} fps, slowest ${st.minFps.toFixed(1)}, slow warning ${st.slowSeen ? "yes" : "no"}; size x${st.scale?.toFixed(2) ?? "?"} (ball ${st.ballWidth?.toFixed(1) ?? "?"} px)`
-        : "Speed: not recorded",
-      `Aim: ${aim || "not saved"}`,
-      `Phone: ${typeof navigator === "undefined" ? "?" : navigator.userAgent.slice(0, 90)}`,
-    ].join("\n");
+    return buildCameraReport(d, {
+      ruleVersion: RULE_VERSION,
+      modelVersion: MODEL_VERSION,
+      build: process.env.NEXT_PUBLIC_BUILD ?? "?",
+      aim,
+      phone: typeof navigator === "undefined" ? "?" : navigator.userAgent,
+    });
+  }
+
+  /** The same numbers as text, to paste into a message when something looks off. */
+  function cameraReport(): string {
+    const d = parseDraft(readDraft(key));
+    if (!d) return "";
+    return formatCameraReport(currentReport(d), { shots: d.shots.length, makes: d.shots.filter((s) => s.made).length });
   }
 
   async function finish() {

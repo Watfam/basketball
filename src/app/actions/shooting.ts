@@ -24,7 +24,7 @@ export type ShotSyncInput = {
     addedByHand?: boolean;
   }[];
   /** A camera set: how it was counted, for measuring the camera from real use. */
-  camera?: { ruleVersion: string; modelVersion: string; rimX: number; rimY: number } | null;
+  camera?: { ruleVersion: string; modelVersion: string; rimX: number; rimY: number; report?: unknown } | null;
 };
 
 const VALID_GOAL_KINDS = new Set(["shots", "makes", "time", "streak"]);
@@ -84,6 +84,9 @@ export async function syncShotSession(input: ShotSyncInput) {
         rim_y: Math.min(1, Math.max(0, cam.rimY)),
       }
     : {};
+  // How the set went (ringed shots, calls changed, speed), kept with it. A report that is not a small plain object is not stored.
+  const reportJson = cam?.report !== undefined ? JSON.stringify(cam.report) : null;
+  const reportColumns = reportJson && reportJson.length <= 4000 && reportJson.startsWith("{") ? { camera_report: JSON.parse(reportJson) } : {};
   const goalColumns = {
     goal_kind: goal?.kind ?? null,
     goal_target: goal?.target ?? null,
@@ -92,6 +95,8 @@ export async function syncShotSession(input: ShotSyncInput) {
   // Until migration 0021 has run, the goal columns don't exist; the set is
   // saved without them rather than not at all.
   const missingGoalColumns = (e: { message: string } | null) => Boolean(e && /goal_(kind|target|reached)/.test(e.message));
+  // The same for the camera report column (migration 0022).
+  const missingReportColumn = (e: { message: string } | null) => Boolean(e && /camera_report/.test(e.message));
   const endedAt = input.ended ? new Date().toISOString() : null;
   const makes = input.shots.filter((s) => s.made).length;
   const attempts = input.shots.length;
@@ -99,16 +104,17 @@ export async function syncShotSession(input: ShotSyncInput) {
   let sessionId = input.sessionId;
 
   if (sessionId) {
-    const update = (withGoal: boolean) =>
+    const update = (withGoal: boolean, withReport: boolean) =>
       supabase
         .schema("hoops")
         .from("shot_sessions")
-        .update({ label, source, ended_at: endedAt, makes, attempts, ...cameraColumns, ...(withGoal ? goalColumns : {}) })
+        .update({ label, source, ended_at: endedAt, makes, attempts, ...cameraColumns, ...(withGoal ? goalColumns : {}), ...(withReport ? reportColumns : {}) })
         .eq("id", sessionId as string)
         .eq("player_id", input.playerId)
         .select("id");
-    let { data: updated, error } = await update(true);
-    if (missingGoalColumns(error)) ({ data: updated, error } = await update(false));
+    let { data: updated, error } = await update(true, true);
+    if (missingReportColumn(error)) ({ data: updated, error } = await update(true, false));
+    if (missingGoalColumns(error)) ({ data: updated, error } = await update(false, false));
     if (error) return { error: error.message };
     // The row is gone (deleted from another device, say). Start a fresh
     // one from this snapshot instead of failing a session that is intact
@@ -117,7 +123,7 @@ export async function syncShotSession(input: ShotSyncInput) {
   }
 
   if (!sessionId) {
-    const insert = (withGoal: boolean) =>
+    const insert = (withGoal: boolean, withReport: boolean) =>
       supabase
         .schema("hoops")
         .from("shot_sessions")
@@ -131,11 +137,13 @@ export async function syncShotSession(input: ShotSyncInput) {
           attempts,
           ...cameraColumns,
           ...(withGoal ? goalColumns : {}),
+          ...(withReport ? reportColumns : {}),
         })
         .select("id")
         .single();
-    let { data, error } = await insert(true);
-    if (missingGoalColumns(error)) ({ data, error } = await insert(false));
+    let { data, error } = await insert(true, true);
+    if (missingReportColumn(error)) ({ data, error } = await insert(true, false));
+    if (missingGoalColumns(error)) ({ data, error } = await insert(false, false));
     if (error || !data) return { error: error?.message ?? "Couldn't save the session." };
     sessionId = data.id as string;
   }
