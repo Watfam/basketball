@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"R09","balls":[{"cx":197,"cy":211,"diameter":40,"visibility":"partial","confidence":"low"}],"tags":["at_rim","below_net","occluded"],"distractors":[{"kind":"rim","cx":195,"cy":200}],"notes":"orange mass under the rim in the net, mostly hidden"},
+ {"id":"R10","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":80,"cy":375},{"kind":"head","cx":82,"cy":330},{"kind":"head","cx":390,"cy":395}]},
+ {"id":"R11","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":40,"cy":385},{"kind":"head","cx":45,"cy":345}]},
+ {"id":"R12","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"head","cx":215,"cy":295},{"kind":"shirt","cx":230,"cy":385}]}
+]}

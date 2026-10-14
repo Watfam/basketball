@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F037","balls":[{"cx":173,"cy":403,"diameter":25,"visibility":"clear","confidence":"medium"}],"tags":["in_hand","against_ground"],"distractors":[{"kind":"shirt","cx":200,"cy":375},{"kind":"head","cx":195,"cy":330}]},
+ {"id":"F038","balls":[{"cx":195,"cy":376,"diameter":25,"visibility":"clear","confidence":"medium"}],"tags":["in_hand","blurred","against_ground"],"distractors":[{"kind":"shirt","cx":150,"cy":380},{"kind":"head","cx":150,"cy":330}]},
+ {"id":"F039","balls":[{"cx":120,"cy":400,"diameter":27,"visibility":"clear","confidence":"high"}],"tags":["in_hand","against_ground"],"distractors":[{"kind":"shirt","cx":120,"cy":385},{"kind":"head","cx":125,"cy":340}]},
+ {"id":"F040","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":95,"cy":375},{"kind":"head","cx":90,"cy":305}]}
+]}

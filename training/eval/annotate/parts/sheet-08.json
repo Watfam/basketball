@@ -1,0 +1,75 @@
+{
+ "frames": [
+  {
+   "id": "F029",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 328,
+     "cy": 292
+    },
+    {
+     "kind": "shirt",
+     "cx": 330,
+     "cy": 380
+    }
+   ]
+  },
+  {
+   "id": "F030",
+   "balls": [
+    {
+     "cx": 182,
+     "cy": 148,
+     "diameter": 23,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "at_rim",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 135,
+     "cy": 330
+    },
+    {
+     "kind": "shirt",
+     "cx": 135,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "F031",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 170,
+     "cy": 195
+    }
+   ],
+   "notes": "corrected after viewing F068: the orange at the rim in this camera position is the rim itself, not a ball"
+  },
+  {
+   "id": "F032",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  }
+ ]
+}

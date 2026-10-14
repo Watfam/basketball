@@ -1,0 +1,74 @@
+{
+  "locked": "2026-10-14",
+  "files": {
+    "public/models/ball-6.onnx": "4d19f88b829063c4af5f16e684a60ec6532ee1a87a57f84391daa198bfd5f593",
+    "training/eval/annotate/annotations.json": "408b44db864f8d973f4a32cea3eea481c1950a3ed06ca95f5175fa0f60566117",
+    "training/eval/annotate/manifest.json": "9f5c5b5fbc171d117f6480735a4ee16625b8c159b35a07c5d06c49aac359b80a",
+    "training/eval/datasets.json": "dac29868c2494ca8796e1d9c0c97cd0b8035b2403fbafe67738a04fdcd5a4ec8",
+    "training/eval/thresholds.json": "0b838dd822c07cd97ec1901b4897811169ad7b9dbcf77957dfbc7c274e1eb6d6",
+    "training/fixtures/dets5-4839.json": "94f79b51fa0731a424e38aa615d21fcc42aed48b7797d37638ca0d6626475b6a",
+    "training/fixtures/dets5-4840.json": "501aa12bdf24931ecb795e5284219f63d336de81ddc74207ac505ae934bee1ae",
+    "training/fixtures/dets5-4844.json": "c6276974b18ee95b0863de938031d613c9491eafb725c46969470ceaa2aa2e79",
+    "training/fixtures/dets5-4851.json": "24119672830c26ca4eb135998f75106564131a19392fa7b86a103bc0fc5bb8ca",
+    "training/fixtures/dets5-4866.json": "958ab686ec742078b338efb30c782b45d8becd4e1895a3b6865e9a3a86035691",
+    "training/fixtures/dets5-4867.json": "12fb83d1384d64e7b51e6c6ad6d1ee444e4061020f2f68372a1514065cb14368",
+    "training/fixtures/dets5-4872.json": "a517b5eb3f4aae3e39250ca5988a8051d11426fd249203b0b4aaa39088de1d2c",
+    "training/fixtures/dets5-4873-found.json": "752ee432fb9ebc47332a4e8512c77a97ba8a0fb1d956630033cd091e58a3056e",
+    "training/fixtures/dets5-4873-s1.json": "3d5b9bfd9aa3251ab8b4538fc8e6385d8edbe650a406d06e16d7f707d236cf2b",
+    "training/fixtures/dets5-4874.json": "66bdde7b5902ee39d6280a3de662478a9d273ae5fa6884702f65918811e58570",
+    "training/fixtures/dets6-4839.json": "420e0774c174fe91a0071fd91b3d9ab23789261aa5ed22923521ad655835a4d5",
+    "training/fixtures/dets6-4840.json": "014d5f34b68461f0d84d23a6038d7f934105fbbc99e3e0ecde80e9dade3060e4",
+    "training/fixtures/dets6-4851.json": "abdaba7d050972cd85855679d06733f04143c50b6fdb6c96179ffb48ccaf34db",
+    "training/fixtures/dets6-4866.json": "b630f3f85e0f0f96f55270140b939467f09d700978d353846472db276b691e67",
+    "training/fixtures/dets6-4867.json": "107cf741f8576b0b46923087adbee603f9f208498db010fcd369ddb7149e6c35",
+    "training/fixtures/dets6-4872.json": "4b21daeb488aad634f282c8b7598b46495b8fcc70fd6e680aa8dc5e8879dafe4",
+    "training/fixtures/dets6-4873-s1.json": "ed8a3e1f742bafbf8d6a1ae3565979d8e51c3249932defd90b8d3901a0235f20",
+    "training/fixtures/dets6-4873.json": "a02ed8c4a83d61f495188ba3dcb74d15795476ab5e57691c15cc6f9b50ae3d6c",
+    "training/fixtures/dets6-4874.json": "f93fcd61facc984e5e9e76aaddc98624783885faede9f28773a2fa02a7db8f59",
+    "training/labels/IMG_4836-truth.json": "a15797b8bd80b80184951ec6d26488f5c232c2972c1e7b9bf0d588942f9ca356",
+    "training/labels/IMG_4839-truth.json": "911f53b1f58a64793a791df17cf6668600f7a5cfdb299463502048537d57317e",
+    "training/labels/IMG_4840-truth.json": "310c2d651f4a6429c6cc295ba29efddce256b77e0d0d11a87cc2131b9b90dd8c",
+    "training/labels/IMG_4844-truth.json": "9d0b1aa5e2d87a30178af881bd492fbbde8b0205ddffd6e0e1163c816dfae075",
+    "training/labels/IMG_4851-truth.json": "39a4335578d2bd0eecf5d94b24468aa2efd59096bd26b4169a78eb0ff23d13cf",
+    "training/labels/IMG_4866-truth.json": "deb4de68f15a3d349c10359ee2ee8cb8818b80fd0f76e03578cd2aa5b362f848",
+    "training/labels/IMG_4867-truth.json": "8d6a517bea20073bd645af15217137d736bd5735eb2794905c3276d34532e695",
+    "training/labels/IMG_4872-truth.json": "be71fa065857bb8c9f4373fae7c8fcb8c1dabde6a83a4d4c88521f9496591877",
+    "training/labels/IMG_4873-truth.json": "e1fd99f49d03fbd2319df167419ae1a3a3f93a3ebd266033e80a966c9e23627e",
+    "training/labels/IMG_4874-truth.json": "5ade6d4b87cc68f87ddb88a08f545a0a44be9979aab25c3414db1ba422af5fb2"
+  },
+  "videos": {
+    "IMG_4836": {
+      "bytes": 139932799
+    },
+    "IMG_4839": {
+      "bytes": 195817100
+    },
+    "IMG_4840": {
+      "bytes": 193032258
+    },
+    "IMG_4844": {
+      "bytes": 237464306
+    },
+    "IMG_4851": {
+      "bytes": 163426739
+    },
+    "IMG_4866": {
+      "bytes": 163558640
+    },
+    "IMG_4867": {
+      "bytes": 143675038
+    },
+    "IMG_4872": {
+      "bytes": 162718794
+    },
+    "IMG_4873": {
+      "bytes": 176664212
+    },
+    "IMG_4874": {
+      "bytes": 176019070
+    },
+    "B1689585": {
+      "bytes": 1193025821
+    }
+  }
+}

@@ -1,0 +1,336 @@
+{
+ "what": "Independence test of the circle-fit (copied from tools/44-round6.mjs) against manual annotation. Seeds come from the ANNOTATION here, which the training code could not do (it seeded from ball-5's proposal and kept a circle only if it agreed with that proposal).",
+ "from_the_code": [
+  "seeded by the ball-5 detector's proposal (window centred on it, search radius max(8, 0.6 x the proposal's width))",
+  "kept only if support >= 0.7 AND the circle's centre is within r + 2 px of the proposal AND its size is 0.6 to 1.9 times the proposal's: selected for agreement with the detector",
+  "cannot find a ball the detector did not propose, so it says nothing about missed balls or false positives",
+  "ball-6 was trained on boxes drawn from these circles on 8 clips"
+ ],
+ "seed_stability": {
+  "frames_with_a_clear_annotated_ball": 29,
+  "excluded_because_the_search_region_was_clamped_at_the_crop_edge": 11,
+  "frames_with_a_circle_at_the_true_seed": 18,
+  "frames_tried": 18,
+  "shifted_seed_fits": 139,
+  "produced_a_circle": 45,
+  "movement_of_fit_when_seed_moves_px": {
+   "n": 139,
+   "mean": 15.871318220963682,
+   "rmse": 21.153484365626436,
+   "median": 15.652475842498529,
+   "median_ci95": {
+    "lo": 10.295630140987,
+    "hi": 19.1049731745428
+   },
+   "p90": 34.826469883687416,
+   "p95": 37.04846828043302,
+   "max": 49.36598018878994,
+   "worst": [
+    {
+     "value": 49.36598018878994
+    },
+    {
+     "value": 48.82622246293481
+    },
+    {
+     "value": 47.53945729601885
+    },
+    {
+     "value": 45.541190146942796
+    },
+    {
+     "value": 42.1070065428546
+    }
+   ]
+  },
+  "share_of_shifted_fits_landing_more_than_6px_from_the_true_seed_fit": {
+   "p": 0.6330935251798561,
+   "lo": 0.5503942808900741,
+   "hi": 0.7086339013761562,
+   "k": 88,
+   "n": 139
+  },
+  "reading": "small movement means the fit finds the same edge from different seeds (seed-independent in its estimate); a large share pulled away means it follows the seed or fails"
+ },
+ "against_manual_truth": {
+  "accepted_by_training_criterion": {
+   "p": 0.16666666666666666,
+   "lo": 0.05836470400465757,
+   "hi": 0.39222499638359243,
+   "k": 3,
+   "n": 18
+  },
+  "centre_error_px": {
+   "n": 3,
+   "unavailable": "too few"
+  },
+  "note": "errors are limited by the annotation's own repeatability"
+ },
+ "imitation_check": {
+  "clips_ball6_never_saw": {
+   "frames": 2,
+   "model_vs_truth_px": {
+    "n": 2,
+    "unavailable": "fewer than 5 frames"
+   },
+   "circle_vs_truth_px": {
+    "n": 2,
+    "unavailable": "fewer than 5 frames"
+   },
+   "model_vs_circle_px": {
+    "n": 2,
+    "unavailable": "fewer than 5 frames"
+   }
+  },
+  "clips_ball6_trained_on": {
+   "frames": 1,
+   "model_vs_truth_px": {
+    "n": 1,
+    "unavailable": "fewer than 5 frames"
+   },
+   "circle_vs_truth_px": {
+    "n": 1,
+    "unavailable": "fewer than 5 frames"
+   },
+   "model_vs_circle_px": {
+    "n": 1,
+    "unavailable": "fewer than 5 frames"
+   }
+  }
+ },
+ "imitation_reading": "if model_vs_circle is much smaller than model_vs_truth and circle_vs_truth on the clips ball-6 trained on, but not on clips it never saw, the agreement is imitation, not independent confirmation",
+ "frames": [
+  {
+   "id": "F002",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 4.242640687119286,
+   "model_error_px": 1.1695868546298462
+  },
+  {
+   "id": "F003",
+   "clip": "B1689585",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 15.03329637837291,
+   "model_error_px": 0.6881820514962999
+  },
+  {
+   "id": "F009",
+   "clip": "IMG_4839",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 37.12142238654117,
+   "model_error_px": 0.5314331680897338
+  },
+  {
+   "id": "F010",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 12.36931687685298,
+   "model_error_px": 0.7545977525894463
+  },
+  {
+   "id": "F011",
+   "clip": "IMG_4839",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 20.8806130178211,
+   "model_error_px": 1.3737638972121853
+  },
+  {
+   "id": "F012",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 41.617304093369626,
+   "model_error_px": 1.2641813382170661
+  },
+  {
+   "id": "F014",
+   "clip": "IMG_4873",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 26.925824035672523,
+   "model_error_px": 2.020535759431448
+  },
+  {
+   "id": "F015",
+   "clip": "IMG_4872",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 8.54400374531753,
+   "model_error_px": 0.7859364189801231
+  },
+  {
+   "id": "F016",
+   "clip": "B1689585",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 6.4031242374328485,
+   "model_error_px": 2.215208823227813
+  },
+  {
+   "id": "F021",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 6.4031242374328485,
+   "model_error_px": 0.6076899924471573
+  },
+  {
+   "id": "F026",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 5.8309518948453,
+   "model_error_px": 0.5444192610531807
+  },
+  {
+   "id": "F030",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 13.453624047073712,
+   "model_error_px": 0.6554192537454125
+  },
+  {
+   "id": "F037",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 49.64876634922564,
+   "model_error_px": null
+  },
+  {
+   "id": "F038",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 27.85677655436824,
+   "model_error_px": null
+  },
+  {
+   "id": "F039",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 39.319206502674994,
+   "model_error_px": 1.1012058912556708
+  },
+  {
+   "id": "F043",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": true,
+   "fit_error_px": 0,
+   "model_error_px": 0.857150043225286
+  },
+  {
+   "id": "F049",
+   "clip": "B1689585",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": true,
+   "fit_error_px": 1,
+   "model_error_px": 1.0813377556372783
+  },
+  {
+   "id": "F051",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 7.0710678118654755,
+   "model_error_px": 0.5190797928249782
+  },
+  {
+   "id": "F058",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": true,
+   "fit_error_px": 56.61271941887265,
+   "model_error_px": 1.396743148267758
+  },
+  {
+   "id": "F060",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 12.649110640673518,
+   "model_error_px": null
+  },
+  {
+   "id": "F061",
+   "clip": "B1689585",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": true,
+   "fit_error_px": 58,
+   "model_error_px": null
+  },
+  {
+   "id": "F062",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 13.038404810405298,
+   "model_error_px": null
+  },
+  {
+   "id": "F063",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 6.708203932499369,
+   "model_error_px": 1.5795078812559897
+  },
+  {
+   "id": "F064",
+   "clip": "B1689585",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 11.704699910719626,
+   "model_error_px": null
+  },
+  {
+   "id": "F065",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": true,
+   "fit_error_px": 26.419689627245813,
+   "model_error_px": null
+  },
+  {
+   "id": "F068",
+   "clip": "IMG_4851",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 7.442203641958104,
+   "model_error_px": 0.3689530041251602
+  },
+  {
+   "id": "F069",
+   "clip": "IMG_4874",
+   "in_sample": false,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 9.486832980505138,
+   "model_error_px": null
+  },
+  {
+   "id": "F070",
+   "clip": "IMG_4866",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": true,
+   "fit_error_px": 17.140344559919185,
+   "model_error_px": 0.6912548211488658
+  },
+  {
+   "id": "F072",
+   "clip": "IMG_4873",
+   "in_sample": true,
+   "fit_ok_at_truth_seed": false,
+   "fit_error_px": 20.615528128088304,
+   "model_error_px": 1.4619911395231067
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F073","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F074","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":65,"cy":385},{"kind":"head","cx":65,"cy":320}]},
+ {"id":"F075","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":120,"cy":370},{"kind":"head","cx":120,"cy":318}]},
+ {"id":"F076","balls":[],"tags":["no_ball_visible"],"distractors":[]}
+]}

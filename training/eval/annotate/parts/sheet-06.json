@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F021","balls":[{"cx":163,"cy":195,"diameter":25,"visibility":"clear","confidence":"high"}],"tags":["at_rim","in_flight","against_backboard"],"distractors":[{"kind":"head","cx":367,"cy":300},{"kind":"shirt","cx":375,"cy":385}]},
+ {"id":"F022","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F023","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F024","balls":[{"cx":195,"cy":201,"diameter":22,"visibility":"partial","confidence":"low"}],"tags":["at_rim","occluded"],"distractors":[{"kind":"rim","cx":190,"cy":195},{"kind":"shirt","cx":335,"cy":410}],"notes":"orange shape at the rim and top of the net; hard to separate from the rim itself"}
+]}

@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F009","balls":[{"cx":143,"cy":381,"diameter":25,"visibility":"clear","confidence":"high"}],"tags":["in_hand","against_ground"],"distractors":[{"kind":"shirt","cx":220,"cy":365},{"kind":"shirt","cx":60,"cy":395},{"kind":"head","cx":142,"cy":332}]},
+ {"id":"F010","balls":[{"cx":196,"cy":93,"diameter":24,"visibility":"clear","confidence":"high"}],"tags":["in_flight","against_trees"],"distractors":[{"kind":"head","cx":145,"cy":291},{"kind":"shirt","cx":210,"cy":378}]},
+ {"id":"F011","balls":[{"cx":207,"cy":387,"diameter":30,"visibility":"clear","confidence":"high"}],"tags":["in_hand","against_ground"],"distractors":[{"kind":"shirt","cx":147,"cy":375},{"kind":"shirt","cx":260,"cy":380},{"kind":"head","cx":147,"cy":335}]},
+ {"id":"F012","balls":[{"cx":26,"cy":393,"diameter":30,"visibility":"clear","confidence":"medium"}],"tags":["in_hand","against_ground"],"distractors":[{"kind":"shirt","cx":115,"cy":375},{"kind":"head","cx":118,"cy":335}]}
+]}

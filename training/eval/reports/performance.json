@@ -1,0 +1,134 @@
+{
+ "measured_on": {
+  "machine": "Intel(R) Core(TM) i5-4278U CPU @ 2.60GHz, 4 cores, 8 GB",
+  "node": "v20.9.0",
+  "label": "DESKTOP, not a phone"
+ },
+ "app_constants_from_source": {
+  "loop_fps_target": 15,
+  "slow_fps_floor": null,
+  "no_ball_warning_ms": 60000,
+  "replay_frame_px": 288,
+  "replay_jpeg_quality": 0.6,
+  "motion_threshold": 6,
+  "still_hold_ms": 1500
+ },
+ "sizes_bytes": {
+  "ball6_model": 3652052,
+  "ort_wasm_files": [
+   {
+    "file": "ort-wasm-simd-threaded.asyncify.wasm",
+    "bytes": 26781914
+   },
+   {
+    "file": "ort-wasm-simd-threaded.wasm",
+    "bytes": 14239897
+   }
+  ]
+ },
+ "offline_inference_desktop": {
+  "what": "ball-6 on 416 px window frames, onnxruntime-web WASM, 1 thread, preprocess + run + decode",
+  "frames_timed": 112,
+  "ms_median": 119.27748250961304,
+  "ms_p95": 126.063427567482,
+  "ms_max": 137.18033409118652,
+  "caution": "a desktop CPU is far faster than an iPhone; use only as a relative baseline for 'did a change make inference slower'"
+ },
+ "motion_gate": {
+  "what": "share of 15 fps frames on which the app's motion gate (threshold and hold read from source) opens, so the model runs; simulated on the saved clips, independent of the detector",
+  "per_clip": {
+   "IMG_4839": {
+    "frames_15fps": 2642,
+    "model_runs": 2568,
+    "share_of_frames_sent_to_model": 0.9719909159727479
+   },
+   "IMG_4851": {
+    "frames_15fps": 1941,
+    "model_runs": 1618,
+    "share_of_frames_sent_to_model": 0.833590932509016
+   },
+   "IMG_4866": {
+    "frames_15fps": 2209,
+    "model_runs": 1957,
+    "share_of_frames_sent_to_model": 0.885921231326392
+   },
+   "IMG_4867": {
+    "frames_15fps": 1929,
+    "model_runs": 1754,
+    "share_of_frames_sent_to_model": 0.909279419388284
+   },
+   "IMG_4872": {
+    "frames_15fps": 2192,
+    "model_runs": 2192,
+    "share_of_frames_sent_to_model": 1
+   },
+   "IMG_4873": {
+    "frames_15fps": 2176,
+    "model_runs": 2176,
+    "share_of_frames_sent_to_model": 1
+   },
+   "IMG_4874": {
+    "frames_15fps": 2369,
+    "model_runs": 2369,
+    "share_of_frames_sent_to_model": 1
+   },
+   "B1689585": {
+    "frames_15fps": 14155,
+    "model_runs": 13544,
+    "share_of_frames_sent_to_model": 0.9568350406216884
+   }
+  },
+  "range": {
+   "min": 0.833590932509016,
+   "max": 1
+  },
+  "reading": "the model is sent most frames on these clips: plan for near-continuous inference, not for a mostly idle model",
+  "caution": "scene-dependent (wind, people in the window); the phone camera's own noise may differ from decoded video"
+ },
+ "replay_buffer_estimate": {
+  "what": "DERIVED from source constants, not measured: frames kept for the 6 s replay",
+  "frames": 90,
+  "approx_bytes_per_frame_assumed": 15000,
+  "approx_total_bytes": 1350000
+ },
+ "phone": {
+  "documented_not_reproduced": [
+   {
+    "source": "training/README.md, 'First 10-minute live soak on Matt's iPhone (2026-10-06)'",
+    "model": "ball-5 (same architecture and size as ball-6)",
+    "result": "20.5 fps in minute 1, 15.3 in minute 5, 12.1 in minute 10; model time per frame 39 ms rising to 68 ms; average 15.4 fps; speed fell steadily with heat"
+   }
+  ],
+  "ball6_soak": {
+   "unavailable": "no 10-minute soak with ball-6 and the current app has been run on a phone"
+  },
+  "memory": {
+   "unavailable": "iOS Safari exposes no per-page memory; desktop Chromium numbers below are not phone numbers"
+  },
+  "field_speed": {
+   "unavailable": "camera_report (migration 0022, live) now records average and slowest fps per saved set; no sets saved since, so there is nothing to read yet"
+  }
+ },
+ "app_in_chromium": {
+  "measured_on": "desktop Chromium (headless, software WASM), fake camera playing a saved clip",
+  "seconds_observed": 40,
+  "model_runs": 243,
+  "model_runs_per_second": 5.820468720169035,
+  "ms_between_model_runs": {
+   "median": 167.95749974250793,
+   "p95": 199.10350034236907,
+   "max": 280.1150002479553
+  },
+  "js_heap_bytes": {
+   "before_counting": 16032071,
+   "end": 24816199,
+   "max": 34165785
+  },
+  "chrome_total_rss_bytes": {
+   "before_counting": 898985984,
+   "end": 1205936128,
+   "max": 1205936128
+  },
+  "caution": "desktop browser; RSS covers every Chrome process on the machine at the time. Phone memory and speed are unavailable."
+ }
+}

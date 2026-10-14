@@ -1,0 +1,54 @@
+{
+  "registered": "2026-10-13",
+  "note": "Registered BEFORE the harness produced any number. Partly informed by Phase 1 exploratory measurements (centre noise about 0.6 px, V4 18 of 20 on IMG_4874), which are disclosed here so nothing is presented as blind. Changing any value after seeing results requires a new file version (thresholds-v2.json) and the report records which version it used. The sha256 of this file is stored in datasets.lock.json and printed in every report.",
+  "seeds": {
+    "master": 20261013,
+    "frame_sample": 20261014,
+    "bootstrap": 20261015,
+    "synthetic_distractors": 20261016,
+    "bootstrap_resamples": 2000
+  },
+  "min_samples_per_cell": 30,
+  "shot_classification": {
+    "regression_if": "any single clip loses 2 or more correct calls against the baseline, OR the pooled paired difference (calls gained minus calls lost) is -3 or worse",
+    "improvement_if": "pooled paired difference is +5 or better AND no clip loses 2 or more calls; reported with the exact paired (McNemar) p-value",
+    "pooled_unit": "shots, with clips as the unit of uncertainty: also report a clip-level bootstrap interval"
+  },
+  "detection_on_annotated_frames": {
+    "regression_if": "recall or precision falls by more than 0.03 absolute against the baseline",
+    "improvement_if": "paired difference in recall or precision of at least +0.03 with no loss of more than 0.01 in the other, on the out-of-sample strata only",
+    "match_rule": "a box matches an annotated ball when its centre lies within 0.5 of the annotated ball diameter of the annotated centre"
+  },
+  "localization": {
+    "unit": "pixels in the hoop window, and also as a fraction of the annotated ball diameter",
+    "regression_if": "median or 95th percentile error grows by more than 25 percent against the baseline",
+    "resolution_floor": "differences smaller than the annotation repeatability (measured, reported in the run) are not claims"
+  },
+  "interpolation": {
+    "cells": "one per missing-frame count k = 1..6, per frame step (30 fps and 15 fps), per region (free flight, near the rim)",
+    "improvement_if": "median error at least 20 percent below the BEST baseline (linear, constant velocity, constant acceleration) AND 95th percentile not more than 10 percent above it",
+    "never_pooled_across_k": true
+  },
+  "prediction": {
+    "improvement_if": "same rule as interpolation, against the best causal baseline (last value, constant velocity, constant acceleration)",
+    "causality": "a prediction at frame t may use only observations at frames before t; the evaluator enforces this by construction and a test checks it"
+  },
+  "association": {
+    "improvement_if": "fewer identity switches AND no lower association recall than the baseline on every synthetic distractor type",
+    "real_data": "unavailable until identity annotations exist"
+  },
+  "performance": {
+    "regression_if": "median milliseconds per processed frame rises more than 10 percent, OR the share of frames sent to the model rises more than 10 percent relative, OR measured app JS heap rises more than 30 MB",
+    "phone": "phone speed and memory are reported only from real camera reports; offline and desktop numbers are labelled as such and never presented as phone numbers"
+  },
+  "claims_policy": "A change is only reported as an improvement if its rule above is met on the dev and validation roles and it does not regress the diagnostic clips. There is no untouched final test set; this is stated in every report.",
+  "min_independent_flights_per_cell": 10,
+  "amendments": [
+    {
+      "date": "2026-10-14",
+      "before_baseline_frozen": true,
+      "change": "added min_independent_flights_per_cell = 10",
+      "why": "interpolation and prediction samples are overlapping windows inside the same flights, so 30 points can come from two flights; a cell now also needs 10 independent flights. This is a stricter reporting rule that can only turn numbers into 'unavailable'; it was added after seeing preview cell sizes on IMG_4874 but is not tuned to any error value."
+    }
+  ]
+}

@@ -1,0 +1,2122 @@
+{
+ "schema": "eval-annotations-v1",
+ "coordinate_system": "416 px hoop window as the model sees it (the registry window cut and scaled to 416), x right, y down, pixels; diameter is the ball's apparent width",
+ "annotator": {
+  "id": "claude-visual-1",
+  "kind": "single AI visual annotator (no human second opinion yet)",
+  "blind_to": [
+   "detector output",
+   "circle-fit",
+   "clip id",
+   "frame number",
+   "stratum"
+  ],
+  "protocol": "Looked at gridded sheets (grid every 25 px, labels every 50) of four frames at a time, in blind id order; centre read to about 2 px against the grid; a ball is annotated when at least half of it is visible, occluded_guess when its position is inferred from context; distractors listed by type; 12 frames were repeated under new ids to measure repeatability.",
+  "reviewed_by_human": false,
+  "repeatability_caveat": "the 12 repeats were annotated in the same session by the same annotator, who had seen the earlier sheets: they are not independent of memory, so the measured repeatability is an OPTIMISTIC floor on the annotation error"
+ },
+ "frames": [
+  {
+   "id": "F001",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F002",
+   "balls": [
+    {
+     "cx": 213,
+     "cy": 166,
+     "diameter": 24,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "at_rim",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 258,
+     "cy": 368
+    }
+   ]
+  },
+  {
+   "id": "F003",
+   "balls": [
+    {
+     "cx": 171,
+     "cy": 336,
+     "diameter": 32,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 85,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 95,
+     "cy": 295
+    }
+   ]
+  },
+  {
+   "id": "F004",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 215,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 215,
+     "cy": 295
+    }
+   ]
+  },
+  {
+   "id": "F005",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 62,
+     "cy": 330
+    },
+    {
+     "kind": "shirt",
+     "cx": 62,
+     "cy": 375
+    }
+   ]
+  },
+  {
+   "id": "F006",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 215,
+     "cy": 298
+    },
+    {
+     "kind": "shirt",
+     "cx": 230,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "F007",
+   "balls": [
+    {
+     "cx": 198,
+     "cy": 211,
+     "diameter": 46,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "at_rim",
+    "below_net",
+    "occluded"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 195,
+     "cy": 200
+    }
+   ],
+   "notes": "orange mass inside the net just under the rim; could be the ball going through, partly hidden by the rim and net"
+  },
+  {
+   "id": "F008",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 385,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 395,
+     "cy": 300
+    },
+    {
+     "kind": "shirt",
+     "cx": 85,
+     "cy": 380
+    }
+   ]
+  },
+  {
+   "id": "F009",
+   "balls": [
+    {
+     "cx": 143,
+     "cy": 381,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 220,
+     "cy": 365
+    },
+    {
+     "kind": "shirt",
+     "cx": 60,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 142,
+     "cy": 332
+    }
+   ]
+  },
+  {
+   "id": "F010",
+   "balls": [
+    {
+     "cx": 196,
+     "cy": 93,
+     "diameter": 24,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 145,
+     "cy": 291
+    },
+    {
+     "kind": "shirt",
+     "cx": 210,
+     "cy": 378
+    }
+   ]
+  },
+  {
+   "id": "F011",
+   "balls": [
+    {
+     "cx": 207,
+     "cy": 387,
+     "diameter": 30,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 147,
+     "cy": 375
+    },
+    {
+     "kind": "shirt",
+     "cx": 260,
+     "cy": 380
+    },
+    {
+     "kind": "head",
+     "cx": 147,
+     "cy": 335
+    }
+   ]
+  },
+  {
+   "id": "F012",
+   "balls": [
+    {
+     "cx": 26,
+     "cy": 393,
+     "diameter": 30,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 115,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 118,
+     "cy": 335
+    }
+   ]
+  },
+  {
+   "id": "F013",
+   "balls": [
+    {
+     "cx": 70,
+     "cy": 406,
+     "diameter": 29,
+     "visibility": "partial",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "on_ground",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 215,
+     "cy": 365
+    },
+    {
+     "kind": "head",
+     "cx": 210,
+     "cy": 322
+    },
+    {
+     "kind": "rim",
+     "cx": 175,
+     "cy": 200
+    }
+   ],
+   "notes": "ball cut by the bottom edge of the window"
+  },
+  {
+   "id": "F014",
+   "balls": [
+    {
+     "cx": 286,
+     "cy": 349,
+     "diameter": 47,
+     "visibility": "clear",
+     "confidence": "high"
+    },
+    {
+     "cx": 197,
+     "cy": 213,
+     "diameter": 25,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "below_net",
+    "second_ball",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 195,
+     "cy": 200
+    }
+   ],
+   "notes": "second ball: orange mass inside the net just under the rim, partly hidden; the large ball low right is nearer the camera"
+  },
+  {
+   "id": "F015",
+   "balls": [
+    {
+     "cx": 183,
+     "cy": 309,
+     "diameter": 24,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "blurred",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 292,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 285,
+     "cy": 335
+    }
+   ]
+  },
+  {
+   "id": "F016",
+   "balls": [
+    {
+     "cx": 162,
+     "cy": 343,
+     "diameter": 24,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 78,
+     "cy": 371
+    },
+    {
+     "kind": "head",
+     "cx": 88,
+     "cy": 345
+    }
+   ]
+  },
+  {
+   "id": "F017",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 150,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 140,
+     "cy": 345
+    }
+   ]
+  },
+  {
+   "id": "F018",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F019",
+   "balls": [
+    {
+     "cx": 45,
+     "cy": 14,
+     "diameter": 34,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "occluded",
+    "against_trees"
+   ],
+   "distractors": [],
+   "notes": "orange shape cut by the top-left corner of the window; centre of the visible part"
+  },
+  {
+   "id": "F020",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 62,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 68,
+     "cy": 335
+    }
+   ]
+  },
+  {
+   "id": "F021",
+   "balls": [
+    {
+     "cx": 163,
+     "cy": 195,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "at_rim",
+    "in_flight",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 367,
+     "cy": 300
+    },
+    {
+     "kind": "shirt",
+     "cx": 375,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "F022",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F023",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F024",
+   "balls": [
+    {
+     "cx": 195,
+     "cy": 201,
+     "diameter": 22,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "at_rim",
+    "occluded"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 190,
+     "cy": 195
+    },
+    {
+     "kind": "shirt",
+     "cx": 335,
+     "cy": 410
+    }
+   ],
+   "notes": "orange shape at the rim and top of the net; hard to separate from the rim itself"
+  },
+  {
+   "id": "F025",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 50,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 48,
+     "cy": 338
+    },
+    {
+     "kind": "head",
+     "cx": 325,
+     "cy": 391
+    }
+   ]
+  },
+  {
+   "id": "F026",
+   "balls": [
+    {
+     "cx": 139,
+     "cy": 298,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 328,
+     "cy": 291
+    },
+    {
+     "kind": "shirt",
+     "cx": 345,
+     "cy": 371
+    }
+   ]
+  },
+  {
+   "id": "F027",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F028",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 60,
+     "cy": 372
+    },
+    {
+     "kind": "head",
+     "cx": 65,
+     "cy": 340
+    }
+   ]
+  },
+  {
+   "id": "F029",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 328,
+     "cy": 292
+    },
+    {
+     "kind": "shirt",
+     "cx": 330,
+     "cy": 380
+    }
+   ]
+  },
+  {
+   "id": "F030",
+   "balls": [
+    {
+     "cx": 182,
+     "cy": 148,
+     "diameter": 23,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "at_rim",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 135,
+     "cy": 330
+    },
+    {
+     "kind": "shirt",
+     "cx": 135,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "F031",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 170,
+     "cy": 195
+    }
+   ],
+   "notes": "corrected after viewing F068: the orange at the rim in this camera position is the rim itself, not a ball"
+  },
+  {
+   "id": "F032",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F033",
+   "balls": [
+    {
+     "cx": 243,
+     "cy": 349,
+     "diameter": 23,
+     "visibility": "partial",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "occluded",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 160,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 170,
+     "cy": 318
+    }
+   ],
+   "notes": "left part hidden by the pole base"
+  },
+  {
+   "id": "F034",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 150,
+     "cy": 370
+    },
+    {
+     "kind": "head",
+     "cx": 165,
+     "cy": 340
+    }
+   ]
+  },
+  {
+   "id": "F035",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 90,
+     "cy": 395
+    },
+    {
+     "kind": "shirt",
+     "cx": 148,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 90,
+     "cy": 340
+    }
+   ]
+  },
+  {
+   "id": "F036",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 90,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 90,
+     "cy": 300
+    }
+   ]
+  },
+  {
+   "id": "F037",
+   "balls": [
+    {
+     "cx": 173,
+     "cy": 403,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 200,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 195,
+     "cy": 330
+    }
+   ]
+  },
+  {
+   "id": "F038",
+   "balls": [
+    {
+     "cx": 195,
+     "cy": 376,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "blurred",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 150,
+     "cy": 380
+    },
+    {
+     "kind": "head",
+     "cx": 150,
+     "cy": 330
+    }
+   ]
+  },
+  {
+   "id": "F039",
+   "balls": [
+    {
+     "cx": 120,
+     "cy": 400,
+     "diameter": 27,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 120,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 125,
+     "cy": 340
+    }
+   ]
+  },
+  {
+   "id": "F040",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 95,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 90,
+     "cy": 305
+    }
+   ]
+  },
+  {
+   "id": "F041",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 135,
+     "cy": 380
+    },
+    {
+     "kind": "head",
+     "cx": 135,
+     "cy": 322
+    }
+   ]
+  },
+  {
+   "id": "F042",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 385,
+     "cy": 400
+    },
+    {
+     "kind": "head",
+     "cx": 385,
+     "cy": 356
+    }
+   ]
+  },
+  {
+   "id": "F043",
+   "balls": [
+    {
+     "cx": 153,
+     "cy": 359,
+     "diameter": 23,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 105,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 100,
+     "cy": 322
+    }
+   ]
+  },
+  {
+   "id": "F044",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 120,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 125,
+     "cy": 322
+    }
+   ]
+  },
+  {
+   "id": "F045",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F046",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 62,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 68,
+     "cy": 322
+    }
+   ]
+  },
+  {
+   "id": "F047",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 325,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 330,
+     "cy": 360
+    }
+   ]
+  },
+  {
+   "id": "F048",
+   "balls": [
+    {
+     "cx": 201,
+     "cy": 213,
+     "diameter": 40,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "at_rim",
+    "below_net",
+    "occluded"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 195,
+     "cy": 200
+    }
+   ],
+   "notes": "orange mass just under the rim inside the net; the ball going through, mostly hidden, or the rim's own colour"
+  },
+  {
+   "id": "F049",
+   "balls": [
+    {
+     "cx": 195,
+     "cy": 186,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "at_rim",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 150,
+     "cy": 370
+    },
+    {
+     "kind": "head",
+     "cx": 148,
+     "cy": 303
+    }
+   ]
+  },
+  {
+   "id": "F050",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 205,
+     "cy": 360
+    },
+    {
+     "kind": "shirt",
+     "cx": 120,
+     "cy": 390
+    },
+    {
+     "kind": "head",
+     "cx": 205,
+     "cy": 322
+    }
+   ]
+  },
+  {
+   "id": "F051",
+   "balls": [
+    {
+     "cx": 193,
+     "cy": 168,
+     "diameter": 24,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "at_rim",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 260,
+     "cy": 320
+    },
+    {
+     "kind": "shirt",
+     "cx": 255,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "F052",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 85,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 90,
+     "cy": 338
+    },
+    {
+     "kind": "shirt",
+     "cx": 20,
+     "cy": 375
+    }
+   ]
+  },
+  {
+   "id": "F053",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 125,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 130,
+     "cy": 318
+    }
+   ]
+  },
+  {
+   "id": "F054",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 175,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 190,
+     "cy": 320
+    }
+   ]
+  },
+  {
+   "id": "F055",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 105,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 108,
+     "cy": 352
+    }
+   ]
+  },
+  {
+   "id": "F056",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F057",
+   "balls": [
+    {
+     "cx": 41,
+     "cy": 410,
+     "diameter": 28,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 10,
+     "cy": 375
+    }
+   ],
+   "notes": "cut by the bottom edge of the window"
+  },
+  {
+   "id": "F058",
+   "balls": [
+    {
+     "cx": 35,
+     "cy": 388,
+     "diameter": 30,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 105,
+     "cy": 380
+    },
+    {
+     "kind": "head",
+     "cx": 103,
+     "cy": 330
+    }
+   ]
+  },
+  {
+   "id": "F059",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F060",
+   "balls": [
+    {
+     "cx": 278,
+     "cy": 119,
+     "diameter": 22,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 310,
+     "cy": 340
+    },
+    {
+     "kind": "shirt",
+     "cx": 300,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "F061",
+   "balls": [
+    {
+     "cx": 301,
+     "cy": 405,
+     "diameter": 23,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 345,
+     "cy": 385
+    },
+    {
+     "kind": "shirt",
+     "cx": 238,
+     "cy": 390
+    },
+    {
+     "kind": "head",
+     "cx": 340,
+     "cy": 355
+    }
+   ]
+  },
+  {
+   "id": "F062",
+   "balls": [
+    {
+     "cx": 253,
+     "cy": 320,
+     "diameter": 23,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "blurred",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 45,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 40,
+     "cy": 300
+    }
+   ]
+  },
+  {
+   "id": "F063",
+   "balls": [
+    {
+     "cx": 79,
+     "cy": 373,
+     "diameter": 28,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "blurred",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 120,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 120,
+     "cy": 318
+    }
+   ]
+  },
+  {
+   "id": "F064",
+   "balls": [
+    {
+     "cx": 289,
+     "cy": 310,
+     "diameter": 29,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 270,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 300,
+     "cy": 345
+    },
+    {
+     "kind": "shirt",
+     "cx": 55,
+     "cy": 380
+    }
+   ],
+   "notes": "held above the shooter's head, just before release"
+  },
+  {
+   "id": "F065",
+   "balls": [
+    {
+     "cx": 30,
+     "cy": 328,
+     "diameter": 27,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shadow",
+     "cx": 345,
+     "cy": 363
+    },
+    {
+     "kind": "shirt",
+     "cx": 20,
+     "cy": 365
+    }
+   ],
+   "notes": "dark round shape right of the pole base (a hammock or bag), not a ball"
+  },
+  {
+   "id": "F066",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F067",
+   "balls": [
+    {
+     "cx": 406,
+     "cy": 368,
+     "diameter": 21,
+     "visibility": "partial",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "occluded"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 215,
+     "cy": 395
+    },
+    {
+     "kind": "head",
+     "cx": 218,
+     "cy": 295
+    },
+    {
+     "kind": "shirt",
+     "cx": 345,
+     "cy": 385
+    }
+   ],
+   "notes": "cut by the right edge of the window"
+  },
+  {
+   "id": "F068",
+   "balls": [
+    {
+     "cx": 111,
+     "cy": 378,
+     "diameter": 27,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "on_ground",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 175,
+     "cy": 195
+    },
+    {
+     "kind": "shirt",
+     "cx": 375,
+     "cy": 390
+    },
+    {
+     "kind": "head",
+     "cx": 375,
+     "cy": 362
+    }
+   ]
+  },
+  {
+   "id": "F069",
+   "balls": [
+    {
+     "cx": 189,
+     "cy": 181,
+     "diameter": 25,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "at_rim",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 105,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 105,
+     "cy": 335
+    }
+   ]
+  },
+  {
+   "id": "F070",
+   "balls": [
+    {
+     "cx": 171,
+     "cy": 46,
+     "diameter": 29,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "other",
+     "cx": 231,
+     "cy": 177
+    },
+    {
+     "kind": "head",
+     "cx": 22,
+     "cy": 300
+    },
+    {
+     "kind": "shirt",
+     "cx": 75,
+     "cy": 385
+    }
+   ],
+   "notes": "dark round shape on the right of the backboard: judged NOT a ball (dark, smaller, in shade), a likely false-positive source"
+  },
+  {
+   "id": "F071",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F072",
+   "balls": [
+    {
+     "cx": 158,
+     "cy": 121,
+     "diameter": 41,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_backboard"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 195,
+     "cy": 205
+    }
+   ]
+  },
+  {
+   "id": "F073",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "F074",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 65,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 65,
+     "cy": 320
+    }
+   ]
+  },
+  {
+   "id": "F075",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 120,
+     "cy": 370
+    },
+    {
+     "kind": "head",
+     "cx": 120,
+     "cy": 318
+    }
+   ]
+  },
+  {
+   "id": "F076",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": []
+  },
+  {
+   "id": "R01",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 328,
+     "cy": 290
+    },
+    {
+     "kind": "shirt",
+     "cx": 330,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "R02",
+   "balls": [
+    {
+     "cx": 170.5,
+     "cy": 46,
+     "diameter": 29,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_flight",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "other",
+     "cx": 231,
+     "cy": 177
+    },
+    {
+     "kind": "head",
+     "cx": 22,
+     "cy": 300
+    },
+    {
+     "kind": "shirt",
+     "cx": 75,
+     "cy": 385
+    }
+   ]
+  },
+  {
+   "id": "R03",
+   "balls": [
+    {
+     "cx": 29,
+     "cy": 330,
+     "diameter": 30,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_trees"
+   ],
+   "distractors": [
+    {
+     "kind": "shadow",
+     "cx": 345,
+     "cy": 362
+    },
+    {
+     "kind": "shirt",
+     "cx": 15,
+     "cy": 370
+    }
+   ]
+  },
+  {
+   "id": "R04",
+   "balls": [
+    {
+     "cx": 153,
+     "cy": 359,
+     "diameter": 23,
+     "visibility": "clear",
+     "confidence": "medium"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 105,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 105,
+     "cy": 322
+    }
+   ]
+  },
+  {
+   "id": "R05",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 385,
+     "cy": 400
+    },
+    {
+     "kind": "head",
+     "cx": 388,
+     "cy": 358
+    }
+   ]
+  },
+  {
+   "id": "R06",
+   "balls": [
+    {
+     "cx": 207,
+     "cy": 387,
+     "diameter": 29,
+     "visibility": "clear",
+     "confidence": "high"
+    }
+   ],
+   "tags": [
+    "in_hand",
+    "against_ground"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 147,
+     "cy": 375
+    },
+    {
+     "kind": "shirt",
+     "cx": 262,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 147,
+     "cy": 330
+    }
+   ]
+  },
+  {
+   "id": "R07",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 40,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 45,
+     "cy": 330
+    }
+   ]
+  },
+  {
+   "id": "R08",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 130,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 130,
+     "cy": 345
+    }
+   ]
+  },
+  {
+   "id": "R09",
+   "balls": [
+    {
+     "cx": 197,
+     "cy": 211,
+     "diameter": 40,
+     "visibility": "partial",
+     "confidence": "low"
+    }
+   ],
+   "tags": [
+    "at_rim",
+    "below_net",
+    "occluded"
+   ],
+   "distractors": [
+    {
+     "kind": "rim",
+     "cx": 195,
+     "cy": 200
+    }
+   ],
+   "notes": "orange mass under the rim in the net, mostly hidden"
+  },
+  {
+   "id": "R10",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 80,
+     "cy": 375
+    },
+    {
+     "kind": "head",
+     "cx": 82,
+     "cy": 330
+    },
+    {
+     "kind": "head",
+     "cx": 390,
+     "cy": 395
+    }
+   ]
+  },
+  {
+   "id": "R11",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "shirt",
+     "cx": 40,
+     "cy": 385
+    },
+    {
+     "kind": "head",
+     "cx": 45,
+     "cy": 345
+    }
+   ]
+  },
+  {
+   "id": "R12",
+   "balls": [],
+   "tags": [
+    "no_ball_visible"
+   ],
+   "distractors": [
+    {
+     "kind": "head",
+     "cx": 215,
+     "cy": 295
+    },
+    {
+     "kind": "shirt",
+     "cx": 230,
+     "cy": 385
+    }
+   ]
+  }
+ ],
+ "events": [
+  {
+   "clip": "IMG_4874",
+   "frame": 1082,
+   "type": "rim_interaction",
+   "visible": true,
+   "detail": "rim_out",
+   "outcome_seen": "miss",
+   "written_index": 5,
+   "written_outcome": "miss",
+   "confidence": "high",
+   "notes": "drops from the upper left onto the front of the rim, bounces back up and away to the left; V4 called it a make"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 1082,
+   "type": "release",
+   "visible": false,
+   "confidence": "high",
+   "notes": "the ball is already in flight in the first strip frame; shooter below the window"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 1161,
+   "type": "rim_interaction",
+   "visible": true,
+   "detail": "rim_out",
+   "outcome_seen": "miss",
+   "written_index": 6,
+   "written_outcome": "miss",
+   "confidence": "medium",
+   "notes": "a close shot, bounces around the rim and backboard and out to the right; V2 called it a make, V4 a miss"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 1161,
+   "type": "release",
+   "visible": true,
+   "release_frame": 1158,
+   "release_frame_tolerance": 3,
+   "confidence": "medium",
+   "notes": "shooter at the lower left with the arm extended; the ball leaves the hand between the first and second strip frames"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2170,
+   "type": "rim_interaction",
+   "visible": true,
+   "detail": "rim_then_in",
+   "outcome_seen": "make",
+   "written_index": 11,
+   "written_outcome": "make",
+   "confidence": "low",
+   "notes": "a real shot: the ball reaches the rim blurred and emerges under the net centred below the hoop; contact with the rim is not certain. The scorer's alignment had skipped this candidate as the extra one; it is a real shot"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2170,
+   "type": "release",
+   "visible": false,
+   "confidence": "high"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2512,
+   "type": "rim_interaction",
+   "visible": true,
+   "detail": "rim_out",
+   "outcome_seen": "miss",
+   "written_index": 12,
+   "written_outcome": "miss",
+   "confidence": "high",
+   "notes": "several bounces on the rim and backboard then out to the left; V4 and V2 called it a make"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2512,
+   "type": "release",
+   "visible": false,
+   "confidence": "high"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2715,
+   "type": "rim_interaction",
+   "visible": true,
+   "detail": "rim_then_in",
+   "outcome_seen": "uncertain",
+   "written_index": 13,
+   "written_outcome": "make",
+   "confidence": "medium",
+   "notes": "bounces on the rim and backboard and is settling on the rim in the last strip frame; whether it drops in is not in the six frames"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2715,
+   "type": "release",
+   "visible": false,
+   "confidence": "high"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 2835,
+   "type": "no_shot",
+   "visible": false,
+   "confidence": "high",
+   "notes": "no ball in any of the six frames: a phantom candidate (3 zone sightings, flagged). With it removed the 20 remaining candidates pair with the 20 written shots in order"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 3690,
+   "type": "rim_interaction",
+   "visible": true,
+   "detail": "backboard_miss",
+   "outcome_seen": "miss",
+   "written_index": 17,
+   "written_outcome": "miss",
+   "confidence": "medium",
+   "notes": "hits the backboard high, bounces right and falls to the right of the pole without going through the hoop; V2 called it a make"
+  },
+  {
+   "clip": "IMG_4874",
+   "frame": 3690,
+   "type": "release",
+   "visible": false,
+   "confidence": "high"
+  }
+ ]
+}

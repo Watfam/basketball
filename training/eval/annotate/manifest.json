@@ -1,0 +1,723 @@
+{
+  "schema": "eval-manifest-v1",
+  "created": "2026-10-14",
+  "seed": 20261014,
+  "frame_convention": "frame index n of the stream ffmpeg produces with filter fps=30000/1001 from the start of the file, as tools/22-dump-detections.mjs counts. Frame numbers can drift slightly on long clips (README); every annotation frame is extracted through the same filter graph.",
+  "window": "416 px model-input window of each clip (registry window), numbered as tools/22-dump-detections.mjs numbers frames",
+  "strata_note": "motion_* are detector-independent and random; detector_gap is targeted at misses and detector_boxed is random among boxed frames. Report per stratum.",
+  "counts": {
+    "IMG_4874": 36,
+    "B1689585": 20,
+    "IMG_4872": 4,
+    "IMG_4873": 4,
+    "IMG_4839": 4,
+    "IMG_4851": 4,
+    "IMG_4866": 4
+  },
+  "frames": [
+    {
+      "id": "F001",
+      "clip": "IMG_4874",
+      "n": 1974,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 597
+    },
+    {
+      "id": "F002",
+      "clip": "IMG_4874",
+      "n": 1394,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F003",
+      "clip": "B1689585",
+      "n": 6420,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F004",
+      "clip": "IMG_4874",
+      "n": 3200,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F005",
+      "clip": "IMG_4866",
+      "n": 1594,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 554
+    },
+    {
+      "id": "F006",
+      "clip": "IMG_4874",
+      "n": 4186,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F007",
+      "clip": "IMG_4873",
+      "n": 2408,
+      "stratum": "motion_low",
+      "role": "validation",
+      "pool_size": 544
+    },
+    {
+      "id": "F008",
+      "clip": "B1689585",
+      "n": 19564,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F009",
+      "clip": "IMG_4839",
+      "n": 384,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 661
+    },
+    {
+      "id": "F010",
+      "clip": "IMG_4874",
+      "n": 3090,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F011",
+      "clip": "IMG_4839",
+      "n": 2996,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 661
+    },
+    {
+      "id": "F012",
+      "clip": "IMG_4874",
+      "n": 1464,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F013",
+      "clip": "IMG_4851",
+      "n": 1224,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 488
+    },
+    {
+      "id": "F014",
+      "clip": "IMG_4873",
+      "n": 230,
+      "stratum": "motion_high",
+      "role": "validation",
+      "pool_size": 546
+    },
+    {
+      "id": "F015",
+      "clip": "IMG_4872",
+      "n": 2888,
+      "stratum": "motion_high",
+      "role": "validation",
+      "pool_size": 548
+    },
+    {
+      "id": "F016",
+      "clip": "B1689585",
+      "n": 13918,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F017",
+      "clip": "IMG_4874",
+      "n": 4392,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F018",
+      "clip": "B1689585",
+      "n": 9416,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F019",
+      "clip": "IMG_4874",
+      "n": 3656,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F020",
+      "clip": "B1689585",
+      "n": 21348,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F021",
+      "clip": "IMG_4874",
+      "n": 1104,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F022",
+      "clip": "IMG_4874",
+      "n": 1014,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 597
+    },
+    {
+      "id": "F023",
+      "clip": "B1689585",
+      "n": 16298,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F024",
+      "clip": "IMG_4851",
+      "n": 2202,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 488
+    },
+    {
+      "id": "F025",
+      "clip": "B1689585",
+      "n": 26094,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F026",
+      "clip": "IMG_4874",
+      "n": 3312,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F027",
+      "clip": "B1689585",
+      "n": 16246,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F028",
+      "clip": "B1689585",
+      "n": 2214,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F029",
+      "clip": "IMG_4874",
+      "n": 3012,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F030",
+      "clip": "IMG_4874",
+      "n": 2716,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F031",
+      "clip": "IMG_4851",
+      "n": 1806,
+      "stratum": "motion_low",
+      "role": "dev",
+      "pool_size": 504
+    },
+    {
+      "id": "F032",
+      "clip": "IMG_4874",
+      "n": 78,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 597
+    },
+    {
+      "id": "F033",
+      "clip": "IMG_4874",
+      "n": 3782,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F034",
+      "clip": "B1689585",
+      "n": 15298,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F035",
+      "clip": "B1689585",
+      "n": 3356,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F036",
+      "clip": "IMG_4872",
+      "n": 4218,
+      "stratum": "motion_high",
+      "role": "validation",
+      "pool_size": 548
+    },
+    {
+      "id": "F037",
+      "clip": "IMG_4874",
+      "n": 1606,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F038",
+      "clip": "IMG_4874",
+      "n": 4518,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F039",
+      "clip": "IMG_4874",
+      "n": 3884,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F040",
+      "clip": "IMG_4874",
+      "n": 4602,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F041",
+      "clip": "IMG_4874",
+      "n": 2590,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F042",
+      "clip": "B1689585",
+      "n": 18820,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F043",
+      "clip": "IMG_4874",
+      "n": 2786,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F044",
+      "clip": "IMG_4874",
+      "n": 4590,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F045",
+      "clip": "IMG_4874",
+      "n": 2956,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 597
+    },
+    {
+      "id": "F046",
+      "clip": "B1689585",
+      "n": 742,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F047",
+      "clip": "IMG_4866",
+      "n": 2954,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 554
+    },
+    {
+      "id": "F048",
+      "clip": "IMG_4873",
+      "n": 3332,
+      "stratum": "motion_high",
+      "role": "validation",
+      "pool_size": 546
+    },
+    {
+      "id": "F049",
+      "clip": "B1689585",
+      "n": 6552,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F050",
+      "clip": "IMG_4839",
+      "n": 2610,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 661
+    },
+    {
+      "id": "F051",
+      "clip": "IMG_4874",
+      "n": 2524,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F052",
+      "clip": "B1689585",
+      "n": 11494,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F053",
+      "clip": "IMG_4874",
+      "n": 3768,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F054",
+      "clip": "IMG_4872",
+      "n": 414,
+      "stratum": "motion_high",
+      "role": "validation",
+      "pool_size": 548
+    },
+    {
+      "id": "F055",
+      "clip": "B1689585",
+      "n": 6920,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F056",
+      "clip": "B1689585",
+      "n": 9338,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F057",
+      "clip": "IMG_4874",
+      "n": 3978,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F058",
+      "clip": "IMG_4874",
+      "n": 3492,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F059",
+      "clip": "IMG_4872",
+      "n": 3096,
+      "stratum": "motion_low",
+      "role": "validation",
+      "pool_size": 548
+    },
+    {
+      "id": "F060",
+      "clip": "IMG_4874",
+      "n": 2492,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F061",
+      "clip": "B1689585",
+      "n": 10702,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F062",
+      "clip": "IMG_4874",
+      "n": 3736,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F063",
+      "clip": "IMG_4874",
+      "n": 1446,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "pool_size": 722
+    },
+    {
+      "id": "F064",
+      "clip": "B1689585",
+      "n": 2444,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F065",
+      "clip": "IMG_4874",
+      "n": 4470,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F066",
+      "clip": "IMG_4866",
+      "n": 2334,
+      "stratum": "motion_low",
+      "role": "dev",
+      "pool_size": 560
+    },
+    {
+      "id": "F067",
+      "clip": "B1689585",
+      "n": 26630,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 3559
+    },
+    {
+      "id": "F068",
+      "clip": "IMG_4851",
+      "n": 1202,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 488
+    },
+    {
+      "id": "F069",
+      "clip": "IMG_4874",
+      "n": 1644,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F070",
+      "clip": "IMG_4866",
+      "n": 162,
+      "stratum": "motion_high",
+      "role": "dev",
+      "pool_size": 554
+    },
+    {
+      "id": "F071",
+      "clip": "IMG_4874",
+      "n": 3578,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "pool_size": 179
+    },
+    {
+      "id": "F072",
+      "clip": "IMG_4873",
+      "n": 3942,
+      "stratum": "motion_high",
+      "role": "validation",
+      "pool_size": 546
+    },
+    {
+      "id": "F073",
+      "clip": "IMG_4874",
+      "n": 1354,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 597
+    },
+    {
+      "id": "F074",
+      "clip": "IMG_4874",
+      "n": 2620,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "pool_size": 598
+    },
+    {
+      "id": "F075",
+      "clip": "IMG_4839",
+      "n": 2852,
+      "stratum": "motion_low",
+      "role": "dev",
+      "pool_size": 668
+    },
+    {
+      "id": "F076",
+      "clip": "IMG_4874",
+      "n": 2204,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "pool_size": 597
+    },
+    {
+      "id": "R01",
+      "clip": "IMG_4874",
+      "n": 3012,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F029"
+    },
+    {
+      "id": "R02",
+      "clip": "IMG_4866",
+      "n": 162,
+      "stratum": "motion_high",
+      "role": "dev",
+      "duplicate_of": "F070"
+    },
+    {
+      "id": "R03",
+      "clip": "IMG_4874",
+      "n": 4470,
+      "stratum": "detector_gap",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F065"
+    },
+    {
+      "id": "R04",
+      "clip": "IMG_4874",
+      "n": 2786,
+      "stratum": "detector_boxed",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F043"
+    },
+    {
+      "id": "R05",
+      "clip": "B1689585",
+      "n": 18820,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F042"
+    },
+    {
+      "id": "R06",
+      "clip": "IMG_4839",
+      "n": 2996,
+      "stratum": "motion_high",
+      "role": "dev",
+      "duplicate_of": "F011"
+    },
+    {
+      "id": "R07",
+      "clip": "B1689585",
+      "n": 21348,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F020"
+    },
+    {
+      "id": "R08",
+      "clip": "B1689585",
+      "n": 15298,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F034"
+    },
+    {
+      "id": "R09",
+      "clip": "IMG_4873",
+      "n": 2408,
+      "stratum": "motion_low",
+      "role": "validation",
+      "duplicate_of": "F007"
+    },
+    {
+      "id": "R10",
+      "clip": "B1689585",
+      "n": 26094,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F025"
+    },
+    {
+      "id": "R11",
+      "clip": "B1689585",
+      "n": 2214,
+      "stratum": "motion_low",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F028"
+    },
+    {
+      "id": "R12",
+      "clip": "IMG_4874",
+      "n": 4186,
+      "stratum": "motion_high",
+      "role": "diagnostic_regression",
+      "duplicate_of": "F006"
+    }
+  ]
+}

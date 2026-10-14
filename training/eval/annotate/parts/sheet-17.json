@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F065","balls":[{"cx":30,"cy":328,"diameter":27,"visibility":"clear","confidence":"medium"}],"tags":["in_hand","against_trees"],"distractors":[{"kind":"shadow","cx":345,"cy":363},{"kind":"shirt","cx":20,"cy":365}],"notes":"dark round shape right of the pole base (a hammock or bag), not a ball"},
+ {"id":"F066","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F067","balls":[{"cx":406,"cy":368,"diameter":21,"visibility":"partial","confidence":"medium"}],"tags":["in_hand","occluded"],"distractors":[{"kind":"shirt","cx":215,"cy":395},{"kind":"head","cx":218,"cy":295},{"kind":"shirt","cx":345,"cy":385}],"notes":"cut by the right edge of the window"},
+ {"id":"F068","balls":[{"cx":111,"cy":378,"diameter":27,"visibility":"clear","confidence":"high"}],"tags":["on_ground","against_ground"],"distractors":[{"kind":"rim","cx":175,"cy":195},{"kind":"shirt","cx":375,"cy":390},{"kind":"head","cx":375,"cy":362}]}
+]}

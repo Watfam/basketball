@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F069","balls":[{"cx":189,"cy":181,"diameter":25,"visibility":"clear","confidence":"high"}],"tags":["in_flight","at_rim","against_backboard"],"distractors":[{"kind":"shirt","cx":105,"cy":385},{"kind":"head","cx":105,"cy":335}]},
+ {"id":"F070","balls":[{"cx":171,"cy":46,"diameter":29,"visibility":"clear","confidence":"high"}],"tags":["in_flight","against_trees"],"distractors":[{"kind":"other","cx":231,"cy":177},{"kind":"head","cx":22,"cy":300},{"kind":"shirt","cx":75,"cy":385}],"notes":"dark round shape on the right of the backboard: judged NOT a ball (dark, smaller, in shade), a likely false-positive source"},
+ {"id":"F071","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F072","balls":[{"cx":158,"cy":121,"diameter":41,"visibility":"clear","confidence":"high"}],"tags":["in_flight","against_backboard"],"distractors":[{"kind":"rim","cx":195,"cy":205}]}
+]}

@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F017","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":150,"cy":385},{"kind":"head","cx":140,"cy":345}]},
+ {"id":"F018","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F019","balls":[{"cx":45,"cy":14,"diameter":34,"visibility":"partial","confidence":"low"}],"tags":["in_flight","occluded","against_trees"],"distractors":[],"notes":"orange shape cut by the top-left corner of the window; centre of the visible part"},
+ {"id":"F020","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":62,"cy":375},{"kind":"head","cx":68,"cy":335}]}
+]}

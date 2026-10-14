@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F045","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F046","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":62,"cy":375},{"kind":"head","cx":68,"cy":322}]},
+ {"id":"F047","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":325,"cy":395},{"kind":"head","cx":330,"cy":360}]},
+ {"id":"F048","balls":[{"cx":201,"cy":213,"diameter":40,"visibility":"partial","confidence":"low"}],"tags":["at_rim","below_net","occluded"],"distractors":[{"kind":"rim","cx":195,"cy":200}],"notes":"orange mass just under the rim inside the net; the ball going through, mostly hidden, or the rim's own colour"}
+]}

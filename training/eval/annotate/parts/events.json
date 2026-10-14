@@ -1,0 +1,15 @@
+{"events":[
+ {"clip":"IMG_4874","frame":1082,"type":"rim_interaction","visible":true,"detail":"rim_out","outcome_seen":"miss","written_index":5,"written_outcome":"miss","confidence":"high","notes":"drops from the upper left onto the front of the rim, bounces back up and away to the left; V4 called it a make"},
+ {"clip":"IMG_4874","frame":1082,"type":"release","visible":false,"confidence":"high","notes":"the ball is already in flight in the first strip frame; shooter below the window"},
+ {"clip":"IMG_4874","frame":1161,"type":"rim_interaction","visible":true,"detail":"rim_out","outcome_seen":"miss","written_index":6,"written_outcome":"miss","confidence":"medium","notes":"a close shot, bounces around the rim and backboard and out to the right; V2 called it a make, V4 a miss"},
+ {"clip":"IMG_4874","frame":1161,"type":"release","visible":true,"release_frame":1158,"release_frame_tolerance":3,"confidence":"medium","notes":"shooter at the lower left with the arm extended; the ball leaves the hand between the first and second strip frames"},
+ {"clip":"IMG_4874","frame":2170,"type":"rim_interaction","visible":true,"detail":"rim_then_in","outcome_seen":"make","written_index":11,"written_outcome":"make","confidence":"low","notes":"a real shot: the ball reaches the rim blurred and emerges under the net centred below the hoop; contact with the rim is not certain. The scorer's alignment had skipped this candidate as the extra one; it is a real shot"},
+ {"clip":"IMG_4874","frame":2170,"type":"release","visible":false,"confidence":"high"},
+ {"clip":"IMG_4874","frame":2512,"type":"rim_interaction","visible":true,"detail":"rim_out","outcome_seen":"miss","written_index":12,"written_outcome":"miss","confidence":"high","notes":"several bounces on the rim and backboard then out to the left; V4 and V2 called it a make"},
+ {"clip":"IMG_4874","frame":2512,"type":"release","visible":false,"confidence":"high"},
+ {"clip":"IMG_4874","frame":2715,"type":"rim_interaction","visible":true,"detail":"rim_then_in","outcome_seen":"uncertain","written_index":13,"written_outcome":"make","confidence":"medium","notes":"bounces on the rim and backboard and is settling on the rim in the last strip frame; whether it drops in is not in the six frames"},
+ {"clip":"IMG_4874","frame":2715,"type":"release","visible":false,"confidence":"high"},
+ {"clip":"IMG_4874","frame":2835,"type":"no_shot","visible":false,"confidence":"high","notes":"no ball in any of the six frames: a phantom candidate (3 zone sightings, flagged). With it removed the 20 remaining candidates pair with the 20 written shots in order"},
+ {"clip":"IMG_4874","frame":3690,"type":"rim_interaction","visible":true,"detail":"backboard_miss","outcome_seen":"miss","written_index":17,"written_outcome":"miss","confidence":"medium","notes":"hits the backboard high, bounces right and falls to the right of the pole without going through the hoop; V2 called it a make"},
+ {"clip":"IMG_4874","frame":3690,"type":"release","visible":false,"confidence":"high"}
+]}

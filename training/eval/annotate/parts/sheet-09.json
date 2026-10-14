@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F033","balls":[{"cx":243,"cy":349,"diameter":23,"visibility":"partial","confidence":"medium"}],"tags":["in_flight","occluded","against_ground"],"distractors":[{"kind":"shirt","cx":160,"cy":385},{"kind":"head","cx":170,"cy":318}],"notes":"left part hidden by the pole base"},
+ {"id":"F034","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":150,"cy":370},{"kind":"head","cx":165,"cy":340}]},
+ {"id":"F035","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":90,"cy":395},{"kind":"shirt","cx":148,"cy":395},{"kind":"head","cx":90,"cy":340}]},
+ {"id":"F036","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":90,"cy":395},{"kind":"head","cx":90,"cy":300}]}
+]}

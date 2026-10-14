@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F013","balls":[{"cx":70,"cy":406,"diameter":29,"visibility":"partial","confidence":"medium"}],"tags":["on_ground","against_ground"],"distractors":[{"kind":"shirt","cx":215,"cy":365},{"kind":"head","cx":210,"cy":322},{"kind":"rim","cx":175,"cy":200}],"notes":"ball cut by the bottom edge of the window"},
+ {"id":"F014","balls":[{"cx":286,"cy":349,"diameter":47,"visibility":"clear","confidence":"high"},{"cx":197,"cy":213,"diameter":25,"visibility":"partial","confidence":"low"}],"tags":["in_flight","below_net","second_ball","against_trees"],"distractors":[{"kind":"rim","cx":195,"cy":200}],"notes":"second ball: orange mass inside the net just under the rim, partly hidden; the large ball low right is nearer the camera"},
+ {"id":"F015","balls":[{"cx":183,"cy":309,"diameter":24,"visibility":"clear","confidence":"medium"}],"tags":["in_flight","blurred","against_trees"],"distractors":[{"kind":"shirt","cx":292,"cy":385},{"kind":"head","cx":285,"cy":335}]},
+ {"id":"F016","balls":[{"cx":162,"cy":343,"diameter":24,"visibility":"clear","confidence":"high"}],"tags":["in_flight","against_trees"],"distractors":[{"kind":"shirt","cx":78,"cy":371},{"kind":"head","cx":88,"cy":345}]}
+]}

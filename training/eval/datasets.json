@@ -1,0 +1,419 @@
+{
+  "window_note": "Windows are the ones the ball-5 fixtures used (pinned, as in the README exams); IMG_4873 uses the window the sizer settled in (x1.62, a different lens), with the scale-1 files kept as labelled references. The live app picks its own window with its auto-sizer; with ball-6 that can differ (README: ball-6 stays at x1.00 on IMG_4874). Sizer-as-run results are therefore unavailable in v0.",
+  "registry_version": "v0",
+  "created": "2026-10-13",
+  "sessions": {
+    "S2": "2026-10-02 evening: the kids clip",
+    "S3": "2026-10-03",
+    "S4": "2026-10-05 afternoon",
+    "S4b": "2026-10-05 evening, different camera position",
+    "S5": "2026-10-06",
+    "S6": "2026-10-08",
+    "S7": "2026-10-11"
+  },
+  "roles": {
+    "dev": "anything may be tuned here: sessions S3, S4, S4b, S5, S6",
+    "validation": "S7 clips 4872 and 4873: used to choose between variants, scored sparingly. Same session as 4874, so S7 must not be tuned on at all.",
+    "diagnostic_regression": "IMG_4874 and the kids clip B1689585: repeatedly inspected, so NOT pristine held-out benchmarks. Used to catch regressions and for detector out-of-sample numbers.",
+    "final_test": "NONE. No untouched footage exists. Every clip has been seen, scored or inspected. Stated in every report."
+  },
+  "detector_models": {
+    "current": {
+      "id": "ball-6",
+      "file": "public/models/ball-6.onnx"
+    },
+    "previous": {
+      "id": "ball-5",
+      "note": "fixtures dets5-*"
+    }
+  },
+  "live_rule": "v4 (src/lib/vision/shotRules.ts LIVE_RULE)",
+  "frame_convention": "frame index n of the stream ffmpeg produces with filter fps=30000/1001 from the start of the file, as tools/22-dump-detections.mjs counts. Frame numbers can drift slightly on long clips (README); every annotation frame is extracted through the same filter graph.",
+  "clips": [
+    {
+      "id": "IMG_4836",
+      "file": "Training Video/IMG_4836.MOV",
+      "session": "S3",
+      "recorded_utc": "2026-10-03T16:45:08Z",
+      "duration_s": 125.4,
+      "fps_nominal": "30000/1001",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-five set"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4836-truth.json",
+        "shots": 24,
+        "makes": 16,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": null,
+      "detections": {
+        "ball5": null,
+        "ball6": null
+      },
+      "scorable": {
+        "ok": false,
+        "reason": "no saved detections for either model in the fixtures"
+      }
+    },
+    {
+      "id": "IMG_4839",
+      "file": "Training Video/IMG_4839.MOV",
+      "session": "S4",
+      "recorded_utc": "2026-10-05T16:11:26Z",
+      "duration_s": 176.1,
+      "fps_nominal": "30000/1001",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4839-truth.json",
+        "shots": 28,
+        "makes": 17,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 866,
+        "cropY": 260,
+        "cropSize": 416,
+        "scale": 1,
+        "rim_native": [
+          1058,
+          450
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4839.json",
+        "ball6": "training/fixtures/dets6-4839.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4840",
+      "file": "Training Video/IMG_4840.MOV",
+      "session": "S4",
+      "recorded_utc": "2026-10-05T16:14:32Z",
+      "duration_s": 173.3,
+      "fps_nominal": "30000/1001",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4840-truth.json",
+        "shots": 32,
+        "makes": 14,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 866,
+        "cropY": 260,
+        "cropSize": 416,
+        "scale": 1,
+        "rim_native": [
+          1058,
+          450
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4840.json",
+        "ball6": "training/fixtures/dets6-4840.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4844",
+      "file": "Training Video/IMG_4844.MOV",
+      "session": "S4b",
+      "recorded_utc": "2026-10-05T20:44:07Z",
+      "duration_s": 186.7,
+      "fps_nominal": "30/1",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4844-truth.json",
+        "shots": 14,
+        "makes": 7,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 456,
+        "cropY": 0,
+        "cropSize": 832,
+        "scale": 2,
+        "rim_native": [
+          840,
+          380
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4844.json",
+        "ball6": null
+      },
+      "scorable": {
+        "ok": false,
+        "reason": "two camera positions: needs the --segments scorer spec, not set up in v0"
+      }
+    },
+    {
+      "id": "IMG_4851",
+      "file": "Training Video/IMG_4851.MOV",
+      "session": "S5",
+      "recorded_utc": "2026-10-06T22:15:51Z",
+      "duration_s": 129.4,
+      "fps_nominal": "30000/1001",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4851-truth.json",
+        "shots": 18,
+        "makes": 9,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 712,
+        "cropY": 177,
+        "cropSize": 516,
+        "scale": 1.2404,
+        "rim_native": [
+          950,
+          413
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4851.json",
+        "ball6": "training/fixtures/dets6-4851.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4866",
+      "file": "Training Video/IMG_4866.MOV",
+      "session": "S6",
+      "recorded_utc": "2026-10-08T22:05:20Z",
+      "duration_s": 147.4,
+      "fps_nominal": "30/1",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4866-truth.json",
+        "shots": 19,
+        "makes": 11,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 436,
+        "cropY": 52,
+        "cropSize": 790,
+        "scale": 1.899,
+        "rim_native": [
+          801,
+          413
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4866.json",
+        "ball6": "training/fixtures/dets6-4866.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4867",
+      "file": "Training Video/IMG_4867.MOV",
+      "session": "S6",
+      "recorded_utc": "2026-10-08T22:08:00Z",
+      "duration_s": 128.6,
+      "fps_nominal": "30000/1001",
+      "role": "dev",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4867-truth.json",
+        "shots": 16,
+        "makes": 9,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 826,
+        "cropY": 284,
+        "cropSize": 416,
+        "scale": 1,
+        "rim_native": [
+          1018,
+          474
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4867.json",
+        "ball6": "training/fixtures/dets6-4867.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4872",
+      "file": "Training Video/IMG_4872.MOV",
+      "session": "S7",
+      "recorded_utc": "2026-10-11T18:45:11Z",
+      "duration_s": 146.1,
+      "fps_nominal": "30000/1001",
+      "role": "validation",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4872-truth.json",
+        "shots": 23,
+        "makes": 13,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 846,
+        "cropY": 272,
+        "cropSize": 416,
+        "scale": 1,
+        "rim_native": [
+          1038,
+          462
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4872.json",
+        "ball6": "training/fixtures/dets6-4872.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4873",
+      "file": "Training Video/IMG_4873.MOV",
+      "session": "S7",
+      "recorded_utc": "2026-10-11T18:47:47Z",
+      "duration_s": 145.2,
+      "fps_nominal": "30/1",
+      "role": "validation",
+      "ball6_training": {
+        "used": true,
+        "note": "round-six positives, boxed by an independent circle-fit"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4873-truth.json",
+        "shots": 22,
+        "makes": 10,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 730,
+        "cropY": 201,
+        "cropSize": 672,
+        "scale": 1.6154,
+        "rim_native": [
+          1040,
+          508
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4873-found.json",
+        "ball6": "training/fixtures/dets6-4873.json",
+        "reference_scale1_ball5": "training/fixtures/dets5-4873-s1.json",
+        "reference_scale1_ball6": "training/fixtures/dets6-4873-s1.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "IMG_4874",
+      "file": "Training Video/IMG_4874.MOV",
+      "session": "S7",
+      "recorded_utc": "2026-10-11T18:50:16Z",
+      "duration_s": 157.9,
+      "fps_nominal": "30000/1001",
+      "role": "diagnostic_regression",
+      "ball6_training": {
+        "used": false,
+        "note": "held out of every training and tuning round by Matt's instruction"
+      },
+      "truth": {
+        "file": "training/labels/IMG_4874-truth.json",
+        "shots": 20,
+        "makes": 12,
+        "kind": "Matt's written make/miss list"
+      },
+      "window": {
+        "cropX": 816,
+        "cropY": 330,
+        "cropSize": 416,
+        "scale": 1,
+        "rim_native": [
+          1008,
+          520
+        ]
+      },
+      "detections": {
+        "ball5": "training/fixtures/dets5-4874.json",
+        "ball6": "training/fixtures/dets6-4874.json"
+      },
+      "scorable": {
+        "ok": true
+      }
+    },
+    {
+      "id": "B1689585",
+      "file": "Training Video/B1689585-096B-49E7-9423-E3D54EDA834D.MOV",
+      "session": "S2",
+      "recorded_utc": "2026-10-02T20:32:45Z",
+      "duration_s": 943.55,
+      "fps_nominal": "30000/1001",
+      "role": "diagnostic_regression",
+      "ball6_training": {
+        "used": false,
+        "note": "never trained on; but all 263 ball-6 detections were inspected by eye (README), so it is a consumed exam"
+      },
+      "truth": null,
+      "window": {
+        "cropX": 714,
+        "cropY": 202,
+        "cropSize": 416,
+        "scale": 1,
+        "rim_native": null,
+        "note": "window from the README; no make/miss list exists for this clip"
+      },
+      "detections": {
+        "ball5": null,
+        "ball6": null
+      },
+      "scorable": {
+        "ok": false,
+        "reason": "no make/miss list; used for annotated-frame detection metrics only"
+      }
+    }
+  ]
+}

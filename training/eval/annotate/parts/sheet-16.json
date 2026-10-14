@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F061","balls":[{"cx":301,"cy":405,"diameter":23,"visibility":"clear","confidence":"medium"}],"tags":["in_hand","against_ground"],"distractors":[{"kind":"shirt","cx":345,"cy":385},{"kind":"shirt","cx":238,"cy":390},{"kind":"head","cx":340,"cy":355}]},
+ {"id":"F062","balls":[{"cx":253,"cy":320,"diameter":23,"visibility":"clear","confidence":"medium"}],"tags":["in_flight","blurred","against_trees"],"distractors":[{"kind":"shirt","cx":45,"cy":385},{"kind":"head","cx":40,"cy":300}]},
+ {"id":"F063","balls":[{"cx":79,"cy":373,"diameter":28,"visibility":"clear","confidence":"medium"}],"tags":["in_hand","blurred","against_ground"],"distractors":[{"kind":"shirt","cx":120,"cy":385},{"kind":"head","cx":120,"cy":318}]},
+ {"id":"F064","balls":[{"cx":289,"cy":310,"diameter":29,"visibility":"clear","confidence":"high"}],"tags":["in_hand","against_trees"],"distractors":[{"kind":"shirt","cx":270,"cy":395},{"kind":"head","cx":300,"cy":345},{"kind":"shirt","cx":55,"cy":380}],"notes":"held above the shooter's head, just before release"}
+]}

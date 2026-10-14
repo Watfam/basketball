@@ -824,3 +824,13 @@ Matt finds the two-step tap to aim clumsy, especially from a landscape stand. Tw
 Coarse-to-fine port of tools/50 (half size at seven sizes, then full size near the best). Score >= 0.40 starts by itself, 0.25-0.40 asks, below that aim by hand:
 same place 0.72, error 0 px; 4839 to 4872 / 4874 and 4874 to 4872 0.46-0.55, error 4-7 px; 4839 to 4867, 4867 to 4874 / 4872 0.29-0.30, error 20-28 px (asked, not started);
 4839 to 4851 / 4866 / 4873 (side angle, other lens) 0.16-0.20, wrong by 183-414 px (aim by hand). No wrongly auto-started case in the ten. About 0.75 s per match on this laptop.
+
+## Evaluation harness (2026-10-14)
+
+`training/eval/` measures the current system (ball-6, rule V4, the existing hoop window) against a frozen baseline so that every later
+change, a tracker, new rules, analytics, is compared with numbers and not impressions. It leaves the detector, the rules, the window and the
+auto-sizer untouched and calls the app's own code. Start at `training/eval/README.md`: data roles (there is **no untouched final test
+set**), the blind manual annotation set and its limits, the circle-fit independence test (the circle-fit that built ball-6's targets is
+seeded by the detector and follows its seed, so it is not independent ground truth), the three separate tracking evaluations
+(interpolation, prediction, association), and `reports/baseline-v0.md` with `reports/baseline-v0-notes.md` (the findings). Compare any change with
+`node training/eval/compare.mjs training/eval/reports/baseline-v0.json <new report>`.

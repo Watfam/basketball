@@ -1,0 +1,6 @@
+{"frames":[
+ {"id":"F025","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":50,"cy":375},{"kind":"head","cx":48,"cy":338},{"kind":"head","cx":325,"cy":391}]},
+ {"id":"F026","balls":[{"cx":139,"cy":298,"diameter":25,"visibility":"clear","confidence":"high"}],"tags":["in_flight","against_trees"],"distractors":[{"kind":"head","cx":328,"cy":291},{"kind":"shirt","cx":345,"cy":371}]},
+ {"id":"F027","balls":[],"tags":["no_ball_visible"],"distractors":[]},
+ {"id":"F028","balls":[],"tags":["no_ball_visible"],"distractors":[{"kind":"shirt","cx":60,"cy":372},{"kind":"head","cx":65,"cy":340}]}
+]}

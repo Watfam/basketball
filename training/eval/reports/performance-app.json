@@ -1,0 +1,22 @@
+{
+ "measured_on": "desktop Chromium (headless, software WASM), fake camera playing a saved clip",
+ "seconds_observed": 40,
+ "model_runs": 243,
+ "model_runs_per_second": 5.820468720169035,
+ "ms_between_model_runs": {
+  "median": 167.95749974250793,
+  "p95": 199.10350034236907,
+  "max": 280.1150002479553
+ },
+ "js_heap_bytes": {
+  "before_counting": 16032071,
+  "end": 24816199,
+  "max": 34165785
+ },
+ "chrome_total_rss_bytes": {
+  "before_counting": 898985984,
+  "end": 1205936128,
+  "max": 1205936128
+ },
+ "caution": "desktop browser; RSS covers every Chrome process on the machine at the time. Phone memory and speed are unavailable."
+}
