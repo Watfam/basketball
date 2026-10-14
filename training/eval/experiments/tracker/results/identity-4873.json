@@ -1,0 +1,66 @@
+{
+ "30fps|nearest_last": {
+  "frames_with_ball_and_phantom": 270,
+  "tracks_mixing_ball_and_phantom": 2,
+  "ball_boxes_in_mixed_tracks": 10,
+  "phantom_boxes_in_mixed_tracks": 25,
+  "ball_boxes_total": 1598,
+  "ball_track_id_changes_across_competing_frames": 2
+ },
+ "30fps|cv_nearest": {
+  "frames_with_ball_and_phantom": 270,
+  "tracks_mixing_ball_and_phantom": 2,
+  "ball_boxes_in_mixed_tracks": 10,
+  "phantom_boxes_in_mixed_tracks": 25,
+  "ball_boxes_total": 1598,
+  "ball_track_id_changes_across_competing_frames": 2
+ },
+ "30fps|kalman_cv_round2_gate": {
+  "frames_with_ball_and_phantom": 270,
+  "tracks_mixing_ball_and_phantom": 0,
+  "ball_boxes_in_mixed_tracks": 0,
+  "phantom_boxes_in_mixed_tracks": 0,
+  "ball_boxes_total": 1598,
+  "ball_track_id_changes_across_competing_frames": 12
+ },
+ "30fps|kalman_cv_round3_gate": {
+  "frames_with_ball_and_phantom": 270,
+  "tracks_mixing_ball_and_phantom": 0,
+  "ball_boxes_in_mixed_tracks": 0,
+  "phantom_boxes_in_mixed_tracks": 0,
+  "ball_boxes_total": 1598,
+  "ball_track_id_changes_across_competing_frames": 2
+ },
+ "15fps|nearest_last": {
+  "frames_with_ball_and_phantom": 130,
+  "tracks_mixing_ball_and_phantom": 1,
+  "ball_boxes_in_mixed_tracks": 1,
+  "phantom_boxes_in_mixed_tracks": 15,
+  "ball_boxes_total": 801,
+  "ball_track_id_changes_across_competing_frames": 0
+ },
+ "15fps|cv_nearest": {
+  "frames_with_ball_and_phantom": 130,
+  "tracks_mixing_ball_and_phantom": 0,
+  "ball_boxes_in_mixed_tracks": 0,
+  "phantom_boxes_in_mixed_tracks": 0,
+  "ball_boxes_total": 801,
+  "ball_track_id_changes_across_competing_frames": 0
+ },
+ "15fps|kalman_cv_round2_gate": {
+  "frames_with_ball_and_phantom": 130,
+  "tracks_mixing_ball_and_phantom": 1,
+  "ball_boxes_in_mixed_tracks": 1,
+  "phantom_boxes_in_mixed_tracks": 15,
+  "ball_boxes_total": 801,
+  "ball_track_id_changes_across_competing_frames": 11
+ },
+ "15fps|kalman_cv_round3_gate": {
+  "frames_with_ball_and_phantom": 130,
+  "tracks_mixing_ball_and_phantom": 1,
+  "ball_boxes_in_mixed_tracks": 1,
+  "phantom_boxes_in_mixed_tracks": 15,
+  "ball_boxes_total": 801,
+  "ball_track_id_changes_across_competing_frames": 2
+ }
+}

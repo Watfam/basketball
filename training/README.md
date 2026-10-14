@@ -840,3 +840,10 @@ Root cause of the static false box ball-6 puts on the rim of IMG_4873 (42% of fr
 candidate filters tested under criteria registered before each round, three rounds. **No candidate met the bar; nothing was integrated.**
 Closest: H2 (spot memory AND current motion proof), zero genuine boxes lost, one 15 fps injected cell at 89.6% against 90%. Read
 `REPORT.md` there; the blind human annotation package is `training/work/eval/human-annotation-package.zip` (local only).
+
+### Experiment 1: persistent tracking and shot-state machine (2026-10-15), `training/eval/experiments/tracker/`
+Kalman tracker (cv / ca / ballistic / hybrid), spot memory, track-based shot machine, all isolated; criteria T1-T13 registered before any
+code, rounds 2 and 3 registered adaptive. **NOT READY; nothing integrated, `src/` untouched.** Phantom suppression and shot continuity
+work (about as well as H2); the Kalman associator is no better than a plain constant-velocity nearest-neighbour, no motion model beat a
+simple baseline, and the wider gate that fixed bounces cost shots on IMG_4872. The 416 px window almost never sees the release (1 of 174
+shots). Read `REPORT.md` there; `node evaluate.mjs shots-round3.json assoc-m2-f0.5.json` reapplies the criteria.

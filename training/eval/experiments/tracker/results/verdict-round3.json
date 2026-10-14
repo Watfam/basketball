@@ -1,0 +1,198 @@
+{
+ "generated": "2026-10-14T13:07:45.015Z",
+ "shots_file": "shots-round3.json",
+ "assoc_file": "assoc-m2-f0.5.json",
+ "selected_model": "cv",
+ "rows": [
+  {
+   "fps": "30fps",
+   "id": "T1",
+   "name": "no harm on the seven other clips",
+   "status": "FAIL",
+   "detail": "pooled -12; clips at -2 or worse: IMG_4872 -9; per clip 4839:-1 4840:0 4851:0 4866:-1 4867:0 4872:-9 4874:-1"
+  },
+  {
+   "fps": "30fps",
+   "id": "T2",
+   "name": "regression case IMG_4873",
+   "status": "pass",
+   "detail": "matched 20/22, V4 right 19 (need 15), longest shot 97 sightings"
+  },
+  {
+   "fps": "30fps",
+   "id": "T3",
+   "name": "false-positive suppression",
+   "status": "FAIL",
+   "detail": "4873 phantom in evidence 5.5%; injected max 19.6%; injected pooled V4 mean 102.5 vs clean 107 (gap 4.5); counted shots absent from baseline on clean dev clips: 0"
+  },
+  {
+   "fps": "30fps",
+   "id": "T4",
+   "name": "genuine-ball retention",
+   "status": "FAIL",
+   "detail": "clutter 3/7682 (0.04%); annotated clutter 0/21; zone boxes kept 96.0%; stall survival at 15 frames 97/107 (90.7%, nearest_last 97); in-hand retained 7/7"
+  },
+  {
+   "fps": "30fps",
+   "id": "T5",
+   "name": "continuity",
+   "status": "pass",
+   "detail": "107/110 shots single-track (97.3%)"
+  },
+  {
+   "fps": "30fps",
+   "id": "T6",
+   "name": "association, synthetic scenes",
+   "status": "FAIL",
+   "detail": "none 99.2% (nearest_last 99.8%) sw 28/21 X; static_blob 92.1% (nearest_last 94.9%) sw 269/150 X; adjacent_blob 91.5% (nearest_last 72.2%) sw 337/3964 X; near_duplicate 89.7% (nearest_last 74.5%) sw 530/3844 X; second_ball 98.7% (nearest_last 97.2%) sw 52/87; slow_mover 99.2% (nearest_last 99.5%) sw 28/38; phantom_capture 97.2% (nearest_last 97.5%) sw 281/345"
+  },
+  {
+   "fps": "30fps",
+   "id": "T6b",
+   "name": "association, real labelled runs",
+   "status": "not_run",
+   "detail": "not run: see report"
+  },
+  {
+   "fps": "30fps",
+   "id": "T7",
+   "name": "occlusion recovery (spans up to 6 reference frames)",
+   "status": "FAIL",
+   "detail": "same-id reacquisition by hidden span (reference frames): 1:99% 2:99% 3:98% 4:96% 5:94% 6:92%"
+  },
+  {
+   "fps": "30fps",
+   "id": "T8",
+   "name": "reconstruction (interpolation)",
+   "status": "FAIL",
+   "detail": "12 cells; 12 worse than 1.10x median / 1.20x p95 (worst median 6.26x, worst p95 3.49x); improvement in 0/12 cells (claimed only if >= 75%): not claimed"
+  },
+  {
+   "fps": "30fps",
+   "id": "T9",
+   "name": "causal prediction",
+   "status": "FAIL",
+   "detail": "12 cells; 12 worse than 1.10x median / 1.20x p95 (worst median 1.71x, worst p95 1.56x); improvement in 0/12 cells (claimed only if >= 75%): not claimed"
+  },
+  {
+   "fps": "30fps",
+   "id": "T10",
+   "name": "overhead (desktop Mac, not a phone)",
+   "status": "FAIL",
+   "detail": "median <= 0.019 ms, worst-clip p99.9 3.80 ms (limit 2), worst frame 22.6 ms"
+  },
+  {
+   "fps": "30fps",
+   "id": "T13",
+   "name": "legacy equivalence",
+   "status": "pass",
+   "detail": "16 clip x rate checks identical"
+  },
+  {
+   "fps": "15fps",
+   "id": "T1",
+   "name": "no harm on the seven other clips",
+   "status": "FAIL",
+   "detail": "pooled -3; clips at -2 or worse: IMG_4872 -2; per clip 4839:0 4840:0 4851:0 4866:0 4867:0 4872:-2 4874:-1"
+  },
+  {
+   "fps": "15fps",
+   "id": "T2",
+   "name": "regression case IMG_4873",
+   "status": "pass",
+   "detail": "matched 22/22, V4 right 19 (need 16), longest shot 36 sightings"
+  },
+  {
+   "fps": "15fps",
+   "id": "T3",
+   "name": "false-positive suppression",
+   "status": "FAIL",
+   "detail": "4873 phantom in evidence 1.1%; injected max 11.0%; injected pooled V4 mean 103.5 vs clean 106 (gap 2.5); counted shots absent from baseline on clean dev clips: 0"
+  },
+  {
+   "fps": "15fps",
+   "id": "T4",
+   "name": "genuine-ball retention",
+   "status": "FAIL",
+   "detail": "clutter 3/3777 (0.08%); annotated clutter 0/21; zone boxes kept 98.6%; stall survival at 15 frames 101/107 (94.4%, nearest_last 99); in-hand retained 7/7"
+  },
+  {
+   "fps": "15fps",
+   "id": "T5",
+   "name": "continuity",
+   "status": "pass",
+   "detail": "109/111 shots single-track (98.2%)"
+  },
+  {
+   "fps": "15fps",
+   "id": "T6",
+   "name": "association, synthetic scenes",
+   "status": "FAIL",
+   "detail": "none 95.7% (nearest_last 99.7%) sw 52/19 X; static_blob 86.8% (nearest_last 92.6%) sw 319/186 X; adjacent_blob 84.5% (nearest_last 64.3%) sw 358/3021 X; near_duplicate 74.2% (nearest_last 67.4%) sw 781/3083 X; second_ball 95.2% (nearest_last 90.5%) sw 78/193; slow_mover 95.6% (nearest_last 99.6%) sw 63/24 X; phantom_capture 94.1% (nearest_last 97.1%) sw 154/159 X"
+  },
+  {
+   "fps": "15fps",
+   "id": "T6b",
+   "name": "association, real labelled runs",
+   "status": "not_run",
+   "detail": "not run: see report"
+  },
+  {
+   "fps": "15fps",
+   "id": "T7",
+   "name": "occlusion recovery (spans up to 6 reference frames)",
+   "status": "FAIL",
+   "detail": "same-id reacquisition by hidden span (reference frames): 2:96% 4:94% 6:89%"
+  },
+  {
+   "fps": "15fps",
+   "id": "T8",
+   "name": "reconstruction (interpolation)",
+   "status": "FAIL",
+   "detail": "12 cells; 12 worse than 1.10x median / 1.20x p95 (worst median 15.83x, worst p95 6.48x); improvement in 0/12 cells (claimed only if >= 75%): not claimed"
+  },
+  {
+   "fps": "15fps",
+   "id": "T9",
+   "name": "causal prediction",
+   "status": "FAIL",
+   "detail": "12 cells; 12 worse than 1.10x median / 1.20x p95 (worst median 2.32x, worst p95 1.52x); improvement in 0/12 cells (claimed only if >= 75%): not claimed"
+  },
+  {
+   "fps": "15fps",
+   "id": "T10",
+   "name": "overhead (desktop Mac, not a phone)",
+   "status": "pass",
+   "detail": "median <= 0.015 ms, worst-clip p99.9 0.31 ms (limit 2), worst frame 4.1 ms"
+  },
+  {
+   "fps": "15fps",
+   "id": "T13",
+   "name": "legacy equivalence",
+   "status": "pass",
+   "detail": "16 clip x rate checks identical"
+  }
+ ],
+ "verdict": "NOT READY",
+ "failed": [
+  "T1@30fps",
+  "T3@30fps",
+  "T4@30fps",
+  "T6@30fps",
+  "T7@30fps",
+  "T8@30fps",
+  "T9@30fps",
+  "T10@30fps",
+  "T1@15fps",
+  "T3@15fps",
+  "T4@15fps",
+  "T6@15fps",
+  "T7@15fps",
+  "T8@15fps",
+  "T9@15fps"
+ ],
+ "not_run": [
+  "T6b@30fps",
+  "T6b@15fps"
+ ]
+}
