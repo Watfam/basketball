@@ -1,0 +1,27 @@
+{
+  "registered": "2026-10-14",
+  "status": "ROUND 2. Registered after round-1 results were seen and BEFORE the candidate below was run. criteria.json is unchanged and its S1-S7 apply to this candidate verbatim at both frame rates; round-1 results are preserved in results/experiment-round1.json and results/verdict-round1.json.",
+  "honest_labelling": "This candidate was designed from round-1 failures (A leaked during warm-up and after absences; B lost real boxes to its proof delay) on the same footage. A pass is evidence that the design is consistent with all registered criteria, NOT blind generalization: no untouched footage exists. Its parameters were fixed by the argument below, not searched.",
+  "candidate": {
+    "H_spot_memory_and_motion_proof": {
+      "idea": "drop a box iff BOTH (1) its spot has held a raw box in at least `share_threshold` of the trailing window's processed frames (A's test) AND (2) its track has not yet moved `proof_distance_px` from where it started (B's test). A ball passing through an occupied spot has a proven track and is kept; a static false box never proves anything. Tracks and spot memory both see RAW boxes, so suppression never unlearns.",
+      "params": {
+        "radius_px": 8,
+        "window_ref_frames": 1200,
+        "min_history_ref_frames": 90,
+        "share_threshold": 0.03,
+        "gate_px_per_ref_frame": 30,
+        "max_gap_ref_frames": 8,
+        "proof_distance_px": 30
+      },
+      "why": "B's parameters and the radius are unchanged. Proven tracks are never dropped whatever the occupancy, so the occupancy test no longer has to stay above the busiest genuine spot (3.3%); 3% is chosen just under it so that only a spot busier than any genuine rim spot on a development clip counts, over a window twice as long (the round-1 leak came from forgetting after an absence) and a history of 3 s (the leak came from a 5 s warm-up)."
+    }
+  },
+  "sensitivity_only_not_eligible": {
+    "H_share05": "as H with share_threshold 0.05",
+    "H_share02": "as H with share_threshold 0.02",
+    "purpose": "show how much the result depends on the one threshold. They are reported next to H and cannot be recommended in its place."
+  },
+  "criteria": "criteria.json S1_no_harm_on_other_clips .. S7_causality, unchanged",
+  "decision_rule": "as criteria.json. If H fails any criterion at either frame rate, nothing is recommended for integration and the failure is reported."
+}

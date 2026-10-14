@@ -1,0 +1,93 @@
+{
+ "A_on_4873": {
+  "phantom_boxes": 1815,
+  "passed": 187,
+  "passed_in_first_10s": 141,
+  "passed_after_10s": 46,
+  "first_suppressed_after_frames": null,
+  "by_20s_bucket": [
+   141,
+   0,
+   0,
+   0,
+   0,
+   0,
+   46,
+   0
+  ]
+ },
+ "B_genuine_loss_by_region": {
+  "zone": {
+   "genuine": 1809,
+   "dropped": 95,
+   "share": 0.053
+  },
+  "outside": {
+   "genuine": 3412,
+   "dropped": 411,
+   "share": 0.12
+  },
+  "in_hand_region": {
+   "genuine": 2461,
+   "dropped": 159,
+   "share": 0.065
+  }
+ },
+ "B_note": "in_hand_region = more than 120 px below the rim (shooter's hands, dribble); zone = the rule's rim zone; outside = the rest (flight)",
+ "shots_with_no_ball_box_outside_the_zone_in_the_12_frames_before_the_zone": {
+  "shots": 112,
+  "count": 17,
+  "share": 0.152,
+  "median_boxes_in_those_12_frames": 7
+ },
+ "C60_narrow_boxes_on_dev_clips": {
+  "count": 93,
+  "per_clip": {
+   "IMG_4839": 15,
+   "IMG_4840": 15,
+   "IMG_4851": 45,
+   "IMG_4866": 9,
+   "IMG_4867": 9
+  },
+  "width_median": 12.200000000000045,
+  "score_median": 0.584
+ },
+ "size_gate_vs_detector_box_convention": {
+  "IMG_4872 ball-5": {
+   "confident_boxes": 342,
+   "median_width": 20.2,
+   "share_under_14_22": 0.035,
+   "share_under_11_85": 0
+  },
+  "IMG_4872 ball-6": {
+   "confident_boxes": 1531,
+   "median_width": 24.2,
+   "share_under_14_22": 0.005,
+   "share_under_11_85": 0.001
+  },
+  "IMG_4874 ball-5": {
+   "confident_boxes": 244,
+   "median_width": 19.5,
+   "share_under_14_22": 0.053,
+   "share_under_11_85": 0.008
+  },
+  "IMG_4874 ball-6": {
+   "confident_boxes": 1237,
+   "median_width": 24.7,
+   "share_under_14_22": 0.002,
+   "share_under_11_85": 0.001
+  },
+  "IMG_4839 ball-5": {
+   "confident_boxes": 1895,
+   "median_width": 24.7,
+   "share_under_14_22": 0.001,
+   "share_under_11_85": 0.001
+  },
+  "IMG_4839 ball-6": {
+   "confident_boxes": 2187,
+   "median_width": 25.6,
+   "share_under_14_22": 0.001,
+   "share_under_11_85": 0.001
+  }
+ }
+}
