@@ -1,0 +1,67 @@
+{
+  "registered": "2026-10-15",
+  "status": "REGISTERED BEFORE ANY TRACKER CODE EXISTS OR HAS BEEN RUN. thresholds.json and baseline-v0 are unchanged and govern shot-classification regression. Nothing here may change after results exist: add criteria-v2.json and say so. No criterion was derived from tracker output.",
+  "disclosure": "Written after the harness, the rim-phantom experiment and its REPORT. It therefore knows: IMG_4873's phantom (42% of frames, 11 px); that H2 (occupied spot AND currently-moving track) removed no genuine box but leaked 106 phantom boxes (89 in the 3 s warm-up) and missed one 15 fps injected cell at 89.6%; that a size-gate is brittle; that a track-proof-only gate withholds held balls and the first frames of a track; that real genuine balls look still for at most 7 frames within 3 px; and the baseline interpolation/prediction numbers. No footage is added; every clip has been scored before.",
+  "data": {
+    "development_tuning": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867"],
+    "validation": ["IMG_4872", "IMG_4873"],
+    "diagnostic_regression_not_a_benchmark": ["IMG_4874"],
+    "limits": "no untouched footage; ball-6 trained on all but IMG_4874, so development and validation detections are cleaner than a new clip's; real frames with competing boxes are rare (3-15 per clip, 347 on IMG_4873). IMG_4873 and IMG_4874 are never used to choose a parameter.",
+    "kids_clip": "no saved detections: not used"
+  },
+  "fixed_parameters_not_tuned": {
+    "gate": { "chi2_99_2dof": 9.21, "floor_px": 6, "cap_px_per_ref_frame": 30, "why": "cap is the rule's own FALL.maxJumpPerFrame; floor is about 10x the measured 0.6 px centre noise" },
+    "size_gate_relative_to_track": { "ratio_min": 0.5, "ratio_max": 2.0, "why": "a box may join a track only if its width is within a factor of two of the track's recent median width; relative to the track, so it is not an absolute size filter and does not depend on the detector's box convention" },
+    "cost": "squared Mahalanobis distance + (ln(width / track width) / 0.4)^2 + ((1 - score) / 0.5)^2, best-first greedy, one box per track; weights fixed here, untuned",
+    "lifecycle": { "confirm_hits": 3, "coast_max_ref_frames": 8, "coast_why": "the rule's FALL.maxGapFrames", "tentative_dies_on_first_miss": true },
+    "motion_state": { "window_ref_frames": 20, "spread_px": 10, "why": "H2's values: 20 frames is above the 15-frame stall and 2.9x the longest genuine still stretch (7 frames); 10 px is under half a ball width" },
+    "spot_memory": { "cell_px": 8, "window_ref_frames": 1200, "min_history_ref_frames": 90, "share_threshold": 0.03, "why": "H2's values; a grid count replaces H2's per-box scan" },
+    "clutter": "an OBSERVATION is clutter if: the track is within 20 px of the rim zone, AND the observation was made while the track was not moving, AND its spot's occupancy at DECISION time is at least the share threshold, AND the track had no moving observation in the 45 reference frames before it (a ball that arrived by flight may rest for 45 frames, 6x the longest genuine rest seen, before its rest counts as clutter)",
+    "decision": { "window_ref_frames": 70, "why": "the rule's own V2 window; unchanged", "not_before_history_ref_frames": 90, "why2": "clutter evidence needs the spot memory's minimum history" },
+    "shot_machine": { "held": "non-clutter track, motion stationary or speed under 2 px per reference frame over 10 frames, more than 100 px below the rim", "release": "a held track that moves up by at least 20 px within 6 reference frames", "approach_band_px_above_rim": [50, 120], "new_shot_if": "a different, unlinked, non-clutter track makes a zone observation while the owner's last zone observation is at least 8 reference frames old", "successor_link": { "within_ref_frames": 12, "within_px": 40 } },
+    "association_baselines": "nearest_last: same tracker, same gate cap and size gate, but the prediction is the last observed position (the rule's own chaining); cv_nearest: constant-velocity prediction with the plain Euclidean gate"
+  },
+  "tuning_protocol": {
+    "scope": "ONLY the motion-model noise parameters and the interpolation window, on the five development clips, by the single rule below. Nothing else is tuned.",
+    "grid": { "q2_accel_density_for_order2_axes": [0.05, 0.2, 0.8], "q3_jerk_density_for_order3_axes": [0.0005, 0.005, 0.05], "R_measurement_variance_px2": [1.0, 2.25, 4.0], "interpolation_window_points_each_side_W": [2, 3, 4, 6] },
+    "models": ["cv", "ca", "bal", "hyb"],
+    "prediction_rule": "causal prediction error from the model's filter run over each run's history; score = mean over cells (fps 30 and 15 x region free_flight and near_rim x horizon 1..6) of (median + p95) / 2 px, pooled over the development clips, cells with fewer than 30 samples or 10 flights skipped. Each model takes its best grid point; the selected tracker model is the lowest score; within 2% prefer fewer parameters in the order cv, bal, ca, hyb.",
+    "interpolation_rule": "same score over k = 1..6 for the interpolation estimators; W chosen per model by it",
+    "the_selected_configuration_is_then_frozen_for_every_other_clip_and_test": true
+  },
+  "comparison_baselines": {
+    "interpolation": ["linear", "constant_velocity (2 points)", "constant_acceleration (4 points)"],
+    "prediction": ["last_value", "constant_velocity (2 points)", "constant_acceleration (3 points)"],
+    "association": ["nearest_last", "cv_nearest", "(synthetic suite) the harness's existing nearest_to_last / constant velocity / constant acceleration"],
+    "shots": "baseline-v0 (legacy zone grouping) and H2 as filter + legacy grouping (the earlier experimental candidate, rebuilt unchanged)"
+  },
+  "protocol": {
+    "frame_rates": ["30 fps (every frame)", "15 fps (every 2nd frame)"],
+    "clips": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"],
+    "shot_pipeline": "ball-6 detections (score >= 0.2, as the app) -> tracker -> shot machine -> V4 decision (the shipped functions) -> scored exactly as baseline-v0 (same pairing, same annotated phantom candidate removal on IMG_4874)",
+    "injection": "the rim-phantom experiment's generator, spots and seeds unchanged (11 px, score 0.5, duty 0.2 and 0.42, two spots, five development clips)",
+    "stall": "the rim-phantom experiment's stall simulation, unchanged (15 and 30 frames)",
+    "masked_gap": { "what": "hide k consecutive observations (span in reference frames 1..8) inside real single-ball runs; the tracker must continue the same id after the gap", "runs": "every run of 12 or more single-box consecutive frames, all clips, reported per role" },
+    "synthetic_association_scenes": { "types": ["none", "static_blob", "adjacent_blob", "near_duplicate", "second_ball", "slow_mover", "static_ball_sized", "phantom_capture"], "seed_base": 20261101, "note": "real ball runs plus a distractor that persists through the whole run; truth is known by construction; static_ball_sized is a 24 px static box (the hard case for any size gate) and phantom_capture is the 11 px static box at the rim; these are SYNTHETIC distractors, not real-footage identity" },
+    "real_identity_runs": "13-frame runs of consecutive frames around frames where several boxes compete, drawn with a seed from all eight clips, each box labelled ball / not ball / unsure by eye from numbered contact sheets BEFORE the tracker is scored on them; the labelling protocol is registered with those labels (identity-labels file)"
+  },
+  "criteria_all_must_hold_at_BOTH_frame_rates": {
+    "T1_no_harm_on_other_clips": "on the seven clips other than IMG_4873, thresholds.json's shot rule: no clip loses 2 or more correct calls against baseline-v0, and the pooled paired net (per written shot; a shot not counted is wrong) is not -3 or worse",
+    "T2_regression_case_4873": "at least 20 of 22 written shots matched AND V4 right on at least 15 (30 fps) / 16 (15 fps) AND longest merged shot at most 100 zone sightings. IMG_4873 is a known regression case, not a generalization test",
+    "T3_false_positive_suppression": "phantom boxes (oracle label as in rim-phantom criteria) that end up as shot evidence: at most 10% on IMG_4873 and in every injected configuration; AND the pooled V4-right of the injected development clips (mean over the four injections) within 3 calls of the clean baseline pooled; AND no counted shot that is not a baseline-counted shot on any development clip",
+    "T4_genuine_retention": "at most 0.5% of genuine development boxes (rim-phantom definition) are observation-level clutter; zero annotated genuine balls (medium/high confidence, n about 21) are clutter; at least 95% of baseline in-zone genuine boxes of baseline-matched shots are in the new shot evidence; stalled-shot survival at 15 frames at least 95% (rim-phantom stall simulation); held and stationary balls outside the zone are retained as live tracks (annotated in_hand balls: retained as a track with motion stationary, not clutter, in at least 90%)",
+    "T5_continuity": "among baseline-matched correct shots on the development clips, at least 90% have at least 90% of their genuine zone-window boxes in a single track (or in a track linked as its successor)",
+    "T6_association_synthetic": "for every scene type except static_ball_sized, the selected configuration keeps at least 95% of the true ball's boxes in one track with no more identity switches than the nearest_last baseline; on adjacent_blob and near_duplicate it must beat nearest_last on ball coverage by at least 10 points. static_ball_sized is reported, not required",
+    "T6b_association_real": "on the labelled real identity runs: identity switches of the ball and ball-track contamination by non-ball boxes are each no higher than for nearest_last, summed over runs; small n, reported with counts, no accuracy claim",
+    "T7_occlusion_recovery": "masked-gap test: same-id reacquisition of at least 95% when the hidden span is 6 reference frames or less (k up to 6 at 30 fps, up to 3 at 15 fps), reported per role; spans of 7 and 8 reported, not required",
+    "T8_reconstruction": "interpolation (before-and-after observations only), per cell fps x region x k = 1..6: the selected configuration's median is no worse than 1.10 x the best baseline's AND p95 no worse than 1.20 x; 'improvement' is claimed only if at least 75% of cells have the median at least 20% below the best baseline AND p95 within +10%; observed positions are never overwritten (a test checks it)",
+    "T9_causal_prediction": "per cell fps x region x horizon 1..6: the selected configuration's median no worse than 1.10 x the best baseline's AND p95 no worse than 1.20 x; improvement claimed only by the same 75%-of-cells rule",
+    "T10_overhead": "tracker plus shot machine: median at most 0.1 ms per processed frame on this Mac, p99.9 at most 2 ms; the worst single frame is reported and its cause investigated (a single anomaly does not by itself fail this); no extra model runs",
+    "T11_causality_and_separation": "unit tests: the tracker's output for a frame never depends on later frames; the shot machine reads only snapshots; observed points are immutable and predicted points are stored apart from them",
+    "T12_production_unchanged": "git diff of src/ and public/ is empty; baseline-v0, thresholds.json and datasets.lock verify; the existing app tests (93) and harness tests all pass",
+    "T13_legacy_equivalence": "the decision replica fed legacy zone grouping reproduces baseline-v0 exactly (counted shots and V4-right on every clip at both frame rates)"
+  },
+  "decision_rule": "The tracker is reported READY FOR INTEGRATION REVIEW only if every criterion holds at both frame rates. Otherwise it is reported NOT READY with the failed criteria listed, and any change is a new registered round, not an edit. Improvements are claimed only where a criterion above defines them. Nothing is promoted into src/ without Matt's approval.",
+  "reported_not_required": ["per-clip before/after at both frame rates", "per-model results for all four motion models at the selected noise and at every grid point", "the state timelines of counted shots, share starting in-window / first seen in the zone / with an observed release", "shots changed against baseline-v0 and why", "H2 + legacy grouping beside the tracker", "the worst-case timing investigation"],
+  "limits_to_state_in_the_report": ["no untouched footage; development, validation and diagnostic clips were all seen before", "tuning limited to noise parameters and W on five clips; if the selected configuration is also best on the validation clips that is consistency, not independence", "synthetic distractors are not real identity", "real labelled identity runs are few", "image-space numbers only: no metres, degrees or entry angles, and the fitted image-space acceleration is not gravity"]
+}
