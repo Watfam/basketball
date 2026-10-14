@@ -1,0 +1,18 @@
+{
+  "registered": "2026-10-15",
+  "status": "ROUND 2. Registered after round 1 results were seen (results/shots-round1.json, results/verdict-round1.json) and BEFORE any round-2 run. criteria.json T1-T13 and criteria-addendum-1.json apply VERBATIM; this file changes the tracker/machine design, not the criteria. If round 2 fails, the experiment is reported as not ready; at most one more round, registered the same way.",
+  "what_round_1_showed": {
+    "segmentation": "of 24 extra counted shots on five development clips, 23 were ball-sized tracks entering the rim zone within about 60 frames after a matched shot (rebound, aftermath), 21 of them with ball motion; the registered rule 'a different track starts a new shot once the owner has been silent in the zone for 8 frames' splits what the rule's own 40-frame silence merges. Consequences seen: T1 (IMG_4840 loses 2 calls), stall survival 86% (a stall is a discontinuity that breaks a track), evidence coverage 87.5%, single-track continuity 84%.",
+    "timing": "tracker + machine medians are 0.0006-0.015 ms but p99.9 reaches 8 ms and the worst frame 18 ms; the suspect is the machine rebuilding evidence by scanning every track ever created, every frame, while any shot is pending",
+    "metric_bug": "the H2 + legacy phantom-evidence and injection-evidence measures counted raw boxes and ignored H2's filter (shown as 46% and over 100%); H2's shot SCORES were computed on filtered boxes and are correct"
+  },
+  "design_changes": {
+    "R2_1_segmentation": "A shot is closed by silence (the rule's 40 frames without a non-clutter zone observation from any track), exactly as the legacy rule. Every non-clutter track that makes a zone observation while a shot is open is ATTACHED to that shot (its observations become evidence); a new shot opens only after the previous one has closed. Identity still decides WHICH boxes are evidence (clutter is excluded, tracks owned by a different shot are not borrowed, successors are linked), but it no longer decides where a shot ends. Removes the 'different track after 8 frames' rule and MACHINE.minSeparation.",
+    "R2_2_performance": "no change in behaviour: (a) evidence is only built once a decision is possible (frame >= first + 69 and history >= 90), not every frame; (b) tracker and machine drop tracks that ended more than 1500 reference frames ago and are not in an undecided shot (the evaluation of retention and continuity keeps everything); the outputs must be identical with and without pruning (a test checks it)",
+    "R2_3_metric": "the H2 + legacy evidence measures count the boxes H2 kept"
+  },
+  "unchanged": ["every threshold and criterion in criteria.json", "the tuning rule and selection.json", "the models", "the addendum parameters", "the spot memory and the clutter definition", "the shipped V4 decision"],
+  "also_registered_now": {
+    "T10_timing_investigation": "after round 2, the slow frames of the tracker + machine and of H2 on IMG_4873 are attributed: each frame slower than 2 ms is checked against the garbage-collection events Node reports (PerformanceObserver 'gc') and against the number of live tracks, pending shots and boxes; the report states which cause explains how many of them. A cause that is only suspected is labelled so"
+  }
+}

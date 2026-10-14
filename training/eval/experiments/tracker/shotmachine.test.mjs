@@ -54,11 +54,22 @@ test("a shot with no flight history (the ball is first seen at the rim) is still
   assert.equal(calls[0].flags.release, null);
 });
 
-test("two shots 25 frames apart are two shots, not one merged group (identity, not just time, separates them)", () => {
-  const { calls } = run(merge(shot(100, "make"), shot(125, "miss")));
-  assert.equal(calls.length, 2, `tracked: ${calls.length}`);
-  const legacy = R.createShotCounter(RIM); let n = 0; for (const [f, b] of merge(shot(100, "make"), shot(125, "miss"))) n += legacy.push((f * 1000) / R.REFERENCE_FPS, b).filter((c) => c.counted).length; n += legacy.flush().filter((c) => c.counted).length;
-  assert.equal(n, 1, "the legacy grouping merges them");
+test("round 2: a shot is closed by silence like the legacy rule (25 frames apart merge, 130 apart are two), and the second ball is attached as evidence", () => {
+  const near = run(merge(shot(100, "make"), shot(125, "miss")));
+  assert.equal(near.calls.length, 1, "25 frames apart: one shot, as the legacy grouping");
+  assert.ok(near.calls[0].tracks.length >= 2, "both balls are evidence of that shot");
+  const far = run(merge(shot(100, "make"), shot(230, "miss")), { total: 600 });
+  assert.equal(far.calls.length, 2, "130 frames apart: two shots");
+});
+
+test("pruning forgotten tracks does not change any output", () => {
+  const seq = merge(shot(100, "make"), shot(300, "miss"), phantom(0, 700));
+  const a = run(seq, { total: 700 });
+  const tr = createTracker({ model: "bal", retainFrames: Infinity }), M = createShotMachine({ rim: RIM, scene: tr.scene, rules: R, keepAllViews: true }), byF = new Map(seq), calls = [];
+  for (let f = 0; f <= 700; f += 1) calls.push(...M.push(tr.push(f, byF.get(f) ?? [])));
+  calls.push(...M.flush(700));
+  const key = (c) => JSON.stringify([c.counted, c.shotId, c.decidedAt, c.zoneSightings, c.tracks, c.evidenceObservations]);
+  assert.deepEqual(a.all.map(key), calls.map(key));
 });
 
 test("a phantom that flickers on the rim for a whole session is no shot, and a real shot among it is still found", () => {

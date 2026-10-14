@@ -7,7 +7,6 @@ import { makeDecider } from "./decide.mjs";
 
 export const MACHINE = {
   closeGap: 40,          // reference frames without a zone observation from the shot's tracks: the shot's sightings have ended (the rule's gapFrames)
-  minSeparation: 8,      // a different track starts a new shot only if the owner's last zone observation is at least this old
   link: { frames: 12, px: 40 },
   restFrames: 45,        // a ball that arrived by flight may rest this long before the rest counts as clutter
   rimNeighbourhood: 20,  // clutter is only judged this near the rim zone
@@ -17,7 +16,7 @@ export const MACHINE = {
   decisionNotBeforeHistory: 90,
 };
 
-export function createShotMachine({ rim, scene, rules: R, params = {} }) {
+export function createShotMachine({ rim, scene, rules: R, params = {}, keepAllViews = false }) {
   const M = { ...MACHINE, ...params, link: { ...MACHINE.link, ...params.link }, held: { ...MACHINE.held, ...params.held }, release: { ...MACHINE.release, ...params.release } };
   const decide = makeDecider(rim, R);
   const views = new Map();      // id -> latest view (its obs array is the tracker's own, append-only)
@@ -57,12 +56,11 @@ export function createShotMachine({ rim, scene, rules: R, params = {} }) {
 
   function evidence(s, now) {
     const owners = new Set(s.tracks);
-    const owned = new Set([...shotOf.entries()].filter(([, sh]) => sh !== s).map(([id]) => id));
     const seen = [], zoneObs = [];
     const tracks = new Set(owners);
     // evidence-only tracks: not owned by another shot, not clutter, with a below-net observation during this shot's window
     for (const [id, v] of views) {
-      if (tracks.has(id) || owned.has(id)) continue;
+      if (tracks.has(id) || (shotOf.has(id) && shotOf.get(id) !== s)) continue;
       for (const o of v.obs) if (o.f >= s.first && o.f < s.first + R.RULE.windowV2 && o.y >= rim.y + R.RULE.belowDrop && Math.abs(o.x - rim.x) <= R.RULE.belowHalfWidth && !clutterObs(v, o, now, [v])) { tracks.add(id); break; }
     }
     const ctx = shotViews(s);
@@ -105,12 +103,19 @@ export function createShotMachine({ rim, scene, rules: R, params = {} }) {
     return { timeline: tl, flags };
   }
 
+  /** Forget tracks that ended long ago and belong to no undecided shot (memory and scan cost stay bounded in a long session). */
+  function prune(f) {
+    const live = new Set(); for (const s of shots) if (!s.decided) for (const id of s.tracks) live.add(id);
+    for (const [id, v] of views) if (v.state === "ended" || v.lastF < f - 1500) { if (v.lastF < f - 1500 && !live.has(id)) views.delete(id); }
+  }
+
   function consider(f, now) {
     const out = [];
     for (const s of shots) {
       if (s.decided) continue;
       if (!s.closed && f - s.lastZoneF > M.closeGap) s.closed = true;
       if (!s.closed) break;                                  // decide in order: an earlier shot still open holds back the later ones
+      if (f < s.first + R.RULE.windowV2 - 1 || scene.historyFrames(f) < M.decisionNotBeforeHistory) break;   // not decidable yet: do not build evidence
       const ev = evidence(s, now);
       const first = ev.zoneObs.length ? ev.zoneObs[0].f : null;
       if (first === null) { if (f >= s.first + R.RULE.windowV2 - 1) { s.decided = true; s.retracted = true; } else break; continue; }
@@ -120,7 +125,7 @@ export function createShotMachine({ rim, scene, rules: R, params = {} }) {
       const call = decide({ first, last, firstMs: (first * 1000) / R.REFERENCE_FPS, sightings: ev.zoneObs.length }, history);
       s.decided = true;
       const t = timeline({ ...s, first, last }, f);
-      out.push({ ...call, shotId: s.id, tracks: [...ev.tracks], owner: s.owner, decidedAt: f, timeline: t.timeline, flags: t.flags, evidenceObservations: ev.seen.length });
+      out.push({ ...call, shotId: s.id, tracks: [...ev.tracks], owner: s.owner, decidedAt: f, timeline: t.timeline, flags: t.flags, evidenceObservations: ev.seen.length, evidence: ev.seen.map((x) => ({ f: x.f, id: x.id, x: (x.box.x1 + x.box.x2) / 2, y: (x.box.y1 + x.box.y2) / 2 })) });
     }
     return out;
   }
@@ -131,6 +136,7 @@ export function createShotMachine({ rim, scene, rules: R, params = {} }) {
     push(snap) {
       const f = snap.f;
       for (const v of snap.tracks) views.set(v.id, v);
+      if (!keepAllViews && f % 128 === 0) prune(f);
       for (const v of snap.tracks) {
         const o = v.obs[v.obs.length - 1];
         if (o.f !== f || !inZone(o)) continue;
@@ -138,7 +144,7 @@ export function createShotMachine({ rim, scene, rules: R, params = {} }) {
         if (clutterNow(v, o, f, s)) continue;
         if (!s) {
           const cur = [...shots].reverse().find((x) => !x.decided && !x.closed);
-          if (cur && f - cur.lastZoneF < M.minSeparation) s = cur;
+          if (cur && f - cur.lastZoneF <= M.closeGap) s = cur;
           else {
             if (cur) cur.closed = true;
             s = { id: nextShot++, owner: v.id, tracks: new Set(), first: f, last: f, lastZoneF: f, sightings: 0, closed: false, decided: false };
@@ -161,10 +167,12 @@ export function createShotMachine({ rim, scene, rules: R, params = {} }) {
         const call = decide({ first, last, firstMs: (first * 1000) / R.REFERENCE_FPS, sightings: ev.zoneObs.length }, ev.seen.map((x) => ({ f: x.f, box: x.box })));
         s.decided = true;
         const t = timeline({ ...s, first, last }, f);
-        out.push({ ...call, shotId: s.id, tracks: [...ev.tracks], owner: s.owner, decidedAt: f, timeline: t.timeline, flags: t.flags, evidenceObservations: ev.seen.length });
+        out.push({ ...call, shotId: s.id, tracks: [...ev.tracks], owner: s.owner, decidedAt: f, timeline: t.timeline, flags: t.flags, evidenceObservations: ev.seen.length, evidence: ev.seen.map((x) => ({ f: x.f, id: x.id, x: (x.box.x1 + x.box.x2) / 2, y: (x.box.y1 + x.box.y2) / 2 })) });
       }
       return out;
     },
+    /** Is this track's observation at frame f clutter, judged at `now` with the shot context? (evaluation helper) */
+    clutterAt(id, f, now) { const v = views.get(id); if (!v) return null; const o = v.obs.find((x) => x.f === f); if (!o) return null; return clutterObs(v, o, now, shotViews(shotOf.get(id))); },
     shots: () => shots,
   };
 }

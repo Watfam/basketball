@@ -18,6 +18,7 @@ export const DEFAULTS = {
   coastMax: 8,
   motion: { window: 20, spread: 10 },
   spot: { cell: 8, window: 1200, minHistory: 90, share: 0.03 },
+  retainFrames: 1500,            // ended tracks older than this are forgotten (Infinity keeps everything, for evaluation)
 };
 
 const cx = (b) => (b.x1 + b.x2) / 2, cy = (b) => (b.y1 + b.y2) / 2, wd = (b) => b.x2 - b.x1, ht = (b) => b.y2 - b.y1;
@@ -122,6 +123,7 @@ export function createTracker(options = {}) {
         tracks.set(t.id, t); next.push(t); active.push(t); events.push({ type: "start", id: t.id, f });
       });
       live = next;
+      if (f % 128 === 0 && Number.isFinite(P.retainFrames)) for (const [id, t] of tracks) if (t.state === "ended" && f - t.obs[t.obs.length - 1].f > P.retainFrames) tracks.delete(id);
       spot.add(f, boxes.map((b) => ({ x: cx(b), y: cy(b) })));
       return { f, tracks: active.map((t) => view(t, f)), events };
     },
