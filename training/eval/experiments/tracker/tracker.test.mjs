@@ -116,3 +116,10 @@ test("spot memory: a spot occupied often is flagged after the history minimum, a
   const early = createSpotMemory(); for (let f = 0; f < 50; f += 1) early.add(f, [{ x: 1, y: 1 }]);
   assert.equal(early.occupied(1, 1, 49), false, "not before 90 frames of history");
 });
+
+test("round 3: the maneuver allowance keeps a ball that bounces (velocity reverses in one frame, 10 px/frame down to 8 px/frame up); maneuver 0 reproduces the round-2 gate and loses it", () => {
+  const seq = []; let y = 100; for (let f = 0; f < 12; f += 1) { y += 10; seq.push([f, y]); } for (let f = 12; f < 20; f += 1) { y -= 8; seq.push([f, y]); }
+  const ids = (maneuver) => { const t = createTracker({ model: "cv", modelParams: { q2: 0.8, R: 1 }, gate: maneuver ? { maneuver, ballFraction: 0.5 } : { maneuver: 0, ballFraction: 0, lastObs: false } }); const out = new Set(); for (const [f, yy] of seq) { const s = t.push(f, [{ x1: 100 - 12, x2: 100 + 12, y1: yy - 12, y2: yy + 12, score: 0.9 }]); for (const v of s.tracks) if (v.obs[v.obs.length - 1].f === f) out.add(v.id); } return out.size; };
+  assert.equal(ids(2.0), 1, "one track through the bounce");
+  assert.ok(ids(0) > 1, "the narrow gate splits it");
+});

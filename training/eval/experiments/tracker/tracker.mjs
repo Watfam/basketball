@@ -9,7 +9,7 @@ export const DEFAULTS = {
   model: "bal",                  // cv | ca | bal | hyb (default until the registered selection is run)
   modelParams: {},               // q2, q3, R
   interpW: 4,                    // points each side for the gap reconstruction
-  gate: { chi2: 9.21, floor: 6, cap: 30 },
+  gate: { chi2: 9.21, floor: 6, cap: 30, maneuver: 2.0, ballFraction: 0.5, lastObs: true },   // round 3 reach: max(floor, ballFraction x track width, maneuver x speed x dt); maneuver 0, ballFraction 0, lastObs false reproduce round 2
   sizeRatio: [0.5, 2],
   weights: { size: 0.4, score: 0.5, fixedSigma: 4 },
   restartSpeed: 6,               // px per reference frame: a stationary track that steps this fast restarts its motion model (criteria-addendum-1)
@@ -37,7 +37,7 @@ export function createTracker(options = {}) {
   }
   function predictFor(t, f) {
     const last = t.obs[t.obs.length - 1], dt = f - last.f;
-    if (P.associator === "kalman") { const p = t.model.predict(f), extra = t.motion === "stationary" ? (P.releaseAllowance * dt) ** 2 : 0; return { x: p.x, y: p.y, sx2: p.varX + R + extra, sy2: p.varY + R + extra }; }
+    if (P.associator === "kalman") { const p = t.model.predict(f), extra = t.motion === "stationary" ? (P.releaseAllowance * dt) ** 2 : 0; return { x: p.x, y: p.y, sx2: p.varX + R + extra, sy2: p.varY + R + extra, reach: Math.max(P.gate.floor, P.gate.ballFraction * widthRef(t), P.gate.maneuver * Math.hypot(p.vx ?? 0, p.vy ?? 0) * dt) }; }
     if (P.associator === "cv_nearest" && t.obs.length > 1) { const q = t.obs[t.obs.length - 2]; return { x: last.x + ((last.x - q.x) / (last.f - q.f)) * dt, y: last.y + ((last.y - q.y) / (last.f - q.f)) * dt, fixed: true }; }
     return { x: last.x, y: last.y, fixed: true };
   }
@@ -68,7 +68,7 @@ export function createTracker(options = {}) {
           if (ratio < P.sizeRatio[0] || ratio > P.sizeRatio[1]) return;
           let m2;
           if (p.fixed) { if (d > cap) return; m2 = (d / P.weights.fixedSigma) ** 2; }
-          else { const sx2 = Math.max(p.sx2, 1.98 ** 2), sy2 = Math.max(p.sy2, 1.98 ** 2); m2 = dx * dx / sx2 + dy * dy / sy2; if (m2 > P.gate.chi2 && d > P.gate.floor) return; }
+          else { const sx2 = Math.max(p.sx2, 1.98 ** 2), sy2 = Math.max(p.sy2, 1.98 ** 2); m2 = dx * dx / sx2 + dy * dy / sy2; if (m2 > P.gate.chi2 && d > p.reach && (!P.gate.lastObs || Math.hypot(x - last.x, y - last.y) > Math.max(P.gate.floor, P.gate.ballFraction * wref))) return; }
           const cost = m2 + (Math.log(ratio) / P.weights.size) ** 2 + ((1 - b.score) / P.weights.score) ** 2;
           pairs.push([cost, ti, bi]);
         });

@@ -1,0 +1,29 @@
+{
+  "registered": "2026-10-15",
+  "status": "ROUND 3, THE LAST ADAPTIVE ROUND. Registered after round-2 results were seen (results/shots-round2.json, results/motion.json) and BEFORE any round-3 run. criteria.json T1-T13, criteria-addendum-1.json and criteria-v2.json apply unchanged. Whatever round 3 shows is the verdict; there is no round 4. Every number in this file was chosen without running the changed tracker.",
+  "what_round_2_showed": {
+    "shots": "segmentation repaired: the tracker + machine matches baseline-v0 or is within 1 correct call on seven clips at both frame rates, IMG_4873 20/22 matched with V4 right 20 at both rates, 105 of 112 shots single-track, 1807 of 1809 (30 fps) and 903 of 903 (15 fps) baseline zone boxes kept as evidence",
+    "association": "the Kalman associator is worse than the plain nearest_last chaining on CLEAN runs: with no distractor at all it keeps 80% (30 fps) / 75% (15 fps) of the ball's boxes in one track against 99.8% / 99.7%; a masked gap of ONE frame loses the id 7-10% of the time against 0%. This fails T6 and T7 outright and is the first thing to fix",
+    "cause_found_on_development_clips_IMG_4839_and_IMG_4840": "the selected constant-velocity filter (q2 0.8, R 1) predicts to within about 2 px, so its gate is about 6 px (the registered floor). A floor bounce, a rim hit or a release changes the velocity within a frame (observed misses of 8.6, 16.3, 12.3 and 9.9 px), the filter then lags for several frames (errors of 4-8 px), and the true ball is refused. This is an impulsive-event problem, not a noise problem: no tuning of q or R in the registered grid addresses it",
+    "stall": "failures of the registered stall criterion are mostly a shifted first sighting, not a lost call (post hoc, diagnose-stall.mjs: calls kept in 106/107 at 15 frames, both rates, the kalman associator); the stalled frames are classified as clutter because a ball first seen motionless at a well-visited rim spot looks exactly like the phantom. Not changed in round 3",
+    "timing": "slow frames (>2 ms) are not tied to decisions, box counts or the work in the frame; 25-100% overlap a garbage-collection event, the rest are unattributed (diagnose-timing.mjs). Not changed in round 3"
+  },
+  "design_change": {
+    "revision_note": "Two drafts were replaced BEFORE any round-3 run. Draft 1 (a speed allowance of 1.0) because a unit test of a full velocity reversal showed it cannot cover one (a reversal moves the one-frame prediction error to 2 x speed) and the 8.6 px miss seen on IMG_4839 happened at a speed of about 3 px per frame, where a speed term alone is below the 6 px floor. Draft 2 (prediction-relative reach only) because a unit test and a trace of the filter showed the filter's POSITION lags for two to three frames after an impulse (prediction still 13 px off one frame after a reversal, against a reach of 12), so a reach measured from the prediction alone fails by a hair on the frames right after the event; the real cases on IMG_4839 (12.3 px after a landing at 16 px per frame) fail the same way. Draft 3 below adds the last-observation test.",
+    "R3_1_maneuver_allowance": "the Kalman associator's gate refuses a candidate only if the squared Mahalanobis distance exceeds 9.21 AND the distance to the prediction exceeds reach = max(6 px, 0.5 x the track's median recent box width, 2.0 x speed x dt), speed being the filter's current speed estimate in px per reference frame and dt the reference frames since the last observation. 2.0 x speed is a full velocity reversal (the largest one-frame error a bounce or hit can cause for an impulse that keeps the speed). 0.5 x width is half a ball: beyond that distance the box could be a different ball, so it is the scale-free lower bound on what 'the same ball' can mean (the track's own width, so it adapts to camera distance and is not an absolute size filter). Both constants are physical limits chosen once, not searched. A candidate is ALSO admitted if it lies within max(6 px, 0.5 x the track's width) of the track's last OBSERVED position (a ball that has moved less than half its own width since it was last seen is the same ball whatever the filter thought, which is the nearest_last baseline's own test at ball scale). The candidate ordering (the cost) is unchanged: the closest candidate in Mahalanobis terms still wins, so the allowance admits a ball that bounced; it does not prefer a far candidate over a near one",
+    "applies_to": "associator kalman only. nearest_last and cv_nearest are untouched baselines",
+    "sensitivity_reported_not_chosen": "round 2 (maneuver 0, ball fraction 0, last-observation test off); prediction-only reach (2.0, 0.5, last-observation test off); are run and reported; the verdict is decided on (2.0, 0.5, last-observation test on) and no other setting may be picked after the fact"
+  },
+  "evaluations_rerun": [
+    "eval-motion.mjs assoc (association scenes and masked gap only; interpolation and prediction do not depend on the gate and are not rerun)",
+    "eval-shots.mjs (everything)",
+    "the four unit-test files, with a new test that maneuver 0 reproduces round 2 exactly"
+  ],
+  "unchanged": [
+    "every threshold and criterion",
+    "the selected model and its noise parameters",
+    "the segmentation, spot memory and clutter definitions",
+    "stall and timing behaviour"
+  ],
+  "expected_and_stated_before_running": "the clean-run coverage should rise toward the baselines; the risk is the distractor scenes (adjacent_blob, near_duplicate, static_blob), where a wider gate can admit the wrong blob. T6 requires beating nearest_last by 10 points on adjacent_blob and near_duplicate at both frame rates."
+}

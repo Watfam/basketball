@@ -119,13 +119,13 @@ if (mode === "tune") {
 }
 
 // ---------------------------------------------------------------- stage 2: the frozen selection against the baselines, every clip
-if (mode === "evaluate") {
+if (mode === "evaluate" || mode === "assoc") {
   const sel = readJSON("training/eval/experiments/tracker/results/selection.json");
   if (sel.criteria_sha256 !== sha256(path.join(DIR, "criteria.json"))) { console.error("criteria changed since tuning"); process.exit(2); }
   const out = { selection: sel.selected, per_model_frozen: sel.per_model_frozen, prediction: {}, interpolation: {}, association_synthetic: {}, masked_gap: {} };
   const predSpecs = Object.fromEntries(MODEL_NAMES.map((m) => [`kalman_${m}`, { model: m, params: sel.per_model_frozen[m].params }]));
   const interpSpecs = Object.fromEntries(MODEL_NAMES.map((m) => [`fit_${m}`, { model: m, W: sel.per_model_frozen[m].W }]));
-  for (const f of FPS) {
+  for (const f of mode === "assoc" ? [] : FPS) {
     out.prediction[f.key] = {}; out.interpolation[f.key] = {};
     const groups = { all: ALL, dev: DEV, validation: VAL, diagnostic: DIAG };
     for (const [g, clips] of Object.entries(groups)) {
@@ -156,7 +156,8 @@ if (mode === "evaluate") {
     });
     return frames;
   }
-  const ASSOC = [{ key: "nearest_last", opts: { associator: "nearest_last" } }, { key: "cv_nearest", opts: { associator: "cv_nearest" } }, ...MODEL_NAMES.map((m) => ({ key: `kalman_${m}`, opts: { associator: "kalman", model: m, modelParams: sel.per_model_frozen[m].params } }))];
+  const SENS = process.argv[3] === undefined ? 2.0 : +process.argv[3], FRAC = process.argv[4] === undefined ? 0.5 : +process.argv[4], LASTOBS = process.argv[5] !== "off";
+  const ASSOC = [{ key: "nearest_last", opts: { associator: "nearest_last" } }, { key: "cv_nearest", opts: { associator: "cv_nearest" } }, ...MODEL_NAMES.map((m) => ({ key: `kalman_${m}`, opts: { associator: "kalman", model: m, modelParams: sel.per_model_frozen[m].params, gate: { maneuver: SENS, ballFraction: FRAC, lastObs: LASTOBS } } }))];
   for (const f of FPS) {
     const rows = {};
     const rnd = rng(SC.seed_base + f.step);
@@ -216,6 +217,6 @@ if (mode === "evaluate") {
     out.masked_gap[f.key] = res;
     console.log(`${f.key}: masked gap done`);
   }
-  fs.writeFileSync(path.join(RES, "motion.json"), JSON.stringify(out) + "\n");
-  console.log("wrote results/motion.json");
+  if (mode === "assoc") { out.maneuver = SENS; fs.writeFileSync(path.join(RES, `assoc-m${SENS}-f${FRAC}${LASTOBS ? "" : "-nolast"}.json`), JSON.stringify({ maneuver: SENS, ball_fraction: FRAC, last_observation_test: LASTOBS, association_synthetic: out.association_synthetic, masked_gap: out.masked_gap }) + "\n"); console.log(`wrote results/assoc-m${SENS}-f${FRAC}${LASTOBS ? "" : "-nolast"}.json`); }
+  else { fs.writeFileSync(path.join(RES, "motion.json"), JSON.stringify(out) + "\n"); console.log("wrote results/motion.json"); }
 }

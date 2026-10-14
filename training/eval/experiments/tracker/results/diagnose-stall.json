@@ -1,0 +1,62 @@
+{
+ "15": {
+  "30fps|kalman": {
+   "shots": 107,
+   "exact": 97,
+   "shifted_same_call": 9,
+   "shifted_other_call": 0,
+   "missing": 1
+  },
+  "30fps|nearest_last": {
+   "shots": 107,
+   "exact": 97,
+   "shifted_same_call": 7,
+   "shifted_other_call": 0,
+   "missing": 3
+  },
+  "15fps|kalman": {
+   "shots": 107,
+   "exact": 88,
+   "shifted_same_call": 18,
+   "shifted_other_call": 0,
+   "missing": 1
+  },
+  "15fps|nearest_last": {
+   "shots": 107,
+   "exact": 99,
+   "shifted_same_call": 5,
+   "shifted_other_call": 0,
+   "missing": 3
+  }
+ },
+ "30": {
+  "30fps|kalman": {
+   "shots": 107,
+   "exact": 85,
+   "shifted_same_call": 17,
+   "shifted_other_call": 2,
+   "missing": 3
+  },
+  "30fps|nearest_last": {
+   "shots": 107,
+   "exact": 85,
+   "shifted_same_call": 15,
+   "shifted_other_call": 2,
+   "missing": 5
+  },
+  "15fps|kalman": {
+   "shots": 107,
+   "exact": 57,
+   "shifted_same_call": 43,
+   "shifted_other_call": 2,
+   "missing": 5
+  },
+  "15fps|nearest_last": {
+   "shots": 107,
+   "exact": 85,
+   "shifted_same_call": 13,
+   "shifted_other_call": 3,
+   "missing": 6
+  }
+ }
+}
