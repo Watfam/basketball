@@ -1,0 +1,135 @@
+{
+ "seed": 20261040,
+ "note": "ids only. The package itself shows no category, model box, or existing annotation.",
+ "pools": {
+  "ball_absent": 26,
+  "clear_ball": 14,
+  "small_ball": 12,
+  "blurred": 4,
+  "hidden_or_cut": 4,
+  "rim_region_orange": 8,
+  "held_ball": 14
+ },
+ "frames": [
+  {
+   "blind_id": "H01",
+   "internal": "F013",
+   "category": "rim_region_orange",
+   "clip": "IMG_4851"
+  },
+  {
+   "blind_id": "H02",
+   "internal": "F055",
+   "category": "ball_absent",
+   "clip": "B1689585"
+  },
+  {
+   "blind_id": "H03",
+   "internal": "F031",
+   "category": "rim_region_orange",
+   "clip": "IMG_4851"
+  },
+  {
+   "blind_id": "H04",
+   "internal": "F014",
+   "category": "rim_region_orange",
+   "clip": "IMG_4873"
+  },
+  {
+   "blind_id": "H05",
+   "internal": "F067",
+   "category": "hidden_or_cut",
+   "clip": "B1689585"
+  },
+  {
+   "blind_id": "H06",
+   "internal": "F042",
+   "category": "ball_absent",
+   "clip": "B1689585"
+  },
+  {
+   "blind_id": "H07",
+   "internal": "F048",
+   "category": "rim_region_orange",
+   "clip": "IMG_4873"
+  },
+  {
+   "blind_id": "H08",
+   "internal": "F015",
+   "category": "blurred",
+   "clip": "IMG_4872"
+  },
+  {
+   "blind_id": "H09",
+   "internal": "F070",
+   "category": "clear_ball",
+   "clip": "IMG_4866"
+  },
+  {
+   "blind_id": "H10",
+   "internal": "F069",
+   "category": "clear_ball",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H11",
+   "internal": "F062",
+   "category": "small_ball",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H12",
+   "internal": "F028",
+   "category": "ball_absent",
+   "clip": "B1689585"
+  },
+  {
+   "blind_id": "H13",
+   "internal": "F038",
+   "category": "blurred",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H14",
+   "internal": "F016",
+   "category": "small_ball",
+   "clip": "B1689585"
+  },
+  {
+   "blind_id": "H15",
+   "internal": "F026",
+   "category": "clear_ball",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H16",
+   "internal": "F033",
+   "category": "hidden_or_cut",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H17",
+   "internal": "F019",
+   "category": "hidden_or_cut",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H18",
+   "internal": "F057",
+   "category": "held_ball",
+   "clip": "IMG_4874"
+  },
+  {
+   "blind_id": "H19",
+   "internal": "F072",
+   "category": "rim_region_orange",
+   "clip": "IMG_4873"
+  },
+  {
+   "blind_id": "H20",
+   "internal": "F030",
+   "category": "clear_ball",
+   "clip": "IMG_4874"
+  }
+ ]
+}

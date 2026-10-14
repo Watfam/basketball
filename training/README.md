@@ -834,3 +834,9 @@ set**), the blind manual annotation set and its limits, the circle-fit independe
 seeded by the detector and follows its seed, so it is not independent ground truth), the three separate tracking evaluations
 (interpolation, prediction, association), and `reports/baseline-v0.md` with `reports/baseline-v0-notes.md` (the findings). Compare any change with
 `node training/eval/compare.mjs training/eval/reports/baseline-v0.json <new report>`.
+
+### Rim phantom experiment (2026-10-14), `training/eval/experiments/rim-phantom/`
+Root cause of the static false box ball-6 puts on the rim of IMG_4873 (42% of frames, 11 px, orange rim hardware at close range), five
+candidate filters tested under criteria registered before each round, three rounds. **No candidate met the bar; nothing was integrated.**
+Closest: H2 (spot memory AND current motion proof), zero genuine boxes lost, one 15 fps injected cell at 89.6% against 90%. Read
+`REPORT.md` there; the blind human annotation package is `training/work/eval/human-annotation-package.zip` (local only).
