@@ -1,0 +1,482 @@
+{
+ "generated": "2026-10-14T11:41:50.252Z",
+ "ibmg4873": [
+  {
+   "file": "dets6-4873.json",
+   "frames_in_clip": 4352,
+   "window": {
+    "cropX": 730,
+    "cropY": 201,
+    "cropSize": 672
+   },
+   "centre": {
+    "x": 179.7,
+    "y": 194.1
+   },
+   "frames_with_box": 1834,
+   "share_of_clip": 0.42141544117647056,
+   "position_spread_px": {
+    "sd_x": 1.17,
+    "sd_y": 0.79
+   },
+   "width": {
+    "median": 10.699999999999989,
+    "p10": 9.599999999999994,
+    "p90": 13
+   },
+   "aspect_w_over_h_median": 1.287356321839084,
+   "score": {
+    "median": 0.506,
+    "p10": 0.3038,
+    "p90": 0.631
+   },
+   "runs": {
+    "count": 87,
+    "longest_frames": 200,
+    "longest_seconds": 6.673340006673341,
+    "median_frames": 7,
+    "runs_over_1s": 14,
+    "runs_over_10s": 0,
+    "frames_in_runs_over_10s": 0
+   },
+   "present_in_ten_second_bins": "15 of 15"
+  },
+  {
+   "file": "dets6-4873-s1.json",
+   "frames_in_clip": 4352,
+   "window": {
+    "cropX": 848,
+    "cropY": 318,
+    "cropSize": 416
+   },
+   "centre": {
+    "x": 172.7,
+    "y": 195.7
+   },
+   "frames_with_box": 2135,
+   "share_of_clip": 0.4905790441176471,
+   "position_spread_px": {
+    "sd_x": 1.2,
+    "sd_y": 0.73
+   },
+   "width": {
+    "median": 12.899999999999977,
+    "p10": 10.5,
+    "p90": 14.799999999999983
+   },
+   "aspect_w_over_h_median": 1.099236641221375,
+   "score": {
+    "median": 0.643,
+    "p10": 0.364,
+    "p90": 0.768
+   },
+   "runs": {
+    "count": 62,
+    "longest_frames": 307,
+    "longest_seconds": 10.243576910243577,
+    "median_frames": 6,
+    "runs_over_1s": 18,
+    "runs_over_10s": 1,
+    "frames_in_runs_over_10s": 307
+   },
+   "present_in_ten_second_bins": "14 of 15"
+  },
+  {
+   "file": "dets5-4873-found.json",
+   "frames_in_clip": 4352,
+   "window": {
+    "cropX": 730,
+    "cropY": 201,
+    "cropSize": 672
+   },
+   "centre": {
+    "x": 180,
+    "y": 194.4
+   },
+   "frames_with_box": 254,
+   "share_of_clip": 0.058363970588235295,
+   "position_spread_px": {
+    "sd_x": 2.27,
+    "sd_y": 1.92
+   },
+   "width": {
+    "median": 11,
+    "p10": 10.299999999999983,
+    "p90": 11.5
+   },
+   "aspect_w_over_h_median": 1.297619047619048,
+   "score": {
+    "median": 0.3195,
+    "p10": 0.2652,
+    "p90": 0.5795
+   },
+   "runs": {
+    "count": 35,
+    "longest_frames": 56,
+    "longest_seconds": 1.8685352018685353,
+    "median_frames": 3,
+    "runs_over_1s": 1,
+    "runs_over_10s": 0,
+    "frames_in_runs_over_10s": 0
+   },
+   "present_in_ten_second_bins": "12 of 15"
+  },
+  {
+   "file": "dets5-4873-s1.json",
+   "frames_in_clip": 4352,
+   "window": {
+    "cropX": 848,
+    "cropY": 318,
+    "cropSize": 416
+   },
+   "centre": {
+    "x": 173.2,
+    "y": 195.8
+   },
+   "frames_with_box": 1356,
+   "share_of_clip": 0.3115808823529412,
+   "position_spread_px": {
+    "sd_x": 0.89,
+    "sd_y": 0.89
+   },
+   "width": {
+    "median": 12.899999999999977,
+    "p10": 11.5,
+    "p90": 14.400000000000006
+   },
+   "aspect_w_over_h_median": 1.1754385964912308,
+   "score": {
+    "median": 0.474,
+    "p10": 0.288,
+    "p90": 0.659
+   },
+   "runs": {
+    "count": 58,
+    "longest_frames": 308,
+    "longest_seconds": 10.276943610276945,
+    "median_frames": 6,
+    "runs_over_1s": 9,
+    "runs_over_10s": 1,
+    "frames_in_runs_over_10s": 308
+   },
+   "present_in_ten_second_bins": "14 of 15"
+  }
+ ],
+ "real_ball_in_4873_for_comparison": {
+  "boxes": 1366,
+  "width_median": 27.30000000000001,
+  "score_median": 0.881
+ },
+ "every_detection_file": [
+  {
+   "file": "dets6-4873-s1.json",
+   "frames": 4352,
+   "spot": "(173, 196)",
+   "frames_at_spot": 2135,
+   "share": 0.4906,
+   "width_median": 12.9,
+   "score_median": 0.64,
+   "longest_run_frames": 307
+  },
+  {
+   "file": "dets6-4873.json",
+   "frames": 4352,
+   "spot": "(180, 194)",
+   "frames_at_spot": 1834,
+   "share": 0.4214,
+   "width_median": 10.7,
+   "score_median": 0.51,
+   "longest_run_frames": 200
+  },
+  {
+   "file": "dets5-4873-s1.json",
+   "frames": 4352,
+   "spot": "(173, 196)",
+   "frames_at_spot": 1356,
+   "share": 0.3116,
+   "width_median": 12.9,
+   "score_median": 0.47,
+   "longest_run_frames": 308
+  },
+  {
+   "file": "dets5-4873-found.json",
+   "frames": 4352,
+   "spot": "(180, 194)",
+   "frames_at_spot": 254,
+   "share": 0.0584,
+   "width_median": 11,
+   "score_median": 0.32,
+   "longest_run_frames": 56
+  },
+  {
+   "file": "dets5-4851.json",
+   "frames": 3881,
+   "spot": "(325, 155)",
+   "frames_at_spot": 98,
+   "share": 0.0253,
+   "width_median": 14,
+   "score_median": 0.42,
+   "longest_run_frames": 55
+  },
+  {
+   "file": "dets6-4851.json",
+   "frames": 3881,
+   "spot": "(192, 179)",
+   "frames_at_spot": 92,
+   "share": 0.0237,
+   "width_median": 19.8,
+   "score_median": 0.77,
+   "longest_run_frames": 16
+  },
+  {
+   "file": "dets6-4866.json",
+   "frames": 4417,
+   "spot": "(192, 169)",
+   "frames_at_spot": 98,
+   "share": 0.0222,
+   "width_median": 23.3,
+   "score_median": 0.89,
+   "longest_run_frames": 18
+  },
+  {
+   "file": "dets5-4866.json",
+   "frames": 4417,
+   "spot": "(204, 170)",
+   "frames_at_spot": 92,
+   "share": 0.0208,
+   "width_median": 23.2,
+   "score_median": 0.81,
+   "longest_run_frames": 16
+  },
+  {
+   "file": "dets6-4867.json",
+   "frames": 3858,
+   "spot": "(194, 169)",
+   "frames_at_spot": 71,
+   "share": 0.0184,
+   "width_median": 23.1,
+   "score_median": 0.82,
+   "longest_run_frames": 10
+  },
+  {
+   "file": "dets5-4867.json",
+   "frames": 3858,
+   "spot": "(193, 170)",
+   "frames_at_spot": 69,
+   "share": 0.0179,
+   "width_median": 23.6,
+   "score_median": 0.74,
+   "longest_run_frames": 20
+  },
+  {
+   "file": "dets6-4874.json",
+   "frames": 4738,
+   "spot": "(192, 169)",
+   "frames_at_spot": 84,
+   "share": 0.0177,
+   "width_median": 23.2,
+   "score_median": 0.8,
+   "longest_run_frames": 10
+  },
+  {
+   "file": "dets6-4840.json",
+   "frames": 5200,
+   "spot": "(193, 168)",
+   "frames_at_spot": 87,
+   "share": 0.0167,
+   "width_median": 22.7,
+   "score_median": 0.82,
+   "longest_run_frames": 12
+  },
+  {
+   "file": "dets5-4840.json",
+   "frames": 5200,
+   "spot": "(193, 168)",
+   "frames_at_spot": 84,
+   "share": 0.0162,
+   "width_median": 22.1,
+   "score_median": 0.76,
+   "longest_run_frames": 12
+  },
+  {
+   "file": "dets6-4839.json",
+   "frames": 5284,
+   "spot": "(182, 169)",
+   "frames_at_spot": 83,
+   "share": 0.0157,
+   "width_median": 23.3,
+   "score_median": 0.82,
+   "longest_run_frames": 17
+  },
+  {
+   "file": "dets5-4874.json",
+   "frames": 4738,
+   "spot": "(192, 169)",
+   "frames_at_spot": 69,
+   "share": 0.0146,
+   "width_median": 17.2,
+   "score_median": 0.58,
+   "longest_run_frames": 9
+  },
+  {
+   "file": "dets6-4872.json",
+   "frames": 4383,
+   "spot": "(192, 168)",
+   "frames_at_spot": 62,
+   "share": 0.0141,
+   "width_median": 23.1,
+   "score_median": 0.77,
+   "longest_run_frames": 6
+  },
+  {
+   "file": "dets5-4839.json",
+   "frames": 5284,
+   "spot": "(181, 327)",
+   "frames_at_spot": 60,
+   "share": 0.0114,
+   "width_median": 16.1,
+   "score_median": 0.44,
+   "longest_run_frames": 33
+  },
+  {
+   "file": "dets5-4872.json",
+   "frames": 4383,
+   "spot": "(168, 169)",
+   "frames_at_spot": 47,
+   "share": 0.0107,
+   "width_median": 17.4,
+   "score_median": 0.58,
+   "longest_run_frames": 15
+  },
+  {
+   "file": "dets5-4874-found.json",
+   "frames": 4738,
+   "spot": "(192, 167)",
+   "frames_at_spot": 39,
+   "share": 0.0082,
+   "width_median": 24.9,
+   "score_median": 0.57,
+   "longest_run_frames": 9
+  },
+  {
+   "file": "dets5-4844b.json",
+   "frames": 5596,
+   "spot": "(202, 35)",
+   "frames_at_spot": 32,
+   "share": 0.0057,
+   "width_median": 21.1,
+   "score_median": 0.59,
+   "longest_run_frames": 16
+  },
+  {
+   "file": "dets5-4872-found.json",
+   "frames": 4383,
+   "spot": "(160, 134)",
+   "frames_at_spot": 25,
+   "share": 0.0057,
+   "width_median": 21.9,
+   "score_median": 0.56,
+   "longest_run_frames": 10
+  },
+  {
+   "file": "dets5-4844.json",
+   "frames": 5596,
+   "spot": "(239, 34)",
+   "frames_at_spot": 22,
+   "share": 0.0039,
+   "width_median": 20.4,
+   "score_median": 0.55,
+   "longest_run_frames": 6
+  },
+  {
+   "file": "dets5-4851-x1.json",
+   "skipped": "no detections list"
+  }
+ ],
+ "merge_origin": {
+  "note": "all through the app's own counting core, ball-6, IMG_4873 sizer window, 22 written shots",
+  "as_it_is": {
+   "counted": 11,
+   "matched": 11,
+   "v4_right_of_22": 11,
+   "longest_shot_zone_sightings": 1044,
+   "median_zone_sightings": 112
+  },
+  "phantom_removed_oracle": {
+   "counted": 25,
+   "matched": 22,
+   "v4_right_of_22": 17,
+   "longest_shot_zone_sightings": 85,
+   "median_zone_sightings": 23
+  },
+  "as_it_is_15fps": {
+   "counted": 12,
+   "matched": 12,
+   "v4_right_of_22": 12,
+   "longest_shot_zone_sightings": 525,
+   "median_zone_sightings": 42
+  },
+  "phantom_removed_oracle_15fps": {
+   "counted": 25,
+   "matched": 22,
+   "v4_right_of_22": 18,
+   "longest_shot_zone_sightings": 45,
+   "median_zone_sightings": 12
+  }
+ },
+ "interaction_curve": {
+  "what": "synthetic 11 px, score 0.5 box at (180, 192) added to IMG_4840 (a clean clip) in random runs of mean 60 frames",
+  "clip": "IMG_4840",
+  "points": [
+   {
+    "phantom_frames_share": 0,
+    "counted": 32,
+    "of_written": 32,
+    "matched": 32,
+    "v4_right": 31
+   },
+   {
+    "phantom_frames_share": 0.052,
+    "counted": 32,
+    "of_written": 32,
+    "matched": 32,
+    "v4_right": 31
+   },
+   {
+    "phantom_frames_share": 0.086,
+    "counted": 32,
+    "of_written": 32,
+    "matched": 32,
+    "v4_right": 31
+   },
+   {
+    "phantom_frames_share": 0.23,
+    "counted": 29,
+    "of_written": 32,
+    "matched": 29,
+    "v4_right": 25
+   },
+   {
+    "phantom_frames_share": 0.277,
+    "counted": 28,
+    "of_written": 32,
+    "matched": 27,
+    "v4_right": 25
+   },
+   {
+    "phantom_frames_share": 0.372,
+    "counted": 28,
+    "of_written": 32,
+    "matched": 28,
+    "v4_right": 24
+   },
+   {
+    "phantom_frames_share": 0.605,
+    "counted": 19,
+    "of_written": 32,
+    "matched": 19,
+    "v4_right": 18
+   }
+  ]
+ }
+}

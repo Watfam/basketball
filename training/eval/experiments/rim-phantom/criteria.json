@@ -1,0 +1,62 @@
+{
+  "registered": "2026-10-14",
+  "status": "REGISTERED BEFORE ANY CANDIDATE WAS RUN. thresholds.json and baseline-v0 are unchanged and still govern shot-classification regression; this file adds criteria for this experiment only. Change nothing here after results exist: add criteria-v2.json and say so.",
+  "disclosure": "Written after the root-cause analysis (results/analysis.json, results/devstats.json), which looked at IMG_4873 and at the development clips. It therefore knows: the phantom is 9.6-13 px wide (median 10.7) at score about 0.5 (p10 0.30, p90 0.63), holds one spot to about 1 px, flickers in runs (longest 7-10 s), covers 42% of IMG_4873 frames with ball-6; the oracle (phantom removed) counts 25 shots, matches 22 and has V4 right on 17 (30 fps) and 18 (15 fps) of 22. Real balls on the development clips look still (within 3 px) for at most 7 frames, and a rim spot holds a genuine box in at most 3.3% of any 20 s.",
+  "data_use": {
+    "tuning_and_parameter_derivation": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867"],
+    "no_phantom_exists_in_development_footage": "so the phantom side of every parameter is set by principle, and the development clips constrain only how much genuine ball may be lost; phantom suppression on development footage is tested with SEEDED SYNTHETIC injection",
+    "regression_case_not_generalization_test": "IMG_4873",
+    "same_session_as_4873_not_to_be_tuned_on": ["IMG_4872", "IMG_4874"],
+    "ball6_trained_on_all_but": "IMG_4874 (detections on the others are cleaner than a new clip would give)"
+  },
+  "candidates": {
+    "baseline": "no filter. Must reproduce baseline-v0 exactly (checked on every run).",
+    "A_stationary_suppression": {
+      "idea": "a box is dropped if, in the trailing 20 s, at least 10% of processed frames had a raw box centre within 8 px of it",
+      "params": { "radius_px": 8, "window_ref_frames": 600, "min_history_ref_frames": 150, "share_threshold": 0.10 },
+      "why": "10% is 3x the busiest genuine rim spot on any development 20 s (3.3%); occupancy counts raw boxes so suppression does not unlearn the spot"
+    },
+    "B_motion_proof_track_gate": {
+      "idea": "boxes are chained into tracks by constant-velocity prediction (the harness's best short-horizon associator); a box reaches the rule only if its track has moved at least 30 px from where it started. Proof is sticky for the track's life; a track dies after 8 reference frames unseen",
+      "params": { "gate_px_per_ref_frame": 30, "max_gap_ref_frames": 8, "proof_distance_px": 30 },
+      "why": "gate and gap are the rule's own (FALL.maxJumpPerFrame, FALL.maxGapFrames); 30 px is 1.3 ball widths; a real ball moves that far in 3 frames of flight; the longest genuine still stretch on development clips is 7 frames"
+    },
+    "C50_size_gate": {
+      "idea": "drop boxes narrower than half the sizer's reference ball width",
+      "params": { "min_width_px": 11.85 },
+      "why": "0.5 x AUTO_SIZE.referenceWidth 23.7: the sizer settles the window so the ball is about 23.7 px, so under half of that is not a ball at a settled window"
+    },
+    "C60_size_gate": {
+      "idea": "the same with 0.6 of the reference width: a second point on the trade-off, chosen as a round fraction, not fitted",
+      "params": { "min_width_px": 14.22 },
+      "why": "0.6 x 23.7. Genuine zone boxes on development clips: p1 15.0 px, minimum 10.9 px"
+    },
+    "B_after_C50": {
+      "idea": "C50 first, then B: a size screen and a motion proof feeding one gate",
+      "params": "as C50 and B"
+    },
+    "oracle_4873_only": "the phantom boxes removed by position (ceiling, not a candidate): boxes with score >= 0.25, width < 18, within 14 px of (179.7, 194.1) in the dets6-4873 window",
+    "hard_negative_training": "NOT TESTED. It changes the detector (frozen for this experiment), needs a Colab run, and cannot be compared on equal terms. Reported analytically in the recommendation."
+  },
+  "protocol": {
+    "frame_rates": ["30 fps (every frame)", "15 fps (every 2nd frame, the live loop)"],
+    "clips": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"],
+    "pipeline": "ball-6 detections (score >= 0.25) -> candidate filter (causal, reference-frame time, window coordinates) -> the app's own counting core, unmodified (same pairing and phantom removal as baseline-v0)",
+    "synthetic_injection": { "into": "the five development clips", "box": "11 px square, score 0.5", "spots_relative_to_the_window_rim": [[-12, 2], [8, -15]], "duty_cycles": [0.2, 0.42], "run_length": "exponential, mean 60 frames, minimum 5", "seed_base": 20261020, "note": "the same generator for every candidate; spots and duty cycles fixed here" },
+    "stall_simulation": { "into": "the five development clips", "what": "for every third baseline-matched, baseline-correct shot, the ball boxes in the zone from its first zone sighting are frozen at that first position (jitter 1 px, seeded) for S frames: a ball resting or rolling on the rim", "S_frames": [15, 30], "seed_base": 20261030, "survival": "the shot is counted again with its first zone sighting within 15 frames of the clean baseline's AND the same V4 call" },
+    "genuine_box_definition": "development clips only: a score >= 0.25 box inside [first-45, last+45] of a shot the baseline counted and paired with a written shot",
+    "annotated_genuine_balls": "ball-6 true positives (medium and high confidence) in the annotation set whose clip has a saved detection file (the kids clip has none)"
+  },
+  "criteria_all_must_hold_at_BOTH_frame_rates": {
+    "S1_no_harm_on_other_clips": "on the seven clips other than IMG_4873, thresholds.json's shot rule: no clip loses 2 or more correct calls against the baseline, and the pooled paired net (gained minus lost, per written shot) is not -3 or worse",
+    "S2_phantom_suppression": "at least 90% of oracle phantom frames on IMG_4873 are suppressed AND at least 90% of injected phantom frames on the development clips are suppressed (each spot and duty cycle)",
+    "S2b_recovery_with_injection": "pooled V4-right on the injected development clips (both spots, both duty cycles, averaged over the four injections) is within 3 calls of the clean-baseline pooled V4-right",
+    "S3_separation_on_4873": "at least 20 of 22 written shots matched AND V4 right on at least 15 (30 fps) / 16 (15 fps), which is the oracle minus 2",
+    "S4_genuine_boxes": "at most 0.5% of genuine development boxes removed AND none of the annotated genuine balls removed (the interval on 'none of n' is reported; n is small)",
+    "S5_stall_survival": "at least 95% of shots survive the 15-frame stall (twice the longest genuine still stretch seen on development clips); the 30-frame result is reported, not required",
+    "S6_overhead": "median filter time at most 0.1 ms per processed frame on this Mac (the model takes about 119 ms here), and no extra model runs",
+    "S7_causality": "the filter's output for a frame never depends on later frames (unit test) and it works at the live frame rates; suppression latency in frames is reported"
+  },
+  "decision_rule": "A candidate is recommended for integration only if every criterion holds at both frame rates. If none does, the recommendation is to integrate none and say what failed. IMG_4873 evidence (S2 oracle part, S3) shows the known problem is addressed; it is not evidence of general accuracy. Generalization evidence is S1, S2 (injected), S2b, S4 and S5. Among candidates that pass, prefer the one whose state a persistent ball tracker reuses.",
+  "reported_not_required": ["per-clip before/after at both frame rates", "false positives and negatives with examples", "latency", "the size-gate trade-off curve", "which shots changed and why"]
+}

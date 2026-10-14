@@ -1,0 +1,109 @@
+{
+ "clips": {
+  "IMG_4839": {
+   "genuine_boxes": 1996,
+   "in_zone": 407,
+   "width_in_zone": {
+    "min": 12.300000000000011,
+    "p1": 14.806000000000012,
+    "p5": 16.30000000000001,
+    "median": 23.299999999999983
+   },
+   "score_in_zone": {
+    "p5": 0.4269,
+    "median": 0.825
+   },
+   "longest_still_frames_within_3px": 5,
+   "longest_still_frames_within_6px": 9,
+   "busiest_cell_share_of_any_20s_genuine": 0.03,
+   "busiest_cell_share_of_any_20s_all_boxes": 0.03
+  },
+  "IMG_4840": {
+   "genuine_boxes": 2014,
+   "in_zone": 452,
+   "width_in_zone": {
+    "min": 10.900000000000006,
+    "p1": 15.651000000000005,
+    "p5": 18.955000000000002,
+    "median": 22.899999999999977
+   },
+   "score_in_zone": {
+    "p5": 0.49395,
+    "median": 0.847
+   },
+   "longest_still_frames_within_3px": 7,
+   "longest_still_frames_within_6px": 10,
+   "busiest_cell_share_of_any_20s_genuine": 0.023333333333333334,
+   "busiest_cell_share_of_any_20s_all_boxes": 0.023333333333333334
+  },
+  "IMG_4851": {
+   "genuine_boxes": 1112,
+   "in_zone": 269,
+   "width_in_zone": {
+    "min": 13.900000000000006,
+    "p1": 15.067999999999996,
+    "p5": 16.239999999999988,
+    "median": 21.200000000000017
+   },
+   "score_in_zone": {
+    "p5": 0.4514,
+    "median": 0.818
+   },
+   "longest_still_frames_within_3px": 6,
+   "longest_still_frames_within_6px": 9,
+   "busiest_cell_share_of_any_20s_genuine": 0.03333333333333333,
+   "busiest_cell_share_of_any_20s_all_boxes": 0.03333333333333333
+  },
+  "IMG_4866": {
+   "genuine_boxes": 1415,
+   "in_zone": 395,
+   "width_in_zone": {
+    "min": 11.400000000000006,
+    "p1": 17.093999999999994,
+    "p5": 19.470000000000002,
+    "median": 23.19999999999999
+   },
+   "score_in_zone": {
+    "p5": 0.7177,
+    "median": 0.89
+   },
+   "longest_still_frames_within_3px": 6,
+   "longest_still_frames_within_6px": 9,
+   "busiest_cell_share_of_any_20s_genuine": 0.02666666666666667,
+   "busiest_cell_share_of_any_20s_all_boxes": 0.02666666666666667
+  },
+  "IMG_4867": {
+   "genuine_boxes": 1098,
+   "in_zone": 272,
+   "width_in_zone": {
+    "min": 13.300000000000011,
+    "p1": 15.484000000000002,
+    "p5": 16.955000000000002,
+    "median": 23.349999999999994
+   },
+   "score_in_zone": {
+    "p5": 0.50115,
+    "median": 0.873
+   },
+   "longest_still_frames_within_3px": 4,
+   "longest_still_frames_within_6px": 9,
+   "busiest_cell_share_of_any_20s_genuine": 0.016666666666666666,
+   "busiest_cell_share_of_any_20s_all_boxes": 0.016666666666666666
+  }
+ },
+ "pooled": {
+  "genuine_zone_boxes": 1795,
+  "width": {
+   "min": 10.900000000000006,
+   "p1": 15,
+   "p5": 17.299999999999983,
+   "median": 23
+  },
+  "score": {
+   "p5": 0.48169999999999996,
+   "p1": 0.30188
+  },
+  "longest_still_within_3px_any_clip": 7,
+  "busiest_cell_share_any_20s_any_clip": 0.03333333333333333
+ }
+}
