@@ -1,0 +1,26 @@
+{
+  "registered": "2026-10-15",
+  "status": "ADDENDUM TO criteria.json, registered BEFORE any shot-level result or any evaluate-stage result exists for the tracker. criteria.json is unchanged; T1-T13 apply verbatim. These are design completions found by unit-testing release-from-rest and rest-after-flight, not changes chosen from results.",
+  "what_happened": "The tracker's first unit tests of the shot machine failed in two physically essential cases: (1) a held ball released from rest jumps about 22 px in one frame while a stationary track's gate is a few px, so the ball starts a new track at the moment of release; (2) a ball that stops (a rest on the rim after a flight) arrives as a new track with no motion history, so the clutter rule treated a legitimate rest as static clutter. A background evaluate run with the old tracker was stopped and discarded; selection.json (the registered tuning, run on development clips with the old tracker's motion models, which are unchanged) is kept. A third gap was found while tracing the release test (the frame AFTER the release step): the fix is the model restart below. All three were found by unit tests on synthetic scenes before any real-footage shot-level result existed.",
+  "added_fixed_parameters": {
+    "release_allowance": {
+      "px_per_ref_frame": 10,
+      "what": "a track whose motion state is stationary gates with extra velocity uncertainty: variance += (10 x dt)^2 on each axis",
+      "why": "a release from rest reaches 20+ px per frame (the cap is 30); 10 makes a 22 px first step about 2 sigma, so release is associated, while the gate stays far tighter than the cap and the relative size gate [0.5, 2] still stops a small box capturing a ball-sized track"
+    },
+    "successor_link_also_from_last_observation": "the machine links a new track to a shot's owner if it starts within 12 frames and within 40 px of the owner's predicted position OR of the owner's last observed position (an abrupt stop or a rim bounce breaks the prediction, not the place)",
+    "lineage_for_clutter": "when a track is a linked successor, the 45-frame 'recent motion' test looks at all of the shot's tracks, so a ball that rests after a flight is not clutter because its predecessor moved",
+    "model_restart_at_release": {
+      "speed_px_per_ref_frame": 6,
+      "what": "when a stationary track is matched with a step of at least 6 px per reference frame, its motion model is re-initialised at the last observed position with fresh velocity uncertainty before the update",
+      "why": "after a long rest the filter's velocity uncertainty is tiny, so one release step barely changes its velocity and the next prediction misses by about 15 px; a restart makes the second frame of the flight associable. 6 is above the largest jitter speed of a held ball and far below a release speed"
+    }
+  },
+  "unchanged": [
+    "the models and the tuning grid and rule",
+    "every threshold in criteria.json",
+    "the size gate",
+    "the spot memory",
+    "the clutter definition apart from the lineage"
+  ]
+}

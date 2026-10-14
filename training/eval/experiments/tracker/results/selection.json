@@ -1,0 +1,234 @@
+{
+ "registered_rule": "causal prediction error from the model's filter run over each run's history; score = mean over cells (fps 30 and 15 x region free_flight and near_rim x horizon 1..6) of (median + p95) / 2 px, pooled over the development clips, cells with fewer than 30 samples or 10 flights skipped. Each model takes its best grid point; the selected tracker model is the lowest score; within 2% prefer fewer parameters in the order cv, bal, ca, hyb.",
+ "grid": {
+  "q2_accel_density_for_order2_axes": [
+   0.05,
+   0.2,
+   0.8
+  ],
+  "q3_jerk_density_for_order3_axes": [
+   0.0005,
+   0.005,
+   0.05
+  ],
+  "R_measurement_variance_px2": [
+   1,
+   2.25,
+   4
+  ],
+  "interpolation_window_points_each_side_W": [
+   2,
+   3,
+   4,
+   6
+  ]
+ },
+ "models": {
+  "cv": {
+   "best": {
+    "config": "cv|0.8|-|1",
+    "params": {
+     "q2": 0.8,
+     "R": 1
+    },
+    "score": 44.211732036087305,
+    "cells": 24
+   },
+   "runner_up": {
+    "config": "cv|0.8|-|2.25",
+    "params": {
+     "q2": 0.8,
+     "R": 2.25
+    },
+    "score": 46.59116493866341,
+    "cells": 24
+   },
+   "all_configs_scored": 9,
+   "interpolation_score_by_W": {
+    "2": {
+     "score": 14.503633156550267,
+     "cells": 24
+    },
+    "3": {
+     "score": 19.670300570805527,
+     "cells": 24
+    },
+    "4": {
+     "score": 24.985860144232877,
+     "cells": 24
+    },
+    "6": {
+     "score": 34.754569259495604,
+     "cells": 24
+    }
+   },
+   "interpolation_W": 2
+  },
+  "ca": {
+   "best": {
+    "config": "ca|-|0.05|1",
+    "params": {
+     "q3": 0.05,
+     "R": 1
+    },
+    "score": 51.96178833410725,
+    "cells": 24
+   },
+   "runner_up": {
+    "config": "ca|-|0.05|2.25",
+    "params": {
+     "q3": 0.05,
+     "R": 2.25
+    },
+    "score": 53.404292065852616,
+    "cells": 24
+   },
+   "all_configs_scored": 9,
+   "interpolation_score_by_W": {
+    "2": {
+     "score": 3.9521586215866438,
+     "cells": 24
+    },
+    "3": {
+     "score": 4.659151862178255,
+     "cells": 24
+    },
+    "4": {
+     "score": 6.043816193565688,
+     "cells": 24
+    },
+    "6": {
+     "score": 10.19363329189249,
+     "cells": 24
+    }
+   },
+   "interpolation_W": 2
+  },
+  "bal": {
+   "best": {
+    "config": "bal|0.8|0.05|1",
+    "params": {
+     "q2": 0.8,
+     "q3": 0.05,
+     "R": 1
+    },
+    "score": 49.11431150475099,
+    "cells": 24
+   },
+   "runner_up": {
+    "config": "bal|0.2|0.05|1",
+    "params": {
+     "q2": 0.2,
+     "q3": 0.05,
+     "R": 1
+    },
+    "score": 49.59695869961033,
+    "cells": 24
+   },
+   "all_configs_scored": 27,
+   "interpolation_score_by_W": {
+    "2": {
+     "score": 5.830081159988033,
+     "cells": 24
+    },
+    "3": {
+     "score": 7.538269391165297,
+     "cells": 24
+    },
+    "4": {
+     "score": 9.637236136027052,
+     "cells": 24
+    },
+    "6": {
+     "score": 14.473397267303755,
+     "cells": 24
+    }
+   },
+   "interpolation_W": 2
+  },
+  "hyb": {
+   "best": {
+    "config": "hyb|0.8|0.05|1",
+    "params": {
+     "q2": 0.8,
+     "q3": 0.05,
+     "R": 1
+    },
+    "score": 45.30961232657836,
+    "cells": 24
+   },
+   "runner_up": {
+    "config": "hyb|0.8|0.005|1",
+    "params": {
+     "q2": 0.8,
+     "q3": 0.005,
+     "R": 1
+    },
+    "score": 45.51770456410724,
+    "cells": 24
+   },
+   "all_configs_scored": 27,
+   "interpolation_score_by_W": {
+    "2": {
+     "score": 5.949209939364878,
+     "cells": 24
+    },
+    "3": {
+     "score": 7.575332869588301,
+     "cells": 24
+    },
+    "4": {
+     "score": 9.647079018618376,
+     "cells": 24
+    },
+    "6": {
+     "score": 14.529925586778553,
+     "cells": 24
+    }
+   },
+   "interpolation_W": 2
+  }
+ },
+ "selected": {
+  "model": "cv",
+  "params": {
+   "q2": 0.8,
+   "R": 1
+  },
+  "interpolation_W": 2,
+  "why": "lowest dev score 44.212; first in parameter-count order within 2%"
+ },
+ "per_model_frozen": {
+  "cv": {
+   "params": {
+    "q2": 0.8,
+    "R": 1
+   },
+   "W": 2
+  },
+  "ca": {
+   "params": {
+    "q3": 0.05,
+    "R": 1
+   },
+   "W": 2
+  },
+  "bal": {
+   "params": {
+    "q2": 0.8,
+    "q3": 0.05,
+    "R": 1
+   },
+   "W": 2
+  },
+  "hyb": {
+   "params": {
+    "q2": 0.8,
+    "q3": 0.05,
+    "R": 1
+   },
+   "W": 2
+  }
+ },
+ "criteria_sha256": "1894634289888eaeaf552f924814793f37cf6a5ee2a2a3524536100a11bfebe2"
+}
