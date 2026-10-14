@@ -52,7 +52,7 @@ function load(clip, file = clip.detections.ball6) {
   return { frames: d.frames, byF };
 }
 
-const out = { generated: new Date().toISOString(), criteria_sha256: sha256(path.join(DIR, "criteria.json")), thresholds_sha256: sha256(path.join(EVAL, "thresholds.json")), baseline_report: "baseline-v0", seeds: { injection: crit.protocol.synthetic_injection.seed_base, stall: crit.protocol.stall_simulation.seed_base } };
+const out = { generated: new Date().toISOString(), criteria_sha256: sha256(path.join(DIR, "criteria.json")), criteria_v2_sha256: sha256(path.join(DIR, "criteria-v2.json")), criteria_v3_sha256: sha256(path.join(DIR, "criteria-v3.json")), thresholds_sha256: sha256(path.join(EVAL, "thresholds.json")), baseline_report: "baseline-v0", seeds: { injection: crit.protocol.synthetic_injection.seed_base, stall: crit.protocol.stall_simulation.seed_base } };
 
 // ---------------------------------------------------------------- 0. the baseline must be reproduced exactly
 const repro = [];

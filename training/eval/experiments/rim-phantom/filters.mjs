@@ -7,6 +7,7 @@ import path from "node:path";
 
 const cx = (b) => (b.x1 + b.x2) / 2, cy = (b) => (b.y1 + b.y2) / 2, wd = (b) => b.x2 - b.x1;
 const CRITERIA = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "criteria.json"), "utf8"));
+const CRITERIA_V3 = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "criteria-v3.json"), "utf8"));
 const CRITERIA_V2 = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "criteria-v2.json"), "utf8"));
 export const PARAMS = {
   A: CRITERIA.candidates.A_stationary_suppression.params,
@@ -14,6 +15,7 @@ export const PARAMS = {
   C50: CRITERIA.candidates.C50_size_gate.params,
   C60: CRITERIA.candidates.C60_size_gate.params,
   H: CRITERIA_V2.candidate.H_spot_memory_and_motion_proof.params,
+  H2: CRITERIA_V3.candidate.H2_current_proof.params,
 };
 
 /** No filter. */
@@ -59,7 +61,7 @@ export function stationary(p = PARAMS.A) {
  */
 export function createTracker(p = PARAMS.B) {
   let tracks = []; // { pts: [{f,x,y}], sx, sy, proven }
-  let started = 0, proved = 0;
+  let started = 0, proved = 0, revoked = 0;
   return {
     /** Returns Map(box -> proven) for this frame. Boxes are visited best score first. */
     update(f, boxes) {
@@ -77,15 +79,23 @@ export function createTracker(p = PARAMS.B) {
         }
         let t = best;
         if (t) t.pts.push({ f, x, y });
-        else { t = { pts: [{ f, x, y }], sx: x, sy: y, proven: false }; tracks.push(t); started += 1; }
+        else { t = { pts: [{ f, x, y }], sx: x, sy: y, proven: false, startF: f }; tracks.push(t); started += 1; }
         used.add(t);
+        if (p.revoke_window_ref_frames) {
+          // proof must be current: keep the track's recent points and revoke when they have not spread
+          t.recent = (t.recent ?? []).filter((q) => f - q.f < p.revoke_window_ref_frames); t.recent.push({ f, x, y });
+          if (t.proven && f - t.startF >= p.revoke_window_ref_frames && t.recent[0].f <= f - p.revoke_window_ref_frames + 2) {
+            const xs = t.recent.map((q) => q.x), ys = t.recent.map((q) => q.y);
+            if (Math.hypot(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) < p.revoke_range_px) { t.proven = false; t.sx = x; t.sy = y; revoked += 1; }
+          }
+        }
         if (!t.proven && Math.hypot(x - t.sx, y - t.sy) >= p.proof_distance_px) { t.proven = true; proved += 1; }
         proven.set(b, t.proven);
       }
       for (const t of tracks) if (t.pts.length > 8) t.pts.splice(0, t.pts.length - 8);
       return proven;
     },
-    stats: () => ({ tracks_started: started, tracks_proven: proved }),
+    stats: () => ({ tracks_started: started, tracks_proven: proved, proofs_revoked: revoked }),
   };
 }
 
@@ -107,7 +117,7 @@ export function trackGate(p = PARAMS.B) {
  * H (round 2, criteria-v2.json): drop a box only if its spot is occupied (A's test) AND its track has not proven it moves (B's test).
  */
 export function hybrid(p = PARAMS.H, name = "H_spot_memory_and_motion_proof") {
-  const tracker = createTracker({ gate_px_per_ref_frame: p.gate_px_per_ref_frame, max_gap_ref_frames: p.max_gap_ref_frames, proof_distance_px: p.proof_distance_px });
+  const tracker = createTracker({ gate_px_per_ref_frame: p.gate_px_per_ref_frame, max_gap_ref_frames: p.max_gap_ref_frames, proof_distance_px: p.proof_distance_px, revoke_window_ref_frames: p.revoke_window_ref_frames, revoke_range_px: p.revoke_range_px });
   const frames = [];
   let firstF = null, seen = 0, dropped = 0, droppedAtOccupied = 0;
   return {
@@ -164,6 +174,9 @@ export const CONFIGS = {
   "C50+B": () => chain(sizeGate(PARAMS.C50.min_width_px), trackGate()),
   H: () => hybrid(),
   // sensitivity only (criteria-v2.json): the one threshold varied, not eligible for recommendation
+  H2: () => hybrid(PARAMS.H2, "H2_current_proof"),
+  H2_r15: () => hybrid({ ...PARAMS.H2, revoke_window_ref_frames: 15 }, "H2_r15"),
+  H2_r30: () => hybrid({ ...PARAMS.H2, revoke_window_ref_frames: 30 }, "H2_r30"),
   H_share05: () => hybrid({ ...PARAMS.H, share_threshold: 0.05 }, "H_share05"),
   H_share02: () => hybrid({ ...PARAMS.H, share_threshold: 0.02 }, "H_share02"),
 };

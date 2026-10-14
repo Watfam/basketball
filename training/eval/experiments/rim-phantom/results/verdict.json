@@ -1,5 +1,18 @@
 {
  "applied": "2026-10-14",
+ "round2_criteria_sha256": "8722caec87441b61b46f0b979885a20a86054282c24475ead9405b11d6571ad5",
+ "eligible": [
+  "A",
+  "B",
+  "C50",
+  "C60",
+  "C50+B",
+  "H"
+ ],
+ "sensitivity_only": [
+  "H_share05",
+  "H_share02"
+ ],
  "criteria_sha256": "d79228f6b4e3d3934c7955be22085a09aee7cd7001ea3579ed99529eafce554d",
  "candidates": {
   "A": {
@@ -57,8 +70,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.0004870891571044922,
-      "worst_clip_mean_ms": 0.033951664343476295
+      "median_ms": 0.0004782676696777344,
+      "worst_clip_mean_ms": 0.05276686051750884
      },
      "S7_causality": {
       "pass": true,
@@ -119,8 +132,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.0004870891571044922,
-      "worst_clip_mean_ms": 0.033951664343476295
+      "median_ms": 0.0004782676696777344,
+      "worst_clip_mean_ms": 0.05276686051750884
      },
      "S7_causality": {
       "pass": true,
@@ -197,8 +210,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.0002651214599609375,
-      "worst_clip_mean_ms": 0.0014487383339334937
+      "median_ms": 0.0003210306167602539,
+      "worst_clip_mean_ms": 0.0015863973385091084
      },
      "S7_causality": {
       "pass": true,
@@ -269,8 +282,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.0002651214599609375,
-      "worst_clip_mean_ms": 0.0014487383339334937
+      "median_ms": 0.0003210306167602539,
+      "worst_clip_mean_ms": 0.0015863973385091084
      },
      "S7_causality": {
       "pass": true,
@@ -337,8 +350,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.00011539459228515625,
-      "worst_clip_mean_ms": 0.03275479639277739
+      "median_ms": 0.00011658668518066406,
+      "worst_clip_mean_ms": 0.0004862807362171922
      },
      "S7_causality": {
       "pass": true,
@@ -399,8 +412,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.00011539459228515625,
-      "worst_clip_mean_ms": 0.03275479639277739
+      "median_ms": 0.00011658668518066406,
+      "worst_clip_mean_ms": 0.0004862807362171922
      },
      "S7_causality": {
       "pass": true,
@@ -469,8 +482,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.00011444091796875,
-      "worst_clip_mean_ms": 0.00039872040459379253
+      "median_ms": 0.00011801719665527344,
+      "worst_clip_mean_ms": 0.00023705177826921115
      },
      "S7_causality": {
       "pass": true,
@@ -533,8 +546,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.00011444091796875,
-      "worst_clip_mean_ms": 0.00039872040459379253
+      "median_ms": 0.00011801719665527344,
+      "worst_clip_mean_ms": 0.00023705177826921115
      },
      "S7_causality": {
       "pass": true,
@@ -611,8 +624,8 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.0003070831298828125,
-      "worst_clip_mean_ms": 0.0012133801010501466
+      "median_ms": 0.0003898143768310547,
+      "worst_clip_mean_ms": 0.001729776514560142
      },
      "S7_causality": {
       "pass": true,
@@ -683,8 +696,398 @@
      },
      "S6_overhead": {
       "pass": true,
-      "median_ms": 0.0003070831298828125,
-      "worst_clip_mean_ms": 0.0012133801010501466
+      "median_ms": 0.0003898143768310547,
+      "worst_clip_mean_ms": 0.001729776514560142
+     },
+     "S7_causality": {
+      "pass": true,
+      "note": "unit-tested in filters.test.mjs (every configuration)"
+     },
+     "all_pass": false
+    }
+   },
+   "notes": [],
+   "passes_at_both_frame_rates": false
+  },
+  "H": {
+   "criteria": {
+    "30fps": {
+     "S1_no_harm_on_other_clips": {
+      "pass": true,
+      "pooled_gained": 0,
+      "pooled_lost": 0,
+      "net": 0,
+      "mcnemar_exact_p": 1,
+      "clips_losing_2_or_more": []
+     },
+     "S2_phantom_suppression": {
+      "pass": false,
+      "oracle_phantom_suppressed": 0.9415977961432507,
+      "phantom_passed": "106 of 1815",
+      "injected": {
+       "duty0.2_spot0": 0.923,
+       "duty0.2_spot1": 0.875,
+       "duty0.42_spot0": 0.885,
+       "duty0.42_spot1": 0.789
+      }
+     },
+     "S2b_recovery_with_injection": {
+      "pass": false,
+      "mean_v4_right_with_injection": 99.3,
+      "clean_baseline_dev_v4_right": 107
+     },
+     "S3_separation_on_4873": {
+      "pass": true,
+      "counted": 23,
+      "matched": 22,
+      "v4_right": 21,
+      "needed_right": 15,
+      "baseline_right": 11
+     },
+     "S4_genuine_boxes": {
+      "pass": true,
+      "dev_boxes_dropped": "0 of 7682 (0.00%)",
+      "annotated_genuine_removed": "0 of 21",
+      "removed_ids": []
+     },
+     "S5_stall_survival_15": {
+      "pass": true,
+      "survived": "107 of 107",
+      "interval": {
+       "p": 1,
+       "lo": 0.9653415324210404,
+       "hi": 1,
+       "k": 107,
+       "n": 107
+      },
+      "failures": []
+     },
+     "S6_overhead": {
+      "pass": true,
+      "median_ms": 0.0004589557647705078,
+      "worst_clip_mean_ms": 0.03772089115398772
+     },
+     "S7_causality": {
+      "pass": true,
+      "note": "unit-tested in filters.test.mjs (every configuration)"
+     },
+     "all_pass": false
+    },
+    "15fps": {
+     "S1_no_harm_on_other_clips": {
+      "pass": true,
+      "pooled_gained": 0,
+      "pooled_lost": 0,
+      "net": 0,
+      "mcnemar_exact_p": 1,
+      "clips_losing_2_or_more": []
+     },
+     "S2_phantom_suppression": {
+      "pass": false,
+      "oracle_phantom_suppressed": 0.9419642857142857,
+      "phantom_passed": "52 of 896",
+      "injected": {
+       "duty0.2_spot0": 0.874,
+       "duty0.2_spot1": 0.768,
+       "duty0.42_spot0": 0.847,
+       "duty0.42_spot1": 0.766
+      }
+     },
+     "S2b_recovery_with_injection": {
+      "pass": false,
+      "mean_v4_right_with_injection": 97.3,
+      "clean_baseline_dev_v4_right": 106
+     },
+     "S3_separation_on_4873": {
+      "pass": true,
+      "counted": 23,
+      "matched": 22,
+      "v4_right": 20,
+      "needed_right": 16,
+      "baseline_right": 12
+     },
+     "S4_genuine_boxes": {
+      "pass": true,
+      "dev_boxes_dropped": "0 of 3777 (0.00%)",
+      "annotated_genuine_removed": "0 of 21",
+      "removed_ids": []
+     },
+     "S5_stall_survival_15": {
+      "pass": true,
+      "survived": "107 of 107",
+      "interval": {
+       "p": 1,
+       "lo": 0.9653415324210404,
+       "hi": 1,
+       "k": 107,
+       "n": 107
+      },
+      "failures": []
+     },
+     "S6_overhead": {
+      "pass": true,
+      "median_ms": 0.0004589557647705078,
+      "worst_clip_mean_ms": 0.03772089115398772
+     },
+     "S7_causality": {
+      "pass": true,
+      "note": "unit-tested in filters.test.mjs (every configuration)"
+     },
+     "all_pass": false
+    }
+   },
+   "notes": [],
+   "passes_at_both_frame_rates": false
+  },
+  "H_share05": {
+   "criteria": {
+    "30fps": {
+     "S1_no_harm_on_other_clips": {
+      "pass": true,
+      "pooled_gained": 0,
+      "pooled_lost": 0,
+      "net": 0,
+      "mcnemar_exact_p": 1,
+      "clips_losing_2_or_more": []
+     },
+     "S2_phantom_suppression": {
+      "pass": false,
+      "oracle_phantom_suppressed": 0.9415977961432507,
+      "phantom_passed": "106 of 1815",
+      "injected": {
+       "duty0.2_spot0": 0.91,
+       "duty0.2_spot1": 0.842,
+       "duty0.42_spot0": 0.885,
+       "duty0.42_spot1": 0.788
+      }
+     },
+     "S2b_recovery_with_injection": {
+      "pass": false,
+      "mean_v4_right_with_injection": 98.8,
+      "clean_baseline_dev_v4_right": 107
+     },
+     "S3_separation_on_4873": {
+      "pass": true,
+      "counted": 23,
+      "matched": 22,
+      "v4_right": 21,
+      "needed_right": 15,
+      "baseline_right": 11
+     },
+     "S4_genuine_boxes": {
+      "pass": true,
+      "dev_boxes_dropped": "0 of 7682 (0.00%)",
+      "annotated_genuine_removed": "0 of 21",
+      "removed_ids": []
+     },
+     "S5_stall_survival_15": {
+      "pass": true,
+      "survived": "107 of 107",
+      "interval": {
+       "p": 1,
+       "lo": 0.9653415324210404,
+       "hi": 1,
+       "k": 107,
+       "n": 107
+      },
+      "failures": []
+     },
+     "S6_overhead": {
+      "pass": true,
+      "median_ms": 0.00047850608825683594,
+      "worst_clip_mean_ms": 0.036930037114550084
+     },
+     "S7_causality": {
+      "pass": true,
+      "note": "unit-tested in filters.test.mjs (every configuration)"
+     },
+     "all_pass": false
+    },
+    "15fps": {
+     "S1_no_harm_on_other_clips": {
+      "pass": true,
+      "pooled_gained": 0,
+      "pooled_lost": 0,
+      "net": 0,
+      "mcnemar_exact_p": 1,
+      "clips_losing_2_or_more": []
+     },
+     "S2_phantom_suppression": {
+      "pass": false,
+      "oracle_phantom_suppressed": 0.9419642857142857,
+      "phantom_passed": "52 of 896",
+      "injected": {
+       "duty0.2_spot0": 0.863,
+       "duty0.2_spot1": 0.738,
+       "duty0.42_spot0": 0.847,
+       "duty0.42_spot1": 0.765
+      }
+     },
+     "S2b_recovery_with_injection": {
+      "pass": false,
+      "mean_v4_right_with_injection": 98.5,
+      "clean_baseline_dev_v4_right": 106
+     },
+     "S3_separation_on_4873": {
+      "pass": true,
+      "counted": 23,
+      "matched": 22,
+      "v4_right": 20,
+      "needed_right": 16,
+      "baseline_right": 12
+     },
+     "S4_genuine_boxes": {
+      "pass": true,
+      "dev_boxes_dropped": "0 of 3777 (0.00%)",
+      "annotated_genuine_removed": "0 of 21",
+      "removed_ids": []
+     },
+     "S5_stall_survival_15": {
+      "pass": true,
+      "survived": "107 of 107",
+      "interval": {
+       "p": 1,
+       "lo": 0.9653415324210404,
+       "hi": 1,
+       "k": 107,
+       "n": 107
+      },
+      "failures": []
+     },
+     "S6_overhead": {
+      "pass": true,
+      "median_ms": 0.00047850608825683594,
+      "worst_clip_mean_ms": 0.036930037114550084
+     },
+     "S7_causality": {
+      "pass": true,
+      "note": "unit-tested in filters.test.mjs (every configuration)"
+     },
+     "all_pass": false
+    }
+   },
+   "notes": [],
+   "passes_at_both_frame_rates": false
+  },
+  "H_share02": {
+   "criteria": {
+    "30fps": {
+     "S1_no_harm_on_other_clips": {
+      "pass": true,
+      "pooled_gained": 0,
+      "pooled_lost": 0,
+      "net": 0,
+      "mcnemar_exact_p": 1,
+      "clips_losing_2_or_more": []
+     },
+     "S2_phantom_suppression": {
+      "pass": false,
+      "oracle_phantom_suppressed": 0.9415977961432507,
+      "phantom_passed": "106 of 1815",
+      "injected": {
+       "duty0.2_spot0": 0.928,
+       "duty0.2_spot1": 0.881,
+       "duty0.42_spot0": 0.885,
+       "duty0.42_spot1": 0.79
+      }
+     },
+     "S2b_recovery_with_injection": {
+      "pass": false,
+      "mean_v4_right_with_injection": 99.3,
+      "clean_baseline_dev_v4_right": 107
+     },
+     "S3_separation_on_4873": {
+      "pass": true,
+      "counted": 23,
+      "matched": 22,
+      "v4_right": 21,
+      "needed_right": 15,
+      "baseline_right": 11
+     },
+     "S4_genuine_boxes": {
+      "pass": true,
+      "dev_boxes_dropped": "1 of 7682 (0.01%)",
+      "annotated_genuine_removed": "0 of 21",
+      "removed_ids": []
+     },
+     "S5_stall_survival_15": {
+      "pass": true,
+      "survived": "107 of 107",
+      "interval": {
+       "p": 1,
+       "lo": 0.9653415324210404,
+       "hi": 1,
+       "k": 107,
+       "n": 107
+      },
+      "failures": []
+     },
+     "S6_overhead": {
+      "pass": true,
+      "median_ms": 0.0004634857177734375,
+      "worst_clip_mean_ms": 0.03666143601431566
+     },
+     "S7_causality": {
+      "pass": true,
+      "note": "unit-tested in filters.test.mjs (every configuration)"
+     },
+     "all_pass": false
+    },
+    "15fps": {
+     "S1_no_harm_on_other_clips": {
+      "pass": true,
+      "pooled_gained": 0,
+      "pooled_lost": 0,
+      "net": 0,
+      "mcnemar_exact_p": 1,
+      "clips_losing_2_or_more": []
+     },
+     "S2_phantom_suppression": {
+      "pass": false,
+      "oracle_phantom_suppressed": 0.9419642857142857,
+      "phantom_passed": "52 of 896",
+      "injected": {
+       "duty0.2_spot0": 0.879,
+       "duty0.2_spot1": 0.774,
+       "duty0.42_spot0": 0.847,
+       "duty0.42_spot1": 0.767
+      }
+     },
+     "S2b_recovery_with_injection": {
+      "pass": false,
+      "mean_v4_right_with_injection": 96.8,
+      "clean_baseline_dev_v4_right": 106
+     },
+     "S3_separation_on_4873": {
+      "pass": true,
+      "counted": 24,
+      "matched": 22,
+      "v4_right": 21,
+      "needed_right": 16,
+      "baseline_right": 12
+     },
+     "S4_genuine_boxes": {
+      "pass": true,
+      "dev_boxes_dropped": "0 of 3777 (0.00%)",
+      "annotated_genuine_removed": "0 of 21",
+      "removed_ids": []
+     },
+     "S5_stall_survival_15": {
+      "pass": true,
+      "survived": "107 of 107",
+      "interval": {
+       "p": 1,
+       "lo": 0.9653415324210404,
+       "hi": 1,
+       "k": 107,
+       "n": 107
+      },
+      "failures": []
+     },
+     "S6_overhead": {
+      "pass": true,
+      "median_ms": 0.0004634857177734375,
+      "worst_clip_mean_ms": 0.03666143601431566
      },
      "S7_causality": {
       "pass": true,

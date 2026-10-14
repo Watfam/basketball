@@ -1,0 +1,29 @@
+{
+  "registered": "2026-10-14",
+  "status": "ROUND 3. Registered after rounds 1 and 2 were seen and BEFORE this candidate was run. criteria.json S1-S7 apply verbatim at both frame rates. Rounds 1 and 2 are preserved (experiment-round1/2.json, verdict-round1/2.json).",
+  "honest_labelling": "Third design on the same footage, each shaped by the previous round's failures (round 2's post-hoc classification: of 4,258 leaked injected phantom boxes, 3,392 rode a proven track that the static box had captured, and only 1,737 of those were in frames with a real ball in view). A pass shows consistency with the registered criteria after adaptive design, not blind generalization; no untouched footage exists. Three rounds is the limit: if this fails, the experiment ends and the failure is reported.",
+  "candidate": {
+    "H2_current_proof": {
+      "idea": "H, but proof of motion must be CURRENT. A proven track loses its proof when, over the last `revoke_window_ref_frames`, its boxes have spread less than `revoke_range_px`; its proof is then re-earned by moving `proof_distance_px` from where it was revoked. A static box that captures a ball's track is therefore un-proven after one revoke window instead of living on.",
+      "params": {
+        "radius_px": 8,
+        "window_ref_frames": 1200,
+        "min_history_ref_frames": 90,
+        "share_threshold": 0.03,
+        "gate_px_per_ref_frame": 30,
+        "max_gap_ref_frames": 8,
+        "proof_distance_px": 30,
+        "revoke_window_ref_frames": 20,
+        "revoke_range_px": 10
+      },
+      "why": "all H parameters unchanged. 20 reference frames (0.67 s) is just over twice the longest genuine still stretch on development clips (7 frames, within 3 px) and above the 15-frame stall S5 requires to survive; 10 px is a ball's jitter plus its slowest rolling over 20 frames, well under one ball width (24 px)."
+    }
+  },
+  "sensitivity_only_not_eligible": {
+    "H2_r15": "revoke window 15",
+    "H2_r30": "revoke window 30",
+    "purpose": "how dependent the result is on the one new parameter; not eligible, and r15 is not allowed to be chosen over r20 whatever it scores"
+  },
+  "criteria": "criteria.json S1_no_harm_on_other_clips .. S7_causality, unchanged",
+  "decision_rule": "as criteria.json. Pass at both frame rates or nothing is recommended."
+}

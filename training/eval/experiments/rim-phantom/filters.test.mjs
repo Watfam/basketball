@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CONFIGS, none, stationary, trackGate, sizeGate, hybrid, PARAMS } from "./filters.mjs";
+import { CONFIGS, none, stationary, trackGate, sizeGate, hybrid, createTracker, PARAMS } from "./filters.mjs";
 
 const box = (x, y, w = 24, score = 0.8) => ({ x1: x - w / 2, y1: y - w / 2, x2: x + w / 2, y2: y + w / 2, score });
 const run = (make, frames) => { const f = make(); return frames.map(([n, boxes]) => f.push(n, boxes)); };
@@ -114,4 +114,34 @@ test("H: nothing is dropped during the 3 s warm-up, and a never-moving box is dr
 
 test("H parameters match criteria-v2.json", () => {
   assert.deepEqual(PARAMS.H, { radius_px: 8, window_ref_frames: 1200, min_history_ref_frames: 90, share_threshold: 0.03, gate_px_per_ref_frame: 30, max_gap_ref_frames: 8, proof_distance_px: 30 });
+});
+
+test("H2: proof is revoked when a proven track stops spreading, and re-earned by moving again", () => {
+  const tr = createTracker({ gate_px_per_ref_frame: 30, max_gap_ref_frames: 8, proof_distance_px: 30, revoke_window_ref_frames: 20, revoke_range_px: 10 });
+  const step = (f, x, y) => { const b = box(x, y); return tr.update(f, [b]).get(b); };
+  const flightPts = Array.from({ length: 8 }, (_, i) => step(i, 100 + 5 * i, 10 * i));
+  assert.equal(flightPts[7], true, "proven in flight");
+  let last; for (let f = 8; f < 45; f += 1) last = step(f, 135 + (f % 2), 70);
+  assert.equal(last, false, "revoked after 20 frames without spreading");
+  let again; for (let i = 0; i < 6; i += 1) again = step(45 + i, 135 + 12 * i, 70 + 12 * i);
+  assert.equal(again, true, "re-earned by moving 30 px");
+});
+
+test("H2: a ball that stalls for 15 frames keeps its proof (the registered stall), and 7 frames certainly does", () => {
+  const tr = createTracker({ gate_px_per_ref_frame: 30, max_gap_ref_frames: 8, proof_distance_px: 30, revoke_window_ref_frames: 20, revoke_range_px: 10 });
+  for (let i = 0; i < 8; i += 1) { const b = box(100 + 5 * i, 10 * i); tr.update(i, [b]); }
+  let last; for (let f = 8; f < 8 + 15; f += 1) { const b = box(135, 70); last = tr.update(f, [b]).get(b); }
+  assert.equal(last, true);
+});
+
+test("H2: a static box that captures a flying ball's track stops being passed within about one revoke window of the ball leaving", () => {
+  const f = CONFIGS.H2();
+  const seq = merge(flight(1000, 12, 175, 160), phantom(0, 1500, 600, 0));
+  const out = run(() => f, seq);
+  const idx = (n) => seq.findIndex(([m]) => m === n);
+  assert.equal(out[idx(1100)].filter((b) => b.score === 0.5).length, 0, "long after the ball has gone the static box is dropped");
+});
+
+test("H2 is causal and the parameters match criteria-v3.json", () => {
+  assert.deepEqual(PARAMS.H2, { radius_px: 8, window_ref_frames: 1200, min_history_ref_frames: 90, share_threshold: 0.03, gate_px_per_ref_frame: 30, max_gap_ref_frames: 8, proof_distance_px: 30, revoke_window_ref_frames: 20, revoke_range_px: 10 });
 });

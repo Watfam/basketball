@@ -1,0 +1,16 @@
+{
+ "phantom_boxes": 1815,
+ "warmup": 89,
+ "proven_track": 17,
+ "proven_track_with_real_ball_box_in_same_frame": 14,
+ "proven_track_real_ball_missing": 3,
+ "spot_share_below_threshold": 0,
+ "leaked_total": 106,
+ "hop_episodes": 4,
+ "hop_episode_lengths_frames": [
+  15,
+  3,
+  1,
+  1
+ ]
+}

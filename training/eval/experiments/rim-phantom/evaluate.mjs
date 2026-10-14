@@ -9,8 +9,8 @@ const DIR = path.join(EVAL, "experiments/rim-phantom");
 const crit = readJSON("training/eval/experiments/rim-phantom/criteria.json"), ex = readJSON("training/eval/experiments/rim-phantom/results/experiment.json");
 if (ex.criteria_sha256 !== sha256(path.join(DIR, "criteria.json"))) { console.error("criteria.json changed since the experiment ran: the verdict is void"); process.exit(2); }
 const DEV = crit.data_use.tuning_and_parameter_derivation, ALL = crit.protocol.clips, OTHERS = ALL.filter((c) => c !== "IMG_4873");
-const CANDS = ["A", "B", "C50", "C60", "C50+B"], FPS = ["30fps", "15fps"];
-const verdict = { applied: crit.registered, criteria_sha256: ex.criteria_sha256, candidates: {} };
+const CANDS = ["A", "B", "C50", "C60", "C50+B", "H", "H_share05", "H_share02", "H2", "H2_r15", "H2_r30"], FPS = ["30fps", "15fps"];
+const verdict = { applied: crit.registered, round2_criteria_sha256: sha256(path.join(DIR, "criteria-v2.json")), round3_criteria_sha256: sha256(path.join(DIR, "criteria-v3.json")), eligible: ["A", "B", "C50", "C60", "C50+B", "H", "H2"], sensitivity_only: ["H_share05", "H_share02", "H2_r15", "H2_r30"], criteria_sha256: ex.criteria_sha256, candidates: {} };
 
 for (const c of CANDS) {
   const v = (verdict.candidates[c] = { criteria: {}, notes: [] });
