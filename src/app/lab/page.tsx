@@ -123,6 +123,9 @@ export default async function CameraLabPage() {
           <ButtonLink href="/lab/session-review" variant="secondary" size="lg">
             Session review (beta)
           </ButtonLink>
+          <ButtonLink href="/lab/camera-reference" variant="secondary" size="lg">
+            Camera reference (beta)
+          </ButtonLink>
           <ButtonLink href="/lab/calibrate" size="lg">
             Calibrate
           </ButtonLink>

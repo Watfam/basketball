@@ -1,0 +1,1812 @@
+{
+ "generated": "2026-10-15",
+ "F1": {
+  "IMG_4836": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 8,
+   "issues": [
+    "the lines found do not form a plausible backboard",
+    "the backboard frame is only partly visible (weakest edge 41 percent)"
+   ]
+  },
+  "IMG_4839": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 8,
+   "issues": [
+    "the backboard frame is only partly visible (weakest edge 31 percent)",
+    "the backboard frame is only partly visible (weakest edge 37 percent)"
+   ]
+  },
+  "IMG_4840": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 10,
+   "issues": []
+  },
+  "IMG_4844": {
+   "stills": 10,
+   "rimFound": 2,
+   "boardFound": 0,
+   "issues": [
+    "no orange rim was found near where the rim should be",
+    "the lines found do not form a plausible backboard",
+    "the backboard frame is only partly visible (weakest edge 11 percent)"
+   ]
+  },
+  "IMG_4851": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 7,
+   "issues": [
+    "the backboard frame is only partly visible (weakest edge 48 percent)",
+    "the backboard frame is only partly visible (weakest edge 42 percent)",
+    "the backboard frame is only partly visible (weakest edge 45 percent)"
+   ]
+  },
+  "IMG_4866": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 10,
+   "issues": []
+  },
+  "IMG_4867": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 10,
+   "issues": []
+  },
+  "IMG_4872": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 9,
+   "issues": [
+    "the lines found do not form a plausible backboard"
+   ]
+  },
+  "IMG_4873": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 10,
+   "issues": []
+  },
+  "IMG_4874": {
+   "stills": 10,
+   "rimFound": 10,
+   "boardFound": 6,
+   "issues": [
+    "the backboard frame is only partly visible (weakest edge 22 percent)",
+    "the backboard frame is only partly visible (weakest edge 46 percent)",
+    "the backboard frame is only partly visible (weakest edge 5 percent)",
+    "the backboard frame is only partly visible (weakest edge 2 percent)"
+   ]
+  }
+ },
+ "F7": {
+  "stills": 100,
+  "medianMs": 356,
+  "p95Ms": 1047,
+  "note": "Node 20 on this Mac at 1920x1080 (the full-resolution path); not a phone number."
+ },
+ "gate": {
+  "IMG_4836": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size"
+   ],
+   "sdA": {
+    "posX": 0.0006,
+    "posY": 0.0011,
+    "size": 0.0571,
+    "az": 0.0575,
+    "off": 0.0478,
+    "asp": 0.0079,
+    "elev": 0.2289,
+    "roll": 0.4703
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4839": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "sdA": {
+    "posX": 0.0003,
+    "posY": 0.0007,
+    "size": 0.0416,
+    "az": 0.0427,
+    "off": 0.0209,
+    "asp": 0.0073,
+    "elev": 0.1307,
+    "roll": 0.5877
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4840": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "sdA": {
+    "posX": 0.0001,
+    "posY": 0.0011,
+    "size": 0.0388,
+    "az": 0.04,
+    "off": 0.0033,
+    "asp": 0.0109,
+    "elev": 0.123,
+    "roll": 0.3549
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4844": {
+   "A": [],
+   "B": [],
+   "sdA": {
+    "posX": 0,
+    "posY": 0,
+    "size": 0,
+    "az": null,
+    "off": null,
+    "asp": null,
+    "elev": 0,
+    "roll": null
+   },
+   "rimFoundA": 1,
+   "rimFoundB": 1
+  },
+  "IMG_4851": {
+   "A": [
+    "posX",
+    "posY",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY"
+   ],
+   "sdA": {
+    "posX": 0.0042,
+    "posY": 0.0007,
+    "size": 0.2544,
+    "az": 0.5738,
+    "off": 0.7989,
+    "asp": 0.7289,
+    "elev": 0.3071,
+    "roll": 0.6574
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4866": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "sdA": {
+    "posX": 0.0005,
+    "posY": 0.0023,
+    "size": 0.0303,
+    "az": 0.0338,
+    "off": 0.0153,
+    "asp": 0.0126,
+    "elev": 0.1744,
+    "roll": 0.1987
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4867": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "sdA": {
+    "posX": 0.0002,
+    "posY": 0.0004,
+    "size": 0.0391,
+    "az": 0.0423,
+    "off": 0.0048,
+    "asp": 0.0065,
+    "elev": 0.0766,
+    "roll": 0.5597
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4872": {
+   "A": [
+    "posX",
+    "posY",
+    "az",
+    "off",
+    "asp"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "asp"
+   ],
+   "sdA": {
+    "posX": 0.0005,
+    "posY": 0.0002,
+    "size": 0.105,
+    "az": 0.0659,
+    "off": 0.0359,
+    "asp": 0.0076,
+    "elev": 0.1092,
+    "roll": 1.4326
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4873": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp"
+   ],
+   "sdA": {
+    "posX": 0.0004,
+    "posY": 0.0004,
+    "size": 0.0418,
+    "az": 0.0449,
+    "off": 0.0171,
+    "asp": 0.0017,
+    "elev": 0.0415,
+    "roll": 0.4977
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  },
+  "IMG_4874": {
+   "A": [
+    "posX",
+    "posY",
+    "size",
+    "az",
+    "off",
+    "asp",
+    "roll"
+   ],
+   "B": [
+    "posX",
+    "posY",
+    "size"
+   ],
+   "sdA": {
+    "posX": 0.0004,
+    "posY": 0.0015,
+    "size": 0.0138,
+    "az": 0.016,
+    "off": 0.034,
+    "asp": 0.0142,
+    "elev": 0.0323,
+    "roll": 0.1785
+   },
+   "rimFoundA": 5,
+   "rimFoundB": 5
+  }
+ },
+ "pooledDevGatePassing": {
+  "posX": 0.0023,
+  "posY": 0.0012,
+  "size": 0.0351,
+  "az": 0.0362,
+  "off": 0.0167,
+  "asp": 0.0087,
+  "elev": null,
+  "roll": 0.4586
+ },
+ "pooledValidationGatePassing": {
+  "posX": 0.0006,
+  "posY": 0.0011,
+  "size": 0.0445,
+  "az": 0.0472,
+  "off": 0.0269,
+  "asp": 0.0111,
+  "elev": null,
+  "roll": 0.4025
+ },
+ "pooledDevStrict": {
+  "posX": 0.0023,
+  "posY": 0.0012,
+  "size": 0.1695,
+  "az": 0.1724,
+  "off": 0.2387,
+  "asp": 0.2258,
+  "elev": 0.1907,
+  "roll": 0.4832
+ },
+ "F3": {
+  "P1": [
+   {
+    "clip": "IMG_4836",
+    "class": "unknown",
+    "reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ]
+   },
+   {
+    "clip": "IMG_4839",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "clip": "IMG_4840",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "clip": "IMG_4851",
+    "class": "unknown",
+    "reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ]
+   },
+   {
+    "clip": "IMG_4866",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "clip": "IMG_4867",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "clip": "IMG_4872",
+    "class": "unknown",
+    "reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ]
+   },
+   {
+    "clip": "IMG_4873",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "clip": "IMG_4874",
+    "class": "unknown",
+    "reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ]
+   }
+  ],
+  "P1_tally": {
+   "unknown": 4,
+   "comparable": 5
+  },
+  "P2": [
+   {
+    "pair": "4839-A vs 4840-A",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "pair": "4839-A vs 4840-B",
+    "class": "comparable",
+    "reasons": []
+   },
+   {
+    "pair": "4839-B vs 4840-A",
+    "class": "unknown",
+    "reasons": [
+     "the rim position or size is too close to the limit to call"
+    ]
+   },
+   {
+    "pair": "4839-B vs 4840-B",
+    "class": "unknown",
+    "reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ]
+   }
+  ],
+  "P2_tally": {
+   "comparable": 2,
+   "unknown": 2
+  },
+  "note": "P1 = descriptor of stills 1,3,5,7,9 vs descriptor of stills 2,4,6,8,10 of the same clip (an implementation of P1 for descriptors; IMG_4844 excluded because its camera moved)."
+ },
+ "F6": {
+  "pairs": [
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4839",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.016,
+     "shiftY": -0.083,
+     "scale": 1.025,
+     "ncc": 0.702
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4840",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.021,
+     "shiftY": -0.083,
+     "scale": 1.025,
+     "ncc": 0.661
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4844",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.083,
+     "shiftY": -0.065,
+     "scale": 1.413,
+     "ncc": 0.15
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4851",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.135,
+     "shiftY": -0.111,
+     "scale": 0.976,
+     "ncc": 0.25
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4866",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.089,
+     "shiftY": 0.148,
+     "scale": 1.413,
+     "ncc": 0.232
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4867",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.005,
+     "shiftY": -0.083,
+     "scale": 1.051,
+     "ncc": 0.557
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the rim position or size is too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4872",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": -0.005,
+     "shiftY": -0.093,
+     "scale": 1.051,
+     "ncc": 0.486
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.146,
+     "shiftY": -0.111,
+     "scale": 1.413,
+     "ncc": 0.116
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4836",
+    "b": "IMG_4874",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": 0.016,
+     "shiftY": -0.148,
+     "scale": 1.025,
+     "ncc": 0.483
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the rim position or size is too close to the limit to call"
+    ],
+    "m0": "not_recorded"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4840",
+    "truth": "same_camera",
+    "bg": {
+     "shiftX": 0,
+     "shiftY": 0,
+     "scale": 1,
+     "ncc": 0.899
+    },
+    "m1": "comparable",
+    "m1reasons": [],
+    "m0": "comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4844",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.13,
+     "shiftY": -0.148,
+     "scale": 1.189,
+     "ncc": 0.169
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4851",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.13,
+     "shiftY": -0.028,
+     "scale": 0.952,
+     "ncc": 0.202
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4866",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.146,
+     "shiftY": 0.148,
+     "scale": 1.218,
+     "ncc": 0.171
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4867",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": 0.021,
+     "shiftY": 0.009,
+     "scale": 1.025,
+     "ncc": 0.468
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4872",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": 0.01,
+     "shiftY": -0.009,
+     "scale": 1.025,
+     "ncc": 0.576
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.01,
+     "shiftY": -0.148,
+     "scale": 0.708,
+     "ncc": 0.211
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4839",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.026,
+     "shiftY": -0.065,
+     "scale": 0.976,
+     "ncc": 0.562
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4844",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.021,
+     "shiftY": 0.083,
+     "scale": 1.104,
+     "ncc": 0.15
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4851",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.104,
+     "shiftY": -0.028,
+     "scale": 0.952,
+     "ncc": 0.214
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4866",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.146,
+     "shiftY": 0.148,
+     "scale": 1.218,
+     "ncc": 0.172
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4867",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": 0.021,
+     "shiftY": 0.009,
+     "scale": 1.025,
+     "ncc": 0.42
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4872",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": 0.016,
+     "shiftY": -0.009,
+     "scale": 1.025,
+     "ncc": 0.555
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.036,
+     "shiftY": -0.148,
+     "scale": 0.708,
+     "ncc": 0.175
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4840",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.031,
+     "shiftY": -0.065,
+     "scale": 1,
+     "ncc": 0.526
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4844",
+    "b": "IMG_4851",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.063,
+     "shiftY": 0.083,
+     "scale": 0.884,
+     "ncc": 0.113
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4844",
+    "b": "IMG_4866",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.115,
+     "shiftY": 0.139,
+     "scale": 0.841,
+     "ncc": 0.108
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4844",
+    "b": "IMG_4867",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.146,
+     "shiftY": 0.148,
+     "scale": 0.884,
+     "ncc": 0.194
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4844",
+    "b": "IMG_4872",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.099,
+     "shiftY": -0.111,
+     "scale": 1.16,
+     "ncc": 0.17
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4844",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.083,
+     "shiftY": 0.037,
+     "scale": 0.929,
+     "ncc": 0.183
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4844",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.099,
+     "shiftY": -0.148,
+     "scale": 0.976,
+     "ncc": 0.182
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4851",
+    "b": "IMG_4866",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.073,
+     "shiftY": 0.148,
+     "scale": 1.379,
+     "ncc": 0.175
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4851",
+    "b": "IMG_4867",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.146,
+     "shiftY": -0.037,
+     "scale": 1.104,
+     "ncc": 0.222
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4851",
+    "b": "IMG_4872",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.057,
+     "shiftY": -0.139,
+     "scale": 1.345,
+     "ncc": 0.228
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4851",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.12,
+     "shiftY": 0.037,
+     "scale": 1.28,
+     "ncc": 0.129
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4851",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.125,
+     "shiftY": -0.148,
+     "scale": 1.025,
+     "ncc": 0.172
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "fewer than two viewing-angle measurements repeated well enough in both sessions"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4866",
+    "b": "IMG_4867",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.036,
+     "shiftY": 0.093,
+     "scale": 1.413,
+     "ncc": 0.246
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4866",
+    "b": "IMG_4872",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.052,
+     "shiftY": 0.046,
+     "scale": 1.413,
+     "ncc": 0.218
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4866",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.125,
+     "shiftY": -0.13,
+     "scale": 1.025,
+     "ncc": 0.29
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4866",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.021,
+     "shiftY": -0.037,
+     "scale": 1.413,
+     "ncc": 0.161
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4867",
+    "b": "IMG_4872",
+    "truth": "unresolved",
+    "bg": {
+     "shiftX": -0.01,
+     "shiftY": -0.037,
+     "scale": 1.025,
+     "ncc": 0.357
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "comparable"
+   },
+   {
+    "a": "IMG_4867",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": -0.021,
+     "shiftY": -0.148,
+     "scale": 0.708,
+     "ncc": 0.162
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4867",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.005,
+     "shiftY": -0.093,
+     "scale": 0.976,
+     "ncc": 0.349
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4872",
+    "b": "IMG_4873",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.021,
+     "shiftY": -0.148,
+     "scale": 0.744,
+     "ncc": 0.206
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4872",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.016,
+     "shiftY": -0.065,
+     "scale": 1,
+     "ncc": 0.782
+    },
+    "m1": "unknown",
+    "m1reasons": [
+     "the viewing-angle measurements are too close to the limit to call"
+    ],
+    "m0": "not_comparable"
+   },
+   {
+    "a": "IMG_4873",
+    "b": "IMG_4874",
+    "truth": "different_camera",
+    "bg": {
+     "shiftX": 0.026,
+     "shiftY": 0.148,
+     "scale": 1.189,
+     "ncc": 0.272
+    },
+    "m1": "normalizable",
+    "m1reasons": [
+     "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+    ],
+    "m0": "not_comparable"
+   }
+  ],
+  "summary": {
+   "same_camera": {
+    "n": 1,
+    "m1": {
+     "comparable": 1
+    },
+    "m0": {
+     "comparable": 1
+    }
+   },
+   "different_camera": {
+    "n": 37,
+    "m1": {
+     "unknown": 30,
+     "normalizable": 7
+    },
+    "m0": {
+     "not_recorded": 7,
+     "not_comparable": 30
+    }
+   },
+   "unresolved": {
+    "n": 7,
+    "m1": {
+     "unknown": 7
+    },
+    "m0": {
+     "not_recorded": 2,
+     "not_comparable": 2,
+     "comparable": 3
+    }
+   }
+  }
+ },
+ "camera_moved_4844": {
+  "rimFoundOf10": 2,
+  "background": {
+   "shiftX": -0.052083333333333336,
+   "shiftY": -0.009259259259259259,
+   "scale": 0.9518143961927426,
+   "ncc": 0.725,
+   "nccAtIdentity": 0.305
+  },
+  "M0": "not applicable (rim_native does not match the stills)"
+ },
+ "synthetic": {
+  "pan0.01": {
+   "kind": "P3",
+   "truth": "comparable",
+   "n": 6,
+   "comparable": 5,
+   "unknown": 1
+  },
+  "zoom1.04": {
+   "kind": "P3",
+   "truth": "comparable",
+   "n": 6,
+   "comparable": 5,
+   "unknown": 1
+  },
+  "roll0.5": {
+   "kind": "P3",
+   "truth": "comparable",
+   "n": 6,
+   "unknown": 3,
+   "comparable": 3
+  },
+  "bright0.85": {
+   "kind": "P3",
+   "truth": "comparable",
+   "n": 6,
+   "comparable": 5,
+   "unknown": 1
+  },
+  "bright1.15": {
+   "kind": "P3",
+   "truth": "comparable",
+   "n": 6,
+   "comparable": 5,
+   "unknown": 1
+  },
+  "pan0.03": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "normalizable": 5,
+   "unknown": 1
+  },
+  "pan0.08": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "normalizable": 5,
+   "unknown": 1
+  },
+  "zoom1.15": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "unknown": 6
+  },
+  "zoom1.30": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "normalizable": 5,
+   "unknown": 1
+  },
+  "zoom1.50": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "normalizable": 5,
+   "unknown": 1
+  },
+  "roll3": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "normalizable": 5,
+   "unknown": 1
+  },
+  "roll6": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "unknown": 6
+  },
+  "zoom1.2+pan0.05+roll3": {
+   "kind": "N",
+   "truth": "normalizable",
+   "n": 6,
+   "normalizable": 4,
+   "unknown": 2
+  }
+ },
+ "F3_P3": {
+  "n": 30,
+  "tally": {
+   "comparable": 23,
+   "unknown": 7
+  }
+ },
+ "F4": {
+  "n": 48,
+  "tally": {
+   "normalizable": 29,
+   "unknown": 19
+  },
+  "comparableWhenNormalizable": 0,
+  "notComparableWhenNormalizable": 0,
+  "byType": {
+   "pan0.03": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "pan0.08": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "zoom1.15": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "zoom1.30": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "zoom1.50": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "roll3": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "roll6": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   },
+   "zoom1.2+pan0.05+roll3": {
+    "n": 6,
+    "comparable": 0,
+    "not_comparable": 0
+   }
+  }
+ },
+ "F5": {
+  "label": "MODEL-BASED (orthographic hoop: board 72x42 in, rim 18 in, rim centre 15 in in front of the board; noise = the measured pooled per-still spread on gate-passing development clips). Not a real-image result.",
+  "draws": 1000,
+  "cells": [
+   {
+    "theta0": 10,
+    "dTheta": 0,
+    "dElev": 0,
+    "comparable": 0.974,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.026,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 0,
+    "dElev": 3,
+    "comparable": 0.98,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.02,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 0,
+    "dElev": 6,
+    "comparable": 0.984,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.016,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 0,
+    "dElev": 10,
+    "comparable": 0.98,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.02,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 0,
+    "dElev": 15,
+    "comparable": 0.069,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.931,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 5,
+    "dElev": 0,
+    "comparable": 0.086,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.914,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 10,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 1,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 15,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 1,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 20,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 0.997,
+    "unknown": 0.003,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 30,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 10,
+    "dTheta": 45,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 0,
+    "dElev": 0,
+    "comparable": 0.973,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.027,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 0,
+    "dElev": 3,
+    "comparable": 0.981,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.019,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 0,
+    "dElev": 6,
+    "comparable": 0.979,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.021,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 0,
+    "dElev": 10,
+    "comparable": 0.976,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.024,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 0,
+    "dElev": 15,
+    "comparable": 0.055,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.945,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 5,
+    "dElev": 0,
+    "comparable": 0.151,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.849,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 10,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 1,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 15,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 20,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 30,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 20,
+    "dTheta": 45,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 0,
+    "dElev": 0,
+    "comparable": 0.983,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.017,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 0,
+    "dElev": 3,
+    "comparable": 0.979,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.021,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 0,
+    "dElev": 6,
+    "comparable": 0.974,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.026,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 0,
+    "dElev": 10,
+    "comparable": 0.982,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.018,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 0,
+    "dElev": 15,
+    "comparable": 0.071,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.929,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 5,
+    "dElev": 0,
+    "comparable": 0.335,
+    "normalizable": 0,
+    "not_comparable": 0,
+    "unknown": 0.665,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 10,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 0.839,
+    "unknown": 0.161,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 15,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 20,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 30,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   },
+   {
+    "theta0": 40,
+    "dTheta": 45,
+    "dElev": 0,
+    "comparable": 0,
+    "normalizable": 0,
+    "not_comparable": 1,
+    "unknown": 0,
+    "M3_M0_like": {
+     "comparable": 1
+    }
+   }
+  ]
+ }
+}

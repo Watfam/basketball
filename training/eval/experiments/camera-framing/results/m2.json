@@ -1,0 +1,2282 @@
+{
+ "same": [
+  {
+   "clip": "IMG_4836",
+   "k": 1,
+   "score": 0.963,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0014833339835620563,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 2,
+   "score": 0.973,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009081223857914368,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 3,
+   "score": 0.993,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0012114827208020407,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 4,
+   "score": 0.991,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0015935381728026169,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 6,
+   "score": 0.994,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0007812500000000666,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 7,
+   "score": 0.971,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0007812500000000666,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 8,
+   "score": 0.97,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0015935381728026169,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 9,
+   "score": 0.963,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0019237002475225515,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4836",
+   "k": 10,
+   "score": 0.971,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018700727583399034,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 1,
+   "score": 0.858,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006968515381246385,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 2,
+   "score": 0.94,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00232941719474293,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 3,
+   "score": 0.951,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237613058,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 4,
+   "score": 0.968,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00026041666666665186,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 6,
+   "score": 0.95,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009259259259259411,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 7,
+   "score": 0.952,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018518518518518823,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 8,
+   "score": 0.918,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0014130920656337225,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 9,
+   "score": 0.894,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0015935381728026654,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "k": 10,
+   "score": 0.916,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0019237002475225816,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 1,
+   "score": 0.882,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005311793909341713,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 2,
+   "score": 0.926,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0023726851851851344,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 3,
+   "score": 0.941,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018700727583398488,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 4,
+   "score": 0.959,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00026041666666665186,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 6,
+   "score": 0.982,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0023148148148147696,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 7,
+   "score": 0.965,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018700727583398488,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 8,
+   "score": 0.904,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009259259259258856,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 9,
+   "score": 0.957,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0027777777777777124,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840",
+   "k": 10,
+   "score": 0.94,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018518518518518268,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 1,
+   "score": 0.908,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.005289997630567834,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 2,
+   "score": 0.941,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.004451224724202703,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 3,
+   "score": 0.948,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.011467682306501761,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 4,
+   "score": 0.965,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018807870370369855,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 6,
+   "score": 0.984,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.013481467620010323,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 7,
+   "score": 0.953,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003761574074074092,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 8,
+   "score": 0.935,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.008448281292080886,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 9,
+   "score": 0.896,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00600744897706343,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4851",
+   "k": 10,
+   "score": 0.896,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.010508851354459432,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 1,
+   "score": 0.95,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0012114827208019332,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 2,
+   "score": 0.928,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002314814814814825,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 3,
+   "score": 0.955,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002777777777777768,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 4,
+   "score": 0.94,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0012114827208020407,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 6,
+   "score": 0.971,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.000696851538124514,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 7,
+   "score": 0.961,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0032823266001127684,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 8,
+   "score": 0.79,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0033225102793411087,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 9,
+   "score": 0.932,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.001870072758339896,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "k": 10,
+   "score": 0.931,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0018518518518518823,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 1,
+   "score": 0.911,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0004629629629629428,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 2,
+   "score": 0.925,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0004629629629629428,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 3,
+   "score": 0.95,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 4,
+   "score": 0.957,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 6,
+   "score": 0.954,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 7,
+   "score": 0.95,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005311793909342258,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 8,
+   "score": 0.914,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0004629629629629983,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 9,
+   "score": 0.916,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006968515381246385,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "k": 10,
+   "score": 0.926,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005311793909342741,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 1,
+   "score": 0.884,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005208333333333037,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 2,
+   "score": 0.642,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005208333333333037,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 3,
+   "score": 0.639,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006968515381245555,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 4,
+   "score": 0.724,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0002604166666667629,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 6,
+   "score": 0.904,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00026041666666665186,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 7,
+   "score": 0.884,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 8,
+   "score": 0.873,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005311793909341713,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 9,
+   "score": 0.907,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0013020833333332593,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "k": 10,
+   "score": 0.853,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002134153809558636,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 1,
+   "score": 0.839,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0013937030762491572,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 2,
+   "score": 0.824,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0012114827208019692,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 3,
+   "score": 0.854,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237612757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 4,
+   "score": 0.871,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237612757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 6,
+   "score": 0.829,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0013937030762491572,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 7,
+   "score": 0.832,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237612757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 8,
+   "score": 0.811,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237612757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 9,
+   "score": 0.638,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237612757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "k": 10,
+   "score": 0.797,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009618501237612757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 1,
+   "score": 0.781,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0004629629629628873,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 2,
+   "score": 0.733,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0014833339835621602,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 3,
+   "score": 0.74,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005208333333333037,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 4,
+   "score": 0.689,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0014130920656337566,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 6,
+   "score": 0.679,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002372685185185243,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 7,
+   "score": 0.705,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002329417194742807,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 8,
+   "score": 0.729,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0023294171947429725,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 9,
+   "score": 0.534,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003404037307836218,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "k": 10,
+   "score": 0.687,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002885550371283827,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 1,
+   "score": 0.808,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.005198035086316126,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 2,
+   "score": 0.807,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0033335794742584304,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 3,
+   "score": 0.784,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003847400495045079,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 4,
+   "score": 0.745,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0015625000000000222,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 5,
+   "score": 0.786,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0013020833333333703,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 6,
+   "score": 0.75,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00265589695467096,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 7,
+   "score": 0.74,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003847400495045079,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 8,
+   "score": 0.76,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.004809250618806355,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 9,
+   "score": 0.749,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0030678119873389967,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839->IMG_4840",
+   "k": 10,
+   "score": 0.735,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003925919272192579,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 1,
+   "score": 0.685,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0009081223857913697,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 2,
+   "score": 0.743,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0025383926156783776,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 3,
+   "score": 0.755,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0013937030762490742,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 4,
+   "score": 0.774,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0015625000000000222,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 5,
+   "score": 0.786,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0013020833333333703,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 6,
+   "score": 0.759,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.001597735844013757,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 7,
+   "score": 0.74,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0022637968743135476,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 8,
+   "score": 0.715,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.001736111111111116,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 9,
+   "score": 0.708,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0014833339835621084,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4840->IMG_4839",
+   "k": 10,
+   "score": 0.718,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002009902197547725,
+   "sizeRatio": 1
+  }
+ ],
+ "different": [
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4839",
+   "score": 0.497,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.003845536306906946,
+   "sizeRatio": 0.966
+  },
+  {
+   "ref": "IMG_4839",
+   "query": "IMG_4836",
+   "score": 0.248,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.010250736905277212,
+   "sizeRatio": 0.892
+  },
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4840",
+   "score": 0.463,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.002897589728475724,
+   "sizeRatio": 0.95
+  },
+  {
+   "ref": "IMG_4840",
+   "query": "IMG_4836",
+   "score": 0.232,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.015483368256519907,
+   "sizeRatio": 0.85
+  },
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4844",
+   "score": 0.3,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4851",
+   "score": 0.2,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.34003853551136826,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4836",
+   "score": 0.188,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.23372802458507014,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4866",
+   "score": 0.236,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.4841486912713113,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4836",
+   "score": 0.201,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.02100575180879524,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4867",
+   "score": 0.477,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.001981532333740765,
+   "sizeRatio": 0.966
+  },
+  {
+   "ref": "IMG_4867",
+   "query": "IMG_4836",
+   "score": 0.248,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.017653574027583177,
+   "sizeRatio": 0.892
+  },
+  {
+   "ref": "IMG_4836",
+   "query": "IMG_4873",
+   "score": 0.176,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.10229761264494368,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4836",
+   "score": 0.207,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.01229603146242736,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4839",
+   "query": "IMG_4844",
+   "score": 0.193,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4839",
+   "query": "IMG_4851",
+   "score": 0.179,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.34401545066892597,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4839",
+   "score": 0.172,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.23632087353632533,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4839",
+   "query": "IMG_4866",
+   "score": 0.218,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.47910068976020026,
+   "sizeRatio": 0.807
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4839",
+   "score": 0.168,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.0525850645636398,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4839",
+   "query": "IMG_4873",
+   "score": 0.184,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.20096510080186572,
+   "sizeRatio": 0.85
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4839",
+   "score": 0.165,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.012642175223638353,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4839",
+   "query": "IMG_4874",
+   "score": 0.458,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.006732950866328853,
+   "sizeRatio": 1
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4839",
+   "score": 0.459,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.006732950866328938,
+   "sizeRatio": 1
+  },
+  {
+   "ref": "IMG_4840",
+   "query": "IMG_4844",
+   "score": 0.178,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4840",
+   "query": "IMG_4851",
+   "score": 0.175,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.3434825518650016,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4840",
+   "score": 0.169,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.23794334903872105,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4840",
+   "query": "IMG_4866",
+   "score": 0.214,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.486633850469474,
+   "sizeRatio": 0.85
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4840",
+   "score": 0.158,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.05388603633066299,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4840",
+   "query": "IMG_4873",
+   "score": 0.178,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.20336809033138967,
+   "sizeRatio": 0.807
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4840",
+   "score": 0.163,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.02448202834066545,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4840",
+   "query": "IMG_4874",
+   "score": 0.459,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.006502374147640115,
+   "sizeRatio": 1
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4840",
+   "score": 0.461,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.006502374147640171,
+   "sizeRatio": 1
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4844",
+   "score": 0.132,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4844",
+   "score": 0.172,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4867",
+   "query": "IMG_4844",
+   "score": 0.238,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4872",
+   "query": "IMG_4844",
+   "score": 0.196,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4844",
+   "score": 0.164,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4844",
+   "score": 0.207,
+   "usable": false,
+   "moved": true,
+   "rimErr": null,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4866",
+   "score": 0.213,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.42862723249403384,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4851",
+   "score": 0.146,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.41688597425528934,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4867",
+   "score": 0.206,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.2418528583750806,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4867",
+   "query": "IMG_4851",
+   "score": 0.183,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.3430775308027122,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4872",
+   "score": 0.129,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.2231083081777518,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4872",
+   "query": "IMG_4851",
+   "score": 0.144,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.3370919843821965,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4873",
+   "score": 0.139,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.34720792139061296,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4851",
+   "score": 0.116,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.2865900477963668,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4851",
+   "query": "IMG_4874",
+   "score": 0.133,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.2322475951033945,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4851",
+   "score": 0.146,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.34415547856887596,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4867",
+   "score": 0.203,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.013744193284167414,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4867",
+   "query": "IMG_4866",
+   "score": 0.201,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.4875256035660349,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4872",
+   "score": 0.162,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.27839869884176843,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4872",
+   "query": "IMG_4866",
+   "score": 0.169,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.4912211324209952,
+   "sizeRatio": 0.788
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4873",
+   "score": 0.233,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.024334627718008116,
+   "sizeRatio": 0.85
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4866",
+   "score": 0.191,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.025212727406887774,
+   "sizeRatio": 0.85
+  },
+  {
+   "ref": "IMG_4866",
+   "query": "IMG_4874",
+   "score": 0.163,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.29604993052655765,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4866",
+   "score": 0.185,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.4871901394120938,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4867",
+   "query": "IMG_4873",
+   "score": 0.177,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.21414542091013425,
+   "sizeRatio": 0.85
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4867",
+   "score": 0.172,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.009472825596380687,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4867",
+   "query": "IMG_4874",
+   "score": 0.3,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.013907569661186057,
+   "sizeRatio": 0.95
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4867",
+   "score": 0.303,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.016289506069141573,
+   "sizeRatio": 0.95
+  },
+  {
+   "ref": "IMG_4872",
+   "query": "IMG_4873",
+   "score": 0.163,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.1054099076396179,
+   "sizeRatio": 0.75
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4872",
+   "score": 0.178,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.0182014613613983,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4872",
+   "query": "IMG_4874",
+   "score": 0.581,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.00288555037128372,
+   "sizeRatio": 1
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4872",
+   "score": 0.581,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.00288555037128372,
+   "sizeRatio": 1
+  },
+  {
+   "ref": "IMG_4873",
+   "query": "IMG_4874",
+   "score": 0.175,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.012331689057595937,
+   "sizeRatio": 0.712
+  },
+  {
+   "ref": "IMG_4874",
+   "query": "IMG_4873",
+   "score": 0.178,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.10853230644920886,
+   "sizeRatio": 0.807
+  }
+ ],
+ "synthetic": [
+  {
+   "clip": "IMG_4839",
+   "op": "pan0.01",
+   "truth": "within",
+   "score": 0.966,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006250000000000977,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "zoom1.04",
+   "truth": "within",
+   "score": 0.797,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003501845121086717,
+   "sizeRatio": 1.026
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "roll0.5",
+   "truth": "within",
+   "score": 0.817,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0008921911534219891,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "bright0.85",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "bright1.15",
+   "truth": "within",
+   "score": 0.996,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "pan0.03",
+   "truth": "moved",
+   "score": 0.88,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0012499999999999734,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "pan0.08",
+   "truth": "moved",
+   "score": 0.853,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0016724436914989978,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "zoom1.15",
+   "truth": "moved",
+   "score": 0.282,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.014818856640849835,
+   "sizeRatio": 1.026
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "zoom1.30",
+   "truth": "moved",
+   "score": 0.209,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.02592340447007203,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "zoom1.50",
+   "truth": "moved",
+   "score": 0.179,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.023755317267933777,
+   "sizeRatio": 0.966
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "roll3",
+   "truth": "roll",
+   "score": 0.382,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0010705700621003362,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "roll6",
+   "truth": "roll",
+   "score": 0.279,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.007644066375821487,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4839",
+   "op": "zoom1.2+pan0.05+roll3",
+   "truth": "moved",
+   "score": 0.251,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.01516542482973288,
+   "sizeRatio": 1.08
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "pan0.01",
+   "truth": "within",
+   "score": 0.97,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006250000000000977,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "zoom1.04",
+   "truth": "within",
+   "score": 0.393,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.005403992695806186,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "roll0.5",
+   "truth": "within",
+   "score": 0.774,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00138154514747812,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "bright0.85",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "bright1.15",
+   "truth": "within",
+   "score": 0.995,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "pan0.03",
+   "truth": "moved",
+   "score": 0.894,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0012499999999999178,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "pan0.08",
+   "truth": "moved",
+   "score": 0.861,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0016724436914989564,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "zoom1.15",
+   "truth": "moved",
+   "score": 0.225,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.0031977658608427955,
+   "sizeRatio": 0.966
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "zoom1.30",
+   "truth": "moved",
+   "score": 0.184,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.0488739676776476,
+   "sizeRatio": 0.92
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "zoom1.50",
+   "truth": "moved",
+   "score": 0.15,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.1266849833252566,
+   "sizeRatio": 0.92
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "roll3",
+   "truth": "roll",
+   "score": 0.35,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.008105295975993083,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "roll6",
+   "truth": "roll",
+   "score": 0.262,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.013575430771167345,
+   "sizeRatio": 0.966
+  },
+  {
+   "clip": "IMG_4866",
+   "op": "zoom1.2+pan0.05+roll3",
+   "truth": "moved",
+   "score": 0.19,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.030467714258831945,
+   "sizeRatio": 0.92
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "pan0.01",
+   "truth": "within",
+   "score": 0.967,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006249999999999867,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "zoom1.04",
+   "truth": "within",
+   "score": 0.798,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.004131975956929349,
+   "sizeRatio": 1.026
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "roll0.5",
+   "truth": "within",
+   "score": 0.838,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0005541072672300005,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "bright0.85",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "bright1.15",
+   "truth": "within",
+   "score": 0.994,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "pan0.03",
+   "truth": "moved",
+   "score": 0.886,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0012499999999999734,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "pan0.08",
+   "truth": "moved",
+   "score": 0.862,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0016724436914989978,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "zoom1.15",
+   "truth": "moved",
+   "score": 0.452,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.010234603975621523,
+   "sizeRatio": 1.08
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "zoom1.30",
+   "truth": "moved",
+   "score": 0.234,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.014005663605846246,
+   "sizeRatio": 1.08
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "zoom1.50",
+   "truth": "moved",
+   "score": 0.203,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.038792119805803105,
+   "sizeRatio": 0.85
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "roll3",
+   "truth": "roll",
+   "score": 0.413,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.011515534533527591,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "roll6",
+   "truth": "roll",
+   "score": 0.325,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.014822406761220756,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4867",
+   "op": "zoom1.2+pan0.05+roll3",
+   "truth": "moved",
+   "score": 0.324,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.012055236193162391,
+   "sizeRatio": 1.134
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "pan0.01",
+   "truth": "within",
+   "score": 0.961,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006249999999999867,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "zoom1.04",
+   "truth": "within",
+   "score": 0.773,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.003702741311956964,
+   "sizeRatio": 1.026
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "roll0.5",
+   "truth": "within",
+   "score": 0.814,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.000713233841602881,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "bright0.85",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "bright1.15",
+   "truth": "within",
+   "score": 0.999,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "pan0.03",
+   "truth": "moved",
+   "score": 0.871,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0012500000000000844,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "pan0.08",
+   "truth": "moved",
+   "score": 0.837,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0016724436914990347,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "zoom1.15",
+   "truth": "moved",
+   "score": 0.335,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.005424481721087171,
+   "sizeRatio": 1.08
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "zoom1.30",
+   "truth": "moved",
+   "score": 0.202,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.012958516322018696,
+   "sizeRatio": 1.05
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "zoom1.50",
+   "truth": "moved",
+   "score": 0.178,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.05028879704096404,
+   "sizeRatio": 0.892
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "roll3",
+   "truth": "roll",
+   "score": 0.357,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.002230509821373759,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "roll6",
+   "truth": "roll",
+   "score": 0.257,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.021302215375146073,
+   "sizeRatio": 0.966
+  },
+  {
+   "clip": "IMG_4872",
+   "op": "zoom1.2+pan0.05+roll3",
+   "truth": "moved",
+   "score": 0.279,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.006655111958032963,
+   "sizeRatio": 1.08
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "pan0.01",
+   "truth": "within",
+   "score": 0.964,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006249999999999867,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "zoom1.04",
+   "truth": "within",
+   "score": 0.405,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.004565180011544842,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "roll0.5",
+   "truth": "within",
+   "score": 0.764,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006704493058312946,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "bright0.85",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "bright1.15",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "pan0.03",
+   "truth": "moved",
+   "score": 0.879,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0012500000000000844,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "pan0.08",
+   "truth": "moved",
+   "score": 0.845,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0016724436914990347,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "zoom1.15",
+   "truth": "moved",
+   "score": 0.223,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.028418480414261166,
+   "sizeRatio": 1.05
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "zoom1.30",
+   "truth": "moved",
+   "score": 0.171,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.32770064002141164,
+   "sizeRatio": 0.712
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "zoom1.50",
+   "truth": "moved",
+   "score": 0.172,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.38515435778781837,
+   "sizeRatio": 0.85
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "roll3",
+   "truth": "roll",
+   "score": 0.33,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.006260595770862845,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "roll6",
+   "truth": "roll",
+   "score": 0.242,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.011873583338077275,
+   "sizeRatio": 0.92
+  },
+  {
+   "clip": "IMG_4873",
+   "op": "zoom1.2+pan0.05+roll3",
+   "truth": "moved",
+   "score": 0.202,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.033611602112188076,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "pan0.01",
+   "truth": "within",
+   "score": 0.963,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.0006249999999999867,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "zoom1.04",
+   "truth": "within",
+   "score": 0.823,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.000640372989530553,
+   "sizeRatio": 1.026
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "roll0.5",
+   "truth": "within",
+   "score": 0.842,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.00039662646291881506,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "bright0.85",
+   "truth": "within",
+   "score": 1,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "bright1.15",
+   "truth": "within",
+   "score": 0.999,
+   "usable": true,
+   "moved": false,
+   "rimErr": 5.551115123125783e-17,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "pan0.03",
+   "truth": "moved",
+   "score": 0.87,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0012500000000000844,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "pan0.08",
+   "truth": "moved",
+   "score": 0.832,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.001672443691498961,
+   "sizeRatio": 1
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "zoom1.15",
+   "truth": "moved",
+   "score": 0.662,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.001888153856221,
+   "sizeRatio": 1.121
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "zoom1.30",
+   "truth": "moved",
+   "score": 0.482,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.0065575322694511615,
+   "sizeRatio": 1.239
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "zoom1.50",
+   "truth": "moved",
+   "score": 0.2,
+   "usable": false,
+   "moved": true,
+   "rimErr": 0.030817137975689555,
+   "sizeRatio": 1.18
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "roll3",
+   "truth": "roll",
+   "score": 0.367,
+   "usable": true,
+   "moved": false,
+   "rimErr": 0.006994592758980006,
+   "sizeRatio": 0.95
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "roll6",
+   "truth": "roll",
+   "score": 0.259,
+   "usable": false,
+   "moved": false,
+   "rimErr": 0.01819205882129479,
+   "sizeRatio": 0.966
+  },
+  {
+   "clip": "IMG_4874",
+   "op": "zoom1.2+pan0.05+roll3",
+   "truth": "moved",
+   "score": 0.387,
+   "usable": true,
+   "moved": true,
+   "rimErr": 0.009067044866235573,
+   "sizeRatio": 1.18
+  }
+ ]
+}

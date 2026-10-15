@@ -1,0 +1,40 @@
+{
+ "same": {
+  "n": 101,
+  "usable": 1,
+  "falseAlarmAmongUsable": 0,
+  "nUsable": 101
+ },
+ "different": {
+  "n": 65,
+  "usable": 0.138,
+  "missAmongUsable": 0,
+  "nUsable": 9
+ },
+ "accuracy": {
+  "n": 110,
+  "median_frame_fraction": 0.0015935381728026654,
+  "p95_frame_fraction": 0.006732950866328853,
+  "median_px_of_1920": 3.1
+ },
+ "synthetic": {
+  "within": {
+   "n": 30,
+   "usable": 1,
+   "moved_among_usable": 0,
+   "nUsable": 30
+  },
+  "moved": {
+   "n": 36,
+   "usable": 0.444,
+   "moved_among_usable": 0.938,
+   "nUsable": 16
+  },
+  "roll": {
+   "n": 12,
+   "usable": 0.417,
+   "moved_among_usable": 0,
+   "nUsable": 5
+  }
+ }
+}

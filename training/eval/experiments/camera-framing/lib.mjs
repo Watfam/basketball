@@ -13,8 +13,10 @@ export async function loadFraming() {
     const js = ts.transpileModule(fs.readFileSync(path.join(srcDir, name), "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace(/from "(\.[^"]*)\.ts"/g, 'from "$1.mjs"');
     fs.writeFileSync(path.join(OUT, name.replace(/\.ts$/, ".mjs")), js);
   }
+  const hm = ts.transpileModule(fs.readFileSync(path.join(ROOT, "src/lib/vision/hoop-match.ts"), "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+  fs.writeFileSync(path.join(OUT, "hoop-match.mjs"), hm);
   const load = (n) => import(pathToFileURL(path.join(OUT, n + ".mjs")).href + "?t=" + Date.now());
-  return { measure: await load("measure"), descriptor: await load("descriptor") };
+  return { measure: await load("measure"), descriptor: await load("descriptor"), hoopMatch: await load("hoop-match") };
 }
 export const STILLS = path.join(ROOT, "training/work/framing/stills");
 export const CLIPS = ["IMG_4836", "IMG_4839", "IMG_4840", "IMG_4844", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"];

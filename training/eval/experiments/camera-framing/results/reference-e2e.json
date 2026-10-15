@@ -1,0 +1,79 @@
+{
+ "checks": [
+  {
+   "name": "open camera",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "click measure",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "rim and backboard found in the live preview",
+   "pass": true,
+   "detail": "5 of 5 stills found the rim; 5 also found the backboard. Took 4.9 s"
+  },
+  {
+   "name": "keep the reference",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "reference is a few hundred bytes of numbers, no picture",
+   "pass": true,
+   "detail": "606 bytes"
+  },
+  {
+   "name": "UI says counting is not affected",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "open camera",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "click check against reference",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "same view: looks the same",
+   "pass": true,
+   "detail": "AGAINST THE REFERENCE · LOOKS THE SAME"
+  },
+  {
+   "name": "open camera",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "click check against reference",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "zoomed and shifted camera is flagged, not 'looks the same'",
+   "pass": true,
+   "detail": "AGAINST THE REFERENCE · MOVED A LITTLE"
+  },
+  {
+   "name": "open camera",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "click check against reference",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a tap far from any rim says the hoop was not found",
+   "pass": true,
+   "detail": "AGAINST THE REFERENCE · HOOP NOT FOUND"
+  }
+ ]
+}

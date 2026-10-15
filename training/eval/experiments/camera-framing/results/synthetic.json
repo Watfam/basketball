@@ -1,0 +1,2787 @@
+[
+ {
+  "clip": "IMG_4839",
+  "op": "pan0.01",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0099,
+   "posY": 0,
+   "size": 0.0001,
+   "az": 0.0104,
+   "off": 0.002,
+   "asp": 0.0012,
+   "roll": 0.1185
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "zoom1.04",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.002,
+   "posY": 0.003,
+   "size": 0.0219,
+   "az": 0.0166,
+   "off": 0.0052,
+   "asp": 0.0025,
+   "roll": 0.154
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "roll0.5",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "straddles"
+  },
+  "deltas": {
+   "posX": 0.0004,
+   "posY": 0.001,
+   "size": 0.0222,
+   "az": 0.0178,
+   "off": 0.0139,
+   "asp": 0.0021,
+   "roll": 0.7998
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "bright0.85",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0001,
+   "posY": 0.0001,
+   "size": 0.0216,
+   "az": 0.0138,
+   "off": 0.0087,
+   "asp": 0.0119,
+   "roll": 0.3306
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "bright1.15",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0,
+   "posY": 0.0004,
+   "size": 0,
+   "az": 0.0013,
+   "off": 0.0023,
+   "asp": 0.0018,
+   "roll": 0.127
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "pan0.03",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0299,
+   "posY": 0.0002,
+   "size": 0.011,
+   "az": 0.0022,
+   "off": 0.0036,
+   "asp": 0.0011,
+   "roll": 0.3205
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "pan0.08",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0798,
+   "posY": 0.0403,
+   "size": 0.0052,
+   "az": 0.003,
+   "off": 0.0014,
+   "asp": 0.0008,
+   "roll": 0.3154
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "zoom1.15",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "straddles",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0078,
+   "posY": 0.0118,
+   "size": 0.1183,
+   "az": 0.0112,
+   "off": 0.0052,
+   "asp": 0.001,
+   "roll": 0.1577
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "zoom1.30",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "beyond",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0156,
+   "posY": 0.0236,
+   "size": 0.2371,
+   "az": 0.0168,
+   "off": 0.0003,
+   "asp": 0.0019,
+   "roll": 0.5178
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "zoom1.50",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.026,
+   "posY": 0.0398,
+   "size": 0.3887,
+   "az": 0.0109,
+   "off": 0.002,
+   "asp": 0.0053,
+   "roll": 0.4399
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0024,
+   "posY": 0.005,
+   "size": 0.0166,
+   "az": 0.011,
+   "off": 0.0209,
+   "asp": 0.004,
+   "roll": 2.5113
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "roll6",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0047,
+   "posY": 0.0099,
+   "size": 0.0108,
+   "az": 0.0089,
+   "off": 0.0557,
+   "asp": 0.0018,
+   "roll": 5.8837
+  }
+ },
+ {
+  "clip": "IMG_4839",
+  "op": "zoom1.2+pan0.05+roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0634,
+   "posY": 0.0102,
+   "size": 0.1659,
+   "az": 0.0109,
+   "off": 0.0237,
+   "asp": 0.0027,
+   "roll": 2.7201
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "pan0.01",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0101,
+   "posY": 0.0015,
+   "size": 0.0002,
+   "az": 0.0007,
+   "off": 0.0045,
+   "asp": 0.0002,
+   "roll": 0.1102
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "zoom1.04",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0031,
+   "posY": 0.0031,
+   "size": 0.0398,
+   "az": 0.0009,
+   "off": 0.0044,
+   "asp": 0.0056,
+   "roll": 0.0252
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "roll0.5",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0006,
+   "posY": 0.0003,
+   "size": 0.0002,
+   "az": 0.0013,
+   "off": 0.0043,
+   "asp": 0.001,
+   "roll": 0.5186
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "bright0.85",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0003,
+   "posY": 0,
+   "size": 0.012,
+   "az": 0.0158,
+   "off": 0.0046,
+   "asp": 0.0007,
+   "roll": 0.0542
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "bright1.15",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0001,
+   "posY": 0,
+   "size": 0.003,
+   "az": 0.0046,
+   "off": 0.0004,
+   "asp": 0.003,
+   "roll": 0.0853
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "pan0.03",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.03,
+   "posY": 0.0008,
+   "size": 0.0116,
+   "az": 0.0107,
+   "off": 0.0009,
+   "asp": 0.0012,
+   "roll": 0.2626
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "pan0.08",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0801,
+   "posY": 0.0409,
+   "size": 0.0058,
+   "az": 0.0066,
+   "off": 0.0031,
+   "asp": 0.0036,
+   "roll": 0.2126
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "zoom1.15",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "straddles",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0123,
+   "posY": 0.0149,
+   "size": 0.1362,
+   "az": 0.004,
+   "off": 0.0015,
+   "asp": 0.006,
+   "roll": 0.1593
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "zoom1.30",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0245,
+   "posY": 0.0312,
+   "size": 0.2631,
+   "az": 0.016,
+   "off": 0.0056,
+   "asp": 0.0044,
+   "roll": 0.0093
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "zoom1.50",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.041,
+   "posY": 0.0508,
+   "size": 0.3994,
+   "az": 0.0078,
+   "off": 0.0055,
+   "asp": 0.0018,
+   "roll": 0.3214
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0035,
+   "posY": 0.0072,
+   "size": 0.0031,
+   "az": 0.0099,
+   "off": 0.0307,
+   "asp": 0.0047,
+   "roll": 3.197
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "roll6",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0071,
+   "posY": 0.0148,
+   "size": 0.015,
+   "az": 0.032,
+   "off": 0.0624,
+   "asp": 0.0001,
+   "roll": 5.9928
+  }
+ },
+ {
+  "clip": "IMG_4866",
+  "op": "zoom1.2+pan0.05+roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0378,
+   "posY": 0.031,
+   "size": 0.1762,
+   "az": 0.0136,
+   "off": 0.0297,
+   "asp": 0.0081,
+   "roll": 2.9171
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "pan0.01",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.01,
+   "posY": 0.0001,
+   "size": 0.0116,
+   "az": 0.0083,
+   "off": 0.0017,
+   "asp": 0.0025,
+   "roll": 0.0381
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "zoom1.04",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0011,
+   "posY": 0.0022,
+   "size": 0.0404,
+   "az": 0.0041,
+   "off": 0.0169,
+   "asp": 0.0138,
+   "roll": 0.3032
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "roll0.5",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0003,
+   "posY": 0.0005,
+   "size": 0.0055,
+   "az": 0.0027,
+   "off": 0.0162,
+   "asp": 0.0113,
+   "roll": 0.6476
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "bright0.85",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0001,
+   "posY": 0.0004,
+   "size": 0.0174,
+   "az": 0.0248,
+   "off": 0.0147,
+   "asp": 0.0005,
+   "roll": 0.0639
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "bright1.15",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0001,
+   "posY": 0.0002,
+   "size": 0.0003,
+   "az": 0.0018,
+   "off": 0.0049,
+   "asp": 0.0002,
+   "roll": 0.2254
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "pan0.03",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0299,
+   "posY": 0.0001,
+   "size": 0.0063,
+   "az": 0.0088,
+   "off": 0.01,
+   "asp": 0.0075,
+   "roll": 0.2516
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "pan0.08",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0799,
+   "posY": 0.0399,
+   "size": 0.0053,
+   "az": 0.0037,
+   "off": 0.0086,
+   "asp": 0.0105,
+   "roll": 0.3319
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "zoom1.15",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "straddles",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0045,
+   "posY": 0.0089,
+   "size": 0.1309,
+   "az": 0.0087,
+   "off": 0.0228,
+   "asp": 0.0048,
+   "roll": 0.7796
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "zoom1.30",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0092,
+   "posY": 0.018,
+   "size": 0.2555,
+   "az": 0.0071,
+   "off": 0.0039,
+   "asp": 0.0132,
+   "roll": 0.2804
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "zoom1.50",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "beyond",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0152,
+   "posY": 0.0297,
+   "size": 0.402,
+   "az": 0.0015,
+   "off": 0.0172,
+   "asp": 0.0116,
+   "roll": 0.5463
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0018,
+   "posY": 0.0026,
+   "size": 0.0113,
+   "az": 0.0159,
+   "off": 0.0467,
+   "asp": 0.0033,
+   "roll": 2.8313
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "roll6",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0034,
+   "posY": 0.0055,
+   "size": 0.0116,
+   "az": 0.0226,
+   "off": 0.0892,
+   "asp": 0.0012,
+   "roll": 6.4981
+  }
+ },
+ {
+  "clip": "IMG_4867",
+  "op": "zoom1.2+pan0.05+roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0582,
+   "posY": 0.0086,
+   "size": 0.1854,
+   "az": 0.0033,
+   "off": 0.0524,
+   "asp": 0.0021,
+   "roll": 2.9349
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "pan0.01",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.01,
+   "posY": 0,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "zoom1.04",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "asp"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0018,
+   "posY": 0.003,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": 0.0128,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "roll0.5",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "off",
+   "asp"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size did not repeat well enough to compare"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "within",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0003,
+   "posY": 0.0005,
+   "size": null,
+   "az": null,
+   "off": 0.0051,
+   "asp": 0.0097,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "bright0.85",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0004,
+   "posY": 0,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": 0.0048,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "bright1.15",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0003,
+   "posY": 0.0001,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "pan0.03",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.03,
+   "posY": 0,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "pan0.08",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size did not repeat well enough to compare"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "within",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0797,
+   "posY": 0.04,
+   "size": null,
+   "az": null,
+   "off": 0.0236,
+   "asp": 0.0158,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "zoom1.15",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size did not repeat well enough to compare"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "within",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0063,
+   "posY": 0.0107,
+   "size": null,
+   "az": null,
+   "off": 0.0063,
+   "asp": 0.0046,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "zoom1.30",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "beyond",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0129,
+   "posY": 0.0209,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "zoom1.50",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "straddles",
+   "posY": "beyond",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0211,
+   "posY": 0.0351,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.002,
+   "posY": 0.004,
+   "size": null,
+   "az": null,
+   "off": 0.0735,
+   "asp": 0.0192,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "roll6",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0042,
+   "posY": 0.0078,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4872",
+  "op": "zoom1.2+pan0.05+roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "fewer than two viewing-angle measurements repeated well enough in both sessions"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "unusable",
+   "az": "unusable",
+   "off": "unusable",
+   "asp": "unusable",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0614,
+   "posY": 0.0094,
+   "size": null,
+   "az": null,
+   "off": null,
+   "asp": null,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "pan0.01",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0101,
+   "posY": 0.0002,
+   "size": 0.003,
+   "az": 0.0008,
+   "off": 0.0127,
+   "asp": 0.0071,
+   "roll": 0.2342
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "zoom1.04",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0018,
+   "posY": 0.0006,
+   "size": 0.0454,
+   "az": 0.008,
+   "off": 0.0085,
+   "asp": 0.0027,
+   "roll": 0.0323
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "roll0.5",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "straddles"
+  },
+  "deltas": {
+   "posX": 0.0002,
+   "posY": 0.0007,
+   "size": 0.003,
+   "az": 0.0006,
+   "off": 0.007,
+   "asp": 0.0089,
+   "roll": 0.74
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "bright0.85",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0001,
+   "posY": 0.0002,
+   "size": 0,
+   "az": 0.0056,
+   "off": 0.0047,
+   "asp": 0.0053,
+   "roll": 0.19
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "bright1.15",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0001,
+   "posY": 0.0001,
+   "size": 0.0062,
+   "az": 0.0025,
+   "off": 0.0008,
+   "asp": 0.0047,
+   "roll": 0.4466
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "pan0.03",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0301,
+   "posY": 0.0002,
+   "size": 0,
+   "az": 0.0051,
+   "off": 0.0105,
+   "asp": 0.0018,
+   "roll": 0.4256
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "pan0.08",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0803,
+   "posY": 0.0399,
+   "size": 0.0093,
+   "az": 0.0131,
+   "off": 0.01,
+   "asp": 0.0012,
+   "roll": 0.1753
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "zoom1.15",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "straddles",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0067,
+   "posY": 0.0022,
+   "size": 0.1431,
+   "az": 0.0064,
+   "off": 0.0176,
+   "asp": 0.0075,
+   "roll": 0.0129
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "zoom1.30",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0129,
+   "posY": 0.0044,
+   "size": 0.2588,
+   "az": 0.0032,
+   "off": 0.0089,
+   "asp": 0.009,
+   "roll": 0.3596
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "zoom1.50",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "unusable"
+  },
+  "deltas": {
+   "posX": 0.0216,
+   "posY": 0.0073,
+   "size": 0.4004,
+   "az": 0.0009,
+   "off": 0.0158,
+   "asp": 0.0002,
+   "roll": null
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0006,
+   "posY": 0.0036,
+   "size": 0.0002,
+   "az": 0.003,
+   "off": 0.022,
+   "asp": 0.0091,
+   "roll": 3.0407
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "roll6",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0014,
+   "posY": 0.0072,
+   "size": 0.0031,
+   "az": 0.0083,
+   "off": 0.0489,
+   "asp": 0.0025,
+   "roll": 6.5506
+  }
+ },
+ {
+  "clip": "IMG_4873",
+  "op": "zoom1.2+pan0.05+roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0594,
+   "posY": 0.0014,
+   "size": 0.1772,
+   "az": 0.0035,
+   "off": 0.011,
+   "asp": 0.004,
+   "roll": 3.534
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "pan0.01",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0101,
+   "posY": 0,
+   "size": 0.0193,
+   "az": 0.0181,
+   "off": 0.001,
+   "asp": 0.0024,
+   "roll": 0.1943
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "zoom1.04",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.001,
+   "posY": 0.0005,
+   "size": 0.0058,
+   "az": 0.0353,
+   "off": 0.0121,
+   "asp": 0.0001,
+   "roll": 0.1563
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "roll0.5",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0002,
+   "posY": 0.0003,
+   "size": 0.0318,
+   "az": 0.0341,
+   "off": 0.0046,
+   "asp": 0.0046,
+   "roll": 0.3779
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "bright0.85",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0002,
+   "posY": 0.0001,
+   "size": 0.0189,
+   "az": 0.0204,
+   "off": 0.0001,
+   "asp": 0.0012,
+   "roll": 0.1173
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "bright1.15",
+  "kind": "P3",
+  "truth": "comparable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "comparable",
+  "reasons": [],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0,
+   "posY": 0.0001,
+   "size": 0.0129,
+   "az": 0.0115,
+   "off": 0.004,
+   "asp": 0.0019,
+   "roll": 0.3562
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "pan0.03",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.03,
+   "posY": 0.0001,
+   "size": 0.0256,
+   "az": 0.0249,
+   "off": 0.0089,
+   "asp": 0.0075,
+   "roll": 0.2437
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "pan0.08",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "beyond",
+   "size": "within",
+   "az": "within",
+   "off": "unusable",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0799,
+   "posY": 0.04,
+   "size": 0.0322,
+   "az": 0.0331,
+   "off": null,
+   "asp": 0.0075,
+   "roll": 0.2924
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "zoom1.15",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the rim position or size is too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "straddles",
+   "az": "within",
+   "off": "unusable",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0038,
+   "posY": 0.0017,
+   "size": 0.0999,
+   "az": 0.0414,
+   "off": null,
+   "asp": 0.0068,
+   "roll": 0.0452
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "zoom1.30",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "unusable",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0076,
+   "posY": 0.0032,
+   "size": 0.2413,
+   "az": 0.0233,
+   "off": null,
+   "asp": 0.0091,
+   "roll": 0.0263
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "zoom1.50",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "within"
+  },
+  "deltas": {
+   "posX": 0.0126,
+   "posY": 0.0053,
+   "size": 0.3782,
+   "az": 0.0308,
+   "off": 0.0158,
+   "asp": 0.0058,
+   "roll": 0.534
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "normalizable",
+  "reasons": [
+   "same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "within",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0005,
+   "posY": 0.0021,
+   "size": 0.0131,
+   "az": 0.0171,
+   "off": 0.0348,
+   "asp": 0.0059,
+   "roll": 2.8625
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "roll6",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "within",
+   "posY": "within",
+   "size": "within",
+   "az": "within",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0008,
+   "posY": 0.0043,
+   "size": 0.0385,
+   "az": 0.0465,
+   "off": 0.0762,
+   "asp": 0.0023,
+   "roll": 5.9742
+  }
+ },
+ {
+  "clip": "IMG_4874",
+  "op": "zoom1.2+pan0.05+roll3",
+  "kind": "N",
+  "truth": "normalizable",
+  "usable": [
+   "posX",
+   "posY",
+   "size",
+   "az",
+   "off",
+   "asp",
+   "roll"
+  ],
+  "class": "unknown",
+  "reasons": [
+   "the viewing-angle measurements are too close to the limit to call"
+  ],
+  "cues": {
+   "posX": "beyond",
+   "posY": "within",
+   "size": "beyond",
+   "az": "within",
+   "off": "straddles",
+   "asp": "within",
+   "roll": "beyond"
+  },
+  "deltas": {
+   "posX": 0.0556,
+   "posY": 0.0005,
+   "size": 0.1601,
+   "az": 0.0205,
+   "off": 0.0421,
+   "asp": 0.001,
+   "roll": 3.2511
+  }
+ }
+]
