@@ -7,6 +7,7 @@ import { formatPercentage } from "@/lib/basketball/shooting";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { ReplayViewer } from "@/components/replay-viewer";
+import { SessionReviewEntry } from "@/components/session-review-entry";
 
 /** Unsure shots shown before "Show more": a kid will check ten, not forty. */
 const FIRST_UNSURE = 12;
@@ -170,6 +171,7 @@ export function ShotReview({
         >
           {copied ? "Copied" : "Copy camera report"}
         </button>
+        <SessionReviewEntry shots={shots} />
         {shownReport && (
           <textarea
             readOnly

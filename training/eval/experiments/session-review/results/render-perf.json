@@ -1,0 +1,10 @@
+{
+  "measured": "2026-10-18, headless Chrome on the desktop Mac (i5, 8 GB), dev server, viewport 430x932 at 2x, real IndexedDB stores seeded from existing recordings (27 records, 322 replay frames). NOT a phone.",
+  "open_ms": 381,
+  "frame_step_ms_to_second_paint": { "median": 33.3, "p95": 49.3, "max": 50, "note": "two animation frames at 60 Hz is 33 ms: one to two frames per step" },
+  "switch_shot_ms_to_second_paint": { "median": 35.6, "p95": 121.1, "max": 128, "note": "p95 is the first look at a shot whose replay frames are loaded from IndexedDB" },
+  "js_heap_MB": { "after_seed": 14.7, "during_review": 20.7, "after_close": 21.0, "note": "about 6 MB while open; not freed within the measurement window (garbage collection timing), so no leak claim either way" },
+  "flag_off": { "entry_buttons_before_flag": 0, "entry_buttons_after_flag_off_again": 0 },
+  "page_errors": 0,
+  "still_needs_a_real_device": ["frame-step and playback smoothness on an iPhone", "memory with a full set of 40+ shots and their replay frames", "the recorder's cost inside the 15 fps camera loop (here only the library cost is measured: median 0.39 ms to build a shot's trail and fingerprint)", "heat and battery"]
+}

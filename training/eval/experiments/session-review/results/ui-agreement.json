@@ -1,0 +1,340 @@
+{
+ "checked": 35,
+ "mismatches": [],
+ "rows": [
+  {
+   "session": 0,
+   "seq": 1,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 1,
+   "record": "shot-IMG_4839-156",
+   "quality": "Path found",
+   "rimX": "0.46"
+  },
+  {
+   "session": 0,
+   "seq": 2,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 2,
+   "record": "shot-IMG_4839-330",
+   "quality": "Partial path",
+   "rimX": "0.19"
+  },
+  {
+   "session": 0,
+   "seq": 3,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 3,
+   "record": "shot-IMG_4839-428",
+   "quality": "No path",
+   "rimX": null
+  },
+  {
+   "session": 0,
+   "seq": 4,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 4,
+   "record": "shot-IMG_4839-576",
+   "quality": "No path",
+   "rimX": null
+  },
+  {
+   "session": 0,
+   "seq": 5,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 5,
+   "record": "shot-IMG_4839-736",
+   "quality": "Path unreliable",
+   "rimX": "-0.19"
+  },
+  {
+   "session": 0,
+   "seq": 6,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 6,
+   "record": "shot-IMG_4839-856",
+   "quality": "Path found",
+   "rimX": "0.26"
+  },
+  {
+   "session": 0,
+   "seq": 7,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 7,
+   "record": "shot-IMG_4839-990",
+   "quality": "Path found",
+   "rimX": "6.11"
+  },
+  {
+   "session": 0,
+   "seq": 8,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 8,
+   "record": "shot-IMG_4839-1134",
+   "quality": "Path found",
+   "rimX": "-0.35"
+  },
+  {
+   "session": 0,
+   "seq": 9,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 9,
+   "record": "shot-IMG_4839-1412",
+   "quality": "Path found",
+   "rimX": "0.27"
+  },
+  {
+   "session": 0,
+   "seq": 10,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 10,
+   "record": "shot-IMG_4839-1538",
+   "quality": "Partial path",
+   "rimX": "-0.26"
+  },
+  {
+   "session": 0,
+   "seq": 11,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 11,
+   "record": "shot-IMG_4839-1876",
+   "quality": "Path found",
+   "rimX": "3.04"
+  },
+  {
+   "session": 0,
+   "seq": 12,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 12,
+   "record": "shot-IMG_4839-2066",
+   "quality": "Partial path",
+   "rimX": "-0.17"
+  },
+  {
+   "session": 1,
+   "seq": 1,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 1,
+   "record": "shot-IMG_4873-372",
+   "quality": "Path found",
+   "rimX": "-2.09"
+  },
+  {
+   "session": 1,
+   "seq": 2,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 2,
+   "record": "shot-IMG_4873-510",
+   "quality": "Path found",
+   "rimX": "1.45"
+  },
+  {
+   "session": 1,
+   "seq": 3,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 3,
+   "record": "shot-IMG_4873-764",
+   "quality": "Path found",
+   "rimX": "-1.60"
+  },
+  {
+   "session": 1,
+   "seq": 4,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 4,
+   "record": "shot-IMG_4873-988",
+   "quality": "Partial path",
+   "rimX": "-0.16"
+  },
+  {
+   "session": 1,
+   "seq": 5,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 5,
+   "record": "shot-IMG_4873-1230",
+   "quality": "No path",
+   "rimX": null
+  },
+  {
+   "session": 1,
+   "seq": 6,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 6,
+   "record": "shot-IMG_4873-1308",
+   "quality": "Path found",
+   "rimX": "-2.91"
+  },
+  {
+   "session": 1,
+   "seq": 7,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 7,
+   "record": "shot-IMG_4873-1678",
+   "quality": "Path unreliable",
+   "rimX": null
+  },
+  {
+   "session": 2,
+   "seq": 1,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 1,
+   "record": "shot-IMG_4874-164",
+   "quality": "Partial path",
+   "rimX": "4.18"
+  },
+  {
+   "session": 2,
+   "seq": 2,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 2,
+   "record": "shot-IMG_4874-396",
+   "quality": "Path found",
+   "rimX": "-0.24"
+  },
+  {
+   "session": 2,
+   "seq": 3,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 3,
+   "record": "shot-IMG_4874-690",
+   "quality": "Partial path",
+   "rimX": "-0.14"
+  },
+  {
+   "session": 2,
+   "seq": 4,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 4,
+   "record": "shot-IMG_4874-884",
+   "quality": "Partial path",
+   "rimX": "-0.14"
+  },
+  {
+   "session": 2,
+   "seq": 5,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 5,
+   "record": "shot-IMG_4874-1082",
+   "quality": "Path found",
+   "rimX": "-1.15"
+  },
+  {
+   "session": 2,
+   "seq": 6,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 6,
+   "record": "shot-IMG_4874-1388",
+   "quality": "Path unreliable",
+   "rimX": null
+  },
+  {
+   "session": 2,
+   "seq": 7,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 7,
+   "record": "shot-IMG_4874-1542",
+   "quality": "Partial path",
+   "rimX": "-0.29"
+  },
+  {
+   "session": 2,
+   "seq": 8,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 8,
+   "record": "shot-IMG_4874-1938",
+   "quality": "Path found",
+   "rimX": "-5.56"
+  },
+  {
+   "session": 3,
+   "seq": 1,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 1,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 2,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 2,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 3,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 3,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 4,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 4,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 5,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 5,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 6,
+   "expected": "Miss",
+   "ui_outcome": "Miss",
+   "ui_seq": 6,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 7,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 7,
+   "record": null
+  },
+  {
+   "session": 3,
+   "seq": 8,
+   "expected": "Make",
+   "ui_outcome": "Make",
+   "ui_seq": 8,
+   "record": null
+  }
+ ]
+}

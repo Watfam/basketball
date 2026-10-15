@@ -1,0 +1,52 @@
+{
+ "cases": {
+  "make": 1,
+  "miss": 6,
+  "short_gap": 2,
+  "incomplete": 3,
+  "unreliable_in_set_b": {
+   "seq": 7,
+   "reasons": [
+    "the ball was not seen coming down through the rim's height",
+    "detections on rim hardware were present in this clip and were kept out of the path",
+    "the path has 2 separate pieces; nothing is drawn between them"
+   ]
+  },
+  "phantom": {
+   "seq": 4,
+   "level": "partial",
+   "rimHardwareBoxes": 0,
+   "rimHardwareNearby": 7,
+   "reasons": [
+    "detections on rim hardware were present in this clip and were kept out of the path",
+    "the path has 2 separate pieces; nothing is drawn between them"
+   ]
+  }
+ },
+ "sessions": [
+  {
+   "name": "Set A: IMG_4839 (video and tracking kept)",
+   "shots": 12,
+   "with_video": 4,
+   "with_record": 12
+  },
+  {
+   "name": "Set B: IMG_4873 (rim hardware often mistaken for the ball)",
+   "shots": 7,
+   "with_video": 3,
+   "with_record": 7
+  },
+  {
+   "name": "Set C: IMG_4874 (tracking kept, video not kept)",
+   "shots": 8,
+   "with_video": 0,
+   "with_record": 8
+  },
+  {
+   "name": "Set D: IMG_4851 (saved set: outcomes only)",
+   "shots": 8,
+   "with_video": 0,
+   "with_record": 0
+  }
+ ]
+}

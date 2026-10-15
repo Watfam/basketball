@@ -11,6 +11,9 @@ import type { ShotCall } from "@/lib/vision/shotRules";
 import { readDraft, writeDraft } from "@/lib/use-local-draft";
 import { CLIP, createReplayBuffer } from "@/lib/vision/replay-buffer";
 import { saveReplay } from "@/lib/vision/replay-store";
+import { sessionReviewEnabled } from "@/lib/review/flag";
+import { createReviewRecorder } from "@/lib/review/recorder";
+import { saveReviewRecord } from "@/lib/review/review-store";
 
 /**
  * The camera, as a shot counter, for the Shoot screen.
@@ -388,6 +391,8 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     });
     // Replays: the last 6 s of the close-up, and each shot's clip cut from it.
     const replay = createReplayBuffer<Blob>(6000);
+    // Session review (experimental, flag-gated): note the boxes the model already returns. Null, and inert, unless the flag is on.
+    const reviewRec = sessionReviewEnabled() ? createReviewRecorder() : null;
     const shot = document.createElement("canvas");
     shot.width = shot.height = REPLAY_SIZE;
     const shotCtx = shot.getContext("2d");
@@ -399,6 +404,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
           .between(c.firstMs - CLIP.beforeMs, c.firstMs + CLIP.afterMs)
           .map((x) => ({ t: x.t - c.firstMs, blob: x.item }));
         if (frames.length) void saveReplay({ id, frames });
+        if (reviewRec) void saveReviewRecord(reviewRec.cut(c.firstMs, id, core.window.rim, core.scale));
       };
       // The call comes 1.3-2.3 s after the rim; wait for the rest of the clip.
       if (wait) setTimeout(save, 900);
@@ -443,8 +449,9 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       cur = luma(img.data, cur ?? undefined);
       const moved = prev ? blockMotion(prev, cur, MODEL_INPUT, MODEL_INPUT) : 255;
       [prev, cur] = [cur, prev];
-      let balls: { x1: number; y1: number; x2: number; y2: number }[] = [];
-      if (gate.step(moved, t0)) {
+      let balls: { x1: number; y1: number; x2: number; y2: number; score?: number }[] = [];
+      const modelRan = gate.step(moved, t0);
+      if (modelRan) {
         try {
           const { detections } = await detector.detect(img);
           balls = detections.filter((d) => d.classId === detector.ballClass);
@@ -458,9 +465,11 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       }
       if (run !== runRef.current) return;
       if (balls.length) lastBallAt = t0;
+      reviewRec?.push(t0, modelRan, balls);
       const { calls, windowChanged } = core.push(t0, balls);
       for (const c of calls) if (c.counted) onShotRef.current(c, keepClip(c, true));
       if (windowChanged) {
+        reviewRec?.reset();
         aimRef.current = { ...aimRef.current, scale: core.scale };
         saveAim();
         if (refRef.current) {

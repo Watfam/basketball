@@ -1,0 +1,158 @@
+{
+ "generated": "2026-10-15T02:14:28.444Z",
+ "per_clip": {
+  "IMG_4839": {
+   "shots": 28,
+   "avail_app": 20,
+   "avail_ref": 24,
+   "both": 19,
+   "agree_x_within_0p15": 19,
+   "quality": {
+    "tracked": 10,
+    "partial": 9,
+    "unreliable": 3,
+    "none": 6
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.4995918273925781
+  },
+  "IMG_4840": {
+   "shots": 32,
+   "avail_app": 29,
+   "avail_ref": 32,
+   "both": 29,
+   "agree_x_within_0p15": 29,
+   "quality": {
+    "tracked": 17,
+    "partial": 12,
+    "unreliable": 3,
+    "none": 0
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.3496551513671875
+  },
+  "IMG_4851": {
+   "shots": 17,
+   "avail_app": 13,
+   "avail_ref": 13,
+   "both": 13,
+   "agree_x_within_0p15": 13,
+   "quality": {
+    "tracked": 5,
+    "partial": 8,
+    "unreliable": 4,
+    "none": 0
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.3654336929321289
+  },
+  "IMG_4866": {
+   "shots": 17,
+   "avail_app": 14,
+   "avail_ref": 16,
+   "both": 13,
+   "agree_x_within_0p15": 12,
+   "quality": {
+    "tracked": 4,
+    "partial": 10,
+    "unreliable": 1,
+    "none": 2
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.4123663902282715
+  },
+  "IMG_4867": {
+   "shots": 15,
+   "avail_app": 6,
+   "avail_ref": 12,
+   "both": 6,
+   "agree_x_within_0p15": 6,
+   "quality": {
+    "tracked": 0,
+    "partial": 6,
+    "unreliable": 4,
+    "none": 5
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.1824960708618164
+  },
+  "IMG_4872": {
+   "shots": 21,
+   "avail_app": 17,
+   "avail_ref": 18,
+   "both": 17,
+   "agree_x_within_0p15": 17,
+   "quality": {
+    "tracked": 6,
+    "partial": 11,
+    "unreliable": 4,
+    "none": 0
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.4087638854980469
+  },
+  "IMG_4873": {
+   "shots": 21,
+   "avail_app": 17,
+   "avail_ref": 19,
+   "both": 17,
+   "agree_x_within_0p15": 17,
+   "quality": {
+    "tracked": 14,
+    "partial": 3,
+    "unreliable": 2,
+    "none": 2
+   },
+   "phantom_points": 0,
+   "trail_points": 473,
+   "median_ms": 0.37107181549072266
+  },
+  "IMG_4874": {
+   "shots": 18,
+   "avail_app": 15,
+   "avail_ref": 15,
+   "both": 15,
+   "agree_x_within_0p15": 15,
+   "quality": {
+    "tracked": 4,
+    "partial": 11,
+    "unreliable": 1,
+    "none": 2
+   },
+   "phantom_points": 0,
+   "trail_points": 0,
+   "median_ms": 0.34815168380737305
+  }
+ },
+ "pooled": {
+  "shots": 169,
+  "recordFrames": 7436,
+  "avail_app": 131,
+  "avail_ref": 149,
+  "both": 129,
+  "agree_x": 128,
+  "dir_both": 0,
+  "agree_dir": 0,
+  "quality": {
+   "tracked": 60,
+   "partial": 70,
+   "unreliable": 22,
+   "none": 17
+  },
+  "recon_points": 89,
+  "observed_points": 4025,
+  "timing": {
+   "median_ms": 0.3888740539550781,
+   "p99_ms": 12.249320030212402,
+   "max_ms": 20.413108825683594
+  },
+  "agreement_of_available_both": 0.9922480620155039
+ },
+ "phantom_4873": {}
+}

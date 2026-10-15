@@ -860,3 +860,9 @@ Flight-path replay (offline HTML, `make-replay.mjs`), shot fingerprints (`shot-f
 an evidence-backed insight engine that abstains when evidence is thin, and one accuracy experiment (cv_nearest with the round-2 shot machine). Criteria registered first,
 three labelled amendments. Replay and fingerprints work; the engine supports only "misses were farther from the rim centre" (mostly face validity) on two clips and
 abstains on 40 of 45 statements (placebo false-claim rate 0-2%); the accuracy experiment is NOT RECOMMENDED (one merged shot slides the pairing on IMG_4872). Nothing integrated, `src/` untouched. Read `REPORT.md` there.
+
+### Phase 5: session review and shot-separation reliability (2026-10-18), `training/eval/experiments/session-review/`, `.../shot-separation/`
+Flag-gated session review in the app (`hl:session-review`, default off): shot browser, replay with observed path, frame stepping, rim-relative compare, measurements with missing-data reasons,
+unreliable paths hidden; additive `ReviewRecord` v1 in its own IndexedDB. Verified on 35 shots of existing recordings, 0 mismatches against the records; needs a real-device pass.
+Shot-separation: a time-based diagnostic view (frozen scorer untouched) and one registered candidate that FAILED (the IMG_4872 merge is one tracker track spanning two balls: an association problem).
+Nothing integrated into counting. Read `session-review/REPORT.md`.
