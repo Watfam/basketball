@@ -1,0 +1,24 @@
+{
+  "registered": "2026-10-17",
+  "status": "AMENDMENT of the fingerprint definitions, written after the first fingerprint run showed low availability of rim_level_x_bw (about 40-55% of shots) and a diagnosis of why, and BEFORE any comparison, clustering, repeatability or coaching statistic was computed. Outcome labels were not read in either step. thresholds, the repeatability rule, the coaching support rule and every Workstream C criterion are unchanged.",
+  "finding": "criteria.json anchored the rim-level measurements at 'the first zone sighting + 3 frames'. On the real shots the first zone sighting is the ball entering the V4 rim zone, which is often well above the rim: the observed rim-level crossing then falls 5-37 frames later (IMG_4840 shot 775: first zone sighting 36 frames before the ball reaches rim level; IMG_4839 shot 1538: 26 frames). The fixed +3 window therefore discarded real observed crossings. This is a defect of my definition, not of the footage.",
+  "amendment": {
+    "anchor": "the rim-level crossing frame tc: the first observed point at or below rim level (up <= 0) that is preceded, within 3 processed frames, by an observed point above rim level, searched from 10 frames before to 45 frames after the first zone sighting; unavailable ('no_observed_descending_crossing') if none.",
+    "rim_level_x_bw": "the observed point nearest to rim level within +-0.5 ball widths of it and within +-3 processed frames of tc.",
+    "approach_direction_and_descent_speed": "observed descending points 1-4 ball widths above the rim level in the 30 frames before tc (instead of before the first zone sighting + 3).",
+    "closest_approach": "from 10 frames before tc to 15 frames after tc.",
+    "path_fit_rms": "the 20 frames before tc.",
+    "rim_level_path": "observed points up to tc + 1 frame.",
+    "observed_flight_frames": "from the first observed point to tc.",
+    "unchanged": "ball width, units, the unavailable rule, the outcome firewall, the repeatability and clustering rules, the availability requirement for coaching (60% of baseline-matched shots), all coaching rules."
+  },
+  "independence_statement": "the amendment is motivated by availability only. Availability was looked at per clip, not per outcome; no label file was opened.",
+  "second_amendment": {
+    "written": "after the rebuilt fingerprints (first amendment applied) still showed low availability of rim_level_x_bw (30 fps: 3-13 of 15-32 shots per clip), diagnosed on IMG_4872, IMG_4839 and IMG_4874 by counting, per shot, whether the observed points bracket the rim level (no labels read): 15/23, 22/28 and 10/20 shots have an observed descending crossing, but a point within +-0.5 ball widths of the rim level is rarer because the ball moves 0.5-0.7 ball widths per frame there.",
+    "rim_level_x_bw": "the image-horizontal offset at rim level of the straight segment joining the two adjacent observed points that bracket it (the pair that defines tc, at most 3 processed frames apart). It is therefore computed from two observed points, never from a reconstructed or fitted point, and the fingerprint records bracketed=true, the two frames and the vertical span in ball widths. A bracket wider than 3 ball widths vertically is rejected as unavailable ('bracket_too_wide').",
+    "why_this_is_not_reconstruction": "no gap frame is created; the quantity is a property of the segment between two measured centres, and its error is bounded by the horizontal separation of those centres (reported as bracket_dx_bw).",
+    "unchanged": "everything else in the first amendment.",
+    "label_independence": "unchanged: no label file was opened."
+  },
+  "implementation_bug_found_while_diagnosing": "the fingerprint generator cut the observed points at first zone sighting + 15 frames before applying the amended anchor, which hid crossings later than that; fixed (window now first + 50). With the fix and both amendments the availability of rim_level_x_bw at 30 fps is 52-97% per clip (min IMG_4874 10/20, IMG_4851 10/17; max IMG_4840 31/32). No label file was opened."
+}
