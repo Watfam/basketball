@@ -7,6 +7,7 @@ import { compareShots, deleteSessionHistory, framingGroups, loadHistory, type Lo
 import { idbHistory } from "@/lib/review/history-store";
 import type { HistoryShot } from "@/lib/review/history-types";
 import { debugEnabled, record as recordDiag } from "@/lib/review/diagnostics";
+import { reconcileHistoryNow } from "@/lib/review/history-ops";
 import { Button } from "@/components/ui/button";
 import { TrackingHistoryControls } from "@/components/tracking-history-controls";
 
@@ -45,6 +46,7 @@ export function ShotHistory({ playerId, onClose }: { playerId: string; onClose: 
   const load = useCallback(async () => {
     const t0 = performance.now();
     try {
+      await reconcileHistoryNow();
       const r = await loadHistory(idbHistory, playerId);
       setH(r); setError(null);
       if (debugEnabled()) recordDiag("history.load", performance.now() - t0);

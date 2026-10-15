@@ -230,6 +230,7 @@ export default async function ShootingPage({
               label: labelOf(s),
               date: shortDate(s.started_at),
               detail: describeSavedGoal(s.goal_kind ?? null, s.goal_target ?? null, s.goal_reached ?? null),
+              startedAt: s.started_at,
               score: `${s.makes}/${s.attempts}`,
               pct: formatPercentage(percentage(s.makes, s.attempts)),
             }))}

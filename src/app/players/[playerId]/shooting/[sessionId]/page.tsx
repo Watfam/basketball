@@ -71,7 +71,7 @@ export default async function ShotSessionPage({
           )}
         </section>
 
-        <DeleteShotSessionButton sessionId={session.id} playerId={playerId} />
+        <DeleteShotSessionButton sessionId={session.id} playerId={playerId} startedAt={session.started_at} />
       </main>
     </div>
   );

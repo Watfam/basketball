@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteShotSession, restoreShotSession } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
+import { forgetSessionHistory, restoreSessionHistory } from "@/lib/review/history-ops";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FormError } from "@/components/ui/field";
@@ -13,6 +14,8 @@ export type ShotSessionListItem = {
   id: string;
   label: string;
   date: string;
+  /** When the set started, as saved: links the session to any tracking history kept on this phone. */
+  startedAt?: string;
   /** e.g. the goal the set was shot to. */
   detail?: string | null;
   score: string;
@@ -69,6 +72,8 @@ export function ShotSessionList({
         setError(result.error);
         return;
       }
+      // The tracking history kept on this phone (if any) goes with it; hidden at once, removed for good after the undo window.
+      void forgetSessionHistory({ playerId, sessionId: id, startedAt: sessions.find((x) => x.id === id)?.startedAt });
       setUndo(id);
       // In the address too: if that was the last session, the page swaps
       // this list for its empty state, and the new one still offers Undo.
@@ -87,6 +92,7 @@ export function ShotSessionList({
         setError(result.error);
         return;
       }
+      void restoreSessionHistory({ playerId, sessionId: id, startedAt: sessions.find((x) => x.id === id)?.startedAt });
       setHidden((h) => {
         const next = new Set(h);
         next.delete(id);

@@ -119,8 +119,9 @@ export async function openHistory(backend: HistoryBackend, now: number): Promise
 
 export async function usage(backend: HistoryBackend): Promise<{ sessions: number; shots: number; bytes: number; damaged: number; newer: number }> {
   let shots = 0, bytes = 0, damaged = 0, newer = 0, sessions = 0;
-  for (const raw of await backend.listSessionsRaw()) { const p = parseSession(raw); if (p.ok) sessions += 1; else if (p.reason === "newer") newer += 1; else damaged += 1; }
-  for (const raw of await backend.listShotsRaw()) { const p = parseShot(raw); if (p.ok) { shots += 1; bytes += p.value.bytes; } else if (p.reason === "newer") newer += 1; else damaged += 1; }
+  const gone = new Set<string>();
+  for (const raw of await backend.listSessionsRaw()) { const p = parseSession(raw); if (p.ok) { if (p.value.deletedAt) gone.add(p.value.sessionKey); else sessions += 1; } else if (p.reason === "newer") newer += 1; else damaged += 1; }
+  for (const raw of await backend.listShotsRaw()) { const p = parseShot(raw); if (p.ok) { if (!gone.has(p.value.sessionKey)) { shots += 1; bytes += p.value.bytes; } } else if (p.reason === "newer") newer += 1; else damaged += 1; }
   return { sessions, shots, bytes, damaged, newer };
 }
 
@@ -150,7 +151,7 @@ export async function loadHistory(backend: HistoryBackend, playerId?: string): P
   const sessions: HistorySession[] = [], shots: HistoryShot[] = [];
   let damaged = 0, newer = 0;
   const meta = (await backend.readMeta()) as Partial<HistoryMeta> | null;
-  for (const raw of await backend.listSessionsRaw()) { const p = parseSession(raw); if (p.ok) { if (!playerId || p.value.playerId === playerId) sessions.push(p.value); } else if (p.reason === "newer") newer += 1; else damaged += 1; }
+  for (const raw of await backend.listSessionsRaw()) { const p = parseSession(raw); if (p.ok) { if (p.value.deletedAt) continue; if (!playerId || p.value.playerId === playerId) sessions.push(p.value); } else if (p.reason === "newer") newer += 1; else damaged += 1; }
   const keys = new Set(sessions.map((s) => s.sessionKey));
   for (const raw of await backend.listShotsRaw()) { const p = parseShot(raw); if (p.ok) { if (keys.has(p.value.sessionKey)) shots.push(p.value); } else if (p.reason === "newer") newer += 1; else damaged += 1; }
   sessions.sort((a, b) => a.startedAt.localeCompare(b.startedAt));
@@ -210,3 +211,97 @@ export function framingGroups(sessions: HistorySession[]): HistorySession[][] {
   for (const s of sessions) { const g = groups.find((x) => compareFraming(x[0].framing, s.framing).comparable); if (g) g.push(s); else groups.push([s]); }
   return groups;
 }
+
+// ---- deleting a saved session ------------------------------------------------------------------------------------------
+
+/**
+ * Deleting a saved session in the app must take its tracking history with it, but the app offers Undo for a few seconds, so the history is
+ * first HIDDEN (everywhere: lists, comparisons, analytics, usage) and removed for good once the undo window has passed.
+ */
+export const UNDO_WINDOW_MS = 120_000;
+
+/** Which saved session is meant: by the server's id when this phone knew it, else by the start time that was sent to the server. */
+export type SessionMatch = { playerId: string; sessionId?: string | null; startedAt?: string | null };
+
+export function matchesSession(s: HistorySession, m: SessionMatch): boolean {
+  if (s.playerId !== m.playerId) return false;
+  if (m.sessionId && s.sessionId === m.sessionId) return true;
+  if (m.startedAt) { const a = Date.parse(m.startedAt), b = Date.parse(s.startedAt); if (Number.isFinite(a) && a === b) return true; }
+  return false;
+}
+
+async function readSessions(backend: HistoryBackend): Promise<HistorySession[]> {
+  const out: HistorySession[] = [];
+  for (const raw of await backend.listSessionsRaw()) { const p = parseSession(raw); if (p.ok) out.push(p.value); }
+  return out;
+}
+
+/** Hide the history of a deleted saved session. Safe to repeat; only the matching session is touched. */
+export async function markSessionDeleted(backend: HistoryBackend, m: SessionMatch, now: number): Promise<{ matched: number }> {
+  const open = await openHistoryReadOnlyCheck(backend);
+  if (!open.writable) return { matched: 0 };
+  let matched = 0;
+  for (const s of await readSessions(backend)) if (matchesSession(s, m) && !s.deletedAt) { await backend.saveSession({ ...s, sessionId: s.sessionId ?? m.sessionId ?? null, deletedAt: now }, []); matched += 1; }
+  return { matched };
+}
+
+/** Undo: bring the hidden history back, unless it has already been removed for good. */
+export async function restoreMarkedSession(backend: HistoryBackend, m: SessionMatch, now: number): Promise<{ matched: number; expired: number }> {
+  const open = await openHistoryReadOnlyCheck(backend);
+  if (!open.writable) return { matched: 0, expired: 0 };
+  let matched = 0, expired = 0;
+  for (const s of await readSessions(backend)) if (matchesSession(s, m) && s.deletedAt) {
+    if (now - s.deletedAt > UNDO_WINDOW_MS) { await backend.deleteSession(s.sessionKey); expired += 1; } else { await backend.saveSession({ ...s, deletedAt: null }, []); matched += 1; }
+  }
+  return { matched, expired };
+}
+
+async function openHistoryReadOnlyCheck(backend: HistoryBackend): Promise<{ writable: boolean }> {
+  const meta = (await backend.readMeta()) as Partial<HistoryMeta> | null;
+  return { writable: !meta || !num(meta.schema) || meta.schema <= HISTORY_SCHEMA };
+}
+
+/** Remove hidden sessions whose undo window has passed, and shot rows whose session is gone. Safe to repeat. */
+export async function reconcileHistory(backend: HistoryBackend, now: number): Promise<{ purged: number; orphans: number }> {
+  const open = await openHistoryReadOnlyCheck(backend);
+  if (!open.writable) return { purged: 0, orphans: 0 };
+  let purged = 0, orphans = 0;
+  const sessions = await readSessions(backend);
+  for (const s of sessions) if (s.deletedAt && now - s.deletedAt > UNDO_WINDOW_MS) { await backend.deleteSession(s.sessionKey); purged += 1; }
+  const alive = new Set(sessions.filter((s) => !(s.deletedAt && now - s.deletedAt > UNDO_WINDOW_MS)).map((s) => s.sessionKey));
+  const stray: string[] = [];
+  for (const raw of await backend.listShotsRaw()) { const p = parseShot(raw); if (p.ok && !alive.has(p.value.sessionKey)) stray.push(p.value.id); }
+  if (stray.length) { await backend.deleteShots(stray); orphans = stray.length; }
+  return { purged, orphans };
+}
+
+// ---- deletion that survives failures ---------------------------------------------------------------------------------------
+
+export type PendingOp = { kind: "delete" | "restore"; match: SessionMatch; at: number };
+/** Where unfinished operations wait (this phone's local storage in the app; memory in tests). */
+export interface OpStore { read(): PendingOp[]; write(ops: PendingOp[]): void }
+const MAX_PENDING = 50;
+
+/** Hide a deleted session's history now; if the store cannot be reached, remember to do it and report "queued". */
+export async function applyDeletion(backend: HistoryBackend, ops: OpStore, m: SessionMatch, now: number): Promise<{ status: "done" | "queued"; matched: number }> {
+  try { const r = await markSessionDeleted(backend, m, now); return { status: "done", matched: r.matched }; }
+  catch { ops.write([...ops.read().filter((o) => !(o.kind === "delete" && sameMatch(o.match, m))), { kind: "delete" as const, match: m, at: now }].slice(-MAX_PENDING)); return { status: "queued", matched: 0 }; }
+}
+export async function applyRestore(backend: HistoryBackend, ops: OpStore, m: SessionMatch, now: number): Promise<{ status: "done" | "queued"; matched: number }> {
+  // A deletion that never reached the store is simply cancelled.
+  const pending = ops.read(), cancelled = pending.filter((o) => !(o.kind === "delete" && sameMatch(o.match, m)));
+  if (cancelled.length !== pending.length) ops.write(cancelled);
+  try { const r = await restoreMarkedSession(backend, m, now); return { status: "done", matched: r.matched }; }
+  catch { ops.write([...ops.read(), { kind: "restore" as const, match: m, at: now }].slice(-MAX_PENDING)); return { status: "queued", matched: 0 }; }
+}
+/** Retry what is waiting, then clean up. Returns how many operations are still waiting. */
+export async function runPending(backend: HistoryBackend, ops: OpStore, now: number): Promise<{ remaining: number; purged: number; orphans: number }> {
+  const left: PendingOp[] = [];
+  for (const o of ops.read()) {
+    try { if (o.kind === "delete") await markSessionDeleted(backend, o.match, o.at); else await restoreMarkedSession(backend, o.match, o.at); }
+    catch { left.push(o); }
+  }
+  ops.write(left);
+  try { const r = await reconcileHistory(backend, now); return { remaining: left.length, ...r }; } catch { return { remaining: left.length, purged: 0, orphans: 0 }; }
+}
+const sameMatch = (a: SessionMatch, b: SessionMatch) => a.playerId === b.playerId && (a.sessionId ?? null) === (b.sessionId ?? null) && (a.startedAt ?? null) === (b.startedAt ?? null);

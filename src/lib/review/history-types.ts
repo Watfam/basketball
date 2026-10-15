@@ -74,6 +74,8 @@ export type HistorySession = {
   withTracking: number;
   framing: HistoryFraming | null;
   bytes: number;
+  /** Set when the saved session was deleted in the app: the history is hidden everywhere at once and removed for good after the undo window (history-core UNDO_WINDOW_MS). */
+  deletedAt?: number | null;
 };
 
 export type HistoryMeta = { schema: number; createdAt: number; app: string };

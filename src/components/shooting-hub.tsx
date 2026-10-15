@@ -34,6 +34,7 @@ import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_SWITCH_KEY } from "@/lib/vision/camera-switch";
 import { clearReplays } from "@/lib/vision/replay-store";
 import { retainHistory } from "@/lib/review/retain-session";
+import { reconcileHistoryNow } from "@/lib/review/history-ops";
 import { TrackingHistoryEntry } from "@/components/tracking-history-entry";
 import { ShotReview } from "@/components/shot-review";
 import { SoundCheck } from "@/components/sound-controls";
@@ -156,6 +157,11 @@ export function ShootingHub({
   } | null>(null);
 
   const inFlight = useRef(false);
+  const lastSessionId = useRef<string | null>(null);
+  // Housekeeping for tracking history kept on this phone (removes history of sessions deleted here, once their undo window has passed). No-op if none was ever kept.
+  useEffect(() => {
+    void reconcileHistoryNow();
+  }, []);
 
   // The screen stays on while a session is open — a shooter's hands are
   // busy and the phone is usually propped up, not held.
@@ -269,6 +275,7 @@ export function ShootingHub({
               : null,
         });
         if (res.error || !res.sessionId) throw new Error(res.error ?? "Sync failed");
+        lastSessionId.current = res.sessionId;
 
         if (!ended) {
           // Re-read: the player may have kept shooting while this was in
@@ -466,7 +473,7 @@ export function ShootingHub({
 
     haptic("success");
     // Experimental, flag-gated and opt-in: keep this set's compact tracking history on this phone. Not awaited; does nothing when off.
-    void retainHistory({ playerId, snapshot });
+    void retainHistory({ playerId, snapshot: { ...snapshot, sessionId: snapshot.sessionId ?? lastSessionId.current } });
     setFinished({
       label: snapshot.label || null,
       shots: snapshot.shots,

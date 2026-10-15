@@ -5,6 +5,7 @@ import { retainSession, type RetainResult } from "./history-core.ts";
 import { idbHistory } from "./history-store.ts";
 import { historyRetentionEnabled } from "./history-settings.ts";
 import { getReviewRecords } from "./review-store.ts";
+import { markHistoryUsed, reconcileHistoryNow } from "./history-ops.ts";
 import { record as recordDiag, debugEnabled, persist as persistDiag } from "./diagnostics.ts";
 
 export const LAST_RESULT_KEY = "hl:history:last";
@@ -30,6 +31,8 @@ export async function retainHistory(args: { playerId: string; snapshot: Snapshot
     const ids = s.shots.map((x) => x.replayId).filter((x): x is string => !!x);
     const records = await getReviewRecords(ids);
     const first = [...records.values()][0];
+    markHistoryUsed();
+    void reconcileHistoryNow();
     const res = await retainSession(idbHistory, {
       playerId,
       sessionKey: `${playerId}:${s.startedAt}`,
