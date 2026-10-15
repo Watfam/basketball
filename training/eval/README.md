@@ -116,6 +116,10 @@ Seeds are in `thresholds.json` (master 20261013, frame sample 20261014, bootstra
 | tracking.association | behaviour against SYNTHETIC distractors | real-world identity accuracy (no identity labels) |
 | performance | desktop inference time, model and runtime sizes, gate share, app loop in desktop Chromium | phone speed, heat or memory (only the phone can say) |
 
+## Phase 7 (data integrity, camera framing, iPhone readiness)
+
+`experiments/camera-framing/REPORT.md` (criteria registered in `criteria*.json` before each evaluation, including the post-hoc amendments), `experiments/iphone-readiness/criteria.json` (registered before any phone result; no iPhone has been measured). Summary: deletion now removes tracking history; history can be exported/imported locally; the rim-and-backboard framing descriptor never accepted a different camera as comparable but failed the registered criteria to approve comparisons, so it is only an advisory lab page (`/lab/camera-reference`).
+
 ## Designed for later work
 
 Records are keyed `{clip, frame}` with optional `track_id` and `shot_id`, so trajectory features, shot fingerprints (per-shot release,
