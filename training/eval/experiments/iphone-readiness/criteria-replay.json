@@ -1,0 +1,20 @@
+{
+  "registered": "2026-10-16",
+  "status": "REGISTERED BEFORE THE REPLAY TEST EXISTS. Phase 8 adds a test that replays tracking history already stored on the phone (or imported from a file made from existing recordings) through the screens and storage code. It needs no camera. criteria.json is unchanged and still governs the live-camera checks.",
+  "what_a_replay_can_and_cannot_show": {
+    "can": "that the review, history, comparison, export/import and deletion code and storage run correctly and fast enough in this phone's browser on real stored paths; that stored video clips decode and draw",
+    "cannot": "anything about the live camera loop: counting speed, whether counted shots change, battery, heat, how many shots the live recorder captures, hand-held camera behaviour. The report must say 'replayed data' on every replay result and must never present a replay result as live-device validation.",
+    "synthetic": "if the phone holds fewer than 20 shots with a path, the test builds synthetic sessions and labels EVERY result 'synthetic'. A synthetic pass is never reported as a pass on real data."
+  },
+  "checks": {
+    "R1_data": { "rule": "informational: reports real or synthetic, sessions, shots, shots with a path" },
+    "R2_read": { "limit_ms": 3000, "rule": "reading all saved history for the player, same limit as list1000Ms" },
+    "R3_draw": { "limit_p95_ms": 50, "rule": "building and drawing every stored path (up to 250), 95th percentile, same limit as renderPerShotMs" },
+    "R4_analyse": { "limit_ms": 3000, "rule": "analysing all stored shots, same limit as analyse250Ms" },
+    "R5_roundtrip": { "rule": "export the stored history, import it into a throwaway in-memory store: same sessions, same shot count, every path point identical. Pass/fail." },
+    "R6_delete": { "rule": "in the throwaway copy, deleting a session hides it from list, usage and analysis at once, restoring it brings every shot back, and no other session changes. Pass/fail. The real store is never written." },
+    "R7_clips": { "limit_p95_ms": 50, "rule": "up to 20 saved video clips on this phone: decode every frame and draw it with its path overlay, per-frame 95th percentile. not_measured if the phone holds no clips." },
+    "R8_nowrite": { "rule": "the real history store is byte-identical before and after the replay test (session and shot counts and total bytes). Pass/fail." }
+  },
+  "live_only_list": "kept in src/lib/review/phonetest.ts LIVE_ONLY and kept equal to this list's ids by a test: counting speed (frames per second) with review on versus off; counted shots equal between flag-on and flag-off sets; battery and heat over a set; paths captured for new live shots; clips saved by the live camera; storage surviving days; Home Screen app camera behaviour; camera-reference check hand-held."
+}
