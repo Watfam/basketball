@@ -1,0 +1,19 @@
+{
+ "derived": "2026-10-15T12:18:41.903Z",
+ "from": "development clips only (IMG_4839, IMG_4840, IMG_4851, IMG_4866, IMG_4867), 15 fps",
+ "rule": "T_SHOT = clamp(2 x p99 of shotOcc over all development records, 0.25, 0.60); T_FRAC = clamp(2 x largest affected share over any development clip at that T_SHOT, 0.20, 0.50)",
+ "dev": {
+  "records": 113,
+  "p99": 0,
+  "max": 0,
+  "affected_share_per_clip": {
+   "IMG_4839": 0,
+   "IMG_4840": 0,
+   "IMG_4851": 0,
+   "IMG_4866": 0,
+   "IMG_4867": 0
+  }
+ },
+ "tShot": 0.25,
+ "tFrac": 0.2
+}
