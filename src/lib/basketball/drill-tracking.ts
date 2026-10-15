@@ -164,3 +164,10 @@ export function adjustTracked(t: TrackedMetrics, makes: number, attempts: number
   const same = makes === original.makes && attempts === original.attempts;
   return { ...t, makes, attempts, tracking: { ...t.tracking, adjusted: same ? null : { original } } };
 }
+
+/** The shot sets that belong to a workout drill (named in tracked log metrics). They are already counted as part of the workout, so activity totals must not count them a second time. */
+export function linkedShotSessionIds(rows: { metrics: unknown }[]): Set<string> {
+  const out = new Set<string>();
+  for (const r of rows) { const t = parseTracked(r.metrics); if (t) out.add(t.tracking.shot_session_id); }
+  return out;
+}

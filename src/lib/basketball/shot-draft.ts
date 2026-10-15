@@ -1,5 +1,6 @@
 import type { Shot, ZoneKey } from "./shooting.ts";
 import { parseGoal, type Goal } from "./goals.ts";
+import type { DrillContext } from "./drill-context.ts";
 
 /**
  * The shooting session as it lives on the phone (local storage), before and while it is synced. Everything the
@@ -33,6 +34,8 @@ export type Draft = {
   mode?: "camera";
   /** Where the rim was aimed, as fractions of the picture, once counting started. */
   camera?: { rimX: number; rimY: number } | null;
+  /** Set when the set was started from a workout drill ("Track with Camera"); see drill-context.ts. Absent for every ordinary set. */
+  context?: DrillContext;
   /** The set has ended and is being reviewed before saving; kept here so a restarted phone comes back to the review. */
   reviewing?: boolean;
   /** How the camera ran (speed, size), noted when the set ends, for the camera report. This phone only. */

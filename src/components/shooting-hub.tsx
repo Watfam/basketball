@@ -43,6 +43,10 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
 import { clockStart, draftGoal, draftKey, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
+import { DEFINITIVE_FAILURES, drillSetLabel, parsePending, pendingKey, sameDrill, workoutReturnPath, type DrillContext } from "@/lib/basketball/drill-context";
+import { isProblem, type DrillStart, type DrillStartProblem } from "@/lib/basketball/drill-start";
+import { saveDrillTracking } from "@/app/actions";
+import { DrillMismatch, DrillResultNote, DrillStartScreen, type DrillOutcome } from "@/components/drill-start-screen";
 import { buildCameraReport, formatCameraReport } from "@/lib/basketball/camera-report";
 
 /**
@@ -100,6 +104,7 @@ export function ShootingHub({
   suggestedLabels,
   averages = {},
   lastSix = {},
+  drill = null,
   children,
 }: {
   playerId: string;
@@ -109,6 +114,8 @@ export function ShootingHub({
   averages?: Record<string, { pct: number; sessions: number }>;
   /** Make % over the newest six sets per label ("*": all of them), shown while picking. */
   lastSix?: Record<string, { pct: number; sessions: number }>;
+  /** Set when this page was opened from a workout drill ("Track with Camera"): the drill, or why it cannot be tracked. */
+  drill?: DrillStart | DrillStartProblem | null;
   /** The saved-session history, rendered on the server and shown while idle. */
   children: React.ReactNode;
 }) {
@@ -154,7 +161,9 @@ export function ShootingHub({
     startedAt: string;
     endedAt: string;
     goal: Goal | null;
+    context: DrillContext | null;
   } | null>(null);
+  const [drillOutcome, setDrillOutcome] = useState<DrillOutcome | null>(null);
 
   const inFlight = useRef(false);
   const lastSessionId = useRef<string | null>(null);
@@ -326,10 +335,48 @@ export function ShootingHub({
     };
   }, [hasDraft, key, runSync]);
 
-  function start(label: string, chosen: Goal | null = goal) {
-    // Remembered as a one-tap start for next time, newest first.
+  /**
+   * Attach a saved set to its workout drill. The marker stays on this phone until the server has answered for good, so a dropped signal or a
+   * closed app only delays the result; the server keeps one result per workout drill, so asking twice is harmless.
+   */
+  const attachToDrill = useCallback(
+    async (context: DrillContext, shotSessionId: string) => {
+      writeDraft(pendingKey(playerId), JSON.stringify({ playerId, shotSessionId, context }));
+      setDrillOutcome({ phase: "saving", message: null, metrics: null });
+      let res: Awaited<ReturnType<typeof saveDrillTracking>>;
+      try {
+        res = await saveDrillTracking({ playerId, workoutSessionId: context.workoutSessionId, workoutDrillId: context.workoutDrillId, shotSessionId, goal: context.goal });
+      } catch {
+        res = { error: "offline", code: "offline" };
+      }
+      if (!res.error) {
+        writeDraft(pendingKey(playerId), null);
+        setDrillOutcome({ phase: "saved", message: null, metrics: res.metrics ?? null });
+      } else if (res.code && DEFINITIVE_FAILURES.has(res.code)) {
+        writeDraft(pendingKey(playerId), null);
+        setDrillOutcome({ phase: "failed", message: res.error, metrics: null });
+      } else {
+        setDrillOutcome({ phase: "waiting", message: null, metrics: null });
+      }
+    },
+    [playerId]
+  );
+
+  // A result that did not land last time (offline, app closed) is tried again when the app opens and when the signal returns.
+  useEffect(() => {
+    const retry = () => {
+      const p = parsePending(readDraft(pendingKey(playerId)), playerId);
+      if (p) void attachToDrill(p.context, p.shotSessionId);
+    };
+    retry();
+    window.addEventListener("online", retry);
+    return () => window.removeEventListener("online", retry);
+  }, [playerId, attachToDrill]);
+
+  function start(label: string, chosen: Goal | null = goal, context?: DrillContext, useCamera: boolean = countWithCamera) {
+    // Remembered as a one-tap start for next time, newest first. A drill's own setup is not: it is reached from the workout.
     const setup: Setup = { label: label.trim(), goal: chosen };
-    if (setup.label || setup.goal) {
+    if (!context && (setup.label || setup.goal)) {
       setRecentRaw(
         JSON.stringify([setup, ...recent.filter((x) => setupKey(x) !== setupKey(setup))].slice(0, MAX_RECENT))
       );
@@ -349,14 +396,15 @@ export function ShootingHub({
         shots: [],
         zone: null,
         goal: chosen,
-        ...(countWithCamera ? { mode: "camera" as const, camera: null } : {}),
+        ...(useCamera ? { mode: "camera" as const, camera: null } : {}),
+        ...(context ? { context } : {}),
         rev: 1,
         syncedRev: 0,
       } satisfies Draft)
     );
     // Replays belong to one set; anything left from an earlier one goes.
     void clearReplays();
-    if (countWithCamera) {
+    if (useCamera) {
       // Calls are heard, not watched: sound on for a camera set.
       setSoundRaw("on");
       runRef.current = { n: 0, sum: 0, min: Number.POSITIVE_INFINITY, slowSeen: false, scale: null, ballWidth: null };
@@ -474,7 +522,11 @@ export function ShootingHub({
     haptic("success");
     // Experimental, flag-gated and opt-in: keep this set's compact tracking history on this phone. Not awaited; does nothing when off.
     void retainHistory({ playerId, snapshot: { ...snapshot, sessionId: snapshot.sessionId ?? lastSessionId.current } });
+    const shotSessionId = snapshot.sessionId ?? lastSessionId.current;
+    setDrillOutcome(null);
+    if (snapshot.context && shotSessionId) void attachToDrill(snapshot.context, shotSessionId);
     setFinished({
+      context: snapshot.context ?? null,
       label: snapshot.label || null,
       shots: snapshot.shots,
       startedAt: new Date(clockStart(snapshot) ?? Date.parse(snapshot.startedAt)).toISOString(),
@@ -503,6 +555,28 @@ export function ShootingHub({
       router.refresh();
     }
   }
+
+  /** Start a set for a workout drill: named for the drill, its own goal, the camera if the app allows it (the player can still tap). */
+  function startDrill(context: DrillContext) {
+    const g: Goal | null = context.goal ? clampGoal({ kind: context.goal.kind, target: context.goal.target }) : null;
+    // The set runs to the goal the screen can actually hold, and the result is kept against that same goal.
+    const ctx: DrillContext = { ...context, goal: g && (g.kind === "shots" || g.kind === "time") ? { kind: g.kind, target: g.target } : null };
+    start(drillSetLabel(ctx), g, ctx, cameraAllowed);
+  }
+
+  /** A different set is open: finish with it first, or throw it away on purpose. */
+  function replaceOpenSet(context: DrillContext) {
+    if (draft && draft.shots.length > 0 && !window.confirm(`Throw away these ${draft.shots.length} shots?`)) return;
+    camera.stop();
+    void clearReplays();
+    const sessionId = draft?.sessionId;
+    writeDraft(key, null);
+    if (sessionId) void deleteShotSession(sessionId, playerId);
+    startDrill(context);
+  }
+
+  const plainPath = `/players/${playerId}/shooting`;
+  const openDrill = drill && !isProblem(drill) ? drill : null;
 
   // A time goal needs a clock that ticks without any taps.
   const activeGoal = draft ? draftGoal(draft) : null;
@@ -549,6 +623,7 @@ export function ShootingHub({
             Session saved
           </p>
           {finished.goal && <GoalResult goal={finished.goal} finished={finished} />}
+          {finished.context && <DrillResultNote outcome={drillOutcome} />}
           <div className="mt-4 flex-1">
             <SessionSummary
               label={finished.label}
@@ -558,15 +633,40 @@ export function ShootingHub({
               average={averages[finished.label?.trim() || ""] ?? null}
             />
           </div>
-          <div className="mt-8 flex gap-2.5">
-            <Button onClick={() => start(finished.label ?? "", finished.goal)} className="flex-1 py-4">
-              Shoot again
-            </Button>
-            <Button variant="secondary" onClick={() => setFinished(null)} className="flex-1 py-4">
-              Done
-            </Button>
-          </div>
+          {finished.context ? (
+            <div className="mt-8 flex flex-col gap-2.5">
+              <Button onClick={() => router.push(workoutReturnPath(playerId, finished.context!))} className="py-4">
+                Back to your workout
+              </Button>
+              <Button variant="secondary" onClick={() => startDrill(finished.context!)} className="py-4">
+                Track this drill again
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-8 flex gap-2.5">
+              <Button onClick={() => start(finished.label ?? "", finished.goal)} className="flex-1 py-4">
+                Shoot again
+              </Button>
+              <Button variant="secondary" onClick={() => setFinished(null)} className="flex-1 py-4">
+                Done
+              </Button>
+            </div>
+          )}
         </div>
+      </div>
+    );
+  }
+
+  // ---- Opened for a drill while a set for something else is open ----------
+  if (openDrill && draft && !sameDrill(draft.context, openDrill.context)) {
+    return (
+      <div className="space-y-6">
+        <DrillMismatch
+          openLabel={draft.label}
+          drillName={openDrill.context.drillName}
+          onResume={() => router.replace(plainPath)}
+          onReplace={() => replaceOpenSet(openDrill.context)}
+        />
       </div>
     );
   }
@@ -778,8 +878,31 @@ export function ShootingHub({
   // ---- Idle: start a session, then the history -------------------------
   const labels = [...new Set([...DEFAULT_LABELS, ...suggestedLabels])];
 
+  if (openDrill) {
+    return (
+      <div className="space-y-6">
+        <DrillStartScreen
+          drill={openDrill}
+          cameraOn={cameraAllowed}
+          onStart={() => startDrill(openDrill.context)}
+          onSkip={() => router.replace(plainPath)}
+          backHref={workoutReturnPath(playerId, openDrill.context)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {drill && isProblem(drill) && (
+        <section className="rounded-3xl border border-line bg-surface p-5" role="status">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">This drill can&rsquo;t be tracked</p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground-dim">{drill.problem}</p>
+          <button type="button" onClick={() => router.replace(plainPath)} className="-my-3 mt-3 py-3 text-xs font-bold text-foreground-dim underline-offset-2 hover:underline">
+            Shoot without a drill
+          </button>
+        </section>
+      )}
       <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
         {recent.length > 0 && (

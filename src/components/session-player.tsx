@@ -20,6 +20,10 @@ import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
 import { beepDone, beepWarning, primeAlerts } from "@/lib/alerts";
 import { useDrillSound } from "@/lib/use-drill-sound";
+import { DrillLesson } from "@/components/drill-lesson";
+import { DrillTrackingPanel } from "@/components/drill-tracking-panel";
+import type { EntryExtras } from "@/lib/basketball/drill-session-view";
+import type { TrackedMetrics } from "@/lib/basketball/drill-tracking";
 import { useWakeLock } from "@/lib/use-wake-lock";
 import { DrillSoundControls } from "@/components/sound-controls";
 import { Button, buttonClass } from "@/components/ui/button";
@@ -92,6 +96,12 @@ type Props = {
   initialLoggedEntryIds: string[];
   // The subset of those that were skipped, not done.
   initialSkippedEntryIds?: string[];
+  // Shooting drills only: the Film Room lesson, whether the camera can be offered, the goal. Drills not listed look exactly as before.
+  entryExtras?: Record<string, EntryExtras>;
+  // Drills in this session already tracked (camera or taps), by workout entry id.
+  trackedResults?: Record<string, TrackedMetrics>;
+  // The drill the player has just come back from tracking: the screen opens on it, showing its result.
+  focusEntryId?: string | null;
 };
 
 /**
@@ -119,6 +129,9 @@ export function SessionPlayer({
   alreadyCompleted,
   initialLoggedEntryIds,
   initialSkippedEntryIds = [],
+  entryExtras = {},
+  trackedResults = {},
+  focusEntryId = null,
 }: Props) {
   const router = useRouter();
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -141,6 +154,7 @@ export function SessionPlayer({
     });
     return indexes;
   });
+  const [results, setResults] = useState<Record<string, TrackedMetrics>>(trackedResults);
   const [activeIndex, setActiveIndex] = useState(0);
   const [completed, setCompleted] = useState<Set<number>>(initialCompleted);
   const doneCount = completed.size - [...skipped].filter((i) => completed.has(i)).length;
@@ -155,7 +169,9 @@ export function SessionPlayer({
   // back at drill 1.
   useEffect(() => {
     if (initialCompleted.size === 0) return;
-    const nextIndex = drills.findIndex((_, i) => !initialCompleted.has(i));
+    // Back from tracking a drill: open on that drill, with its result, instead of on the next one.
+    const focusIndex = focusEntryId ? drills.findIndex((d) => d.id === focusEntryId) : -1;
+    const nextIndex = focusIndex >= 0 ? focusIndex : drills.findIndex((_, i) => !initialCompleted.has(i));
     if (nextIndex > 0) {
       requestAnimationFrame(() => {
         const el = scrollerRef.current;
@@ -257,6 +273,13 @@ export function SessionPlayer({
     });
   }
 
+  // After a tracked drill's result: on to the next drill that is not done, or finish the workout if that was the last one.
+  function nextAfter(index: number) {
+    const next = drills.findIndex((d, i) => i !== index && !completed.has(i));
+    if (next !== -1) scrollToIndex(next);
+    else finishSession();
+  }
+
   if (finished) {
     return (
       <SessionComplete
@@ -340,6 +363,13 @@ export function SessionPlayer({
               drill={drill}
               level={level}
               volumeStep={volumeStep}
+              playerId={playerId}
+              sessionId={sessionId}
+              extras={entryExtras[drill.id] ?? null}
+              result={results[drill.id] ?? null}
+              onResult={(m) => setResults((prev) => ({ ...prev, [drill.id]: m }))}
+              onNext={completed.has(i) ? () => nextAfter(i) : undefined}
+              lastDrill={drills.findIndex((d, j) => j !== i && !completed.has(j)) === -1}
               onProgress={(fraction) => setProgressByIndex((prev) => ({ ...prev, [i]: fraction }))}
               onComplete={(log) => handleDrillComplete(i, log)}
             />
@@ -394,12 +424,26 @@ function DrillCard({
   drill,
   level,
   volumeStep,
+  playerId,
+  sessionId,
+  extras,
+  result,
+  onResult,
+  onNext,
+  lastDrill,
   onProgress,
   onComplete,
 }: {
   drill: SessionDrill;
   level: SkillLevel;
   volumeStep: number;
+  playerId: string;
+  sessionId: string;
+  extras: EntryExtras | null;
+  result: TrackedMetrics | null;
+  onResult: (m: TrackedMetrics) => void;
+  onNext?: () => void;
+  lastDrill: boolean;
   onProgress: (fraction: number) => void;
   onComplete: (log: DrillLog) => void;
 }) {
@@ -440,7 +484,7 @@ function DrillCard({
               no way back to the workout. The cues below are the lesson;
               this is just the footage, and it opens in a new tab so the
               session is still sitting here when they come back. */}
-          {film && isWatchableUrl(film.url) && (
+          {!extras?.lesson && film && isWatchableUrl(film.url) && (
             <a
               href={film.url as string}
               target="_blank"
@@ -456,7 +500,8 @@ function DrillCard({
       {/* The lesson itself, inline. Sending a player off to the Film Room
           mid-set would cost them the set; one cue read here is worth more
           than a link they won't follow. */}
-      {film && (film.watch_for ?? []).length > 0 && (
+      {extras?.lesson && <DrillLesson lesson={extras.lesson} />}
+      {!extras?.lesson && film && (film.watch_for ?? []).length > 0 && (
         <div className="mt-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-3.5 py-3">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
             Watch for
@@ -472,7 +517,9 @@ function DrillCard({
       )}
 
       <div className="mt-7">
-        {isTimed ? (
+        {result ? (
+          <p className="text-center text-[11px] font-extrabold uppercase tracking-[0.16em] text-foreground-dim">Logged from tracking</p>
+        ) : isTimed ? (
           <TimerDrill
             targetSeconds={prescription.durationSeconds as number}
             onProgress={onProgress}
@@ -510,6 +557,19 @@ function DrillCard({
           />
         )}
       </div>
+
+      {extras && (
+        <DrillTrackingPanel
+          playerId={playerId}
+          sessionId={sessionId}
+          entryId={drill.id}
+          tracking={extras.tracking}
+          result={result}
+          onResult={onResult}
+          onNext={result ? onNext : undefined}
+          nextLabel={lastDrill ? "Finish workout" : "Next drill"}
+        />
+      )}
     </div>
   );
 }

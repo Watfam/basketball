@@ -1,5 +1,6 @@
 import type { createClient } from "@/lib/supabase/server";
 import { toActivities, type Activity } from "@/lib/basketball/activity";
+import { linkedShotSessionIds } from "@/lib/basketball/drill-tracking";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -15,7 +16,7 @@ export async function loadActivity(
   playerId: string
 ): Promise<{ activities: Activity[]; completedWorkouts: CompletedWorkout[] }> {
   const hoops = supabase.schema("hoops");
-  const [{ data: workouts }, { data: shots }, { data: combines }, { data: filmViews }, { data: filmSessions }] =
+  const [{ data: workouts }, { data: shots }, { data: combines }, { data: filmViews }, { data: filmSessions }, { data: trackedLogs }] =
     await Promise.all([
       hoops
         .from("workout_sessions")
@@ -26,7 +27,7 @@ export async function loadActivity(
       // Finished, kept sets with at least one shot.
       hoops
         .from("shot_sessions")
-        .select("started_at")
+        .select("id, started_at")
         .eq("player_id", playerId)
         .not("ended_at", "is", null)
         .is("deleted_at", null)
@@ -34,7 +35,10 @@ export async function loadActivity(
       hoops.from("assessments").select("completed_at").eq("player_id", playerId).eq("kind", "combine"),
       hoops.from("film_views").select("watched_at").eq("player_id", playerId),
       hoops.from("film_session_progress").select("completed_at").eq("player_id", playerId).not("completed_at", "is", null),
+      // Shot sets shot for a workout drill are already part of that workout; they must not count a second time as shooting.
+      hoops.from("session_logs").select("metrics, workout_sessions!inner(player_id)").eq("workout_sessions.player_id", playerId).eq("metrics->>type", "shooting"),
     ]);
+  const linkedSets = linkedShotSessionIds((trackedLogs ?? []) as { metrics: unknown }[]);
 
   // A workout counts once work was logged against it: one finished with
   // nothing done would otherwise feed the streak.
@@ -47,7 +51,7 @@ export async function loadActivity(
 
   const activities = toActivities({
     workout: completedWorkouts.map((w) => w.completed_at),
-    shooting: (shots ?? []).map((s: { started_at: string }) => s.started_at),
+    shooting: (shots ?? []).filter((s: { id: string }) => !linkedSets.has(s.id)).map((s: { started_at: string }) => s.started_at),
     combine: (combines ?? []).map((c: { completed_at: string | null }) => c.completed_at),
     film: [
       ...(filmViews ?? []).map((v: { watched_at: string }) => v.watched_at),

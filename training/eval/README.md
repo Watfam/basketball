@@ -134,3 +134,7 @@ Records are keyed `{clip, frame}` with optional `track_id` and `shot_id`, so tra
 apex, entry features) and per-player consistency can attach to the same frame and event records without changing the measurement
 layer. A future tracker emits observed/interpolated/predicted flags per point; the interpolation and prediction evaluators take any
 method with the same signature as the baselines.
+
+## Phase 10 (camera inside the training plans)
+
+`experiments/camera-in-training/REPORT.md`: architecture map, which existing drills can be tracked and why, how a camera result is saved into the existing workout log (no new tables; one row per workout entry, idempotent), the way back to the workout step, Film Room linkage, manual correction, what is compared and what is not, and what is camera-counted vs player-reported. `verify-production-unchanged.mjs` shows no detection or counting file changed; the frozen baseline reproduces with no change. `e2e/` holds the browser checks and the temporary demo route they need.

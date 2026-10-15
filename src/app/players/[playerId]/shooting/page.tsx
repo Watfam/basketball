@@ -9,6 +9,10 @@ import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/
 import { describeSavedGoal } from "@/lib/basketball/goals";
 import { Card } from "@/components/ui/card";
 import { PlayerTabHeader } from "@/components/player-tab-header";
+import { isId } from "@/lib/basketball/drill-context";
+import { loadDrillStart } from "@/lib/basketball/drill-start-server";
+import { loadKindsOfShot } from "@/lib/basketball/drill-kinds-server";
+import { KindsOfShot } from "@/components/kinds-of-shot";
 
 type SessionRow = {
   id: string;
@@ -35,10 +39,10 @@ export default async function ShootingPage({
 }: {
   params: Promise<{ playerId: string }>;
   /** label= is the old name for drill=, kept so saved links still work. */
-  searchParams: Promise<{ drill?: string; label?: string; deleted?: string }>;
+  searchParams: Promise<{ drill?: string; label?: string; deleted?: string; workout?: string; entry?: string }>;
 }) {
   const { playerId } = await params;
-  const { drill: drillParam, label: labelParam, deleted } = await searchParams;
+  const { drill: drillParam, label: labelParam, deleted, workout, entry } = await searchParams;
   const supabase = await createClient();
 
   // Sessions deleted more than 10 days ago go for good. Done here rather
@@ -73,6 +77,10 @@ export default async function ShootingPage({
 
   if (!user) redirect("/login");
   if (!player) notFound();
+
+  // Opened from a workout drill ("Track with Camera"): which drill, and whether the camera can be offered for it. Absent for ordinary shooting.
+  const drillStart = isId(workout) && isId(entry) ? await loadDrillStart(supabase, { playerId, workoutSessionId: workout, workoutDrillId: entry }) : null;
+  const kinds = await loadKindsOfShot(supabase, playerId);
 
   const sessions = (sessionRows ?? []) as unknown as SessionRow[];
   const labelOf = (s: { label: string | null }) => s.label?.trim() || UNLABELED;
@@ -167,6 +175,8 @@ export default async function ShootingPage({
             )}
           </Card>
 
+          {selected === ALL && kinds && <KindsOfShot data={kinds} />}
+
           {selected === ALL ? (
             <div>
               <h2 className="mb-2.5 font-display text-xl uppercase leading-none tracking-wide text-foreground">By drill</h2>
@@ -251,6 +261,7 @@ export default async function ShootingPage({
           suggestedLabels={drills.filter((l) => l !== UNLABELED)}
           averages={averages}
           lastSix={lastSix}
+          drill={drillStart}
         >
           {history}
         </ShootingHub>

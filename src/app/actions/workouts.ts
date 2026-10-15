@@ -77,7 +77,15 @@ export async function logDrillProgress(
   // One row per workout entry: logging the same entry again (a double tap, a resumed session, a tracked result already saved) updates or keeps
   // that row instead of stacking a second one. See src/lib/basketball/drill-log-store.ts.
   const result = await saveDrillLogOnce(sessionId, drillId, metrics, workoutDrillId);
-  if (result.error) return { error: result.error };
+  if (!result.error) return { error: null };
+
+  // If that path ever fails for a reason of its own, saving the drill the way it always was beats losing it.
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("hoops")
+    .from("session_logs")
+    .insert({ session_id: sessionId, drill_id: drillId, workout_drill_id: workoutDrillId ?? null, metrics });
+  if (error) return { error: error.message };
   return { error: null };
 }
 

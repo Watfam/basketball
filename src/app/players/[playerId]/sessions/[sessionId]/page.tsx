@@ -4,13 +4,20 @@ import { SessionPlayer, type SessionDrill } from "@/components/session-player";
 import { entriesForLevel } from "@/lib/basketball/prescription";
 import { playerLevel } from "@/lib/basketball/assessment";
 import { isSkippedLog } from "@/lib/basketball/session-logs";
+import { buildEntryExtras } from "@/lib/basketball/drill-session-view";
+import { parseTracked, type TrackedMetrics } from "@/lib/basketball/drill-tracking";
+import { loadLessonContext } from "@/lib/basketball/drill-film-server";
 
 export default async function SessionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ playerId: string; sessionId: string }>;
+  /** tracked= is the workout drill the player has just come back from tracking with the camera. */
+  searchParams: Promise<{ tracked?: string }>;
 }) {
   const { playerId, sessionId } = await params;
+  const { tracked } = await searchParams;
   const supabase = await createClient();
 
   // All four are independent of each other — each needs only playerId
@@ -36,7 +43,7 @@ export default async function SessionPage({
       .maybeSingle(),
     // The player's training level decides both which variation of each slot
     // they get and how the sets/reps scale.
-    supabase.schema("hoops").from("players").select("player_type").eq("id", playerId).maybeSingle(),
+    supabase.schema("hoops").from("players").select("player_type, household_id").eq("id", playerId).maybeSingle(),
     // Entries already logged in a previous visit — lets the player resume
     // where they left off instead of redoing everything or losing progress
     // if they closed the app mid-workout.
@@ -74,6 +81,22 @@ export default async function SessionPage({
   } | null;
   const volumeStep = programDay?.volume_step ?? 0;
 
+  // The Film Room's own lessons (read only), the video links this household attached (they win over the lesson's own address; the drill card used to
+  // ignore them), and which lessons this player has watched.
+  const householdId = (player as { household_id?: string | null } | null)?.household_id ?? null;
+  const film = await loadLessonContext(supabase, playerId, householdId);
+  const extras = buildEntryExtras({
+    entries: drills as unknown as Parameters<typeof buildEntryExtras>[0]["entries"],
+    level,
+    volumeStep,
+    ...film,
+  });
+  const trackedResults: Record<string, TrackedMetrics> = {};
+  for (const log of existingLogs ?? []) {
+    const t = parseTracked(log.metrics);
+    if (t && log.workout_drill_id) trackedResults[log.workout_drill_id as string] = t;
+  }
+
   return (
     // The session screen goes fully dark while the app shell stays light:
     // this is the "lights down, you're training" moment, and it should feel
@@ -91,6 +114,9 @@ export default async function SessionPage({
         }
         isDeload={programDay?.is_deload ?? false}
         alreadyCompleted={session.status === "completed"}
+        entryExtras={extras}
+        trackedResults={trackedResults}
+        focusEntryId={tracked && drills.some((d) => d.id === tracked) ? tracked : null}
         initialLoggedEntryIds={(existingLogs ?? [])
           .map((log) => log.workout_drill_id)
           .filter((id): id is string => Boolean(id))}
