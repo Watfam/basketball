@@ -1,0 +1,11 @@
+{
+  "registered": "2026-10-14",
+  "status": "AMENDMENT written after the v2 detector's first full run over all 100 stills (results/m1-raw.json) and after a per-clip table of repeat spreads for ALL clips, validation included, had been printed (disclosed: that table was seen). No class, false acceptance, false rejection or synthetic control had been computed. It applies the rule already registered in criteria-v3.json (tolerance from the development clips that pass the gate) to roll with the v2 numbers and changes nothing else.",
+  "dev_numbers_v2_that_motivate_it": "within-clip roll sd on the four dev clips that pass the gate: IMG_4839 0.59, 4840 0.25, 4866 0.30, 4867 0.46 degrees (v1: 1.1 to 2.3). Pooled about 0.41 degrees, so 3 x sd = 1.2 which is below the 1.5 degree floor. Elevation stays above its gate on the dev clips (sd 0.069 to 0.147 relative against a 0.067 gate).",
+  "change": {
+    "roll_enabled": "roll joins pos and size as a placement cue: usable iff valid in at least 4 of 5 stills and sd <= 1.0 degree (3 sd <= 2 x 1.5). T_roll = 1.5 degrees (the floor; 3 x pooled dev sd is smaller).",
+    "roll_in_the_class": "roll usable on both sides and within => counts toward comparable. Beyond (and no placement cue straddles) => normalizable (rotate by the difference). Straddles => unknown. Roll unusable on either side => the class is NOT blocked, and 'roll' stays in the unverified list; elevation is always in the unverified list.",
+    "elevation": "unchanged: unusable, never used, always reported as unverified."
+  },
+  "kept_from_v3_v4": "all other tolerances stay at their v3 values (size 0.113, az 0.134, off 0.075, asp 0.10, pos 0.02) even though v2's spreads would give tighter ones for az and off. That makes the v2 classification less sensitive than it could be and is stated wherever sensitivity is reported."
+}

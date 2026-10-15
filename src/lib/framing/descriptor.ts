@@ -22,7 +22,7 @@ export type FramingDescriptor = {
 /** Floors F_q (criteria.json, v2): the change that matters. The gate is 3 x sd <= 2 x F. */
 export const FLOOR: Record<Quantity, number> = { posX: 0.02, posY: 0.02, size: 0.10, az: 0.10, off: 0.06, asp: 0.10, elev: 0.10, roll: 1.5 };
 /** Tolerances T_q (criteria-v3.json): the floor, or three times the pooled development repeat spread if larger. */
-export const TOL: Record<Quantity, number> = { posX: 0.02, posY: 0.02, size: 0.113, az: 0.134, off: 0.075, asp: 0.10, elev: Infinity, roll: Infinity };
+export const TOL: Record<Quantity, number> = { posX: 0.02, posY: 0.02, size: 0.113, az: 0.134, off: 0.075, asp: 0.10, elev: Infinity, roll: 1.5 };
 const RELATIVE = new Set<Quantity>(["az", "asp", "elev"]);
 export const MIN_VALID = 4;
 
@@ -84,7 +84,8 @@ export function compareFramingDescriptors(a: FramingDescriptor | null, b: Framin
   const unverified = ["roll", "elevation"];
   if (!a || !b) return { class: "unknown", cues: {}, reasons: ["one of the sessions has no saved framing"], unverified };
   const cues: FramingComparison["cues"] = {};
-  for (const k of ["posX", "posY", "size", "az", "off", "asp"] as Quantity[]) cues[k] = judge(k, a, b);
+  for (const k of ["posX", "posY", "size", "az", "off", "asp", "roll"] as Quantity[]) cues[k] = judge(k, a, b);
+  if (cues.roll?.verdict !== "unusable") unverified.splice(unverified.indexOf("roll"), 1);
   const usableAz = (["az", "off", "asp"] as Quantity[]).filter((k) => cues[k]?.verdict !== "unusable");
   const reasons: string[] = [];
   if (usableAz.length < 2) {
@@ -101,10 +102,10 @@ export function compareFramingDescriptors(a: FramingDescriptor | null, b: Framin
     reasons.push("the viewing-angle measurements are too close to the limit to call");
     return { class: "unknown", cues, reasons, unverified };
   }
-  const placed = (["posX", "posY", "size"] as Quantity[]).map((k) => cues[k]?.verdict as Verdict);
-  if (placed.includes("unusable")) { reasons.push("the rim position or size did not repeat well enough to compare"); return { class: "unknown", cues, reasons, unverified }; }
+  const placed = (["posX", "posY", "size", "roll"] as Quantity[]).map((k) => cues[k]?.verdict as Verdict).filter((v, i) => i < 3 || v !== "unusable");
+  if (placed.slice(0, 3).includes("unusable")) { reasons.push("the rim position or size did not repeat well enough to compare"); return { class: "unknown", cues, reasons, unverified }; }
   if (placed.every((v) => v === "within")) return { class: "comparable", cues, reasons, unverified };
   if (placed.includes("straddles")) { reasons.push("the rim position or size is too close to the limit to call"); return { class: "unknown", cues, reasons, unverified }; }
-  reasons.push("same viewing angle; the rim sits elsewhere or looks a different size, so paths must be shifted and scaled by rim width");
+  reasons.push("same viewing angle; the rim sits elsewhere, looks a different size or the picture is tilted differently, so paths must be shifted, scaled by rim width and rotated");
   return { class: "normalizable", cues, reasons, unverified };
 }

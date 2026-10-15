@@ -71,7 +71,7 @@ test("a descriptor keeps only the quantities that repeated, and never the ones t
   const d = describeFraming(wobble(5, (i) => ({ az: 3.7 + jitter(i, 0.05), elev: 0.45 + jitter(i, 0.12), roll: -3 + jitter(i, 2) })));
   assert.ok(d.usable.includes("az") && d.usable.includes("size"));
   assert.ok(!d.usable.includes("elev"), "elevation spread is far above its gate");
-  assert.ok(!d.usable.includes("roll"));
+  assert.ok(!d.usable.includes("roll"), "a roll that swings by two degrees between stills is not believed");
   const few = describeFraming(wobble(5, (i) => (i < 3 ? { az: null, off: null, asp: null } : {})));
   assert.ok(!few.usable.includes("az"), "valid in fewer than 4 of 5 stills");
   const wild = describeFraming(wobble(5, (i) => ({ az: 3.7 + jitter(i, 0.6) })));
@@ -91,7 +91,7 @@ test("comparison: comparable, normalizable, not comparable and unknown", () => {
   const r = compareFramingDescriptors(base, noisy);
   assert.equal(r.class, "unknown");
   assert.ok(r.reasons.length > 0);
-  assert.deepEqual(r.unverified, ["roll", "elevation"]);
+  assert.deepEqual(r.unverified, ["elevation"], "roll repeated exactly in these fakes, so it is verified; elevation never is");
 });
 
 test("one angle cue beyond the limit is not enough to call the views different", () => {
@@ -99,4 +99,17 @@ test("one angle cue beyond the limit is not enough to call the views different",
   const oneOff = describeFraming(wobble(5, (i) => ({ az: 3.7 + jitter(i, 0.03), off: -0.45 + jitter(i, 0.01), asp: 1.7 + jitter(i, 0.01) })));
   const r = compareFramingDescriptors(base, oneOff);
   assert.equal(r.class, "unknown");
+});
+
+test("roll: verified when it repeats, a real tilt difference makes paths normalizable, an unreliable roll is reported unverified", () => {
+  const mk = (roll: number, rj: number) => describeFraming(wobble(5, (i) => ({ roll: roll + jitter(i, rj), az: 3.7 + jitter(i, 0.03), off: -0.15 + jitter(i, 0.01), asp: 1.7 + jitter(i, 0.01), size: 0.02 + jitter(i, 0.0004) })));
+  const flat = mk(-0.3, 0.1);
+  const same = compareFramingDescriptors(flat, mk(-0.2, 0.1));
+  assert.equal(same.class, "comparable");
+  assert.ok(!same.unverified.includes("roll") && same.unverified.includes("elevation"));
+  const tilted = compareFramingDescriptors(flat, mk(4, 0.1));
+  assert.equal(tilted.class, "normalizable");
+  const unsure = compareFramingDescriptors(flat, mk(-0.2, 2));
+  assert.equal(unsure.class, "comparable");
+  assert.ok(unsure.unverified.includes("roll"));
 });
