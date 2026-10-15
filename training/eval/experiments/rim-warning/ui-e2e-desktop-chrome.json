@@ -1,0 +1,90 @@
+{
+ "note": "Headless desktop Chrome at an iPhone-sized viewport. Made-up records written to the browser's review store. A functional check of the UI and of the flag gating, NOT an iPhone result and NOT a camera result.",
+ "checks": [
+  {
+   "name": "shot review OFF (rim warning ON): the end-of-set area renders nothing",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "rim warning OFF: only the review link shows, no banner",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "rim warning OFF: the review records were not even read before the player taps review",
+   "pass": true,
+   "detail": "hl-review opened 0x"
+  },
+  {
+   "name": "clean set: no warning",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "phantom-like set: the warning appears in plain words with the marked shots",
+   "pass": true,
+   "detail": "4 shots are marked: 3, 4, 7, 9."
+  },
+  {
+   "name": "warning says nothing was changed and how to fix a missed shot",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms in the warning",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "the path to review: tap Review the marked shots",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "review opens with the marked shots called out and filtered",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "only marked shots are listed, each with a flag",
+   "pass": true,
+   "detail": "⚠ 3 · Make | ⚠ 4 · Miss | ⚠ 7 · Make | ⚠ 9 · Make"
+  },
+  {
+   "name": "the filter can be turned off to see all 12 shots",
+   "pass": true,
+   "detail": "12"
+  },
+  {
+   "name": "review records are byte-identical after the warning and the review (nothing modified)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "the lab has a clearly labelled, experimental switch (off unless turned on)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "with defaults (nothing set) the rim warning switch is off",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "preview the rim warning (made-up set)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "the preview shows the warning on a made-up set and says it is invented",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no page errors",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

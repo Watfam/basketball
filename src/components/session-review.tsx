@@ -43,11 +43,13 @@ const ROWS: { key: string; label: string; unit?: string; digits?: number }[] = [
   { key: "apex_observed", label: "Top of the arc seen" },
 ];
 
-export function SessionReview({ shots, title = "Review your shots", onClose }: { shots: ReviewShot[]; title?: string; onClose: () => void }) {
+export function SessionReview({ shots, title = "Review your shots", onClose, marked }: { shots: ReviewShot[]; title?: string; onClose: () => void; /** Shot numbers the (experimental) rim warning marked; they get a flag and an optional filter. Display only. */ marked?: number[] }) {
   const [longGaps, setLongGaps] = useState(false);
   const items = useMemo(() => shots.map((s) => analyse(s, longGaps ? 3 : 1)), [shots, longGaps]);
-  const [sel, setSel] = useState(0);
+  const [sel, setSel] = useState(() => { const i = marked && marked.length ? shots.findIndex((x) => marked.includes(x.seq)) : 0; return i < 0 ? 0 : i; });
   const [tab, setTab] = useState<"watch" | "compare">("watch");
+  const [onlyMarked, setOnlyMarked] = useState(!!marked && marked.length > 0);
+  const markedSet = useMemo(() => new Set(marked ?? []), [marked]);
   const [mode, setMode] = useState<"outcome" | "pick">("outcome");
   const [picked, setPicked] = useState<Set<number>>(new Set());
   const [showUnreliable, setShowUnreliable] = useState(false);
@@ -191,11 +193,17 @@ export function SessionReview({ shots, title = "Review your shots", onClose }: {
 
             {tab === "watch" && (
               <>
+                {marked && marked.length > 0 && (
+                  <div className="mt-3 rounded-xl border border-line bg-raised px-3 py-2 text-[12px] text-foreground-dim">
+                    <p><b className="text-foreground">⚠ Marked shots: {marked.join(", ")}.</b> The camera may have been reading the rim as a ball around these. Their paths may be wrong, and shots near them may be missing from the count.</p>
+                    <label className="mt-1 flex items-center gap-2"><input type="checkbox" checked={onlyMarked} onChange={(e) => setOnlyMarked(e.target.checked)} /> Show only the marked shots</label>
+                  </div>
+                )}
                 <ul aria-label="Shots" className="mt-3 flex gap-1.5 overflow-x-auto pb-1">
-                  {items.map((it, i) => (
+                  {items.map((it, i) => (onlyMarked && marked && marked.length > 0 && !markedSet.has(it.shot.seq) && i !== sel) ? null : (
                     <li key={it.shot.seq}>
                       <button type="button" aria-pressed={i === sel} onClick={() => setSel(i)} className={`min-h-10 whitespace-nowrap rounded-md px-3 text-xs font-extrabold ${i === sel ? "bg-surface text-accent shadow-sm ring-1 ring-line-strong" : "bg-raised text-foreground-dim"}`}>
-                        {it.shot.seq} · {made(it.shot)}{it.quality.level === "unreliable" || it.quality.level === "none" ? " ·" : ""}
+                        {markedSet.has(it.shot.seq) ? "⚠ " : ""}{it.shot.seq} · {made(it.shot)}{it.quality.level === "unreliable" || it.quality.level === "none" ? " ·" : ""}
                       </button>
                     </li>
                   ))}

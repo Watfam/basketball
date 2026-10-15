@@ -34,7 +34,7 @@ const MEASURES: { key: string; label: string; unit?: string; digits?: number }[]
 const DOT: Record<HistoryShot["quality"]["level"], string> = { tracked: "bg-accent", partial: "bg-foreground-dim", unreliable: "bg-foreground-mute", none: "bg-line-strong" };
 const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
-export function ShotHistory({ playerId, onClose, focusStartedAt }: { playerId: string; onClose: () => void; focusStartedAt?: string }) {
+export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false }: { playerId: string; onClose: () => void; focusStartedAt?: string; /** Browsing the replay sample, not a player's own history. */ sample?: boolean }) {
   const [h, setH] = useState<LoadedHistory | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
@@ -108,16 +108,16 @@ export function ShotHistory({ playerId, onClose, focusStartedAt }: { playerId: s
       <div className="mx-auto w-full max-w-md space-y-3 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-extrabold uppercase tracking-wide">Shot history</p>
-            <p className="text-[11px] text-foreground-mute">Beta. Kept on this phone only.</p>
+            <p className="text-sm font-extrabold uppercase tracking-wide">{sample ? "Shot history: replay sample" : "Shot history"}</p>
+            <p className="text-[11px] text-foreground-mute">{sample ? "Real paths from existing recordings, kept apart from any player. Not your own sets." : "Beta. Kept on this phone only."}</p>
           </div>
           <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setSettings((v) => !v)} aria-expanded={settings}>Settings</Button>
+            {!sample && <Button variant="ghost" size="sm" onClick={() => setSettings((v) => !v)} aria-expanded={settings}>Settings</Button>}
             <Button variant="ghost" size="sm" onClick={onClose}>Done</Button>
           </div>
         </div>
 
-        {(settings || (h && !hasData)) && <TrackingHistoryControls playerId={playerId} onChanged={() => { setPicked([]); setWatching(null); void load(); }} />}
+        {!sample && (settings || (h && !hasData)) && <TrackingHistoryControls playerId={playerId} onChanged={() => { setPicked([]); setWatching(null); void load(); }} />}
 
         {error && <p className="rounded-lg bg-raised px-3 py-2 text-[12px] text-foreground">{error}</p>}
         {h && h.damaged > 0 && <p className="rounded-lg bg-raised px-3 py-2 text-[12px] text-foreground-dim">{h.damaged} saved item{h.damaged === 1 ? " was" : "s were"} unreadable and skipped. Settings can clear {h.damaged === 1 ? "it" : "them"}.</p>}

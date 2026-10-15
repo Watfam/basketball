@@ -124,6 +124,10 @@ Seeds are in `thresholds.json` (master 20261013, frame sample 20261014, bootstra
 
 `experiments/product-readiness/REPORT.md`: feature-readiness inventory for Phases 4-7, plain-language shot review and history, one-card privacy and retention controls, the replay-based phone test (`iphone-readiness/criteria-replay.json`, registered first) and the list of checks only the live camera can answer. `product-readiness/PROPOSALS.md` holds a small proposal that is NOT integrated; `shot-separation/KNOWN-ISSUE.md` documents the open shot-separation problem and its guarded cases.
 
+## Phase 9 (iPhone validation and P-1)
+
+`experiments/product-readiness/IPHONE-TEST.md`: exact steps to put the replay sample on the iPhone, run the camera-free tests and send back one report; the sample imports into its own area without altering existing history (tested). `experiments/rim-warning/`: P-1, the experimental display-only rim-reading warning (flag `hl:rim-warning`, off): criteria registered first, thresholds frozen from development clips, evaluation, report. It failed one registered criterion (C3) and is not independent validation.
+
 ## Designed for later work
 
 Records are keyed `{clip, frame}` with optional `track_id` and `shot_id`, so trajectory features, shot fingerprints (per-shot release,

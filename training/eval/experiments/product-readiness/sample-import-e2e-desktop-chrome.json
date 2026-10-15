@@ -1,0 +1,140 @@
+{
+ "note": "Headless desktop Chrome at an iPhone-sized viewport, the REAL sample file, real IndexedDB. A functional check, NOT an iPhone result.",
+ "checks": [
+  {
+   "name": "a Version line is shown",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "existing history seeded (one set starts at the SAME instant as a sample set)",
+   "pass": true,
+   "detail": "[\"saved\",\"saved\",\"saved\"]"
+  },
+  {
+   "name": "no sample on the phone to begin with",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "preview says 8 new, nothing written yet",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "import",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "done message says nothing else was changed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "EXISTING history is byte-identical after the import",
+   "pass": true,
+   "detail": "3 existing sets"
+  },
+  {
+   "name": "the sample is in its own area (8 sets)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "importing again: everything already here, nothing to import",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "history unchanged by the second attempt",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "browse the sample",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "sample browser opens, says it is not your own sets, no Settings button",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "close it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "made-up review preview",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "review opens on made-up shots",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "run all camera-free tests",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "replay ran on real saved data (the sample plus existing)",
+   "pass": true,
+   "detail": "Real saved data: 11 sets, 243 shots, 234 with a path."
+  },
+  {
+   "name": "no replay row failed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no speed row failed except Browser storage persistence (a desktop-browser answer, informational)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "full report is valid JSON naming build, device, replay and speed results",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "full report says live-camera checks were not done",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "full report carries no player ids, set names or images",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "the tests did not change existing history or the sample",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "remove the sample",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "after removing: existing history byte-identical to before the import, sample gone",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no page errors",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no request went anywhere but this dev server",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

@@ -18,7 +18,7 @@ const kb = (b: number) => (b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${
 
 type Stats = { sessions: number; shots: number; bytes: number; damaged: number; newer: number; writable: boolean; browser: { usage: number | null; quota: number | null } };
 
-export function TrackingHistoryControls({ playerId, onChanged }: { playerId: string; onChanged?: () => void }) {
+export function TrackingHistoryControls({ playerId, onChanged, dataControls = true }: { playerId: string; onChanged?: () => void; /** Export, import and delete. Off on the lab page, where there is no single player to act on. */ dataControls?: boolean }) {
   const [on, setOn] = useState(() => historyRetentionEnabled());
   const [stats, setStats] = useState<Stats | null>(null);
   const [busy, setBusy] = useState(false);
@@ -130,7 +130,7 @@ export function TrackingHistoryControls({ playerId, onChanged }: { playerId: str
       {stats && !stats.writable && <p className="mt-1 font-semibold text-foreground">This was saved by a newer version of the app, so this version will only read it. &ldquo;Delete all&rdquo; still works.</p>}
       {stats && stats.damaged > 0 && <p className="mt-1 text-foreground">{stats.damaged} saved item{stats.damaged === 1 ? " is" : "s are"} unreadable and ignored. <button type="button" onClick={() => void fix()} disabled={busy} className="font-bold text-accent underline">Clear {stats.damaged === 1 ? "it" : "them"}</button></p>}
 
-      <div className="mt-3 border-t border-line pt-3">
+      {dataControls && <div className="mt-3 border-t border-line pt-3">
         <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Your data</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => void exportNow()} disabled={busy || !stats || stats.sessions === 0}>Export to a file</Button>
@@ -162,7 +162,7 @@ export function TrackingHistoryControls({ playerId, onChanged }: { playerId: str
             </div>
           </div>
         )}
-      </div>
+      </div>}
       {note && <p aria-live="polite" className="mt-2 text-foreground">{note}</p>}
     </section>
   );
