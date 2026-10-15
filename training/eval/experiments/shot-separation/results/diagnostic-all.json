@@ -1,0 +1,2500 @@
+{
+ "generated": "2026-10-15T02:05:24.937Z",
+ "reference": {
+  "IMG_4839": {
+   "count": 28,
+   "written": 28,
+   "ambiguous": false,
+   "times": [
+    155,
+    329,
+    427,
+    576,
+    735,
+    855,
+    990,
+    1133,
+    1412,
+    1538,
+    1837,
+    2065,
+    2181,
+    2396,
+    2754,
+    2899,
+    3205,
+    3361,
+    3506,
+    3687,
+    3860,
+    3964,
+    4166,
+    4358,
+    4613,
+    4782,
+    4899,
+    5038
+   ]
+  },
+  "IMG_4840": {
+   "count": 32,
+   "written": 32,
+   "ambiguous": false,
+   "times": [
+    90,
+    280,
+    394,
+    511,
+    638,
+    775,
+    919,
+    1034,
+    1192,
+    1367,
+    1510,
+    1650,
+    1881,
+    2046,
+    2275,
+    2448,
+    2648,
+    2787,
+    2973,
+    3131,
+    3275,
+    3426,
+    3545,
+    3725,
+    3869,
+    4033,
+    4274,
+    4479,
+    4623,
+    4822,
+    4905,
+    5080
+   ]
+  },
+  "IMG_4851": {
+   "count": 17,
+   "written": 18,
+   "ambiguous": true,
+   "times": [
+    128,
+    461,
+    741,
+    921,
+    1123,
+    1273,
+    1490,
+    1610,
+    1948,
+    2179,
+    2454,
+    2713,
+    3124,
+    3230,
+    3320,
+    3444,
+    3744
+   ]
+  },
+  "IMG_4866": {
+   "count": 19,
+   "written": 19,
+   "ambiguous": false,
+   "times": [
+    174,
+    269,
+    466,
+    560,
+    754,
+    1008,
+    1190,
+    1519,
+    1704,
+    1990,
+    2177,
+    2392,
+    2639,
+    2803,
+    3002,
+    3367,
+    3542,
+    3890,
+    4130
+   ]
+  },
+  "IMG_4867": {
+   "count": 16,
+   "written": 16,
+   "ambiguous": false,
+   "times": [
+    139,
+    384,
+    447,
+    721,
+    988,
+    1133,
+    1307,
+    1557,
+    1693,
+    2070,
+    2356,
+    2579,
+    2879,
+    3088,
+    3346,
+    3504
+   ]
+  },
+  "IMG_4872": {
+   "count": 23,
+   "written": 23,
+   "ambiguous": false,
+   "times": [
+    206,
+    371,
+    483,
+    692,
+    866,
+    1071,
+    1294,
+    1408,
+    1622,
+    1770,
+    2043,
+    2154,
+    2453,
+    2591,
+    2729,
+    2855,
+    3118,
+    3301,
+    3359,
+    3610,
+    3826,
+    3947,
+    4163
+   ]
+  },
+  "IMG_4873": {
+   "count": 22,
+   "written": 22,
+   "ambiguous": false,
+   "times": [
+    165,
+    252,
+    372,
+    509,
+    763,
+    988,
+    1230,
+    1307,
+    1398,
+    1677,
+    1904,
+    2221,
+    2330,
+    2602,
+    2817,
+    2953,
+    3143,
+    3284,
+    3412,
+    3627,
+    3912,
+    4061
+   ]
+  },
+  "IMG_4874": {
+   "count": 20,
+   "written": 20,
+   "ambiguous": false,
+   "times": [
+    163,
+    396,
+    689,
+    883,
+    1082,
+    1161,
+    1388,
+    1541,
+    1629,
+    1938,
+    2170,
+    2512,
+    2715,
+    3093,
+    3276,
+    3390,
+    3690,
+    4114,
+    4350,
+    4485
+   ]
+  }
+ },
+ "per_clip": {
+  "IMG_4839": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 28,
+     "references": 28,
+     "matched": 28,
+     "boundary_correct": 28,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 27,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 28,
+     "references": 28,
+     "matched": 28,
+     "boundary_correct": 28,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 27,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 28,
+     "references": 28,
+     "matched": 28,
+     "boundary_correct": 28,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 27,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 28,
+     "references": 28,
+     "matched": 27,
+     "boundary_correct": 27,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 1,
+     "outcome_correct": 26,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1876
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1837
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 29,
+     "references": 28,
+     "matched": 26,
+     "boundary_correct": 25,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 3,
+     "outcome_correct": 24,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1614
+      },
+      {
+       "kind": "extra",
+       "first": 1876
+      },
+      {
+       "kind": "extra",
+       "first": 3388
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 4900,
+       "ref": 4899,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1837
+      },
+      {
+       "kind": "missing",
+       "ref": 3361
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 29,
+     "references": 28,
+     "matched": 26,
+     "boundary_correct": 25,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 3,
+     "outcome_correct": 24,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1614
+      },
+      {
+       "kind": "extra",
+       "first": 1876
+      },
+      {
+       "kind": "extra",
+       "first": 3388
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 4900,
+       "ref": 4899,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1837
+      },
+      {
+       "kind": "missing",
+       "ref": 3361
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 28,
+     "references": 28,
+     "matched": 26,
+     "boundary_correct": 25,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 2,
+     "outcome_correct": 24,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1876
+      },
+      {
+       "kind": "extra",
+       "first": 3388
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 4900,
+       "ref": 4899,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1837
+      },
+      {
+       "kind": "missing",
+       "ref": 3361
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 28,
+     "references": 28,
+     "matched": 26,
+     "boundary_correct": 25,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 2,
+     "outcome_correct": 24,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1876
+      },
+      {
+       "kind": "extra",
+       "first": 3388
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 3860,
+       "ref": 3860,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 4900,
+       "ref": 4899,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1837
+      },
+      {
+       "kind": "missing",
+       "ref": 3361
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4840": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2973,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2973,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2973,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2973,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2974,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2974,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2974,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 32,
+     "references": 32,
+     "matched": 32,
+     "boundary_correct": 32,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 31,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2974,
+       "ref": 2973,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4851": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2713,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2713,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2713,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2713,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2714,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2714,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2714,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 17,
+     "references": 17,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 2714,
+       "ref": 2713,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4866": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 19,
+     "references": 19,
+     "matched": 19,
+     "boundary_correct": 19,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 18,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 19,
+     "references": 19,
+     "matched": 19,
+     "boundary_correct": 19,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 18,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 17,
+     "references": 19,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 269
+      },
+      {
+       "kind": "missing",
+       "ref": 560
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 17,
+     "references": 19,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 269
+      },
+      {
+       "kind": "missing",
+       "ref": 560
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 19,
+     "references": 19,
+     "matched": 19,
+     "boundary_correct": 19,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 18,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 19,
+     "references": 19,
+     "matched": 19,
+     "boundary_correct": 19,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 18,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 17,
+     "references": 19,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 269
+      },
+      {
+       "kind": "missing",
+       "ref": 560
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 17,
+     "references": 19,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 2,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 174,
+       "ref": 174,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 269
+      },
+      {
+       "kind": "missing",
+       "ref": 560
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4867": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 16,
+     "references": 16,
+     "matched": 16,
+     "boundary_correct": 16,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 447,
+       "ref": 447,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 16,
+     "references": 16,
+     "matched": 16,
+     "boundary_correct": 16,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 447,
+       "ref": 447,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 15,
+     "references": 16,
+     "matched": 14,
+     "boundary_correct": 14,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 14,
+     "outcome_incorrect": 0,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "merged",
+       "first": 384,
+       "last": 453,
+       "refs": [
+        384,
+        447
+       ]
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 15,
+     "references": 16,
+     "matched": 14,
+     "boundary_correct": 14,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 14,
+     "outcome_incorrect": 0,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "merged",
+       "first": 384,
+       "last": 453,
+       "refs": [
+        384,
+        447
+       ]
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 16,
+     "references": 16,
+     "matched": 16,
+     "boundary_correct": 16,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 448,
+       "ref": 447,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 16,
+     "references": 16,
+     "matched": 16,
+     "boundary_correct": 16,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 448,
+       "ref": 447,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 15,
+     "references": 16,
+     "matched": 14,
+     "boundary_correct": 14,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 14,
+     "outcome_incorrect": 0,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "merged",
+       "first": 384,
+       "last": 454,
+       "refs": [
+        384,
+        447
+       ]
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 15,
+     "references": 16,
+     "matched": 14,
+     "boundary_correct": 14,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 14,
+     "outcome_incorrect": 0,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "merged",
+       "first": 384,
+       "last": 454,
+       "refs": [
+        384,
+        447
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4872": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 24,
+     "references": 23,
+     "matched": 23,
+     "boundary_correct": 23,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 1,
+     "outcome_correct": 23,
+     "outcome_incorrect": 0,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 24,
+     "references": 23,
+     "matched": 23,
+     "boundary_correct": 23,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 1,
+     "outcome_correct": 22,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 206,
+       "ref": 206,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 23,
+     "references": 23,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 1,
+     "outcome_correct": 20,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 206,
+       "ref": 206,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "merged",
+       "first": 3301,
+       "last": 3370,
+       "refs": [
+        3301,
+        3359
+       ]
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 23,
+     "references": 23,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 1,
+     "outcome_correct": 20,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "extra",
+       "first": 1
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 206,
+       "ref": 206,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "merged",
+       "first": 3301,
+       "last": 3370,
+       "refs": [
+        3301,
+        3359
+       ]
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 23,
+     "references": 23,
+     "matched": 23,
+     "boundary_correct": 23,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 23,
+     "outcome_incorrect": 0,
+     "merged_not_scored": 0,
+     "detail": []
+    },
+    "tracks_kalman_round2": {
+     "predictions": 23,
+     "references": 23,
+     "matched": 23,
+     "boundary_correct": 23,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 22,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 206,
+       "ref": 206,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 22,
+     "references": 23,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 20,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 206,
+       "ref": 206,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "merged",
+       "first": 3302,
+       "last": 3370,
+       "refs": [
+        3301,
+        3359
+       ]
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 22,
+     "references": 23,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 1,
+     "merged_references": 2,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 20,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 2,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 206,
+       "ref": 206,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "merged",
+       "first": 3302,
+       "last": 3370,
+       "refs": [
+        3301,
+        3359
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4873": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 11,
+     "references": 22,
+     "matched": 5,
+     "boundary_correct": 2,
+     "merged_predictions": 4,
+     "merged_references": 17,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 2,
+     "outcome_correct": 4,
+     "outcome_incorrect": 1,
+     "merged_not_scored": 17,
+     "detail": [
+      {
+       "kind": "merged",
+       "first": 252,
+       "last": 835,
+       "refs": [
+        252,
+        372,
+        509,
+        763
+       ]
+      },
+      {
+       "kind": "merged",
+       "first": 892,
+       "last": 2263,
+       "refs": [
+        988,
+        1230,
+        1307,
+        1398,
+        1677,
+        1904,
+        2221
+       ]
+      },
+      {
+       "kind": "extra",
+       "first": 2415
+      },
+      {
+       "kind": "merged",
+       "first": 2487,
+       "last": 3044,
+       "refs": [
+        2602,
+        2817,
+        2953
+       ]
+      },
+      {
+       "kind": "merged",
+       "first": 3111,
+       "last": 3431,
+       "refs": [
+        3143,
+        3284,
+        3412
+       ]
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 4021,
+       "ref": 4061,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "extra",
+       "first": 4284
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 23,
+     "references": 22,
+     "matched": 22,
+     "boundary_correct": 22,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 1,
+     "outcome_correct": 17,
+     "outcome_incorrect": 5,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 165,
+       "ref": 165,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "extra",
+       "first": 433
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 509,
+       "ref": 509,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 988,
+       "ref": 988,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1230,
+       "ref": 1230,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1904,
+       "ref": 1904,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 21,
+     "references": 22,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 5,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 165,
+       "ref": 165,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 509,
+       "ref": 509,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 988,
+       "ref": 988,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1230,
+       "ref": 1230,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1904,
+       "ref": 1904,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 252
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 21,
+     "references": 22,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 16,
+     "outcome_incorrect": 5,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 165,
+       "ref": 165,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 509,
+       "ref": 509,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 988,
+       "ref": 988,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1230,
+       "ref": 1230,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1904,
+       "ref": 1904,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 252
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 12,
+     "references": 22,
+     "matched": 6,
+     "boundary_correct": 2,
+     "merged_predictions": 4,
+     "merged_references": 16,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 2,
+     "outcome_correct": 4,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 16,
+     "detail": [
+      {
+       "kind": "merged",
+       "first": 252,
+       "last": 834,
+       "refs": [
+        252,
+        372,
+        509,
+        763
+       ]
+      },
+      {
+       "kind": "merged",
+       "first": 892,
+       "last": 2262,
+       "refs": [
+        988,
+        1230,
+        1307,
+        1398,
+        1677,
+        1904,
+        2221
+       ]
+      },
+      {
+       "kind": "extra",
+       "first": 2416
+      },
+      {
+       "kind": "merged",
+       "first": 2488,
+       "last": 3044,
+       "refs": [
+        2602,
+        2817,
+        2953
+       ]
+      },
+      {
+       "kind": "merged",
+       "first": 3112,
+       "last": 3308,
+       "refs": [
+        3143,
+        3284
+       ]
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 3358,
+       "ref": 3412,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 4022,
+       "ref": 4061,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "extra",
+       "first": 4284
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 23,
+     "references": 22,
+     "matched": 22,
+     "boundary_correct": 22,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 1,
+     "outcome_correct": 17,
+     "outcome_incorrect": 5,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 166,
+       "ref": 165,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "extra",
+       "first": 434
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 508,
+       "ref": 509,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 988,
+       "ref": 988,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1230,
+       "ref": 1230,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2222,
+       "ref": 2221,
+       "called": "miss",
+       "written": "make"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 21,
+     "references": 22,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 6,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 166,
+       "ref": 165,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 510,
+       "ref": 509,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 988,
+       "ref": 988,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1230,
+       "ref": 1230,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1904,
+       "ref": 1904,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2222,
+       "ref": 2221,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "missing",
+       "ref": 252
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 21,
+     "references": 22,
+     "matched": 21,
+     "boundary_correct": 21,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 6,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 166,
+       "ref": 165,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 510,
+       "ref": 509,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 988,
+       "ref": 988,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1230,
+       "ref": 1230,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 1904,
+       "ref": 1904,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2222,
+       "ref": 2221,
+       "called": "miss",
+       "written": "make"
+      },
+      {
+       "kind": "missing",
+       "ref": 252
+      }
+     ]
+    }
+   }
+  },
+  "IMG_4874": {
+   "30fps": {
+    "baseline_legacy": {
+     "predictions": 20,
+     "references": 20,
+     "matched": 20,
+     "boundary_correct": 20,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 18,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 20,
+     "references": 20,
+     "matched": 20,
+     "boundary_correct": 20,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 0,
+     "extra": 0,
+     "outcome_correct": 18,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 19,
+     "references": 20,
+     "matched": 19,
+     "boundary_correct": 18,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 17,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1161
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 20,
+     "references": 20,
+     "matched": 19,
+     "boundary_correct": 18,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 1,
+     "outcome_correct": 17,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "extra",
+       "first": 4151
+      },
+      {
+       "kind": "missing",
+       "ref": 1161
+      }
+     ]
+    }
+   },
+   "15fps": {
+    "baseline_legacy": {
+     "predictions": 19,
+     "references": 20,
+     "matched": 19,
+     "boundary_correct": 19,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 17,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 3093
+      }
+     ]
+    },
+    "tracks_kalman_round2": {
+     "predictions": 19,
+     "references": 20,
+     "matched": 19,
+     "boundary_correct": 19,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 1,
+     "extra": 0,
+     "outcome_correct": 17,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 3093
+      }
+     ]
+    },
+    "tracks": {
+     "predictions": 17,
+     "references": 20,
+     "matched": 17,
+     "boundary_correct": 17,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 3,
+     "extra": 0,
+     "outcome_correct": 15,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "missing",
+       "ref": 1161
+      },
+      {
+       "kind": "missing",
+       "ref": 1629
+      },
+      {
+       "kind": "missing",
+       "ref": 3093
+      }
+     ]
+    },
+    "candidate_arrival": {
+     "predictions": 17,
+     "references": 20,
+     "matched": 16,
+     "boundary_correct": 16,
+     "merged_predictions": 0,
+     "merged_references": 0,
+     "split_references": 0,
+     "missing": 4,
+     "extra": 1,
+     "outcome_correct": 14,
+     "outcome_incorrect": 2,
+     "merged_not_scored": 0,
+     "detail": [
+      {
+       "kind": "outcome_wrong",
+       "first": 1082,
+       "ref": 1082,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "outcome_wrong",
+       "first": 2512,
+       "ref": 2512,
+       "called": "make",
+       "written": "miss"
+      },
+      {
+       "kind": "extra",
+       "first": 4152
+      },
+      {
+       "kind": "missing",
+       "ref": 1161
+      },
+      {
+       "kind": "missing",
+       "ref": 1629
+      },
+      {
+       "kind": "missing",
+       "ref": 3093
+      },
+      {
+       "kind": "missing",
+       "ref": 4114
+      }
+     ]
+    }
+   }
+  }
+ },
+ "pooled": {
+  "30fps": {
+   "baseline_legacy": {
+    "predictions": 167,
+    "references": 177,
+    "matched": 160,
+    "boundary_correct": 157,
+    "merged_predictions": 4,
+    "merged_references": 17,
+    "split_references": 0,
+    "missing": 0,
+    "extra": 3,
+    "outcome_correct": 152,
+    "outcome_incorrect": 8,
+    "outcome_correct_unambiguous": 136,
+    "matched_unambiguous": 143
+   },
+   "tracks_kalman_round2": {
+    "predictions": 179,
+    "references": 177,
+    "matched": 177,
+    "boundary_correct": 177,
+    "merged_predictions": 0,
+    "merged_references": 0,
+    "split_references": 0,
+    "missing": 0,
+    "extra": 2,
+    "outcome_correct": 164,
+    "outcome_incorrect": 13,
+    "outcome_correct_unambiguous": 148,
+    "matched_unambiguous": 160
+   },
+   "tracks": {
+    "predictions": 172,
+    "references": 177,
+    "matched": 169,
+    "boundary_correct": 168,
+    "merged_predictions": 2,
+    "merged_references": 4,
+    "split_references": 0,
+    "missing": 4,
+    "extra": 1,
+    "outcome_correct": 157,
+    "outcome_incorrect": 12,
+    "outcome_correct_unambiguous": 141,
+    "matched_unambiguous": 152
+   },
+   "candidate_arrival": {
+    "predictions": 173,
+    "references": 177,
+    "matched": 168,
+    "boundary_correct": 167,
+    "merged_predictions": 2,
+    "merged_references": 4,
+    "split_references": 0,
+    "missing": 5,
+    "extra": 3,
+    "outcome_correct": 156,
+    "outcome_incorrect": 12,
+    "outcome_correct_unambiguous": 140,
+    "matched_unambiguous": 151
+   }
+  },
+  "15fps": {
+   "baseline_legacy": {
+    "predictions": 167,
+    "references": 177,
+    "matched": 158,
+    "boundary_correct": 153,
+    "merged_predictions": 4,
+    "merged_references": 16,
+    "split_references": 0,
+    "missing": 3,
+    "extra": 5,
+    "outcome_correct": 148,
+    "outcome_incorrect": 10,
+    "outcome_correct_unambiguous": 132,
+    "matched_unambiguous": 141
+   },
+   "tracks_kalman_round2": {
+    "predictions": 178,
+    "references": 177,
+    "matched": 174,
+    "boundary_correct": 173,
+    "merged_predictions": 0,
+    "merged_references": 0,
+    "split_references": 0,
+    "missing": 3,
+    "extra": 4,
+    "outcome_correct": 160,
+    "outcome_incorrect": 14,
+    "outcome_correct_unambiguous": 144,
+    "matched_unambiguous": 157
+   },
+   "tracks": {
+    "predictions": 169,
+    "references": 177,
+    "matched": 165,
+    "boundary_correct": 164,
+    "merged_predictions": 2,
+    "merged_references": 4,
+    "split_references": 0,
+    "missing": 8,
+    "extra": 2,
+    "outcome_correct": 151,
+    "outcome_incorrect": 14,
+    "outcome_correct_unambiguous": 135,
+    "matched_unambiguous": 148
+   },
+   "candidate_arrival": {
+    "predictions": 169,
+    "references": 177,
+    "matched": 164,
+    "boundary_correct": 163,
+    "merged_predictions": 2,
+    "merged_references": 4,
+    "split_references": 0,
+    "missing": 9,
+    "extra": 3,
+    "outcome_correct": 150,
+    "outcome_incorrect": 14,
+    "outcome_correct_unambiguous": 134,
+    "matched_unambiguous": 147
+   }
+  }
+ },
+ "ambiguous_clips": [
+  "IMG_4851"
+ ]
+}

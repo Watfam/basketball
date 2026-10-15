@@ -1,0 +1,77 @@
+{
+ "generated": "2026-10-15T02:06:00.523Z",
+ "rows": [
+  {
+   "fps": "30fps",
+   "id": "P1",
+   "status": "FAIL",
+   "detail": "IMG_4872 merged predictions 1; total 2 against control 2"
+  },
+  {
+   "fps": "30fps",
+   "id": "P2",
+   "status": "pass",
+   "detail": "splits 0 against 0"
+  },
+  {
+   "fps": "30fps",
+   "id": "P3",
+   "status": "FAIL",
+   "detail": "extras 3 against 1"
+  },
+  {
+   "fps": "30fps",
+   "id": "P4",
+   "status": "FAIL",
+   "detail": "pooled outcome-correct 140 against control 141; clips losing 2+ vs baseline: IMG_4866, IMG_4872"
+  },
+  {
+   "fps": "30fps",
+   "id": "P5_D1",
+   "status": "FAIL",
+   "detail": "frozen scorer, seven clips: pooled -14; at -2 or worse: IMG_4872 -9, IMG_4874 -4"
+  },
+  {
+   "fps": "15fps",
+   "id": "P1",
+   "status": "FAIL",
+   "detail": "IMG_4872 merged predictions 1; total 2 against control 2"
+  },
+  {
+   "fps": "15fps",
+   "id": "P2",
+   "status": "pass",
+   "detail": "splits 0 against 0"
+  },
+  {
+   "fps": "15fps",
+   "id": "P3",
+   "status": "FAIL",
+   "detail": "extras 3 against 2"
+  },
+  {
+   "fps": "15fps",
+   "id": "P4",
+   "status": "FAIL",
+   "detail": "pooled outcome-correct 134 against control 135; clips losing 2+ vs baseline: IMG_4866, IMG_4872, IMG_4874"
+  },
+  {
+   "fps": "15fps",
+   "id": "P5_D1",
+   "status": "FAIL",
+   "detail": "frozen scorer, seven clips: pooled -4; at -2 or worse: IMG_4872 -2"
+  }
+ ],
+ "not_computed": "P5 D2/D5/D7 and P6: the decision rule is conjunctive and P1 already fails",
+ "verdict": "NOT RECOMMENDED",
+ "failed": [
+  "P1@30fps",
+  "P3@30fps",
+  "P4@30fps",
+  "P5_D1@30fps",
+  "P1@15fps",
+  "P3@15fps",
+  "P4@15fps",
+  "P5_D1@15fps"
+ ]
+}
