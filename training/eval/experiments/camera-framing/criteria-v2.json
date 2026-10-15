@@ -1,0 +1,16 @@
+{
+  "registered": "2026-10-14",
+  "status": "AMENDMENT written after looking at a contact sheet of hoop crops (one still per clip, 400 px) and BEFORE any detector, descriptor value, tolerance or pair was computed. It refines two definitions that the crops showed to be wrong for the side-on clip and adds one quantity. Every pass/fail criterion, threshold and the integration rule in criteria.json is unchanged.",
+  "what_the_crops_showed": "IMG_4851 is a strongly side-on view: the board's top edge runs at roughly 35 degrees in the image (perspective), so a top-edge slope is not a roll measure, and the rim hangs visibly in front of the board's side. In the near-head-on clips the board is a thick white frame rectangle with an inner white target square, the rim is orange, the net white. IMG_4844 has the board near the top edge of the frame. The datasets.json rim_native for IMG_4844 does not match the rim in the still, so no seed from datasets.json is used: the detector finds the rim from the pixels alone.",
+  "amendments": {
+    "roll": "measured from the mean tilt of the board's left and right (near-vertical) edges, in degrees, NOT from the top edge. Tolerance floor 1.5 degrees and the F2 limit (SD <= 0.5 degree) are unchanged.",
+    "az_width": "the 'az' quantity of criteria.json (board/rim width ratio) is measured at the board's vertical mid-height between the left and right edge lines (not along the top edge). Tolerance floor and F2 limit unchanged.",
+    "off": {
+      "definition": "the horizontal offset of the rim centre from the board's centre at the rim's height, in units of the rim's apparent width: (rim_cx - board_cx) / rim_w. The rim projects out in front of the board, so the offset grows with sin(azimuth), which is sensitive near head-on where the width ratio (which goes with cos) is not.",
+      "tolerance_floor": "0.06 rim widths absolute (a few degrees of azimuth for a rim that overhangs the board by about 0.8 rim widths)",
+      "F2_limit": "pooled within-clip SD <= 0.04 rim widths on the development clips",
+      "classes": "treated exactly like az and elev in criteria.json: beyond tolerance with confidence => not_comparable; the two az quantities must BOTH be within tolerance for 'comparable' or 'normalizable'; if one passes F2 and the other fails, only the one that passed is used and the report says so."
+    }
+  },
+  "rule_for_the_ablation": "M3 (rim only) uses pos, size, elev. It cannot use az or off. The M1 versus M3 comparison in F5 and F6 is reported for the same pairs and draws."
+}
