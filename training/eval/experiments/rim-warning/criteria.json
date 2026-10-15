@@ -1,0 +1,52 @@
+{
+  "registered": "2026-10-16",
+  "status": "REGISTERED BEFORE ANY WARNING STATISTIC HAS BEEN COMPUTED ON ANY CLIP. Nothing here may change after results exist: add criteria-v2.json and say so. thresholds.json, baseline-v0 and datasets.lock are untouched.",
+  "what_p1_is": "A display-only note on the end-of-set screen, shown only when the experimental flag hl:rim-warning is on (and shot review is on, which supplies its data): 'the camera may be reading part of the rim as a ball in this set, so the shot count could be low', with a path to the shots whose records show the rim effect. It reads the review records the recorder already writes. It never writes to, changes or reorders records, shots, counts, calls or detections; it never changes what is saved; it is not computed at all when the flag is off.",
+
+  "disclosure": "Written after the Phase 8 report and the rim-phantom study, so it KNOWS: IMG_4873 contains one stationary false box on the rim hardware at (179.7, 194.1) in its sizer window, present in 42.1% of frames, median run 7 frames, longest 200; no other clip has a static spot above 2.5%; the shipped grouping merges 16-17 real shots into 4 predictions on IMG_4873 (shot-separation diagnostic); a synthetic phantom injected into a clean clip starts costing shots at about 20% duty. It does NOT know how the recorder's occ flag (spot memory: a spot held a box in at least 3% of processed frames of the last 40 s, after a 3 s warm-up) behaves on any clip as a per-shot or per-set statistic. Because IMG_4873's phantom is known, nothing computed on it is an independent validation, and the same is true of every other clip (all eight were used in earlier phases).",
+
+  "statistic": {
+    "per_record": "shotOcc = (processed frames in the record, window -1000 to +2000 ms around the shot's first rim sighting, in which the model ran and at least one box has occ = true AND its centre lies within RIM_RADIUS of the record's rim) divided by (processed frames in the record in which the model ran). RIM_RADIUS = 60 model pixels (the phantom sits 12 px from the rim in the sizer window; this is a fixed geometric choice, not tuned).",
+    "affected_shot": "a record with shotOcc >= T_shot",
+    "set_rule": "warn iff (affected shots) >= K_MIN AND (affected shots) / (shots with a record) >= T_FRAC. K_MIN = 2 (fixed: one affected shot is not a pattern).",
+    "path_to_review": "the warning lists the affected shots and opens Review your shots on them; shots whose records are missing (a lost or merged shot has no record of its own) cannot be listed, and the text says missed shots can be added by hand.",
+    "app_conditions": "the recorder runs at the app's processed frame rate (15 fps); 30 fps results are sensitivity only."
+  },
+
+  "thresholds": {
+    "rule": "T_SHOT and T_FRAC are set ONCE from the five DEVELOPMENT clips (all clean) and then frozen in thresholds.json BEFORE the other three clips or any injection are evaluated. T_SHOT = clamp(2 x p99 of shotOcc over all development counted shots' records, 0.25, 0.60). T_FRAC = clamp(2 x the largest share of affected shots over any development clip at that T_SHOT, 0.20, 0.50). The floors are set from the phantom's 42% duty (a threshold at or below a quarter of that is already sensitive) and from 'costs begin near 20% duty'; they are fixed here, before any number exists.",
+    "development_clips": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867"]
+  },
+
+  "data": {
+    "clips": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"],
+    "how_records_are_made": "each clip's saved ball-6 detections are replayed frame by frame (15 fps: even frames; 30 fps: all frames) through the app's own review recorder and the PRODUCTION counting core (src/lib/vision/counting.ts, unchanged), cutting a record at every counted call exactly as use-camera-counter.ts does. Nothing in src/lib/vision is modified.",
+    "roles": { "development (set thresholds)": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867"], "evaluation, clean (never used to set thresholds)": ["IMG_4872", "IMG_4874"], "evaluation, phantom (never used to set thresholds)": ["IMG_4873"] },
+    "limits": "EIGHT clips, ONE hoop, ONE phone, and exactly ONE clip with the phantom. Missed-warning rates therefore rest on one set: they cannot be estimated, only shown. All eight clips were seen in earlier phases and ball-6 was trained on seven of them; this is NOT independent validation of the warning."
+  },
+
+  "truth": {
+    "set_positive": "IMG_4873 (the rim-phantom study's adjudication). Every other clip is clean (busiest static spot 0.5-2.5% of frames with ball-sized boxes and scores 0.7-0.9).",
+    "affected_shot_truth": "on IMG_4873 only: a counted shot is truly affected if its record holds at least 5 processed frames (15 fps; 10 at 30 fps) with a raw box (score >= 0.2) whose centre is within 4 px of the study's phantom centre read from rim-phantom/results/analysis.json (not recomputed). On every other clip no shot is truly affected.",
+    "set_units": "(a) whole clips, 8 sets; (b) non-overlapping groups of 10 consecutive counted shots within a clip (a smaller set, the app's session may be any size), reported separately because they are not independent of (a)."
+  },
+
+  "synthetic_injection": {
+    "label": "SYNTHETIC. Not a real-clip result.",
+    "into": "the seven clean clips (all except IMG_4873)",
+    "model": "the rim-phantom study's generator: an 11 px square box, score 0.5, at a spot relative to the window's rim, runs of exponential length (mean 60 frames at 30 fps, minimum 5), switched on with probability = duty per run; spots (-12, 2) and (8, -15) relative to the rim; seeded",
+    "duty_cycles": [0.05, 0.10, 0.20, 0.42, 0.60],
+    "also_reported": "the number of shots the PRODUCTION counter loses at each duty, so the warning can be read against actual harm (descriptive; production code is run, not changed)"
+  },
+
+  "criteria": {
+    "C1_false_warnings_whole_clips": "at most 1 of the 7 clean clips (15 fps) triggers the set warning (target 0); every false warning is reported by clip",
+    "C2_missed_warning_whole_clip": "IMG_4873 (15 fps) triggers the set warning",
+    "C3_shot_level": "on IMG_4873, at least 80% of truly affected counted shots are flagged; on the clean clips, at most 5% of all counted shots are flagged",
+    "C4_injection": "at duty 0.42 and 0.60: the set warning fires on at least 90% of the injected clean-clip sets (both spots); at duty 0.05: at most 10%; duties 0.10 and 0.20 are reported, not scored (the transition)",
+    "C5_no_side_effects": "assessRimReading is a pure function: its inputs are deep-frozen in a test and unchanged; with the flag off the assessment is never called (test); a static check shows no file under src/lib/vision other than replay-store.ts differs from the Phase 8 commit, and no production counting file imports the warning module; the frozen baseline reproduces unchanged",
+    "C6_honesty": "the report states the clip counts above, says nothing computed on these clips is independent validation, and gives intervals (Wilson) for every rate"
+  },
+
+  "decision_rule": "P-1 ships behind the disabled flag whatever the outcome (Matt approved it as an experimental, display-only warning), but it is described as passing only the criteria it passed; any failed criterion is reported as a failure with its numbers and the warning is not recommended beyond Matt's own testing. No threshold may change after results exist."
+}
