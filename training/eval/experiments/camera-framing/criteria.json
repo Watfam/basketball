@@ -1,0 +1,118 @@
+{
+  "registered": "2026-10-14",
+  "status": "REGISTERED BEFORE ANY FRAMING CODE EXISTS. Nothing here may change after results exist: add criteria-v2.json and say so. thresholds.json, baseline-v0 and datasets.lock are untouched. No criterion was derived from the output of any code in this directory.",
+  "disclosure": "Written after Phase 6. It therefore knows: (1) the app already compares sessions with compareFraming (rim position within 0.02 of the frame, window-scale ratio within 0.10, ball-width ratio within 0.15) and that this cannot see the camera's viewing angle; (2) src/lib/vision/hoop-match.ts re-finds a hoop from a saved 320x180 grey picture and its README says a different lens or angle scores about 0.19; (3) I looked at one contact sheet of temporal-median stills (one per clip, 640 px wide thumbnails) to see that the clips show one portable hoop in a driveway from several camera positions, that the board is visible in every clip, and that trees, a brick wall, a hedge and bins are static background. I have NOT measured a rim ellipse, a board edge, a registration score or a tolerance on any clip.",
+
+  "question": "Given two saved sessions, are their rim-relative ball paths comparable as recorded, comparable after a validated similarity normalisation (shift, scale, roll), or not reliably comparable? And can the app say so, or must it abstain?",
+
+  "why_rim_position_is_not_enough": {
+    "claim_to_test": "A horizontal circle (the rim) projects to an ellipse whose horizontal width is the full diameter at every azimuth; it only changes with distance and zoom. The board is a vertical plane whose apparent width shrinks by cos(angle between the view direction and the board normal). So rim position and rim width cannot see a camera that moved around the hoop; the board-width to rim-width ratio can. The rim's minor/major axis ratio tracks viewing elevation. This is the geometric premise of M1 and is tested (ablation M3), not assumed.",
+    "consequence_of_azimuth_change": "A lateral miss measured in the image takes in a share of the short/long error equal to sin(azimuth change). 10 degrees leaks 17 percent, 20 degrees 34 percent. That is why azimuth and elevation changes are not removable by a similarity normalisation, while shift, scale and roll are."
+  },
+
+  "descriptor": {
+    "name": "camera-framing/1",
+    "quantities": {
+      "pos": "rim centre (x, y) as fractions of frame width and height",
+      "size": "rim apparent width in pixels divided by frame width (log ratio is compared)",
+      "elev": "rim ellipse minor/major axis ratio",
+      "az": "board top-edge apparent width divided by rim apparent width (a ratio; no physical board size is assumed)",
+      "roll": "board top-edge slope in degrees (image-space; no horizon is assumed)"
+    },
+    "storage_rule": "numbers only, with a per-quantity standard deviation; no picture is stored by M1. M2 needs a picture and is therefore never part of a history export."
+  },
+
+  "methods": {
+    "M0": "production reference: compareFraming exactly as shipped. Measured as the baseline for false acceptance; never changed.",
+    "M1": "rim colour-blob ellipse plus board edge quad, geometry only; yields the descriptor above with a standard deviation per quantity from repeated measurement.",
+    "M2": "hoop-patch edge registration (the algorithm in hoop-match.ts, extended to fit independent horizontal and vertical scale) between a stored hoop patch and a new frame; yields score, scale, shift and the horizontal/vertical scale ratio.",
+    "M3": "ablation: the rim ellipse only (pos, size, elev), no board. Expected to be blind to azimuth; reported to show whether the board is needed."
+  },
+
+  "classes": {
+    "comparable": "pos, size, roll, az, elev all within tolerance, each with the pair uncertainty allowed for (see decision_rule). Recorded rim-relative pixels can be compared directly.",
+    "normalizable": "az and elev within tolerance, but pos, size or roll beyond tolerance: a shift, scale (divide by rim width) and rotation make the paths comparable.",
+    "not_comparable": "az or elev beyond tolerance with confidence. No image-space normalisation repairs a different viewing angle.",
+    "unknown": "a needed quantity could not be measured on either side, or its uncertainty straddles a tolerance. The app abstains; it never guesses."
+  },
+  "decision_rule": "For each quantity q: delta = |q_a - q_b|, u = sqrt(sd_a^2 + sd_b^2) (measured repeat SD of each side). 'within' when delta + 2u <= T_q. 'beyond' when delta - 2u > T_q. Otherwise 'straddles'. Any needed quantity missing or straddling => unknown. A quantity is only used if it passed F2 (repeatability); a quantity that failed F2 cannot be used to classify and the class cannot be better than unknown for the question it answers.",
+
+  "tolerances": {
+    "rule": "T_q = max(F_q, 3 x pooled within-clip SD of q) where the pooled SD is measured on the DEVELOPMENT clips' repeated stills. The floor F_q is the change that alters rim-relative pixel coordinates by about 5 to 10 percent, fixed here before any measurement. Validation clips and all pairs are not used to set a tolerance.",
+    "floors": {
+      "pos": "0.02 of frame (the existing compareFraming value, unchanged)",
+      "size": "log ratio 0.10 (the existing window-scale value, unchanged)",
+      "roll": "1.5 degrees (about 2.6 percent of dx leaks into up)",
+      "az": "relative change 0.10 of the board/rim ratio",
+      "elev": "relative change 0.10 of the minor/major ratio"
+    }
+  },
+
+  "data": {
+    "clips": ["IMG_4836", "IMG_4839", "IMG_4840", "IMG_4844", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"],
+    "stills": "for each clip 5 temporal-median stills (each the pixelwise median of 5 frames 0.5 s apart, which removes people and the ball) taken at 5 well-separated start times chosen BEFORE looking at the clip's content (fractions 0.1, 0.3, 0.5, 0.7, 0.9 of the duration). Median stills are a preprocessing choice that the app can also do on a short live preview.",
+    "roles": {
+      "development (sets tolerances and may be used to debug detectors)": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867"],
+      "validation (judged, never used to tune)": ["IMG_4872", "IMG_4873", "IMG_4844"],
+      "diagnostic (reported, not a benchmark)": ["IMG_4874", "IMG_4836"]
+    },
+    "limits": "ONE hoop, ONE driveway, 10 clips, about 8 distinct camera placements on 5 days, one phone. This cannot show generalisation to other courts, hoops, phones or lighting. Clip B1689585 has no window and is not used. Every clip was seen in earlier phases. Adjudication of real pairs is by eye plus an independent background-registration check (below), by one person (me); it is not a blind label."
+  },
+
+  "controls": {
+    "positive_comparable": [
+      "P1: the 5 stills of one clip against each other (10 pairs per clip), same camera by construction",
+      "P2: IMG_4839 vs IMG_4840 (same session, same aim, 3 minutes apart; the window geometry in datasets.json is identical)",
+      "P3: synthetic within-tolerance perturbations of a real still: pan 0.01 of frame, zoom 1.04, roll 0.5 degrees, brightness x0.85 and x1.15"
+    ],
+    "negative_synthetic_similarity": [
+      "pan 0.03, 0.08 of frame (truth: normalizable)",
+      "zoom 1.15, 1.30, 1.50 (truth: normalizable)",
+      "roll 3 and 6 degrees (truth: normalizable)",
+      "combinations: zoom 1.2 + pan 0.05 + roll 3 (truth: normalizable)"
+    ],
+    "negative_model_based_view_change": {
+      "what": "a pinhole projection of an idealised hoop (rim circle plus board rectangle with hoop-to-board geometry) at azimuth changes of 0, 5, 10, 15, 20, 30, 45 degrees and elevation changes of 0, 3, 6, 10, 15 degrees, with the rim held at the same image position and the same rim width (the dangerous case that a rim-position check passes), measurement noise drawn from the SD measured on the real stills, 2000 draws per cell.",
+      "label": "MODEL-BASED. It tests the decision rule against the measured noise; it does not test detection on imagery. It is never reported as a real-image result.",
+      "truth": "not_comparable for azimuth change >= 15 degrees or elevation change >= 10 degrees; comparable for <= 5 degrees azimuth and <= 3 degrees elevation; the band in between is reported as a curve, not scored."
+    },
+    "real_cross_setup_pairs": "every pair of stills from different clips. Truth is decided WITHOUT the hoop detectors: (1) a whole-frame background registration (static scenery: wall, hedge, bins, trees; computed by downscaled edge cross-correlation over shift and scale) says whether the camera pose is the same to within 0.5 percent of the frame and 2 percent in scale; (2) my eye on side-by-side overlays decides the rest. Pairs where the two disagree are reported as unresolved and are excluded from the false-acceptance count, with their number stated."
+  },
+
+  "criteria": {
+    "F1_extraction": {
+      "metric": "per method and per clip, over the 5 stills: rate of valid output, rate of explicit abstention, and rate of wrong-but-confident output (an overlay of the measured rim ellipse and board quad drawn on the still and judged by eye as correct or not; every overlay of every still is reviewed).",
+      "pass": "wrong-but-confident <= 5 percent of non-abstained stills overall and <= 1 of 5 on any single clip; abstention <= 30 percent overall.",
+      "note": "an abstention because the board is cut off by the frame edge is correct behaviour, counts as an abstention, and must be reported per clip."
+    },
+    "F2_repeatability": {
+      "metric": "pooled within-clip SD over the 5 stills, development clips, for each quantity.",
+      "pass": "pos SD <= 3 px at 1920 wide; log size SD <= 0.03; elev relative SD <= 0.08; az relative SD <= 0.05; roll SD <= 0.5 degree.",
+      "on_failure": "that quantity is not used. A method whose az or elev quantity fails cannot claim to detect a view change and is reported as such."
+    },
+    "F3_false_rejection": {
+      "metric": "over P1, P2, P3 (all pairs where both stills were measured): fraction classed not_comparable, and separately fraction classed unknown.",
+      "pass": "not_comparable <= 2 percent of pairs; unknown <= 30 percent of pairs; normalizable on P1/P2/P3 <= 10 percent of pairs."
+    },
+    "F4_false_acceptance_similarity": {
+      "metric": "over the synthetic similarity perturbations: fraction classed comparable when the truth is normalizable, and fraction classed not_comparable when the truth is normalizable (a similarity change must not be called unrepairable).",
+      "pass": "comparable-when-normalizable <= 5 percent per perturbation type at the registered magnitudes; not_comparable-when-normalizable <= 5 percent."
+    },
+    "F5_view_change_model": {
+      "metric": "from the model-based simulation: the fraction of draws classed comparable or normalizable at each azimuth and elevation change.",
+      "pass": "at azimuth >= 15 degrees OR elevation >= 10 degrees: comparable or normalizable <= 10 percent (the rest not_comparable or unknown); at azimuth <= 5 degrees and elevation <= 3: comparable or normalizable >= 70 percent. M3 is run through the same simulation; the comparison is reported whatever the result."
+    },
+    "F6_real_pairs": {
+      "metric": "over real cross-setup pairs adjudicated as different camera placements: the fraction classed comparable (false acceptance) and the fraction classed normalizable; M0's false-acceptance on the same pairs.",
+      "pass": "comparable = 0 pairs. Normalizable allowed only when the adjudication also says the placements differ by pan/zoom/roll alone, so the count must be stated and explained pair by pair. The same-camera pairs (background-confirmed) must be classed comparable or normalizable in >= 70 percent of cases, never not_comparable more than 2 percent."
+    },
+    "F7_overhead": {
+      "metric": "wall-clock of one M1 measurement on one 1920x1080 still and on a 640x360 downscaled still, desktop Node; and, for the app implementation, the same function timed in headless Chrome. Never claimed as iPhone time.",
+      "pass": "reported. For the app: the measurement runs at most once per session start or on an explicit button, never inside the 15 fps counting loop; with the feature off the counting loop is byte-for-byte unchanged (verified by test and by the unchanged baseline)."
+    }
+  },
+
+  "integration_rule": "A method is integrated into the app only if it passes F1, F2, F3, F4, F5 and F6 for the quantities it uses. A method that fails any criterion is not integrated; the quantity that failed is dropped and the app abstains on the question that quantity answers. If M1 fails, the app falls back to what is supported (possibly just the existing hoop-patch drift warning) and says so. The framing check is advisory: it can warn and it can decline to compare sessions, it can never stop counting or saving, and it never switches a cross-session comparison on by itself unless the class is comparable.",
+
+  "what_this_does_not_claim": "no physical distances, angles, or board sizes; no performance on other hoops, courts or phones; no real-image evidence of azimuth sensitivity beyond what the 8 real placements contain; the model-based azimuth/elevation study depends on the idealised hoop and is labelled as such."
+}
