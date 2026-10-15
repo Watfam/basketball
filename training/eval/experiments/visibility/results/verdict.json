@@ -1,0 +1,6426 @@
+{
+ "generated": "2026-10-15T00:17:01.253Z",
+ "clips": [
+  "IMG_4839",
+  "IMG_4840",
+  "IMG_4851",
+  "IMG_4866",
+  "IMG_4867",
+  "IMG_4872",
+  "IMG_4873",
+  "IMG_4874"
+ ],
+ "tables": {
+  "30fps": {
+   "S0_fixed": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 54,
+     "n": 69,
+     "p": 78.26086956521739
+    },
+    "continuous_strict": {
+     "k": 48,
+     "n": 69,
+     "p": 69.56521739130434
+    },
+    "eligible": {
+     "k": 22,
+     "n": 69,
+     "p": 31.884057971014492
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 5,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 7,
+      "fragments": 1.5
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 1
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.38
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 13,
+      "gap_mean": 2.1538461538461537,
+      "fragments": 1
+     }
+    },
+    "gaps": [
+     7,
+     1,
+     2,
+     6,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     4,
+     8,
+     1,
+     1,
+     3,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.144097222222222
+   },
+   "A1": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 34,
+     "n": 69,
+     "p": 49.27536231884058
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 53,
+     "n": 69,
+     "p": 76.81159420289855
+    },
+    "continuous_strict": {
+     "k": 47,
+     "n": 69,
+     "p": 68.1159420289855
+    },
+    "eligible": {
+     "k": 38,
+     "n": 69,
+     "p": 55.072463768115945
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 5,
+      "continuous": 7,
+      "eligible": 4,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 1.7
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 7,
+      "approach": 8,
+      "continuous": 7,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 7,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 3,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 3,
+      "gaps": 1,
+      "gap_mean": 5,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.7
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 3.3333333333333335,
+      "fragments": 1.25
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 2,
+      "gap_mean": 3,
+      "fragments": 1.5
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.83
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 7,
+      "gap_mean": 1,
+      "fragments": 1.2
+     }
+    },
+    "gaps": [
+     2,
+     1,
+     3,
+     7,
+     5,
+     1,
+     8,
+     1,
+     5,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.3493055555555558
+   },
+   "A2": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 4,
+     "n": 69,
+     "p": 5.797101449275362
+    },
+    "apex": {
+     "k": 40,
+     "n": 69,
+     "p": 57.971014492753625
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 51,
+     "n": 69,
+     "p": 73.91304347826087
+    },
+    "continuous_strict": {
+     "k": 45,
+     "n": 69,
+     "p": 65.21739130434783
+    },
+    "eligible": {
+     "k": 43,
+     "n": 69,
+     "p": 62.31884057971015
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 5,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 2,
+      "gap_mean": 2,
+      "fragments": 2.4
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 8,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 1.63
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 5,
+      "gap_mean": 1.6,
+      "fragments": 1.22
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.7
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 3,
+      "eligible": 2,
+      "gaps": 11,
+      "gap_mean": 2.272727272727273,
+      "fragments": 1.63
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 16,
+      "gap_mean": 2.375,
+      "fragments": 1.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 8,
+      "gaps": 10,
+      "gap_mean": 1.4,
+      "fragments": 1.6
+     }
+    },
+    "gaps": [
+     1,
+     3,
+     1,
+     1,
+     2,
+     1,
+     1,
+     3,
+     1,
+     4,
+     5,
+     1,
+     1,
+     6,
+     3,
+     1,
+     1,
+     1,
+     1,
+     5,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     1,
+     1,
+     2,
+     1,
+     7,
+     3,
+     7,
+     2,
+     1,
+     1,
+     1,
+     2,
+     3,
+     2,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.5996527777777778
+   },
+   "A3_full_frame_reference": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 0,
+     "n": 69,
+     "p": 0
+    },
+    "apex": {
+     "k": 21,
+     "n": 69,
+     "p": 30.434782608695652
+    },
+    "approach": {
+     "k": 14,
+     "n": 69,
+     "p": 20.28985507246377
+    },
+    "continuous": {
+     "k": 16,
+     "n": 69,
+     "p": 23.18840579710145
+    },
+    "continuous_strict": {
+     "k": 9,
+     "n": 69,
+     "p": 13.043478260869565
+    },
+    "eligible": {
+     "k": 19,
+     "n": 69,
+     "p": 27.536231884057973
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 0,
+      "continuous": 1,
+      "eligible": 0,
+      "gaps": 1,
+      "gap_mean": 4,
+      "fragments": 2.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 7,
+      "approach": 0,
+      "continuous": 3,
+      "eligible": 5,
+      "gaps": 11,
+      "gap_mean": 2.090909090909091,
+      "fragments": 1.75
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 6,
+      "approach": 7,
+      "continuous": 5,
+      "eligible": 7,
+      "gaps": 19,
+      "gap_mean": 1.7894736842105263,
+      "fragments": 2.22
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 0,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 7,
+      "eligible": 7,
+      "gaps": 11,
+      "gap_mean": 2.5454545454545454,
+      "fragments": 2
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.25
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.25
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.33
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     4,
+     1,
+     1,
+     3,
+     1,
+     3,
+     2,
+     1,
+     1,
+     4,
+     4,
+     2,
+     3,
+     1,
+     1,
+     3,
+     2,
+     1,
+     1,
+     3,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     7,
+     1,
+     1,
+     1,
+     5,
+     1,
+     1,
+     7,
+     4,
+     2,
+     1,
+     2,
+     3,
+     1
+    ],
+    "fragments": 1.6881944444444446
+   },
+   "D_all_tiles": {
+    "runs": 9,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 5,
+     "n": 69,
+     "p": 7.246376811594203
+    },
+    "apex": {
+     "k": 36,
+     "n": 69,
+     "p": 52.17391304347826
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 49,
+     "n": 69,
+     "p": 71.01449275362319
+    },
+    "continuous_strict": {
+     "k": 38,
+     "n": 69,
+     "p": 55.072463768115945
+    },
+    "eligible": {
+     "k": 35,
+     "n": 69,
+     "p": 50.72463768115942
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 2,
+      "apex": 5,
+      "approach": 5,
+      "continuous": 4,
+      "eligible": 4,
+      "gaps": 5,
+      "gap_mean": 4.6,
+      "fragments": 3.1
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 8,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 4,
+      "gap_mean": 1,
+      "fragments": 2.75
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 6,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 8,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 2.22
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 2,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 6,
+      "gaps": 6,
+      "gap_mean": 3.5,
+      "fragments": 2.5
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 3,
+      "gaps": 2,
+      "gap_mean": 1.5,
+      "fragments": 2.63
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 6,
+      "gap_mean": 3,
+      "fragments": 3.13
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.5
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 4,
+      "gaps": 10,
+      "gap_mean": 1.5,
+      "fragments": 2.8
+     }
+    },
+    "gaps": [
+     3,
+     1,
+     8,
+     8,
+     3,
+     1,
+     1,
+     1,
+     1,
+     2,
+     1,
+     2,
+     7,
+     3,
+     7,
+     1,
+     2,
+     1,
+     1,
+     7,
+     7,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     6,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 2.577777777777778
+   },
+   "B_up": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 23,
+     "n": 69,
+     "p": 33.333333333333336
+    },
+    "approach": {
+     "k": 41,
+     "n": 69,
+     "p": 59.42028985507246
+    },
+    "continuous": {
+     "k": 54,
+     "n": 69,
+     "p": 78.26086956521739
+    },
+    "continuous_strict": {
+     "k": 48,
+     "n": 69,
+     "p": 69.56521739130434
+    },
+    "eligible": {
+     "k": 29,
+     "n": 69,
+     "p": 42.028985507246375
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 5,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 1,
+      "gap_mean": 3,
+      "fragments": 1.9
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 2.25
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 6,
+      "continuous": 8,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.78
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 1.75
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.75
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 2,
+      "gaps": 15,
+      "gap_mean": 2,
+      "fragments": 1.3
+     }
+    },
+    "gaps": [
+     3,
+     1,
+     2,
+     6,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     4,
+     8,
+     1,
+     1,
+     3,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.5618055555555557
+   },
+   "B_left": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 20,
+     "n": 69,
+     "p": 28.985507246376812
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 50,
+     "n": 69,
+     "p": 72.46376811594203
+    },
+    "continuous_strict": {
+     "k": 44,
+     "n": 69,
+     "p": 63.768115942028984
+    },
+    "eligible": {
+     "k": 19,
+     "n": 69,
+     "p": 27.536231884057973
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 3,
+      "approach": 5,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 2,
+      "gap_mean": 5,
+      "fragments": 2
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 1.88
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 6,
+      "fragments": 1.6
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 2,
+      "eligible": 2,
+      "gaps": 14,
+      "gap_mean": 2.7857142857142856,
+      "fragments": 1.38
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 8,
+      "eligible": 3,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 2.38
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 14,
+      "gap_mean": 2.0714285714285716,
+      "fragments": 1.5
+     }
+    },
+    "gaps": [
+     3,
+     7,
+     1,
+     6,
+     2,
+     6,
+     3,
+     1,
+     2,
+     1,
+     3,
+     3,
+     7,
+     1,
+     2,
+     5,
+     2,
+     1,
+     2,
+     1,
+     1,
+     1,
+     1,
+     4,
+     8,
+     1,
+     1,
+     3,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.6045138888888888
+   },
+   "B_right": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 53,
+     "n": 69,
+     "p": 76.81159420289855
+    },
+    "continuous_strict": {
+     "k": 47,
+     "n": 69,
+     "p": 68.1159420289855
+    },
+    "eligible": {
+     "k": 21,
+     "n": 69,
+     "p": 30.434782608695652
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 5,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 7,
+      "fragments": 1.7
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.89
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 1.38
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 3,
+      "fragments": 1.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.83
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 13,
+      "gap_mean": 2.1538461538461537,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     7,
+     1,
+     2,
+     6,
+     2,
+     1,
+     7,
+     1,
+     1,
+     1,
+     1,
+     1,
+     4,
+     8,
+     1,
+     1,
+     3,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.3777777777777778
+   },
+   "B_upleft": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 28,
+     "n": 69,
+     "p": 40.57971014492754
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 49,
+     "n": 69,
+     "p": 71.01449275362319
+    },
+    "continuous_strict": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "eligible": {
+     "k": 26,
+     "n": 69,
+     "p": 37.68115942028985
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 5,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 7,
+      "fragments": 1.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 6,
+      "approach": 8,
+      "continuous": 5,
+      "eligible": 3,
+      "gaps": 7,
+      "gap_mean": 3.142857142857143,
+      "fragments": 1.75
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 7,
+      "fragments": 1.5
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 1.5
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 18,
+      "gap_mean": 1.9444444444444444,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     7,
+     7,
+     1,
+     6,
+     1,
+     1,
+     1,
+     5,
+     7,
+     2,
+     6,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     4,
+     8,
+     1,
+     1,
+     3,
+     4,
+     1,
+     3,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.3565972222222222
+   },
+   "B_upright": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 19,
+     "n": 69,
+     "p": 27.536231884057973
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 52,
+     "n": 69,
+     "p": 75.3623188405797
+    },
+    "continuous_strict": {
+     "k": 46,
+     "n": 69,
+     "p": 66.66666666666667
+    },
+    "eligible": {
+     "k": 22,
+     "n": 69,
+     "p": 31.884057971014492
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 5,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 2,
+      "gap_mean": 7.5,
+      "fragments": 1.5
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 2
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 1.25
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.5
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 14,
+      "gap_mean": 2.5,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     8,
+     7,
+     1,
+     2,
+     6,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     7,
+     4,
+     8,
+     1,
+     1,
+     3,
+     4,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.3145833333333332
+   },
+   "C_follow": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 16,
+     "n": 69,
+     "p": 23.18840579710145
+    },
+    "approach": {
+     "k": 28,
+     "n": 69,
+     "p": 40.57971014492754
+    },
+    "continuous": {
+     "k": 45,
+     "n": 69,
+     "p": 65.21739130434783
+    },
+    "continuous_strict": {
+     "k": 37,
+     "n": 69,
+     "p": 53.6231884057971
+    },
+    "eligible": {
+     "k": 20,
+     "n": 69,
+     "p": 28.985507246376812
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 2.2
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 1,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 2
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 2,
+      "gaps": 5,
+      "gap_mean": 2.2,
+      "fragments": 1
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 1.3333333333333333,
+      "fragments": 1
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 2,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 1.88
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 1,
+      "gaps": 5,
+      "gap_mean": 1,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     2,
+     5,
+     1,
+     3,
+     1,
+     3,
+     1,
+     1,
+     5,
+     1,
+     1,
+     2,
+     1,
+     4,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.3677083333333333
+   },
+   "C_scan": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 28,
+     "n": 69,
+     "p": 40.57971014492754
+    },
+    "approach": {
+     "k": 31,
+     "n": 69,
+     "p": 44.927536231884055
+    },
+    "continuous": {
+     "k": 44,
+     "n": 69,
+     "p": 63.768115942028984
+    },
+    "continuous_strict": {
+     "k": 30,
+     "n": 69,
+     "p": 43.47826086956522
+    },
+    "eligible": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 5,
+      "gap_mean": 2.8,
+      "fragments": 2.7
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 2,
+      "continuous": 7,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 1,
+      "fragments": 2.38
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 5,
+      "approach": 6,
+      "continuous": 8,
+      "eligible": 5,
+      "gaps": 5,
+      "gap_mean": 1,
+      "fragments": 1.44
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 7,
+      "gaps": 2,
+      "gap_mean": 5,
+      "fragments": 2
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 3,
+      "gaps": 6,
+      "gap_mean": 1.3333333333333333,
+      "fragments": 1.63
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 2,
+      "gap_mean": 4,
+      "fragments": 2.25
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.33
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 9,
+      "gap_mean": 1,
+      "fragments": 1.6
+     }
+    },
+    "gaps": [
+     3,
+     2,
+     5,
+     1,
+     3,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     3,
+     7,
+     1,
+     2,
+     1,
+     1,
+     1,
+     2,
+     1,
+     7,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.9159722222222224
+   },
+   "POSTHOC_base+A1": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 32,
+     "n": 69,
+     "p": 46.3768115942029
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 53,
+     "n": 69,
+     "p": 76.81159420289855
+    },
+    "continuous_strict": {
+     "k": 46,
+     "n": 69,
+     "p": 66.66666666666667
+    },
+    "eligible": {
+     "k": 38,
+     "n": 69,
+     "p": 55.072463768115945
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 5,
+      "continuous": 7,
+      "eligible": 4,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 2.5
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 7,
+      "approach": 8,
+      "continuous": 7,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 7,
+      "fragments": 2.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 3,
+      "gaps": 1,
+      "gap_mean": 5,
+      "fragments": 2
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.9
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 2.75,
+      "fragments": 2
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 3,
+      "gap_mean": 2.3333333333333335,
+      "fragments": 2.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.17
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 5,
+      "gap_mean": 1.2,
+      "fragments": 2
+     }
+    },
+    "gaps": [
+     2,
+     1,
+     3,
+     7,
+     5,
+     1,
+     1,
+     8,
+     1,
+     5,
+     1,
+     1,
+     1,
+     2,
+     1,
+     1,
+     1
+    ],
+    "fragments": 2.0864583333333333
+   },
+   "POSTHOC_base+A2": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 4,
+     "n": 69,
+     "p": 5.797101449275362
+    },
+    "apex": {
+     "k": 41,
+     "n": 69,
+     "p": 59.42028985507246
+    },
+    "approach": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous": {
+     "k": 50,
+     "n": 69,
+     "p": 72.46376811594203
+    },
+    "continuous_strict": {
+     "k": 43,
+     "n": 69,
+     "p": 62.31884057971015
+    },
+    "eligible": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 5,
+      "continuous": 6,
+      "eligible": 5,
+      "gaps": 3,
+      "gap_mean": 2.6666666666666665,
+      "fragments": 3.2
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 8,
+      "approach": 8,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 2.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 1,
+      "apex": 5,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 7,
+      "gaps": 4,
+      "gap_mean": 1.75,
+      "fragments": 2.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.9
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 3,
+      "eligible": 2,
+      "gaps": 11,
+      "gap_mean": 2.272727272727273,
+      "fragments": 2.38
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 1,
+      "apex": 5,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 4,
+      "gaps": 12,
+      "gap_mean": 3.9166666666666665,
+      "fragments": 2.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.33
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 8,
+      "gaps": 6,
+      "gap_mean": 1,
+      "fragments": 2.5
+     }
+    },
+    "gaps": [
+     1,
+     3,
+     4,
+     1,
+     1,
+     2,
+     1,
+     3,
+     1,
+     4,
+     5,
+     1,
+     1,
+     6,
+     3,
+     1,
+     1,
+     1,
+     1,
+     5,
+     8,
+     1,
+     4,
+     6,
+     1,
+     1,
+     2,
+     7,
+     3,
+     7,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "fragments": 2.3180555555555555
+   }
+  },
+  "15fps": {
+   "S0_fixed": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 15,
+     "n": 69,
+     "p": 21.73913043478261
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 53,
+     "n": 69,
+     "p": 76.81159420289855
+    },
+    "continuous_strict": {
+     "k": 51,
+     "n": 69,
+     "p": 73.91304347826087
+    },
+    "eligible": {
+     "k": 15,
+     "n": 69,
+     "p": 21.73913043478261
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 2,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 4,
+      "fragments": 1.2
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.13
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 2,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 4,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 1,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 0.88
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.13
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 6,
+      "gap_mean": 1.8333333333333333,
+      "fragments": 1
+     }
+    },
+    "gaps": [
+     4,
+     1,
+     3,
+     2,
+     1,
+     1,
+     2,
+     4,
+     1,
+     1,
+     1,
+     2
+    ],
+    "fragments": 1.0128472222222222
+   },
+   "A1": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 32,
+     "n": 69,
+     "p": 46.3768115942029
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 52,
+     "n": 69,
+     "p": 75.3623188405797
+    },
+    "continuous_strict": {
+     "k": 49,
+     "n": 69,
+     "p": 71.01449275362319
+    },
+    "eligible": {
+     "k": 36,
+     "n": 69,
+     "p": 52.17391304347826
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 1.4
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 2,
+      "continuous": 7,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 4,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 3,
+      "approach": 5,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.6
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 2,
+      "gap_mean": 2.5,
+      "fragments": 1.13
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 5,
+      "gaps": 1,
+      "gap_mean": 3,
+      "fragments": 1.38
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 3,
+      "gap_mean": 1.3333333333333333,
+      "fragments": 1
+     }
+    },
+    "gaps": [
+     1,
+     1,
+     4,
+     4,
+     2,
+     4,
+     1,
+     3,
+     2,
+     1,
+     1
+    ],
+    "fragments": 1.222222222222222
+   },
+   "A2": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 5,
+     "n": 69,
+     "p": 7.246376811594203
+    },
+    "apex": {
+     "k": 39,
+     "n": 69,
+     "p": 56.52173913043478
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 53,
+     "n": 69,
+     "p": 76.81159420289855
+    },
+    "continuous_strict": {
+     "k": 45,
+     "n": 69,
+     "p": 65.21739130434783
+    },
+    "eligible": {
+     "k": 41,
+     "n": 69,
+     "p": 59.42028985507246
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 2,
+      "gap_mean": 1.5,
+      "fragments": 1.7
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 8,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 1,
+      "apex": 5,
+      "approach": 5,
+      "continuous": 9,
+      "eligible": 5,
+      "gaps": 3,
+      "gap_mean": 1,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.6
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 2,
+      "apex": 3,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 4,
+      "gaps": 7,
+      "gap_mean": 1.5714285714285714,
+      "fragments": 1.63
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 11,
+      "gap_mean": 1.7272727272727273,
+      "fragments": 1.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.83
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 7,
+      "approach": 3,
+      "continuous": 9,
+      "eligible": 8,
+      "gaps": 6,
+      "gap_mean": 1.8333333333333333,
+      "fragments": 1.3
+     }
+    },
+    "gaps": [
+     1,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     3,
+     1,
+     2,
+     1,
+     1,
+     3,
+     4,
+     2,
+     3,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     1,
+     1,
+     2,
+     4,
+     1
+    ],
+    "fragments": 1.4118055555555558
+   },
+   "A3_full_frame_reference": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 0,
+     "n": 69,
+     "p": 0
+    },
+    "apex": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "approach": {
+     "k": 10,
+     "n": 69,
+     "p": 14.492753623188406
+    },
+    "continuous": {
+     "k": 23,
+     "n": 69,
+     "p": 33.333333333333336
+    },
+    "continuous_strict": {
+     "k": 13,
+     "n": 69,
+     "p": 18.840579710144926
+    },
+    "eligible": {
+     "k": 20,
+     "n": 69,
+     "p": 28.985507246376812
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 0,
+      "continuous": 2,
+      "eligible": 1,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 1.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 6,
+      "approach": 0,
+      "continuous": 6,
+      "eligible": 6,
+      "gaps": 5,
+      "gap_mean": 1.4,
+      "fragments": 1.5
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 7,
+      "gaps": 11,
+      "gap_mean": 1.2727272727272727,
+      "fragments": 1.67
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 0,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 6,
+      "gaps": 3,
+      "gap_mean": 2.6666666666666665,
+      "fragments": 1.9
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.63
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.88
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.17
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.9
+     }
+    },
+    "gaps": [
+     2,
+     1,
+     2,
+     1,
+     1,
+     2,
+     1,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     3,
+     1,
+     1,
+     4,
+     1,
+     3
+    ],
+    "fragments": 1.2791666666666666
+   },
+   "D_all_tiles": {
+    "runs": 9,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 4,
+     "n": 69,
+     "p": 5.797101449275362
+    },
+    "apex": {
+     "k": 35,
+     "n": 69,
+     "p": 50.72463768115942
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 50,
+     "n": 69,
+     "p": 72.46376811594203
+    },
+    "continuous_strict": {
+     "k": 43,
+     "n": 69,
+     "p": 62.31884057971015
+    },
+    "eligible": {
+     "k": 34,
+     "n": 69,
+     "p": 49.27536231884058
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 5,
+      "eligible": 4,
+      "gaps": 6,
+      "gap_mean": 2,
+      "fragments": 2.5
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 1,
+      "apex": 8,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 2.38
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 6,
+      "approach": 5,
+      "continuous": 9,
+      "eligible": 8,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 2.22
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 7,
+      "gaps": 3,
+      "gap_mean": 2.3333333333333335,
+      "fragments": 2.1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 5,
+      "eligible": 1,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 2.13
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 6,
+      "gap_mean": 2,
+      "fragments": 2.75
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.17
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 10,
+      "eligible": 4,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 2.1
+     }
+    },
+    "gaps": [
+     1,
+     1,
+     3,
+     2,
+     4,
+     1,
+     2,
+     1,
+     1,
+     3,
+     3,
+     2,
+     1,
+     4,
+     1,
+     1,
+     1,
+     4,
+     1
+    ],
+    "fragments": 2.167361111111111
+   },
+   "B_up": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "approach": {
+     "k": 24,
+     "n": 69,
+     "p": 34.78260869565217
+    },
+    "continuous": {
+     "k": 50,
+     "n": 69,
+     "p": 72.46376811594203
+    },
+    "continuous_strict": {
+     "k": 46,
+     "n": 69,
+     "p": 66.66666666666667
+    },
+    "eligible": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 2,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 2.5,
+      "fragments": 1.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.88
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 3,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.33
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 4,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 2,
+      "gaps": 2,
+      "gap_mean": 2,
+      "fragments": 1.38
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 2,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.5
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 8,
+      "gap_mean": 1.625,
+      "fragments": 1.3
+     }
+    },
+    "gaps": [
+     4,
+     1,
+     1,
+     3,
+     1,
+     1,
+     1,
+     1,
+     2,
+     4,
+     1,
+     1,
+     1,
+     2
+    ],
+    "fragments": 1.34375
+   },
+   "B_left": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 52,
+     "n": 69,
+     "p": 75.3623188405797
+    },
+    "continuous_strict": {
+     "k": 48,
+     "n": 69,
+     "p": 69.56521739130434
+    },
+    "eligible": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 2,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 2,
+      "gap_mean": 2.5,
+      "fragments": 1.3
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.63
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 2,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 3,
+      "fragments": 1.5
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 1,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 1.13
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 1,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 4,
+      "gaps": 7,
+      "gap_mean": 1.1428571428571428,
+      "fragments": 1.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.17
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 6,
+      "gap_mean": 1.8333333333333333,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     1,
+     4,
+     3,
+     1,
+     3,
+     2,
+     1,
+     1,
+     1,
+     1,
+     2,
+     1,
+     1,
+     2,
+     4,
+     1,
+     1,
+     1,
+     2
+    ],
+    "fragments": 1.3190972222222221
+   },
+   "B_right": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 16,
+     "n": 69,
+     "p": 23.18840579710145
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 52,
+     "n": 69,
+     "p": 75.3623188405797
+    },
+    "continuous_strict": {
+     "k": 50,
+     "n": 69,
+     "p": 72.46376811594203
+    },
+    "eligible": {
+     "k": 15,
+     "n": 69,
+     "p": 21.73913043478261
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 2,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 4,
+      "fragments": 1.3
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.13
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 3,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.67
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 4,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 1,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 0.88
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 1.25
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.83
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 9,
+      "eligible": 1,
+      "gaps": 6,
+      "gap_mean": 1.8333333333333333,
+      "fragments": 1
+     }
+    },
+    "gaps": [
+     4,
+     1,
+     3,
+     2,
+     4,
+     1,
+     1,
+     2,
+     4,
+     1,
+     1,
+     1,
+     2
+    ],
+    "fragments": 1.13125
+   },
+   "B_upleft": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 48,
+     "n": 69,
+     "p": 69.56521739130434
+    },
+    "continuous_strict": {
+     "k": 43,
+     "n": 69,
+     "p": 62.31884057971015
+    },
+    "eligible": {
+     "k": 25,
+     "n": 69,
+     "p": 36.231884057971016
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 3,
+      "approach": 2,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 4,
+      "fragments": 1.3
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 6,
+      "approach": 2,
+      "continuous": 5,
+      "eligible": 5,
+      "gaps": 6,
+      "gap_mean": 2.1666666666666665,
+      "fragments": 1.38
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 2,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.11
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 9,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 3,
+      "fragments": 1.3
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 1,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 1.38
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.25
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 8,
+      "eligible": 4,
+      "gaps": 8,
+      "gap_mean": 1.875,
+      "fragments": 1.1
+     }
+    },
+    "gaps": [
+     4,
+     4,
+     3,
+     1,
+     1,
+     1,
+     3,
+     3,
+     1,
+     3,
+     2,
+     1,
+     1,
+     1,
+     2,
+     4,
+     1,
+     1,
+     1,
+     2,
+     3
+    ],
+    "fragments": 1.1847222222222222
+   },
+   "B_upright": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "approach": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "continuous": {
+     "k": 51,
+     "n": 69,
+     "p": 73.91304347826087
+    },
+    "continuous_strict": {
+     "k": 48,
+     "n": 69,
+     "p": 69.56521739130434
+    },
+    "eligible": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 2,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 4,
+      "gap_mean": 3,
+      "fragments": 1.4
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 1,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.13
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 3,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 4,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 1.78
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 4,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 1,
+      "gaps": 2,
+      "gap_mean": 2,
+      "fragments": 1
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 4,
+      "continuous": 7,
+      "eligible": 4,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.25
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 2,
+      "approach": 3,
+      "continuous": 8,
+      "eligible": 2,
+      "gaps": 7,
+      "gap_mean": 2,
+      "fragments": 1
+     }
+    },
+    "gaps": [
+     4,
+     2,
+     4,
+     2,
+     2,
+     1,
+     3,
+     1,
+     1,
+     3,
+     2,
+     4,
+     1,
+     1,
+     1,
+     2
+    ],
+    "fragments": 1.1524305555555554
+   },
+   "C_follow": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 16,
+     "n": 69,
+     "p": 23.18840579710145
+    },
+    "approach": {
+     "k": 24,
+     "n": 69,
+     "p": 34.78260869565217
+    },
+    "continuous": {
+     "k": 45,
+     "n": 69,
+     "p": 65.21739130434783
+    },
+    "continuous_strict": {
+     "k": 41,
+     "n": 69,
+     "p": 59.42028985507246
+    },
+    "eligible": {
+     "k": 18,
+     "n": 69,
+     "p": 26.08695652173913
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 1.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 1,
+      "approach": 1,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 5,
+      "eligible": 1,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.78
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 4,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 4,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.1
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 2,
+      "approach": 3,
+      "continuous": 5,
+      "eligible": 2,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 2,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 3,
+      "gaps": 2,
+      "gap_mean": 2.5,
+      "fragments": 1.38
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.5
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 1,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 1,
+      "gaps": 3,
+      "gap_mean": 1.3333333333333333,
+      "fragments": 0.8
+     }
+    },
+    "gaps": [
+     1,
+     1,
+     1,
+     4,
+     2,
+     1,
+     1
+    ],
+    "fragments": 1.0190972222222223
+   },
+   "C_scan": {
+    "runs": 1,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 3,
+     "n": 69,
+     "p": 4.3478260869565215
+    },
+    "apex": {
+     "k": 26,
+     "n": 69,
+     "p": 37.68115942028985
+    },
+    "approach": {
+     "k": 23,
+     "n": 69,
+     "p": 33.333333333333336
+    },
+    "continuous": {
+     "k": 42,
+     "n": 69,
+     "p": 60.869565217391305
+    },
+    "continuous_strict": {
+     "k": 32,
+     "n": 69,
+     "p": 46.3768115942029
+    },
+    "eligible": {
+     "k": 27,
+     "n": 69,
+     "p": 39.130434782608695
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 1,
+      "apex": 3,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 1,
+      "fragments": 1.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 5,
+      "approach": 1,
+      "continuous": 6,
+      "eligible": 5,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 1.63
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 3,
+      "continuous": 6,
+      "eligible": 3,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.33
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 0,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 8,
+      "eligible": 7,
+      "gaps": 3,
+      "gap_mean": 2.3333333333333335,
+      "fragments": 1.6
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 2,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 4,
+      "gaps": 4,
+      "gap_mean": 1.5,
+      "fragments": 1.38
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 3,
+      "approach": 3,
+      "continuous": 5,
+      "eligible": 3,
+      "gaps": 4,
+      "gap_mean": 1.5,
+      "fragments": 1.5
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.83
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 2,
+      "approach": 3,
+      "continuous": 6,
+      "eligible": 2,
+      "gaps": 6,
+      "gap_mean": 1.1666666666666667,
+      "fragments": 0.9
+     }
+    },
+    "gaps": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     3,
+     3,
+     1,
+     1,
+     3,
+     1,
+     1,
+     1,
+     1,
+     3,
+     1,
+     1,
+     2,
+     1,
+     1,
+     1
+    ],
+    "fragments": 1.3458333333333334
+   },
+   "POSTHOC_base+A1": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 2,
+     "n": 69,
+     "p": 2.898550724637681
+    },
+    "apex": {
+     "k": 30,
+     "n": 69,
+     "p": 43.47826086956522
+    },
+    "approach": {
+     "k": 28,
+     "n": 69,
+     "p": 40.57971014492754
+    },
+    "continuous": {
+     "k": 52,
+     "n": 69,
+     "p": 75.3623188405797
+    },
+    "continuous_strict": {
+     "k": 46,
+     "n": 69,
+     "p": 66.66666666666667
+    },
+    "eligible": {
+     "k": 34,
+     "n": 69,
+     "p": 49.27536231884058
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 3,
+      "gap_mean": 2,
+      "fragments": 2.3
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 2,
+      "continuous": 7,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 4,
+      "fragments": 2.13
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 0,
+      "apex": 2,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 2,
+      "gaps": 1,
+      "gap_mean": 2,
+      "fragments": 2
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.7
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 4,
+      "eligible": 3,
+      "gaps": 3,
+      "gap_mean": 2.6666666666666665,
+      "fragments": 1.63
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 0,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 3,
+      "gap_mean": 1.6666666666666667,
+      "fragments": 2.38
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.67
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 4,
+      "approach": 3,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 5,
+      "gap_mean": 1.4,
+      "fragments": 1.8
+     }
+    },
+    "gaps": [
+     1,
+     1,
+     4,
+     4,
+     2,
+     4,
+     2,
+     2,
+     3,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     2
+    ],
+    "fragments": 1.8239583333333333
+   },
+   "POSTHOC_base+A2": {
+    "runs": 2,
+    "chain": {
+     "k": 69,
+     "n": 69,
+     "p": 100
+    },
+    "release": {
+     "k": 5,
+     "n": 69,
+     "p": 7.246376811594203
+    },
+    "apex": {
+     "k": 39,
+     "n": 69,
+     "p": 56.52173913043478
+    },
+    "approach": {
+     "k": 28,
+     "n": 69,
+     "p": 40.57971014492754
+    },
+    "continuous": {
+     "k": 53,
+     "n": 69,
+     "p": 76.81159420289855
+    },
+    "continuous_strict": {
+     "k": 44,
+     "n": 69,
+     "p": 63.768115942028984
+    },
+    "eligible": {
+     "k": 39,
+     "n": 69,
+     "p": 56.52173913043478
+    },
+    "per_clip": {
+     "IMG_4839": {
+      "shots": 10,
+      "release": 0,
+      "apex": 5,
+      "approach": 3,
+      "continuous": 7,
+      "eligible": 5,
+      "gaps": 2,
+      "gap_mean": 1.5,
+      "fragments": 2.6
+     },
+     "IMG_4840": {
+      "shots": 8,
+      "release": 0,
+      "apex": 8,
+      "approach": 2,
+      "continuous": 8,
+      "eligible": 8,
+      "gaps": 2,
+      "gap_mean": 1,
+      "fragments": 2.13
+     },
+     "IMG_4851": {
+      "shots": 9,
+      "release": 1,
+      "apex": 5,
+      "approach": 6,
+      "continuous": 9,
+      "eligible": 5,
+      "gaps": 3,
+      "gap_mean": 1,
+      "fragments": 2
+     },
+     "IMG_4866": {
+      "shots": 10,
+      "release": 1,
+      "apex": 7,
+      "approach": 7,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 1.7
+     },
+     "IMG_4867": {
+      "shots": 8,
+      "release": 2,
+      "apex": 3,
+      "approach": 3,
+      "continuous": 3,
+      "eligible": 3,
+      "gaps": 9,
+      "gap_mean": 2,
+      "fragments": 2
+     },
+     "IMG_4872": {
+      "shots": 8,
+      "release": 1,
+      "apex": 4,
+      "approach": 4,
+      "continuous": 6,
+      "eligible": 4,
+      "gaps": 5,
+      "gap_mean": 2.6,
+      "fragments": 2.63
+     },
+     "IMG_4873": {
+      "shots": 6,
+      "release": 0,
+      "apex": 0,
+      "approach": 0,
+      "continuous": 0,
+      "eligible": 0,
+      "gaps": 0,
+      "gap_mean": 0,
+      "fragments": 0.83
+     },
+     "IMG_4874": {
+      "shots": 10,
+      "release": 0,
+      "apex": 7,
+      "approach": 3,
+      "continuous": 10,
+      "eligible": 7,
+      "gaps": 1,
+      "gap_mean": 1,
+      "fragments": 2.1
+     }
+    },
+    "gaps": [
+     1,
+     2,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     3,
+     1,
+     2,
+     1,
+     2,
+     2,
+     4,
+     3,
+     4,
+     2,
+     3,
+     1,
+     1
+    ],
+    "fragments": 1.9979166666666666
+   }
+  }
+ },
+ "criteria": {
+  "X1": {
+   "pass": true,
+   "detail": "233/233 saved detections reproduced (100.0%)"
+  },
+  "strategies": {
+   "A1": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 49.3% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "53.8% of S0 detections kept (1198/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 40.9% (9/22) vs S0 0.0%; inside 90.9% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 76.8% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 55.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A1): 40/40 ball (0 not ball, 0 unsure); about 0.00 non-ball extras per processed frame (population 2123 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 46.4% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "54.0% of S0 detections kept (604/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 45.5% (5/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 75.4% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 52.2%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A1): 40/40 ball (0 not ball, 0 unsure); about 0.00 non-ball extras per processed frame (population 2123 over 6204 frames)"
+     }
+    }
+   },
+   "A2": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 5.8% vs S0 2.9% (4/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 58.0% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "52.9% of S0 detections kept (1177/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 45.5% (10/22) vs S0 0.0%; inside 90.9% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 73.9% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 62.3%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A2): 37/40 ball (2 not ball, 1 unsure); about 0.03 non-ball extras per processed frame (population 2637 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 7.2% vs S0 2.9% (5/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 56.5% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "53.0% of S0 detections kept (592/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 45.5% (5/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 76.8% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 59.4%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A2): 37/40 ball (2 not ball, 1 unsure); about 0.02 non-ball extras per processed frame (population 2637 over 6204 frames)"
+     }
+    }
+   },
+   "A3_full_frame_reference": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 0.0% vs S0 2.9% (0/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 30.4% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 20.3% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "27.9% of S0 detections kept (622/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 81.8% (18/22) vs S0 0.0%; inside 81.8% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 23.2% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 27.5%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A3): 38/40 ball (2 not ball, 0 unsure); about 0.02 non-ball extras per processed frame (population 2471 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 0.0% vs S0 2.9% (0/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 26.1% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 14.5% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "27.9% of S0 detections kept (312/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 81.8% (9/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 33.3% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 29.0%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A3): 38/40 ball (2 not ball, 0 unsure); about 0.01 non-ball extras per processed frame (population 2471 over 6204 frames)"
+     }
+    }
+   },
+   "D_all_tiles": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 7.2% vs S0 2.9% (5/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 52.2% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (2223/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 86.4% (19/22) vs S0 0.0%; inside 90.9% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 71.0% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 50.7%"
+     },
+     "X10": {
+      "pass": false,
+      "detail": "9 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 5.8% vs S0 2.9% (4/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 50.7% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (1117/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 100.0% (11/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 72.5% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 49.3%"
+     },
+     "X10": {
+      "pass": false,
+      "detail": "9 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "B_up": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 33.3% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 59.4% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (2223/2226)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 4.5% (1/22) vs S0 0.0%; inside 63.6% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 78.3% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 42.0%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 26.1% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 34.8% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (1117/1118)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 0.0% (0/11) vs S0 0.0%; inside 60.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 72.5% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 26.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "B_left": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 29.0% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (2223/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 31.8% (7/22) vs S0 0.0%; inside 90.9% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 72.5% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 27.5%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 26.1% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (1117/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 27.3% (3/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 75.4% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 26.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "B_right": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 26.1% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "100.0% of S0 detections kept (2226/2226)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 0.0% (0/22) vs S0 0.0%; inside 63.6% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 76.8% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 30.4%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 23.2% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "100.0% of S0 detections kept (1118/1118)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 0.0% (0/11) vs S0 0.0%; inside 60.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 75.4% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 21.7%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "B_upleft": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 40.6% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (2224/2226)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 9.1% (2/22) vs S0 0.0%; inside 63.6% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 71.0% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 37.7%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 39.1% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (1117/1118)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 9.1% (1/11) vs S0 0.0%; inside 60.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 69.6% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 36.2%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "B_upright": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 27.5% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "100.0% of S0 detections kept (2226/2226)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 0.0% (0/22) vs S0 0.0%; inside 63.6% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 75.4% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 31.9%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 26.1% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 39.1% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "100.0% of S0 detections kept (1118/1118)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 0.0% (0/11) vs S0 0.0%; inside 60.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 73.9% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 26.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "C_follow": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 23.2% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 40.6% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "83.0% of S0 detections kept (1847/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 22.7% (5/22) vs S0 0.0%; inside 81.8% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 65.2% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 29.0%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 23.2% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 34.8% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "84.7% of S0 detections kept (947/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 27.3% (3/11) vs S0 0.0%; inside 60.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 65.2% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 26.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "C_scan": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 40.6% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 44.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "75.0% of S0 detections kept (1669/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 68.2% (15/22) vs S0 0.0%; inside 72.7% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 63.8% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 39.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.21 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": false,
+      "detail": "apex 37.7% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": false,
+      "detail": "approach 33.3% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": false,
+      "detail": "73.7% of S0 detections kept (824/1118)"
+     },
+     "X6": {
+      "pass": false,
+      "detail": "outside window 81.8% (9/11) vs S0 0.0%; inside 40.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 60.9% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 39.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "1 runs per processed frame"
+     },
+     "X7": {
+      "pass": false,
+      "detail": "precision of extra detections (pool tiles): 31/40 ball (7 not ball, 2 unsure); about 0.11 non-ball extras per processed frame (population 5858 over 6204 frames)"
+     }
+    }
+   },
+   "POSTHOC_base+A1": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 4.3% vs S0 2.9% (3/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 46.4% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (2224/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 40.9% (9/22) vs S0 0.0%; inside 90.9% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 76.8% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 55.1%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A1): 40/40 ball (0 not ball, 0 unsure); about 0.00 non-ball extras per processed frame (population 2123 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 2.9% vs S0 2.9% (2/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 43.5% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 40.6% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "100.0% of S0 detections kept (1118/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 45.5% (5/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 75.4% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 49.3%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A1): 40/40 ball (0 not ball, 0 unsure); about 0.00 non-ball extras per processed frame (population 2123 over 6204 frames)"
+     }
+    }
+   },
+   "POSTHOC_base+A2": {
+    "30fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 5.8% vs S0 2.9% (4/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 59.4% vs S0 26.1%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 60.9% vs S0 60.9%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "99.9% of S0 detections kept (2224/2226)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 45.5% (10/22) vs S0 0.0%; inside 90.9% vs S0 63.6%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 72.5% vs S0 78.3%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 60.9%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A2): 37/40 ball (2 not ball, 1 unsure); about 0.03 non-ball extras per processed frame (population 2637 over 6204 frames)"
+     }
+    },
+    "15fps": {
+     "X2": {
+      "pass": false,
+      "detail": "release 7.2% vs S0 2.9% (5/69)"
+     },
+     "X3": {
+      "pass": true,
+      "detail": "apex 56.5% vs S0 21.7%"
+     },
+     "X4": {
+      "pass": true,
+      "detail": "approach 40.6% vs S0 39.1%"
+     },
+     "X5": {
+      "pass": true,
+      "detail": "100.0% of S0 detections kept (1118/1118)"
+     },
+     "X6": {
+      "pass": true,
+      "detail": "outside window 45.5% (5/11) vs S0 0.0%; inside 80.0% vs S0 60.0%"
+     },
+     "X8": {
+      "pass": false,
+      "detail": "continuous 76.8% vs S0 76.8%"
+     },
+     "X9": {
+      "pass": false,
+      "detail": "eligible 56.5%"
+     },
+     "X10": {
+      "pass": true,
+      "detail": "2 runs per processed frame"
+     },
+     "X7": {
+      "pass": true,
+      "detail": "precision of extra detections (pool A2): 37/40 ball (2 not ball, 1 unsure); about 0.02 non-ball extras per processed frame (population 2637 over 6204 frames)"
+     }
+    }
+   }
+  }
+ },
+ "B": {
+  "development_release_counts": {
+   "B_left": 3,
+   "B_up": 2,
+   "B_right": 2,
+   "B_upleft": 2,
+   "B_upright": 2
+  },
+  "headline": "B_left"
+ },
+ "release_timing": {
+  "30fps": {
+   "S0_fixed": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 402
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "A1": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 1,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 2181,
+      "E1": 2119,
+      "E2": 2118,
+      "x": 181,
+      "y": 401
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 299,
+      "y": 293
+     }
+    ]
+   },
+   "A2": {
+    "release_shots": 4,
+    "with_both_estimators": 4,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 4,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4851",
+      "F": 741,
+      "E1": 675,
+      "E2": 675,
+      "x": 580,
+      "y": 422
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 298,
+      "y": 293
+     },
+     {
+      "clip": "IMG_4874",
+      "F": 1629,
+      "E1": 1597,
+      "E2": 1597,
+      "x": 225,
+      "y": 367
+     }
+    ]
+   },
+   "A3_full_frame_reference": {
+    "release_shots": 0,
+    "with_both_estimators": 0,
+    "median_abs_diff_ref_frames": null,
+    "within_2_ref_frames": 0,
+    "share_within_2": null,
+    "points": []
+   },
+   "D_all_tiles": {
+    "release_shots": 5,
+    "with_both_estimators": 5,
+    "median_abs_diff_ref_frames": 1,
+    "within_2_ref_frames": 5,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 2181,
+      "E1": 2119,
+      "E2": 2118,
+      "x": 181,
+      "y": 401
+     },
+     {
+      "clip": "IMG_4839",
+      "F": 2899,
+      "E1": 2857,
+      "E2": 2858,
+      "x": 498,
+      "y": 432
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 3002,
+      "E1": 2975,
+      "E2": 2975,
+      "x": 325,
+      "y": 381
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 263,
+      "y": 407
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "B_up": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 402
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "B_left": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 155,
+      "E1": 117,
+      "E2": 117,
+      "x": -133,
+      "y": 389
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 402
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "B_right": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 402
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "B_upleft": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 402
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "B_upright": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 402
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "C_follow": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 1,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 263,
+      "y": 407
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "C_scan": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 1,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 2899,
+      "E1": 2857,
+      "E2": 2858,
+      "x": 498,
+      "y": 432
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 263,
+      "y": 407
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     }
+    ]
+   },
+   "POSTHOC_base+A1": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 1,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 2181,
+      "E1": 2119,
+      "E2": 2118,
+      "x": 181,
+      "y": 401
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 299,
+      "y": 293
+     }
+    ]
+   },
+   "POSTHOC_base+A2": {
+    "release_shots": 4,
+    "with_both_estimators": 4,
+    "median_abs_diff_ref_frames": 0.25,
+    "within_2_ref_frames": 4,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4851",
+      "F": 741,
+      "E1": 675,
+      "E2": 675,
+      "x": 580,
+      "y": 422
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4115,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 293
+     },
+     {
+      "clip": "IMG_4872",
+      "F": 1770,
+      "E1": 1742,
+      "E2": 1741.75,
+      "x": 129,
+      "y": 428
+     }
+    ]
+   }
+  },
+  "15fps": {
+   "S0_fixed": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 406
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "A1": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 295
+     }
+    ]
+   },
+   "A2": {
+    "release_shots": 5,
+    "with_both_estimators": 5,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 5,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4851",
+      "F": 741,
+      "E1": 676,
+      "E2": 676,
+      "x": 580,
+      "y": 422
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 300,
+      "y": 295
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 1307,
+      "E1": 1272,
+      "E2": 1270,
+      "x": -137,
+      "y": 357
+     },
+     {
+      "clip": "IMG_4872",
+      "F": 1770,
+      "E1": 1704,
+      "E2": 1702,
+      "x": 211,
+      "y": 377
+     }
+    ]
+   },
+   "A3_full_frame_reference": {
+    "release_shots": 0,
+    "with_both_estimators": 0,
+    "median_abs_diff_ref_frames": null,
+    "within_2_ref_frames": 0,
+    "share_within_2": null,
+    "points": []
+   },
+   "D_all_tiles": {
+    "release_shots": 4,
+    "with_both_estimators": 4,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 4,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 4613,
+      "E1": 4590,
+      "E2": 4590,
+      "x": 171,
+      "y": -121
+     },
+     {
+      "clip": "IMG_4840",
+      "F": 4623,
+      "E1": 4580,
+      "E2": 4578,
+      "x": -293,
+      "y": 387
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 263,
+      "y": 407
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "B_up": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 4613,
+      "E1": 4590,
+      "E2": 4590,
+      "x": 171,
+      "y": -121
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 406
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "B_left": {
+    "release_shots": 3,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 406
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "B_right": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 406
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "B_upleft": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 406
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "B_upright": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 262,
+      "y": 406
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "C_follow": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 4613,
+      "E1": 4590,
+      "E2": 4590,
+      "x": 171,
+      "y": -121
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 263,
+      "y": 407
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "C_scan": {
+    "release_shots": 3,
+    "with_both_estimators": 3,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 3,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4839",
+      "F": 4613,
+      "E1": 4590,
+      "E2": 4590,
+      "x": 171,
+      "y": -121
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 1307,
+      "E1": 1272,
+      "E2": 1272,
+      "x": -129,
+      "y": 359
+     }
+    ]
+   },
+   "POSTHOC_base+A1": {
+    "release_shots": 2,
+    "with_both_estimators": 2,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 2,
+    "share_within_2": 1,
+    "points": [
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     }
+    ]
+   },
+   "POSTHOC_base+A2": {
+    "release_shots": 5,
+    "with_both_estimators": 5,
+    "median_abs_diff_ref_frames": 0,
+    "within_2_ref_frames": 4,
+    "share_within_2": 0.8,
+    "points": [
+     {
+      "clip": "IMG_4851",
+      "F": 741,
+      "E1": 676,
+      "E2": 676,
+      "x": 580,
+      "y": 422
+     },
+     {
+      "clip": "IMG_4866",
+      "F": 4130,
+      "E1": 4116,
+      "E2": 4116,
+      "x": 264,
+      "y": 408
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 447,
+      "E1": 434,
+      "E2": 434,
+      "x": 301,
+      "y": 296
+     },
+     {
+      "clip": "IMG_4867",
+      "F": 1307,
+      "E1": 1272,
+      "E2": 1270,
+      "x": -137,
+      "y": 357
+     },
+     {
+      "clip": "IMG_4872",
+      "F": 1770,
+      "E1": 1702,
+      "E2": 1699.75,
+      "x": 210,
+      "y": 381
+     }
+    ]
+   }
+  }
+ },
+ "verdict": {
+  "A1": {
+   "fails": [
+    "X2@30fps",
+    "X5@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X2@15fps",
+    "X5@15fps",
+    "X8@15fps",
+    "X9@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "A2": {
+   "fails": [
+    "X2@30fps",
+    "X5@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X2@15fps",
+    "X5@15fps",
+    "X8@15fps",
+    "X9@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "A3_full_frame_reference": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X4@30fps",
+    "X5@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X4@15fps",
+    "X5@15fps",
+    "X8@15fps",
+    "X9@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "D_all_tiles": {
+   "fails": [
+    "X2@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X10@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X10@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "B_up": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X6@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X4@15fps",
+    "X6@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "B_left": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "B_right": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X6@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X6@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "B_upleft": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X6@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X6@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "B_upright": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X6@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X6@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "C_follow": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X4@30fps",
+    "X5@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X4@15fps",
+    "X5@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "C_scan": {
+   "fails": [
+    "X2@30fps",
+    "X3@30fps",
+    "X4@30fps",
+    "X5@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X7@30fps",
+    "X2@15fps",
+    "X3@15fps",
+    "X4@15fps",
+    "X5@15fps",
+    "X6@15fps",
+    "X8@15fps",
+    "X9@15fps",
+    "X7@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "POSTHOC_base+A1": {
+   "fails": [
+    "X2@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X2@15fps",
+    "X8@15fps",
+    "X9@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  },
+  "POSTHOC_base+A2": {
+   "fails": [
+    "X2@30fps",
+    "X8@30fps",
+    "X9@30fps",
+    "X2@15fps",
+    "X8@15fps",
+    "X9@15fps"
+   ],
+   "unknown": [],
+   "recommended": false
+  }
+ }
+}

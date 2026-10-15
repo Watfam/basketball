@@ -1,0 +1,65 @@
+{
+ "note": "exploratory definitions, same chains as the registered metrics (cv_nearest on the strategy's own detections)",
+ "defs": {
+  "L1_launch": "an observed point with speed >= 10 px/ref frame preceded within 2 processed frames by an observed point with speed <= 6 and followed by upward motion (y falls over the next 3 observed points)",
+  "L2_chain_starts_in_hand": "the chain's first observed point is at least 3 observed points before the first point of speed >= 10 (the approach to launch is observed, any speed)",
+  "L3_start_before_apex": "the chain's observed points begin at least 8 reference frames before its minimum-y point (rising flight observed from its early part)"
+ },
+ "rows": {
+  "S0_fixed": {
+   "shots": 69,
+   "L1": 26,
+   "L2": 5,
+   "L3": 21,
+   "chain_begins_frames_before_F": {
+    "median": 12,
+    "p25": 9,
+    "p75": 21
+   }
+  },
+  "A1": {
+   "shots": 69,
+   "L1": 45,
+   "L2": 5,
+   "L3": 39,
+   "chain_begins_frames_before_F": {
+    "median": 27,
+    "p25": 20,
+    "p75": 32
+   }
+  },
+  "A2": {
+   "shots": 69,
+   "L1": 52,
+   "L2": 7,
+   "L3": 46,
+   "chain_begins_frames_before_F": {
+    "median": 30,
+    "p25": 23,
+    "p75": 36
+   }
+  },
+  "D_all_tiles": {
+   "shots": 69,
+   "L1": 41,
+   "L2": 7,
+   "L3": 45,
+   "chain_begins_frames_before_F": {
+    "median": 29,
+    "p25": 11,
+    "p75": 34
+   }
+  },
+  "B_left": {
+   "shots": 69,
+   "L1": 26,
+   "L2": 9,
+   "L3": 28,
+   "chain_begins_frames_before_F": {
+    "median": 12,
+    "p25": 10,
+    "p75": 29
+   }
+  }
+ }
+}

@@ -847,3 +847,10 @@ code, rounds 2 and 3 registered adaptive. **NOT READY; nothing integrated, `src/
 work (about as well as H2); the Kalman associator is no better than a plain constant-velocity nearest-neighbour, no motion model beat a
 simple baseline, and the wider gate that fixed bounces cost shots on IMG_4872. The 416 px window almost never sees the release (1 of 174
 shots). Read `REPORT.md` there; `node evaluate.mjs shots-round3.json assoc-m2-f0.5.json` reapplies the criteria.
+
+### Experiment 2: expanded flight visibility (2026-10-16), `training/eval/experiments/visibility/`
+Existing footage only. The release and early flight are in the 1920x1080 frame but outside the 416 px production window (22 of 33 annotated balls
+outside it, none detected); the camera does not cut them off. A 2x rim-centred window lifts apex visibility from 26% to 58% and reconstruction-eligible
+shots from 32% to 62%, but keeps only about half the confident production-window detections on its own (production window plus 2x window keeps all, two inferences).
+Release is observed in 3-7% of shots under every strategy (the held ball is the weak link), a stacked window above the hoop does not help, the full frame
+at 416 and nine tiles fail on scale or cost. **No phone-compatible strategy met the registered bar; nothing integrated, `src/` untouched.** Read `REPORT.md` there.

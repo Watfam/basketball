@@ -1,0 +1,98 @@
+{
+ "labelled": "2026-10-16, by eye from numbered 3x-ball-width crops of the native frame, by one annotator (Claude), BEFORE any metric was computed on the extra detections. Sample: seed 20261102, 40 per pool stratified over the 8 clips. A pool is the set of detections (score >= 0.25) of the strategy that do not coincide with a production-window detection. The B and C strategies use the nine-tile pool as a proxy (their extras are a subset of it); labelled ball means a ball is centred in the crop, in any state (held, bouncing, in flight).",
+ "A1": {
+  "population": 2123,
+  "sampled": 40,
+  "ball": 40,
+  "not_ball": 0,
+  "unsure": 0,
+  "not_ball_ids": [],
+  "unsure_ids": [],
+  "per_clip_population": {
+   "IMG_4839": 395,
+   "IMG_4840": 288,
+   "IMG_4851": 260,
+   "IMG_4866": 194,
+   "IMG_4867": 255,
+   "IMG_4872": 317,
+   "IMG_4873": 106,
+   "IMG_4874": 308
+  }
+ },
+ "A2": {
+  "population": 2637,
+  "sampled": 40,
+  "ball": 37,
+  "not_ball": 2,
+  "unsure": 1,
+  "not_ball_ids": [
+   22,
+   28
+  ],
+  "unsure_ids": [
+   18
+  ],
+  "per_clip_population": {
+   "IMG_4839": 514,
+   "IMG_4840": 350,
+   "IMG_4851": 340,
+   "IMG_4866": 194,
+   "IMG_4867": 358,
+   "IMG_4872": 377,
+   "IMG_4873": 136,
+   "IMG_4874": 368
+  }
+ },
+ "A3": {
+  "population": 2471,
+  "sampled": 40,
+  "ball": 38,
+  "not_ball": 2,
+  "unsure": 0,
+  "not_ball_ids": [
+   33,
+   34
+  ],
+  "unsure_ids": [],
+  "per_clip_population": {
+   "IMG_4839": 408,
+   "IMG_4840": 325,
+   "IMG_4851": 444,
+   "IMG_4866": 274,
+   "IMG_4867": 182,
+   "IMG_4872": 117,
+   "IMG_4873": 486,
+   "IMG_4874": 235
+  }
+ },
+ "tiles": {
+  "population": 5858,
+  "sampled": 40,
+  "ball": 31,
+  "not_ball": 7,
+  "unsure": 2,
+  "not_ball_ids": [
+   1,
+   7,
+   11,
+   33,
+   34,
+   37,
+   40
+  ],
+  "unsure_ids": [
+   5,
+   19
+  ],
+  "per_clip_population": {
+   "IMG_4839": 752,
+   "IMG_4840": 599,
+   "IMG_4851": 638,
+   "IMG_4866": 715,
+   "IMG_4867": 613,
+   "IMG_4872": 826,
+   "IMG_4873": 674,
+   "IMG_4874": 1041
+  }
+ }
+}
