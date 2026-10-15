@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Flight-path replay (experimental, offline)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#14161a; --panel:#1c1f25; --line:#2d323b; --ink:#e9ecf1; --mute:#9aa3b2; --obs:#4fd1ff; --rec:#ffd24f; --gap:#ff6b6b; --make:#5fd68a; --miss:#ff9a52; --appr:#ffffff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; }
+  header { padding:12px 18px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:baseline; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .tag { color:var(--mute); font-size:12px; }
+  main { display:grid; grid-template-columns:minmax(320px,660px) minmax(300px,1fr); gap:16px; padding:16px 18px; align-items:start; }
+  @media (max-width:980px){ main { grid-template-columns:1fr; } }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; }
+  canvas { display:block; width:100%; height:auto; background:#000; border-radius:4px; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:10px; }
+  button, select { background:#272c35; color:var(--ink); border:1px solid #3a414d; border-radius:6px; padding:6px 10px; font:inherit; cursor:pointer; }
+  button:hover, select:hover { border-color:#5b6677; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid var(--obs); outline-offset:1px; }
+  input[type=range] { flex:1 1 220px; }
+  label { color:var(--mute); display:inline-flex; gap:5px; align-items:center; }
+  .status { margin-top:10px; padding:8px 10px; border-radius:6px; background:#12151a; border-left:4px solid var(--mute); min-height:62px; }
+  .status.obs { border-left-color:var(--obs); } .status.rec { border-left-color:var(--rec); } .status.gap { border-left-color:var(--gap); }
+  .status b { font-weight:600; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; color:var(--mute); font-size:12px; margin-top:10px; }
+  .legend i { display:inline-block; vertical-align:middle; margin-right:5px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--obs); }
+  .ring { width:10px; height:10px; border-radius:50%; border:2px dashed var(--rec); }
+  .xx { width:10px; height:10px; position:relative; } .xx:before,.xx:after { content:""; position:absolute; left:4px; top:-1px; width:2px; height:12px; background:var(--gap); transform:rotate(45deg); } .xx:after { transform:rotate(-45deg); }
+  .box { width:14px; height:10px; border:2px solid var(--appr); }
+  h2 { font-size:13px; margin:0 0 8px; color:var(--mute); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+  .shots { max-height:260px; overflow:auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:4px 10px; margin-top:8px; }
+  .shots label { color:var(--ink); font-size:12px; }
+  .make { color:var(--make); } .miss { color:var(--miss); } .unk { color:var(--mute); }
+  .note { color:var(--mute); font-size:12px; margin-top:8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Flight-path replay</h1>
+  <span class="tag">experimental, offline, not part of the app. Positions are image-space: observed = detector box centre; reconstructed = interpolated across a 1-3 frame gap (not a measurement).</span>
+</header>
+<main>
+  <section class="panel" aria-label="Replay">
+    <div class="row" style="margin-top:0">
+      <label>Clip <select id="clip"></select></label>
+      <label>Shot <select id="shot"></select></label>
+      <label>Detections <select id="source"><option value="production">production window</option><option value="context">production + 2x window</option></select></label>
+    </div>
+    <div style="margin-top:10px"><canvas id="view" width="560" height="560" aria-label="Video frame with the ball path drawn on it"></canvas></div>
+    <div class="row">
+      <button id="prev" title="Previous frame (left arrow)">&#9664; frame</button>
+      <button id="play" title="Play or pause (space)">Play</button>
+      <button id="next" title="Next frame (right arrow)">frame &#9654;</button>
+      <input id="slider" type="range" min="0" max="0" value="0" aria-label="Frame">
+      <label><input type="checkbox" id="full"> whole path</label>
+      <label><input type="checkbox" id="rings" checked> uncertainty</label>
+      <label><input type="checkbox" id="windows" checked> windows</label>
+    </div>
+    <div class="status" id="status" aria-live="polite"></div>
+    <div class="legend">
+      <span><i class="dot"></i>observed (colour = detector score)</span>
+      <span><i class="ring"></i>reconstructed (dashed, low confidence over 2-3 frames)</span>
+      <span><i class="xx"></i>gap or uncertain identity: path broken</span>
+      <span><i class="box"></i>observed approach to the rim</span>
+    </div>
+    <div class="note" id="info"></div>
+  </section>
+  <section class="panel" aria-label="Compare shots">
+    <h2>Compare observed paths (rim-relative, ball widths)</h2>
+    <canvas id="cmp" width="620" height="520" aria-label="Rim-relative paths of the selected shots"></canvas>
+    <div class="row"><label><input type="checkbox" id="onlyObs" checked> observed points only</label><button id="all">All shots of this clip</button><button id="none">None</button><button id="outc">Makes and misses only</button></div>
+    <div class="shots" id="shotlist"></div>
+    <div class="note">x: image-horizontal offset from the rim centre in ball widths. y: height above the rim level in ball widths. Image-horizontal is not the shooter's left or right, and nothing here is a physical measurement.</div>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+let DATA, clipId, shot, frameIdx = 0, timer = null, images = [];
+const cv = $("view"), ctx = cv.getContext("2d"), cc = $("cmp"), cctx = cc.getContext("2d");
+const scoreColour = (s) => { const t = Math.max(0, Math.min(1, (s - 0.25) / 0.65)); return `hsl(${Math.round(30 + t * 150)},90%,${Math.round(55 + t * 5)}%)`; };
+
+async function init() {
+  DATA = await (await fetch("data.json")).json();
+  for (const id of Object.keys(DATA.clips)) { const o = document.createElement("option"); o.value = id; o.textContent = id; $("clip").appendChild(o); }
+  const firstWithFrames = Object.keys(DATA.clips).find((id) => DATA.clips[id].shots.some((s) => s.frames));
+  $("clip").value = firstWithFrames; setClip(firstWithFrames);
+}
+function setClip(id) {
+  clipId = id; const C = DATA.clips[id]; $("shot").innerHTML = "";
+  const withFrames = C.shots.filter((s) => s.frames);
+  for (const s of withFrames) { const o = document.createElement("option"); o.value = s.id; o.textContent = `${s.id.split(":")[1]}  ${s.outcome ?? "unmatched"}`; $("shot").appendChild(o); }
+  buildList(); if (withFrames.length) setShot(withFrames[0].id);
+}
+function buildList() {
+  const C = DATA.clips[clipId], box = $("shotlist"); box.innerHTML = "";
+  for (const s of C.shots) { const l = document.createElement("label"); l.innerHTML = `<input type="checkbox" data-id="${s.id}"><span class="${s.outcome ?? "unk"}">${s.id.split(":")[1]} ${s.outcome ?? "?"}</span>`; box.appendChild(l); }
+  box.querySelectorAll("input").forEach((i) => i.addEventListener("change", drawCompare));
+}
+function setShot(id) {
+  stop(); const C = DATA.clips[clipId]; shot = C.shots.find((s) => s.id === id); $("shot").value = id;
+  const n = shot.frames.to - shot.frames.from + 1; $("slider").max = n - 1; frameIdx = Math.min(n - 1, 60);
+  images = Array.from({ length: n }, (_, i) => { const im = new Image(); im.onload = () => { if (shot && images[i] === im && i === frameIdx) draw(); }; im.src = `${shot.frames.dir}/${String(i + 1).padStart(3, "0")}.jpg`; return im; });
+  const box = $("shotlist"); box.querySelectorAll("input").forEach((i) => { i.checked = i.dataset.id === id; });
+  if (!shot.trail.context) { $("source").value = "production"; }
+  $("source").querySelector('[value="context"]').disabled = !shot.trail.context; drawCompare(); draw();
+}
+const trailOf = () => shot.trail[$("source").value] ?? shot.trail.production;
+function toCanvas(C, u) { const k = C.base.side / 416, nx = C.base.x + u.x * k, ny = C.base.y + u.y * k, s = C.canvas / C.crop.side; return { x: (nx - C.crop.x) * s, y: (ny - C.crop.y) * s, k: k * s }; }
+function draw() {
+  if (!shot) return; const C = DATA.clips[clipId], T = trailOf(), f = shot.frames.from + frameIdx, im = images[frameIdx];
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, cv.width, cv.height); if (im && im.complete && im.naturalWidth) ctx.drawImage(im, 0, 0, cv.width, cv.height);
+  const rim = toCanvas(C, C.rim_u);
+  if ($("windows").checked) {
+    const b = toCanvas(C, { x: 0, y: 0 }), bs = C.base.side * (C.canvas / C.crop.side); ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5; ctx.strokeRect(b.x, b.y, bs, bs); ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.font = "11px system-ui"; ctx.fillText("production window", b.x + 4, b.y + 13);
+  }
+  ctx.strokeStyle = "rgba(255,120,60,.9)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(rim.x, rim.y, 5, 0, 7); ctx.stroke();
+  const full = $("full").checked, show = (p) => full || p.f <= f, apprSet = new Set(T.approach_frames);
+  // links
+  for (const seg of T.segments) {
+    const pts = seg.filter(show); for (let i = 1; i < pts.length; i++) {
+      const a = toCanvas(C, pts[i - 1]), b = toCanvas(C, pts[i]), rec = pts[i].t === "r" || pts[i - 1].t === "r";
+      ctx.strokeStyle = rec ? "rgba(255,210,79,.95)" : "rgba(79,209,255,.9)"; ctx.lineWidth = 2.2; ctx.setLineDash(rec ? [5, 4] : []); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+  // gaps and uncertain-identity events
+  for (const g of T.gaps) { if (!(full || g.from <= f)) continue; const before = T.segments.flat().filter((p) => p.t === "o" && p.f < g.from).pop(), after = T.segments.flat().find((p) => p.t === "o" && p.f > g.to); if (!before || !after || (after.f - before.f) > 90) continue; const a = toCanvas(C, before), b = toCanvas(C, after); ctx.strokeStyle = "rgba(255,107,107,.9)"; ctx.lineWidth = 1.5; ctx.setLineDash([2, 5]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.setLineDash([]); const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; ctx.fillStyle = "#ff6b6b"; ctx.font = "bold 12px system-ui"; ctx.fillText(`gap ${Math.max(0, g.frames)}f`, m.x + 5, m.y - 5); }
+  for (const e of T.events) { if (!(full || e.f <= f)) continue; const p = toCanvas(C, e); ctx.strokeStyle = e.reason === "ambiguous" ? "#ff6b6b" : "#c27cff"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p.x - 5, p.y - 5); ctx.lineTo(p.x + 5, p.y + 5); ctx.moveTo(p.x + 5, p.y - 5); ctx.lineTo(p.x - 5, p.y + 5); ctx.stroke(); }
+  // points
+  let current = null;
+  for (const seg of T.segments) for (const p of seg) {
+    if (!show(p)) continue; const c = toCanvas(C, p), isNow = p.f === f; if (isNow) current = p;
+    if (p.t === "o") { ctx.fillStyle = scoreColour(p.s); ctx.beginPath(); ctx.arc(c.x, c.y, isNow ? 5 : 3.2, 0, 7); ctx.fill(); if (apprSet.has(p.f)) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.strokeRect(c.x - 6, c.y - 6, 12, 12); } }
+    else { ctx.strokeStyle = "#ffd24f"; ctx.setLineDash([3, 3]); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(c.x, c.y, isNow ? 6 : 4, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+    if ($("rings").checked && (isNow || (full && p.f % 6 === 0))) { ctx.strokeStyle = p.t === "o" ? "rgba(79,209,255,.55)" : "rgba(255,210,79,.6)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(c.x, c.y, Math.max(2, p.u * c.k), 0, 7); ctx.stroke(); }
+  }
+  ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fillRect(0, cv.height - 22, 230, 22); ctx.fillStyle = "#fff"; ctx.font = "12px system-ui"; ctx.fillText(`${clipId}  frame ${f}  (${f - shot.first >= 0 ? "+" : ""}${f - shot.first} from first rim-zone sighting)`, 6, cv.height - 7);
+  $("slider").value = frameIdx; status(f, current, T);
+}
+function status(f, p, T) {
+  const el = $("status"), rel = f - shot.first, nearGap = T.gaps.find((g) => f >= g.from && f <= g.to), ev = T.events.find((e) => e.f === f);
+  const approach = T.approach_frames.length ? `observed approach: ${T.approach_frames.length} points (frames ${T.approach_frames[0]}-${T.approach_frames[T.approach_frames.length - 1]})` : "no observed approach portion in this path";
+  let head, cls;
+  if (p && p.t === "o") { cls = "obs"; head = `<b>Observed</b> ball centre. Detector score ${p.s}, position uncertainty about +-${p.u} px (image-space, the annotated p95 of the detector). Track #${p.id}.`; }
+  else if (p) { cls = "rec"; head = `<b>Reconstructed</b>, not observed: interpolated across a gap, about +-${p.u} px expected error (image-space)${p.u > 4 ? ", low confidence" : ""}.`; }
+  else if (ev) { cls = "gap"; head = ev.reason === "ambiguous" ? `<b>Identity uncertain</b>: another ball-like box is nearby, so this detection is left out and the path is broken.` : `<b>Left out</b>: motionless detection at a frequently occupied rim spot (rim-hardware false positive).`; }
+  else if (nearGap) { cls = "gap"; head = `<b>No observed ball</b> (${nearGap.reason.replace(/_/g, " ")}, ${Math.max(0, nearGap.frames)} frame${nearGap.frames === 1 ? "" : "s"}). The path is not drawn across this.`; }
+  else { cls = ""; head = `<b>No observed ball at this frame.</b> Nothing is drawn.`; }
+  el.className = "status " + cls;
+  el.innerHTML = `${head}<br><span style="color:var(--mute)">${approach}. Path: ${T.observed} observed points, mean score ${T.mean_score}.</span>`;
+  $("info").textContent = `${shot.id}  written outcome: ${shot.outcome ?? "not paired to a written shot"}  |  production V4 call: ${shot.v4}  |  frame ${f} (${rel >= 0 ? "+" : ""}${rel})  |  detections: ${$("source").value === "context" ? "production window + 2x rim-centred window" : "production window"}.`;
+}
+function step(d) { const n = shot.frames.to - shot.frames.from + 1; frameIdx = Math.max(0, Math.min(n - 1, frameIdx + d)); draw(); }
+function stop() { if (timer) { clearInterval(timer); timer = null; $("play").textContent = "Play"; } }
+function play() { if (timer) return stop(); $("play").textContent = "Pause"; timer = setInterval(() => { const n = shot.frames.to - shot.frames.from + 1; if (frameIdx >= n - 1) { stop(); return; } step(1); }, 90); }
+
+function drawCompare() {
+  const C = DATA.clips[clipId], W = cc.width, H = cc.height, pad = 38; cctx.fillStyle = "#12151a"; cctx.fillRect(0, 0, W, H);
+  const sel = [...$("shotlist").querySelectorAll("input:checked")].map((i) => C.shots.find((s) => s.id === i.dataset.id)).filter(Boolean), obsOnly = $("onlyObs").checked;
+  const rim = C.rim_u, X = (v) => pad + ((v + 9) / 18) * (W - 2 * pad), Y = (v) => H - pad - ((v + 3) / 15) * (H - 2 * pad);
+  cctx.strokeStyle = "#2d323b"; cctx.fillStyle = "#9aa3b2"; cctx.font = "11px system-ui"; cctx.lineWidth = 1;
+  for (let x = -8; x <= 8; x += 2) { cctx.beginPath(); cctx.moveTo(X(x), pad / 2); cctx.lineTo(X(x), H - pad); cctx.stroke(); cctx.fillText(x, X(x) - 4, H - pad + 14); }
+  for (let y = -2; y <= 11; y += 1) { cctx.beginPath(); cctx.moveTo(pad, Y(y)); cctx.lineTo(W - pad / 2, Y(y)); cctx.stroke(); if (y % 2 === 0) cctx.fillText(y, 8, Y(y) + 4); }
+  cctx.strokeStyle = "#ff783c"; cctx.lineWidth = 2; cctx.beginPath(); cctx.moveTo(pad, Y(0)); cctx.lineTo(W - pad / 2, Y(0)); cctx.stroke(); cctx.beginPath(); cctx.moveTo(X(0), pad / 2); cctx.lineTo(X(0), H - pad); cctx.stroke();
+  cctx.fillStyle = "#ff783c"; cctx.fillText("rim level", W - 70, Y(0) - 5); cctx.fillStyle = "#9aa3b2"; cctx.fillText("ball widths, image-horizontal from rim centre", W / 2 - 100, H - 6);
+  let drawn = 0;
+  for (const s of sel) {
+    const T = s.trail.production, bw = T.ball_width_u || 24, col = s.outcome === "make" ? "#5fd68a" : s.outcome === "miss" ? "#ff9a52" : "#9aa3b2";
+    for (const seg of T.segments) { const pts = seg.filter((p) => (p.f >= s.first - 40 && p.f <= s.first + 12) && (!obsOnly || p.t === "o")); if (pts.length < 2) continue; cctx.strokeStyle = col; cctx.globalAlpha = 0.85; cctx.lineWidth = 1.8; cctx.beginPath(); pts.forEach((p, i) => { const x = X((p.x - rim.x) / bw), y = Y((rim.y - p.y) / bw); i ? cctx.lineTo(x, y) : cctx.moveTo(x, y); }); cctx.stroke(); cctx.globalAlpha = 1; pts.forEach((p) => { cctx.fillStyle = col; cctx.beginPath(); cctx.arc(X((p.x - rim.x) / bw), Y((rim.y - p.y) / bw), 2, 0, 7); cctx.fill(); }); drawn++; }
+  }
+  cctx.fillStyle = "#e9ecf1"; cctx.font = "12px system-ui"; cctx.fillText(`${sel.length} shot${sel.length === 1 ? "" : "s"} selected; green = written make, orange = written miss, grey = unpaired. Paths are broken where identity was uncertain.`, pad, 16);
+}
+$("clip").addEventListener("change", (e) => setClip(e.target.value)); $("shot").addEventListener("change", (e) => setShot(e.target.value));
+$("source").addEventListener("change", draw); ["full", "rings", "windows"].forEach((i) => $(i).addEventListener("change", draw)); $("onlyObs").addEventListener("change", drawCompare);
+$("prev").addEventListener("click", () => { stop(); step(-1); }); $("next").addEventListener("click", () => { stop(); step(1); }); $("play").addEventListener("click", play);
+$("slider").addEventListener("input", (e) => { stop(); frameIdx = +e.target.value; draw(); });
+$("all").addEventListener("click", () => { $("shotlist").querySelectorAll("input").forEach((i) => (i.checked = true)); drawCompare(); }); $("none").addEventListener("click", () => { $("shotlist").querySelectorAll("input").forEach((i) => (i.checked = false)); drawCompare(); });
+$("outc").addEventListener("click", () => { const C = DATA.clips[clipId]; $("shotlist").querySelectorAll("input").forEach((i) => { const s = C.shots.find((x) => x.id === i.dataset.id); i.checked = !!s.outcome; }); drawCompare(); });
+document.addEventListener("keydown", (e) => { if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" && e.target.type !== "checkbox") return; if (e.key === "ArrowLeft") { stop(); step(-1); } else if (e.key === "ArrowRight") { stop(); step(1); } else if (e.key === " ") { e.preventDefault(); play(); } });
+init();
+</script>
+</body>
+</html>

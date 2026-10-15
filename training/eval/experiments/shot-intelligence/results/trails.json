@@ -1,0 +1,301 @@
+{
+ "generated": "2026-10-15T01:03:49.811Z",
+ "per_clip": {
+  "IMG_4839": {
+   "30fps": {
+    "shots": 28,
+    "observed": 1190,
+    "reconstructed": 23,
+    "segments": 61,
+    "gaps": 33,
+    "ambiguous_events": 3,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 1213,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 28,
+    "observed": 623,
+    "reconstructed": 22,
+    "segments": 46,
+    "gaps": 18,
+    "ambiguous_events": 2,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 645,
+    "violations": 0
+   }
+  },
+  "IMG_4840": {
+   "30fps": {
+    "shots": 32,
+    "observed": 1511,
+    "reconstructed": 21,
+    "segments": 52,
+    "gaps": 20,
+    "ambiguous_events": 2,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 1532,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 32,
+    "observed": 769,
+    "reconstructed": 21,
+    "segments": 46,
+    "gaps": 14,
+    "ambiguous_events": 1,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 790,
+    "violations": 0
+   }
+  },
+  "IMG_4851": {
+   "30fps": {
+    "shots": 17,
+    "observed": 803,
+    "reconstructed": 19,
+    "segments": 34,
+    "gaps": 17,
+    "ambiguous_events": 0,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 822,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 17,
+    "observed": 406,
+    "reconstructed": 14,
+    "segments": 28,
+    "gaps": 11,
+    "ambiguous_events": 0,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 420,
+    "violations": 0
+   }
+  },
+  "IMG_4866": {
+   "30fps": {
+    "shots": 17,
+    "observed": 868,
+    "reconstructed": 10,
+    "segments": 33,
+    "gaps": 16,
+    "ambiguous_events": 9,
+    "clutter_events": 1,
+    "phantom_points": 0,
+    "points": 878,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 17,
+    "observed": 437,
+    "reconstructed": 13,
+    "segments": 27,
+    "gaps": 10,
+    "ambiguous_events": 6,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 450,
+    "violations": 0
+   }
+  },
+  "IMG_4867": {
+   "30fps": {
+    "shots": 15,
+    "observed": 647,
+    "reconstructed": 24,
+    "segments": 50,
+    "gaps": 35,
+    "ambiguous_events": 15,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 671,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 15,
+    "observed": 327,
+    "reconstructed": 20,
+    "segments": 33,
+    "gaps": 18,
+    "ambiguous_events": 8,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 347,
+    "violations": 0
+   }
+  },
+  "IMG_4872": {
+   "30fps": {
+    "shots": 23,
+    "observed": 1057,
+    "reconstructed": 41,
+    "segments": 48,
+    "gaps": 25,
+    "ambiguous_events": 6,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 1098,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 22,
+    "observed": 536,
+    "reconstructed": 33,
+    "segments": 35,
+    "gaps": 13,
+    "ambiguous_events": 3,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 569,
+    "violations": 0
+   }
+  },
+  "IMG_4873": {
+   "30fps": {
+    "shots": 21,
+    "observed": 953,
+    "reconstructed": 11,
+    "segments": 44,
+    "gaps": 24,
+    "ambiguous_events": 49,
+    "clutter_events": 0,
+    "phantom_points": 14,
+    "points": 964,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 21,
+    "observed": 486,
+    "reconstructed": 8,
+    "segments": 31,
+    "gaps": 11,
+    "ambiguous_events": 20,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 494,
+    "violations": 0
+   }
+  },
+  "IMG_4874": {
+   "30fps": {
+    "shots": 20,
+    "observed": 739,
+    "reconstructed": 37,
+    "segments": 44,
+    "gaps": 24,
+    "ambiguous_events": 3,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 776,
+    "violations": 0
+   },
+   "15fps": {
+    "shots": 18,
+    "observed": 359,
+    "reconstructed": 26,
+    "segments": 29,
+    "gaps": 11,
+    "ambiguous_events": 1,
+    "clutter_events": 0,
+    "phantom_points": 0,
+    "points": 385,
+    "violations": 0
+   }
+  }
+ },
+ "A1": {
+  "shot_max_phantom": {
+   "30fps": 11,
+   "15fps": 0
+  },
+  "30fps": {
+   "phantom_points": 14,
+   "trail_points": 964,
+   "share": 0.014522821576763486
+  },
+  "15fps": {
+   "phantom_points": 0,
+   "trail_points": 494,
+   "share": 0
+  }
+ },
+ "A2": {
+  "violations": {
+   "15": 0,
+   "30": 0
+  },
+  "observed_links_checked": {
+   "15": 3668,
+   "30": 7402
+  }
+ },
+ "A4": {
+  "1": {
+   "n": 5309,
+   "median_px": 0.6997147236156661,
+   "p95_px": 2.84816278502492,
+   "max_px": 21.01531353032304
+  },
+  "2": {
+   "n": 10448,
+   "median_px": 0.8462478245896682,
+   "p95_px": 4.301937129047959,
+   "max_px": 27.615549785680415
+  },
+  "3": {
+   "n": 15417,
+   "median_px": 1.008673113404267,
+   "p95_px": 6.066473565117681,
+   "max_px": 36.07384648190437
+  }
+ },
+ "approach": {
+  "30fps": {
+   "shots": 173,
+   "with_approach": 113,
+   "per_clip": {
+    "IMG_4839": "16/28",
+    "IMG_4840": "29/32",
+    "IMG_4851": "11/17",
+    "IMG_4866": "9/17",
+    "IMG_4867": "7/15",
+    "IMG_4872": "17/23",
+    "IMG_4873": "12/21",
+    "IMG_4874": "12/20"
+   }
+  },
+  "15fps": {
+   "shots": 170,
+   "with_approach": 74,
+   "per_clip": {
+    "IMG_4839": "6/28",
+    "IMG_4840": "17/32",
+    "IMG_4851": "10/17",
+    "IMG_4866": "8/17",
+    "IMG_4867": "6/15",
+    "IMG_4872": "12/22",
+    "IMG_4873": "10/21",
+    "IMG_4874": "5/18"
+   }
+  }
+ },
+ "breaks": {
+  "30fps": {
+   "gap_too_long": 127,
+   "link_failed": 25,
+   "ambiguous": 42
+  },
+  "15fps": {
+   "gap_too_long": 75,
+   "ambiguous": 21,
+   "link_failed": 10
+  }
+ }
+}

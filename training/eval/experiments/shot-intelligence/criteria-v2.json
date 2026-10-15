@@ -1,0 +1,14 @@
+{
+  "registered": "2026-10-17",
+  "status": "AMENDMENT written after the first Workstream-A evaluation (results/trails.json) and before the replay was built. It changes nothing that was a pass/fail criterion; it records two failures and corrects a DISPLAY value that the measurement showed to be too optimistic.",
+  "findings_that_stand_as_results": {
+    "A1": "FAIL on its second clause: phantom (rim-hardware) boxes are 1.45% of IMG_4873's trail points at 30 fps (limit 2%, pass) but one counted extra shot (frame 1904, not in the written list) has 11 phantom points in its trail (limit 2 per trail). 15 fps: 0.",
+    "A4": "FAIL for 2- and 3-frame gaps: measured on real observed points hidden and reconstructed, median 0.70/0.85/1.01 px and p95 2.85/4.30/6.07 px for 1/2/3 hidden frames against limits of median 1.0 and p95 4.0. Only 1-frame reconstructions meet the registered limits.",
+    "A2": "pass (0 violations over 7,402 links at 30 fps and 3,668 at 15 fps); note the verifier restates the builder's rule independently but is not an independent oracle of identity",
+    "ambiguity_cost": "the conservative ambiguity break (a competing box within 1.5 ball widths) fires 49 times on IMG_4873 at 30 fps (rim-hardware boxes next to the ball) and breaks trails near the rim; it was kept as registered because breaking is the requested safe behaviour"
+  },
+  "amendment": {
+    "display_uncertainty_of_reconstructed_points": "the replay and the trail data use the measured p95 of this test (2.85 px for 1 hidden frame, 4.30 px for 2, 6.07 px for 3, both regions) instead of the Experiment-1 table, because the registered table understated the error on these trails. Observed-point uncertainty (1.74 px, the annotated p95) is unchanged.",
+    "reliability_label": "reconstructed points over gaps of 2 or 3 frames are labelled low-reliability in the replay and are never used by the fingerprint (observed points only, as registered)."
+  }
+}
