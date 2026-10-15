@@ -33,6 +33,8 @@ import { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { MODEL_VERSION, RULE_VERSION } from "@/lib/vision/lab-calls";
 import { CAMERA_SWITCH_KEY } from "@/lib/vision/camera-switch";
 import { clearReplays } from "@/lib/vision/replay-store";
+import { retainHistory } from "@/lib/review/retain-session";
+import { TrackingHistoryEntry } from "@/components/tracking-history-entry";
 import { ShotReview } from "@/components/shot-review";
 import { SoundCheck } from "@/components/sound-controls";
 import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
@@ -463,6 +465,8 @@ export function ShootingHub({
     }
 
     haptic("success");
+    // Experimental, flag-gated and opt-in: keep this set's compact tracking history on this phone. Not awaited; does nothing when off.
+    void retainHistory({ playerId, snapshot });
     setFinished({
       label: snapshot.label || null,
       shots: snapshot.shots,
@@ -952,6 +956,7 @@ export function ShootingHub({
           Keeping the same name each time is what makes your progress line up.
         </p>
         <SoundCheck className="mt-3 flex flex-col items-center" />
+        <TrackingHistoryEntry playerId={playerId} />
       </section>
 
       {children}

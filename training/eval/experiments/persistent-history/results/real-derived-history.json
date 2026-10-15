@@ -1,0 +1,700 @@
+{
+ "sessions": 8,
+ "shots": 168,
+ "tracked": 167,
+ "bytes": 275633,
+ "damaged": 0,
+ "retention": [
+  {
+   "clip": "IMG_4839",
+   "status": "saved",
+   "shots": 28,
+   "tracked": 28,
+   "bytes": 42564,
+   "ms": 22
+  },
+  {
+   "clip": "IMG_4840",
+   "status": "saved",
+   "shots": 32,
+   "tracked": 32,
+   "bytes": 54336,
+   "ms": 24.6
+  },
+  {
+   "clip": "IMG_4851",
+   "status": "saved",
+   "shots": 17,
+   "tracked": 17,
+   "bytes": 30802,
+   "ms": 19.4
+  },
+  {
+   "clip": "IMG_4866",
+   "status": "saved",
+   "shots": 17,
+   "tracked": 17,
+   "bytes": 29011,
+   "ms": 9.3
+  },
+  {
+   "clip": "IMG_4867",
+   "status": "saved",
+   "shots": 15,
+   "tracked": 15,
+   "bytes": 20297,
+   "ms": 6.4
+  },
+  {
+   "clip": "IMG_4872",
+   "status": "saved",
+   "shots": 22,
+   "tracked": 21,
+   "bytes": 38867,
+   "ms": 11.4
+  },
+  {
+   "clip": "IMG_4873",
+   "status": "saved",
+   "shots": 20,
+   "tracked": 20,
+   "bytes": 31512,
+   "ms": 9.6
+  },
+  {
+   "clip": "IMG_4874",
+   "status": "saved",
+   "shots": 17,
+   "tracked": 17,
+   "bytes": 28244,
+   "ms": 8.4
+  }
+ ],
+ "framing_groups": [
+  {
+   "name": "framing 1 (3 sessions)",
+   "sessions": [
+    "IMG_4839 (S4)",
+    "IMG_4840 (S4)",
+    "IMG_4872 (S7)"
+   ],
+   "statements": [
+    {
+     "id": "V1",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "shots": 65
+     },
+     "claim": "In framing 1 (3 sessions), where the ball was observed at rim height varied by about 0.80 ball widths (spread of 65 shots in 3 sessions; image-horizontal).",
+     "uncertainty": {
+      "effect": 0.799,
+      "ci95": {
+       "lo": 0.443,
+       "hi": 2.471
+      },
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V2",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V3",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "n": {
+      "earlier": 48,
+      "latest": 17
+     },
+     "claim": null,
+     "uncertainty": {
+      "effect": 0.587,
+      "ci95": {
+       "lo": 0.066,
+       "hi": 5.22
+      },
+      "p": 0.834,
+      "p_adjusted": 0.834
+     }
+    },
+    {
+     "id": "V4a",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "make": 29,
+      "miss": 36
+     },
+     "claim": "In framing 1 (3 sessions), at rim height the ball was observed 2.30 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median; 29 makes, 36 misses).",
+     "uncertainty": {
+      "effect": 2.299,
+      "ci95": {
+       "lo": 1.567,
+       "hi": 3.369
+      },
+      "p": 0.0002,
+      "p_adjusted": 0.0006
+     }
+    },
+    {
+     "id": "V4b",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "make": 29,
+      "miss": 36
+     },
+     "claim": "In framing 1 (3 sessions), the observed rim-level position varied 12.33 times as much on misses as on makes (spread; 29 makes, 36 misses).",
+     "uncertainty": {
+      "effect": 12.331,
+      "ci95": {
+       "lo": 7.249,
+       "hi": 25.516
+      },
+      "p": 0.0002,
+      "p_adjusted": 0.0006
+     }
+    }
+   ]
+  },
+  {
+   "name": "framing 2 (1 session)",
+   "sessions": [
+    "IMG_4851 (S5)"
+   ],
+   "statements": [
+    {
+     "id": "V1",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "shots": 13
+     },
+     "claim": "In framing 2 (1 session), where the ball was observed at rim height varied by about 1.35 ball widths (spread of 13 shots in 1 session; image-horizontal).",
+     "uncertainty": {
+      "effect": 1.349,
+      "ci95": {
+       "lo": 0.188,
+       "hi": 2.375
+      },
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V2",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V3",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4a",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4b",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "framing 3 (1 session)",
+   "sessions": [
+    "IMG_4866 (S6)"
+   ],
+   "statements": [
+    {
+     "id": "V1",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "shots": 14
+     },
+     "claim": "In framing 3 (1 session), where the ball was observed at rim height varied by about 0.50 ball widths (spread of 14 shots in 1 session; image-horizontal).",
+     "uncertainty": {
+      "effect": 0.504,
+      "ci95": {
+       "lo": 0.113,
+       "hi": 2.386
+      },
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V2",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V3",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4a",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4b",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "framing 4 (1 session)",
+   "sessions": [
+    "IMG_4867 (S6)"
+   ],
+   "statements": [
+    {
+     "id": "V1",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V2",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V3",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4a",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4b",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    }
+   ]
+  },
+  {
+   "name": "framing 5 (1 session)",
+   "sessions": [
+    "IMG_4873 (S7)"
+   ],
+   "statements": [
+    {
+     "id": "V1",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "shots": 16
+     },
+     "claim": "In framing 5 (1 session), where the ball was observed at rim height varied by about 0.83 ball widths (spread of 16 shots in 1 session; image-horizontal).",
+     "uncertainty": {
+      "effect": 0.833,
+      "ci95": {
+       "lo": 0.117,
+       "hi": 2.265
+      },
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V2",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V3",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4a",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "make": 8,
+      "miss": 8
+     },
+     "claim": "In framing 5 (1 session), at rim height the ball was observed 1.46 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median; 8 makes, 8 misses).",
+     "uncertainty": {
+      "effect": 1.465,
+      "ci95": {
+       "lo": 0.735,
+       "hi": 2.395
+      },
+      "p": 0.0096,
+      "p_adjusted": 0.0192
+     }
+    },
+    {
+     "id": "V4b",
+     "status": "abstained",
+     "reason": "not_significant_after_correction",
+     "n": {
+      "make": 8,
+      "miss": 8
+     },
+     "claim": null,
+     "uncertainty": {
+      "effect": 14.105,
+      "ci95": {
+       "lo": 1.91,
+       "hi": 46.539
+      },
+      "p": 0.0744,
+      "p_adjusted": 0.0744
+     }
+    }
+   ]
+  },
+  {
+   "name": "framing 6 (1 session)",
+   "sessions": [
+    "IMG_4874 (S7)"
+   ],
+   "statements": [
+    {
+     "id": "V1",
+     "status": "supported",
+     "reason": null,
+     "n": {
+      "shots": 15
+     },
+     "claim": "In framing 6 (1 session), where the ball was observed at rim height varied by about 0.39 ball widths (spread of 15 shots in 1 session; image-horizontal).",
+     "uncertainty": {
+      "effect": 0.387,
+      "ci95": {
+       "lo": 0.153,
+       "hi": 1.942
+      },
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V2",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V3",
+     "status": "abstained",
+     "reason": "too_few_sessions",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4a",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    },
+    {
+     "id": "V4b",
+     "status": "abstained",
+     "reason": "insufficient_n",
+     "n": {},
+     "claim": null,
+     "uncertainty": {
+      "effect": null,
+      "ci95": null,
+      "p": null,
+      "p_adjusted": null
+     }
+    }
+   ]
+  }
+ ],
+ "coverage": [
+  {
+   "sessionKey": "kid1:2026-10-05T16:11:26Z",
+   "startedAt": "2026-10-05T16:11:26Z",
+   "label": "IMG_4839 (S4)",
+   "shots": 28,
+   "tracked": 28,
+   "withMeasure": 19,
+   "availability": 0.68,
+   "quality": {
+    "tracked": 10,
+    "partial": 9,
+    "unreliable": 3,
+    "none": 6
+   },
+   "framingGroup": 1
+  },
+  {
+   "sessionKey": "kid1:2026-10-05T16:14:32Z",
+   "startedAt": "2026-10-05T16:14:32Z",
+   "label": "IMG_4840 (S4)",
+   "shots": 32,
+   "tracked": 32,
+   "withMeasure": 29,
+   "availability": 0.91,
+   "quality": {
+    "tracked": 17,
+    "partial": 12,
+    "unreliable": 3,
+    "none": 0
+   },
+   "framingGroup": 1
+  },
+  {
+   "sessionKey": "kid1:2026-10-06T22:15:51Z",
+   "startedAt": "2026-10-06T22:15:51Z",
+   "label": "IMG_4851 (S5)",
+   "shots": 17,
+   "tracked": 17,
+   "withMeasure": 13,
+   "availability": 0.76,
+   "quality": {
+    "tracked": 5,
+    "partial": 8,
+    "unreliable": 4,
+    "none": 0
+   },
+   "framingGroup": 2
+  },
+  {
+   "sessionKey": "kid1:2026-10-08T22:05:20Z",
+   "startedAt": "2026-10-08T22:05:20Z",
+   "label": "IMG_4866 (S6)",
+   "shots": 17,
+   "tracked": 17,
+   "withMeasure": 14,
+   "availability": 0.82,
+   "quality": {
+    "tracked": 4,
+    "partial": 10,
+    "unreliable": 1,
+    "none": 2
+   },
+   "framingGroup": 3
+  },
+  {
+   "sessionKey": "kid1:2026-10-08T22:08:00Z",
+   "startedAt": "2026-10-08T22:08:00Z",
+   "label": "IMG_4867 (S6)",
+   "shots": 15,
+   "tracked": 15,
+   "withMeasure": 6,
+   "availability": 0.4,
+   "quality": {
+    "tracked": 0,
+    "partial": 6,
+    "unreliable": 4,
+    "none": 5
+   },
+   "framingGroup": 4
+  },
+  {
+   "sessionKey": "kid1:2026-10-11T18:45:11Z",
+   "startedAt": "2026-10-11T18:45:11Z",
+   "label": "IMG_4872 (S7)",
+   "shots": 22,
+   "tracked": 21,
+   "withMeasure": 17,
+   "availability": 0.77,
+   "quality": {
+    "tracked": 6,
+    "partial": 11,
+    "unreliable": 4,
+    "none": 1
+   },
+   "framingGroup": 1
+  },
+  {
+   "sessionKey": "kid1:2026-10-11T18:47:47Z",
+   "startedAt": "2026-10-11T18:47:47Z",
+   "label": "IMG_4873 (S7)",
+   "shots": 20,
+   "tracked": 20,
+   "withMeasure": 16,
+   "availability": 0.8,
+   "quality": {
+    "tracked": 14,
+    "partial": 2,
+    "unreliable": 2,
+    "none": 2
+   },
+   "framingGroup": 5
+  },
+  {
+   "sessionKey": "kid1:2026-10-11T18:50:16Z",
+   "startedAt": "2026-10-11T18:50:16Z",
+   "label": "IMG_4874 (S7)",
+   "shots": 17,
+   "tracked": 17,
+   "withMeasure": 15,
+   "availability": 0.88,
+   "quality": {
+    "tracked": 4,
+    "partial": 11,
+    "unreliable": 1,
+    "none": 1
+   },
+   "framingGroup": 6
+  }
+ ]
+}

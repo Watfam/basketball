@@ -1,0 +1,109 @@
+{
+ "measured": "headless Chrome on the desktop Mac (i5, 8 GB), dev server, real IndexedDB; NOT a phone",
+ "selftest": {
+  "at": "2026-10-15T03:32:41.117Z",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+  "rows": [
+   {
+    "shots": 40,
+    "build_ms": 5,
+    "save_ms": 39,
+    "bytes_ours": 58808,
+    "bytes_per_shot": 1470,
+    "storage_estimate_delta_bytes": 99950,
+    "load_ms": 26,
+    "analyse_ms": 242,
+    "delete_ms": 13,
+    "heap_MB": 16.3
+   },
+   {
+    "shots": 100,
+    "build_ms": 1,
+    "save_ms": 39,
+    "bytes_ours": 146735,
+    "bytes_per_shot": 1467,
+    "storage_estimate_delta_bytes": 250098,
+    "load_ms": 6,
+    "analyse_ms": 465,
+    "delete_ms": 40,
+    "heap_MB": 17
+   },
+   {
+    "shots": 250,
+    "build_ms": 3,
+    "save_ms": 124,
+    "bytes_ours": 367870,
+    "bytes_per_shot": 1471,
+    "storage_estimate_delta_bytes": 626545,
+    "load_ms": 12,
+    "analyse_ms": 587,
+    "delete_ms": 126,
+    "heap_MB": 15.8
+   }
+  ],
+  "recorder": {
+   "frames": 3000,
+   "median_us": 5,
+   "p99_us": 10
+  },
+  "storage": {
+   "usage": 1846858,
+   "quota": 10739265098
+  }
+ },
+ "history_screen": [
+  {
+   "sessions": 1,
+   "shots_per_session": 40,
+   "total_shots": 40,
+   "save_ms_each": [
+    36
+   ],
+   "kept_bytes_total": 57401,
+   "open_to_sessions_listed_ms": 515,
+   "open_to_analytics_ms": 825,
+   "select_six_shots_render_ms": 58,
+   "heap_MB_after_open": 32,
+   "origin_storage_usage_bytes": 2054477,
+   "controls_line": "Kept now: 1 session, 40 shots, about 56 KB (this app's total storage on the phone: 2.0 MB of 10242.0 MB)."
+  },
+  {
+   "sessions": 3,
+   "shots_per_session": 100,
+   "total_shots": 300,
+   "save_ms_each": [
+    50,
+    45,
+    39
+   ],
+   "kept_bytes_total": 432854,
+   "open_to_sessions_listed_ms": 389,
+   "open_to_analytics_ms": 1293,
+   "select_six_shots_render_ms": 49,
+   "heap_MB_after_open": 13.5,
+   "origin_storage_usage_bytes": 2873325,
+   "controls_line": "Kept now: 3 sessions, 300 shots, about 423 KB (this app's total storage on the phone: 2.7 MB of 10242.7 MB)."
+  },
+  {
+   "sessions": 6,
+   "shots_per_session": 250,
+   "total_shots": 1500,
+   "save_ms_each": [
+    101,
+    155,
+    125,
+    147,
+    129,
+    152
+   ],
+   "kept_bytes_total": 2164797,
+   "open_to_sessions_listed_ms": 1648,
+   "open_to_analytics_ms": 1679,
+   "select_six_shots_render_ms": 80,
+   "heap_MB_after_open": 35.2,
+   "origin_storage_usage_bytes": 4904612,
+   "controls_line": "Kept now: 6 sessions, 1500 shots, about 2.1 MB (this app's total storage on the phone: 4.7 MB of 10244.7 MB)."
+  }
+ ],
+ "errors": []
+}

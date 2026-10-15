@@ -13,6 +13,7 @@ import { CLIP, createReplayBuffer } from "@/lib/vision/replay-buffer";
 import { saveReplay } from "@/lib/vision/replay-store";
 import { sessionReviewEnabled } from "@/lib/review/flag";
 import { createReviewRecorder } from "@/lib/review/recorder";
+import { debugEnabled, record as recordDiag, persist as persistDiag } from "@/lib/review/diagnostics";
 import { saveReviewRecord } from "@/lib/review/review-store";
 
 /**
@@ -392,7 +393,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     // Replays: the last 6 s of the close-up, and each shot's clip cut from it.
     const replay = createReplayBuffer<Blob>(6000);
     // Session review (experimental, flag-gated): note the boxes the model already returns. Null, and inert, unless the flag is on.
-    const reviewRec = sessionReviewEnabled() ? createReviewRecorder() : null;
+    const reviewRec = sessionReviewEnabled() ? createReviewRecorder(debugEnabled() ? { onPushMs: (ms) => recordDiag("recorder.push", ms) } : {}) : null;
     const shot = document.createElement("canvas");
     shot.width = shot.height = REPLAY_SIZE;
     const shotCtx = shot.getContext("2d");
@@ -404,7 +405,10 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
           .between(c.firstMs - CLIP.beforeMs, c.firstMs + CLIP.afterMs)
           .map((x) => ({ t: x.t - c.firstMs, blob: x.item }));
         if (frames.length) void saveReplay({ id, frames });
-        if (reviewRec) void saveReviewRecord(reviewRec.cut(c.firstMs, id, core.window.rim, core.scale));
+        if (reviewRec) {
+          void saveReviewRecord(reviewRec.cut(c.firstMs, id, core.window.rim, core.scale));
+          if (debugEnabled()) persistDiag();
+        }
       };
       // The call comes 1.3-2.3 s after the rim; wait for the rest of the clip.
       if (wait) setTimeout(save, 900);

@@ -866,3 +866,8 @@ Flag-gated session review in the app (`hl:session-review`, default off): shot br
 unreliable paths hidden; additive `ReviewRecord` v1 in its own IndexedDB. Verified on 35 shots of existing recordings, 0 mismatches against the records; needs a real-device pass.
 Shot-separation: a time-based diagnostic view (frozen scorer untouched) and one registered candidate that FAILED (the IMG_4872 merge is one tracker track spanning two balls: an association problem).
 Nothing integrated into counting. Read `session-review/REPORT.md`.
+
+### Phase 6: persistent shot history and on-device readiness (2026-10-19), `training/eval/experiments/persistent-history/`
+Opt-in, local-only retention of compact per-shot tracking records for saved sessions (`hl-history` IndexedDB: observed rim-relative points, fingerprint, quality, framing; no video),
+behind the `hl:session-review` flag (off by default) plus a per-phone opt-in; cross-session shot comparison with explicit comparability rules; bounded consistency analytics with abstention.
+Real-IndexedDB checks 25/25, 126 app tests, baseline unchanged. ~1.5 KB/shot; recorder ~5 us/frame on a desktop. NOT validated on an iPhone: see the REPORT's on-device procedure and the in-app storage test (Camera lab > Session review).

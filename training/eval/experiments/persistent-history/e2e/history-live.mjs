@@ -1,0 +1,10 @@
+import puppeteer from "puppeteer-core";
+import fs from "node:fs";
+const ROOT = "/Users/WatfordFamily/Desktop/basketball-app";
+const browser = await puppeteer.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: "new", args: ["--no-sandbox", "--enable-precise-memory-info"] });
+const page = await browser.newPage(); await page.goto("http://localhost:3101/lab/history-demo", { waitUntil: "networkidle2", timeout: 120000 }); await page.waitForFunction(() => window.__h);
+const heap0 = await page.evaluate(() => performance.memory.usedJSHeapSize / 1e6);
+const r = await page.evaluate(() => window.__h.liveCost()); const heap1 = await page.evaluate(() => performance.memory.usedJSHeapSize / 1e6);
+const out = { measured: "headless Chrome on the desktop Mac; 40 shots of 135 processed frames (9 s at 15 fps); NOT a phone", ...r, heap_MB: { before: +heap0.toFixed(1), after: +heap1.toFixed(1) } };
+fs.writeFileSync(`${ROOT}/training/eval/experiments/persistent-history/results/live-loop-cost.json`, JSON.stringify(out, null, 1)); console.log(JSON.stringify(out));
+await browser.close();

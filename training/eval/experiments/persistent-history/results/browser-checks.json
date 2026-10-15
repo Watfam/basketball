@@ -1,0 +1,131 @@
+{
+ "checks": [
+  {
+   "name": "empty history loads (no sessions, writable)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "flag off: no history entry rendered",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "flag on but retention not opted in: nothing is kept",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "still empty after the gated call",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "flag + opt-in: the production glue keeps the session",
+   "pass": true,
+   "detail": "{\"shots\":28,\"tracked\":28,\"bytes\":42984,\"ms\":21}"
+  },
+  {
+   "name": "history persists across a page reload",
+   "pass": true,
+   "detail": "{\"sessions\":1,\"shots\":28,\"damaged\":0,\"newer\":0,\"writable\":true}"
+  },
+  {
+   "name": "eight real-derived sessions retained",
+   "pass": true,
+   "detail": "28/28 32/32 17/17 17/17 15/15 22/21 20/20 17/17"
+  },
+  {
+   "name": "flag on: entry shows",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "history lists saved sessions with counts and framing",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "two shots from different sessions, same framing: compared, with measurement values",
+   "pass": true,
+   "detail": "These shots can be compared: same camera framing, a measurable rim-level position for each."
+  },
+  {
+   "name": "adding a shot from a different framing: explained as not comparable, no differences shown",
+   "pass": true,
+   "detail": "The hoop sat in a different place in the camera picture. | The camera was a different distance or zoom from the hoop (different window size)."
+  },
+  {
+   "name": "make/miss filter shows only misses",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "analytics: coverage table, sample sizes, baseline and caution shown",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "analytics: no mechanics/improvement language",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "deleting one session removes it and its shots only",
+   "pass": true,
+   "detail": "{\"sessions\":8,\"shots\":179,\"damaged\":0,\"newer\":0,\"writable\":true}"
+  },
+  {
+   "name": "damaged and newer rows are counted and skipped, history still loads",
+   "pass": true,
+   "detail": "{\"sessions\":8,\"shots\":179,\"damaged\":1,\"newer\":1,\"writable\":true}"
+  },
+  {
+   "name": "the screen reports unreadable and newer-version records",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "'Remove them' deletes the damaged row only; the newer-version row is kept",
+   "pass": true,
+   "detail": "{\"sessions\":8,\"shots\":179,\"damaged\":0,\"newer\":1,\"writable\":true}"
+  },
+  {
+   "name": "a store marked with a newer schema refuses new writes",
+   "pass": true,
+   "detail": "read_only"
+  },
+  {
+   "name": "and is still readable",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "Delete all tracking history leaves nothing (unreadable and newer rows too)",
+   "pass": true,
+   "detail": "{\"sessions\":0,\"shots\":0,\"damaged\":0,\"newer\":0,\"writable\":true}"
+  },
+  {
+   "name": "retention off again: a saved set keeps nothing",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "flag off: entry gone again",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no network requests to anything but the local dev server",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no page errors",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "errors": [],
+ "request_count": 108
+}

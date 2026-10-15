@@ -1,0 +1,25 @@
+{
+ "measured": "headless Chrome on the desktop Mac; 40 shots of 135 processed frames (9 s at 15 fps); NOT a phone",
+ "push_us": {
+  "median": 5,
+  "p99": 20,
+  "max": 1545
+ },
+ "cut_ms": {
+  "median": 0.01,
+  "max": 0.125
+ },
+ "save_review_record_ms": {
+  "median": 2.84,
+  "p95": 15.75,
+  "max": 19.105
+ },
+ "record_bytes": {
+  "median": 4477,
+  "max": 4480
+ },
+ "heap_MB": {
+  "before": 12.5,
+  "after": 17.3
+ }
+}
