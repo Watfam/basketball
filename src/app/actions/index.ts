@@ -10,3 +10,4 @@ export * from "./programs";
 export * from "./film";
 export * from "./shooting";
 export * from "./calibration";
+export { saveDrillTracking, adjustDrillResult } from "./drill-tracking";

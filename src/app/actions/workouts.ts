@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { type SkillLevel } from "@/lib/basketball/assessment";
 import { hasRealWork } from "@/lib/basketball/session-logs";
 import { revalidatePlayerSessionViews } from "./revalidate";
+import { saveDrillLogOnce } from "./drill-tracking";
 
 /**
  * Starts a workout session — creates the hoops.workout_sessions row the
@@ -73,19 +74,10 @@ export async function logDrillProgress(
 ) {
   if (!sessionId || !drillId) return { error: "Missing session or drill." };
 
-  const supabase = await createClient();
-  const { error } = await supabase
-    .schema("hoops")
-    .from("session_logs")
-    .insert({
-      session_id: sessionId,
-      drill_id: drillId,
-      workout_drill_id: workoutDrillId ?? null,
-      metrics,
-    });
-
-  if (error) return { error: error.message };
-
+  // One row per workout entry: logging the same entry again (a double tap, a resumed session, a tracked result already saved) updates or keeps
+  // that row instead of stacking a second one. See src/lib/basketball/drill-log-store.ts.
+  const result = await saveDrillLogOnce(sessionId, drillId, metrics, workoutDrillId);
+  if (result.error) return { error: result.error };
   return { error: null };
 }
 
