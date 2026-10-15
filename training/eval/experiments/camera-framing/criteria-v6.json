@@ -1,0 +1,22 @@
+{
+  "registered": "2026-10-14",
+  "status": "AMENDMENT registering numeric criteria for M2, written BEFORE any M2 measurement exists, after the M1 evaluation (results/evaluation.json, v2 detector) had been computed except for the synthetic controls. It also records what the M1 evaluation had already shown, so nothing is hidden behind the new criteria.",
+  "m1_status_when_written": "Under the registered integration rule M1 FAILS as an automatic comparability approval: F2 strict (pooled over all dev clips, 4851 included, size 0.17, az 0.17, off 0.24, asp 0.23 against limits of 0.03 / 0.05 / 0.04), F3 (descriptor-pair 'unknown' rate 6 of 13 positive controls = 46 percent against a 30 percent limit; abstentions, never not_comparable), F5 (model-based: elevation change of 10 degrees accepted 98 percent of the time; azimuth change of 5 degrees comparable only 9 to 34 percent of the time against a required 70 percent). It passed F6 on false acceptance (0 of 37 different-camera pairs classed comparable; M0 would have accepted 3 unresolved pairs) and in the model flagged azimuth changes of 15 degrees or more (20 at head-on) as not comparable or unknown 100 percent of the time with 0 percent accepted. The synthetic similarity controls (F3 P3 and F4) were still running.",
+  "what_follows_from_the_integration_rule": "Because M1 fails as an approver it is NOT used to approve cross-session comparisons. The parts that are supported by their own criteria (to be confirmed on the synthetic controls: detection of a shifted, resized or tilted camera) may be used to WARN, never to approve and never to block. The decision is written in REPORT.md after the controls finish.",
+  "M2_as_shipped": {
+    "what": "findHoop() in src/lib/vision/hoop-match.ts exactly as shipped (isotropic scale, 320x180 grey, no roll, no separate x/y scale). The extension to independent sx/sy and roll described in criteria-v3.json is NOT built: time went to M1 and the M1 roll cue already measures roll. Azimuth and elevation sensitivity of M2 stay UNTESTED (no controlled view change exists in the footage).",
+    "use_tested": "advisory camera-moved detection against a stored reference picture, which is what the optional camera reference workflow needs.",
+    "reference": "still IMG_xxxx-5 of a clip; its rim position is M1's measured rim centre for that still; its window scale is datasets.json scale for the clip (IMG_4836: 1).",
+    "queries": "same-camera: every other still of the same clip (IMG_4844 excluded: its camera moved) plus IMG_4839 vs IMG_4840 in both directions; different-camera: the real pairs the background registration labels different_camera (both directions, stills -5).",
+    "usable_gate": "score >= 0.35 (registered in criteria-v3.json as score >= 0.35 and >= 1.3 x the second-best peak; the second peak is not exposed by the shipped function so only the score clause is applied).",
+    "moved_rule": "moved iff |rim - reference rim| > 0.02 of the frame in x or y, or |sizeRatio - 1| > 0.10 (the existing compareFraming tolerances).",
+    "criteria": {
+      "M2_F1_false_alarm": "among usable same-camera queries, moved <= 5 percent",
+      "M2_F2_miss": "among usable different-camera queries, NOT moved <= 5 percent",
+      "M2_F3_abstain": "usable rate on same-camera queries >= 70 percent; the usable rate on different-camera queries is reported (low is correct behaviour: the README says a different lens or angle scores about 0.19)",
+      "M2_F4_accuracy": "among usable queries, the distance between M2's rim and M1's measured rim for the same still: median <= 0.005 of the frame width, p95 <= 0.02 (reported against the README's 7 px claim)",
+      "M2_F5_synthetic": "on the synthetic pan/zoom/roll of results/synthetic.json's stills (same transform as M1): detection of pan >= 0.03, zoom >= 1.15 among usable >= 95 percent, false alarm on the within-tolerance perturbations <= 5 percent. Roll is reported only (M2 cannot see it)."
+    },
+    "integration": "M2-as-shipped is already in the app (the aim step uses it). The camera reference workflow may reuse it as the camera-moved check only if all of M2_F1..F4 pass; otherwise the workflow uses M1's pos/size/roll cues alone."
+  }
+}
