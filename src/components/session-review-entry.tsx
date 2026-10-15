@@ -31,9 +31,9 @@ export function SessionReviewEntry({ shots }: { shots: Shot[] }) {
   return (
     <>
       <button type="button" onClick={() => void openReview()} className="mt-2 self-center text-[11px] font-bold uppercase tracking-wide text-accent">
-        Session review (beta)
+        Review your shots (beta)
       </button>
-      {open && items && <SessionReview shots={items} title="Session review (beta)" onClose={() => setOpen(false)} />}
+      {open && items && <SessionReview shots={items} title="Review your shots" onClose={() => setOpen(false)} />}
     </>
   );
 }

@@ -61,3 +61,12 @@ export async function clearReplays(): Promise<void> {
     // Nothing stored, or storage unavailable.
   }
 }
+
+/** The ids of the clips on this phone (read only). Used by the on-phone replay test. */
+export async function listReplayIds(): Promise<string[]> {
+  try {
+    return ((await run("readonly", (s) => s.getAllKeys())) as IDBValidKey[]).map(String);
+  } catch {
+    return [];
+  }
+}

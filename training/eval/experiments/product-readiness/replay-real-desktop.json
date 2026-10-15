@@ -1,0 +1,83 @@
+{
+ "note": "Desktop Node run of the replay test on the real-derived file. Not a phone result.",
+ "report": {
+  "v": 1,
+  "at": "2026-10-15T11:44:51.209Z",
+  "userAgent": "node",
+  "source": "real",
+  "data": {
+   "sessions": 8,
+   "shots": 168,
+   "withPath": 159
+  },
+  "read_ms": 11,
+  "draw": {
+   "n": 159,
+   "p95_ms": 0.07,
+   "median_ms": 0.02
+  },
+  "analyse_ms": 500,
+  "roundtrip": {
+   "ok": true,
+   "detail": "8 sets and 168 shots out, 8 and 168 back in, every path point identical"
+  },
+  "delete": {
+   "ok": true,
+   "detail": "hidden at once yes, other sets untouched yes, restored whole yes"
+  },
+  "clips": null,
+  "realStoreUnchanged": true,
+  "totalMs": 742
+ },
+ "checks": [
+  {
+   "id": "R2_read",
+   "label": "Replayed data: reading everything saved",
+   "verdict": "pass",
+   "value": "11 ms for 168 shots",
+   "limit": "under 3000 ms"
+  },
+  {
+   "id": "R3_draw",
+   "label": "Replayed data: drawing each saved path, 95th percentile",
+   "verdict": "pass",
+   "value": "0.07 ms over 159 paths",
+   "limit": "under 50 ms"
+  },
+  {
+   "id": "R4_analyse",
+   "label": "Replayed data: looking for patterns across all sets",
+   "verdict": "pass",
+   "value": "500 ms",
+   "limit": "under 3000 ms"
+  },
+  {
+   "id": "R5_roundtrip",
+   "label": "Replayed data: export, then import into a copy",
+   "verdict": "pass",
+   "value": "8 sets and 168 shots out, 8 and 168 back in, every path point identical",
+   "limit": "every set and path identical"
+  },
+  {
+   "id": "R6_delete",
+   "label": "Replayed data: delete and undo in a copy",
+   "verdict": "pass",
+   "value": "hidden at once yes, other sets untouched yes, restored whole yes",
+   "limit": "hidden at once, restored whole, others untouched"
+  },
+  {
+   "id": "R7_clips",
+   "label": "Replayed data: saved video clips decode and draw",
+   "verdict": "not_measured",
+   "value": "no clips on this phone (they are kept only until a set is saved)",
+   "limit": "under 50 ms per frame"
+  },
+  {
+   "id": "R8_nowrite",
+   "label": "Replayed data: the real saved paths were not changed by the test",
+   "verdict": "pass",
+   "value": "identical before and after",
+   "limit": "identical"
+  }
+ ]
+}

@@ -1,0 +1,185 @@
+{
+ "note": "Headless desktop Chrome at an iPhone-sized viewport with real-derived paths. A functional check of the screens, NOT an iPhone result.",
+ "checks": [
+  {
+   "name": "real-derived file imports through the real import code",
+   "pass": true,
+   "detail": "{\"added\":8,\"replaced\":0,\"shots\":168,\"failed\":0}"
+  },
+  {
+   "name": "history lists the sets with plain coverage wording",
+   "pass": true,
+   "detail": "17 shots: 17 with a path, 4 clear."
+  },
+  {
+   "name": "settings are hidden until asked for, with data present",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms on the history screen",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "settings: one switch, status, export/import/delete in plain words",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms on the settings card",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "watching a saved shot shows its path, a plain summary and how much to trust it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms on the shot viewer",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "the path is actually drawn",
+   "pass": true,
+   "detail": "166 bright pixels"
+  },
+  {
+   "name": "play steps through the sightings",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "makes-vs-misses compare shows counts and an honest sentence",
+   "pass": true,
+   "detail": "Makes crossed the rim's height a typical 0.2 ball widths from its centre; misses 2.5 (from 29 makes and 36 misses). That is a bigger gap than mixing makes and m"
+  },
+  {
+   "name": "different camera setups are kept apart and said so",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms on the compare section",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "pick mode explains how to add shots",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "patterns are in plain words and abstain when thin",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms on the patterns section",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "deleting a set from the list removes it and only it",
+   "pass": true,
+   "detail": "[{\"sessions\":8,\"shots\":168},{\"sessions\":7,\"shots\":151}]"
+  },
+  {
+   "name": "review opens on Watch with plain coverage and a summary line",
+   "pass": true,
+   "detail": "14 shots: 13 with a path, 10 clear."
+  },
+  {
+   "name": "review explains what the confidence label means",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no engineering terms on review (Watch)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "review play shows a plain per-moment sentence",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "next shot works",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "compare tab: makes vs misses with counts and an honest sentence",
+   "pass": true,
+   "detail": "Not enough to compare yet. You have 9 makes and 4 misses with a trustworthy path; at least 5 of each are needed. You can still look at the p"
+  },
+  {
+   "name": "no engineering terms on review (Compare)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "pick shots lists checkboxes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "lab: replay test and live-camera-only sections are separate",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "lab says nothing has been checked on a real iPhone",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "lab lists all eight live-only checks, none validated",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "replay test ran on the real imported data (not made-up)",
+   "pass": true,
+   "detail": "Real saved data: 7 sets, 151 shots, 143 with a path."
+  },
+  {
+   "name": "every replay row is labelled as replayed data",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no replay row failed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "clips row is not measured when no clips exist, never a pass",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "replay says it shows nothing about the live camera",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "the replay test did not change the saved paths",
+   "pass": true,
+   "detail": "{\"sessions\":7,\"shots\":151}"
+  },
+  {
+   "name": "no page errors",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no request left this machine's dev server",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

@@ -21,6 +21,11 @@ for (const id of CLIPS) {
 const h = await L.core.loadHistory(be, "kid1"), an = L.consistency.analyseHistory(h.sessions, h.shots);
 const summary = { sessions: h.sessions.length, shots: h.shots.length, tracked: h.shots.filter((s) => s.tracked).length, bytes: h.shots.reduce((a, s) => a + s.bytes, 0), damaged: h.damaged, retention: perf, framing_groups: an.groups.map((g) => ({ name: g.name, sessions: g.sessions.map((s) => s.label), statements: g.statements.map((s) => ({ id: s.id, status: s.status, reason: s.reason ?? null, n: s.n, claim: s.claim_observation, uncertainty: s.uncertainty })) })), coverage: an.coverage };
 fs.writeFileSync(path.join(EVAL, "experiments/persistent-history/results/real-derived-history.json"), JSON.stringify(summary, null, 1));
+if (process.argv.includes("--phone-file")) { // a file the phone can import: real tracked paths from existing recordings, coordinates only, no player ids, no labels
+  const ex = await L.transfer.buildExport(be, { playerId: "kid1" }, Date.now()), dir = path.join(ROOT, "training/work/phone-replay");
+  fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, "hardwood-lab-replay-sample.json"), ex.text);
+  console.log(`phone replay file: ${ex.sessions} sets, ${ex.shots} shots, ${(ex.bytes / 1024).toFixed(0)} KB -> training/work/phone-replay/hardwood-lab-replay-sample.json (git-ignored)`);
+}
 if (demo) { const out = path.join(ROOT, "public/_history-demo"); fs.mkdirSync(out, { recursive: true }); fs.writeFileSync(path.join(out, "manifest.json"), JSON.stringify(manifest)); }
 console.log(JSON.stringify({ sessions: summary.sessions, shots: summary.shots, tracked: summary.tracked, kB: Math.round(summary.bytes / 1024), groups: summary.framing_groups.map((g) => [g.name, g.sessions.length, g.statements.filter((s) => s.status === "supported").map((s) => s.id)]) }));
 for (const g of summary.framing_groups) for (const s of g.statements) console.log(g.name.slice(0, 22), s.id, s.status, s.reason ?? "", JSON.stringify(s.n), s.claim ? s.claim.slice(0, 150) : "");

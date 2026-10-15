@@ -120,6 +120,10 @@ Seeds are in `thresholds.json` (master 20261013, frame sample 20261014, bootstra
 
 `experiments/camera-framing/REPORT.md` (criteria registered in `criteria*.json` before each evaluation, including the post-hoc amendments), `experiments/iphone-readiness/criteria.json` (registered before any phone result; no iPhone has been measured). Summary: deletion now removes tracking history; history can be exported/imported locally; the rim-and-backboard framing descriptor never accepted a different camera as comparable but failed the registered criteria to approve comparisons, so it is only an advisory lab page (`/lab/camera-reference`).
 
+## Phase 8 (product readiness and usability)
+
+`experiments/product-readiness/REPORT.md`: feature-readiness inventory for Phases 4-7, plain-language shot review and history, one-card privacy and retention controls, the replay-based phone test (`iphone-readiness/criteria-replay.json`, registered first) and the list of checks only the live camera can answer. `product-readiness/PROPOSALS.md` holds a small proposal that is NOT integrated; `shot-separation/KNOWN-ISSUE.md` documents the open shot-separation problem and its guarded cases.
+
 ## Designed for later work
 
 Records are keyed `{clip, frame}` with optional `track_id` and `shot_id`, so trajectory features, shot fingerprints (per-shot release,

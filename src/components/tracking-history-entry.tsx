@@ -8,16 +8,16 @@ import { sessionReviewEnabled } from "@/lib/review/flag";
 const ShotHistory = dynamic(() => import("@/components/shot-history").then((m) => m.ShotHistory), { ssr: false });
 
 /** Entry to shot history and its settings, for the shooting screen. Renders nothing unless the hl:session-review flag is on. */
-export function TrackingHistoryEntry({ playerId }: { playerId: string }) {
+export function TrackingHistoryEntry({ playerId, startedAt, label = "Shot history (beta)", className = "mt-3 self-center" }: { playerId: string; /** Open straight to the saved set that started at this time. */ startedAt?: string; label?: string; className?: string }) {
   const on = useSyncExternalStore(() => () => {}, () => sessionReviewEnabled(), () => false);
   const [open, setOpen] = useState(false);
   if (!on) return null;
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="mt-3 self-center text-[11px] font-bold uppercase tracking-wide text-accent">
-        Shot history (beta)
+      <button type="button" onClick={() => setOpen(true)} className={`${className} text-[11px] font-bold uppercase tracking-wide text-accent`}>
+        {label}
       </button>
-      {open && <ShotHistory playerId={playerId} onClose={() => setOpen(false)} />}
+      {open && <ShotHistory playerId={playerId} focusStartedAt={startedAt} onClose={() => setOpen(false)} />}
     </>
   );
 }

@@ -4,6 +4,7 @@ import { SessionSummary } from "@/components/shot-summary";
 import { DeleteShotSessionButton } from "@/components/delete-shot-session-button";
 import { detectorAgreement, formatPercentage, type Shot } from "@/lib/basketball/shooting";
 import { PageHeader } from "@/components/ui/page-header";
+import { TrackingHistoryEntry } from "@/components/tracking-history-entry";
 
 export default async function ShotSessionPage({
   params,
@@ -70,6 +71,8 @@ export default async function ShotSessionPage({
             </p>
           )}
         </section>
+
+        <div className="flex justify-center"><TrackingHistoryEntry playerId={playerId} startedAt={session.started_at} label="Watch this set's shot paths (beta)" className="" /></div>
 
         <DeleteShotSessionButton sessionId={session.id} playerId={playerId} startedAt={session.started_at} />
       </main>

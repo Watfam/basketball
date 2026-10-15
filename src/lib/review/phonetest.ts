@@ -21,7 +21,7 @@ export const PHONE_CRITERIA = {
   batteryExtraPointsPer15Min: 2,
 } as const;
 
-export type Verdict = "pass" | "fail" | "not_measured";
+export type Verdict = "pass" | "pass_synthetic" | "fail" | "not_measured";
 export type Check = { id: string; label: string; verdict: Verdict; value: string; limit: string };
 
 export type PhoneReport = {
@@ -221,3 +221,20 @@ export function judgeBattery(off: BatterySet | null, on: BatterySet | null): Che
   const extra = per15(on) - per15(off);
   return row("batteryHand", "Battery: extra drain per 15 minutes, review on minus off (by hand)", extra <= PHONE_CRITERIA.batteryExtraPointsPer15Min, `${extra.toFixed(1)} points (off ${per15(off).toFixed(1)}, on ${per15(on).toFixed(1)})`, `at most ${PHONE_CRITERIA.batteryExtraPointsPer15Min} points`);
 }
+
+/**
+ * What only the live iPhone camera can show. The replay test (replaytest.ts) says nothing about any of these, and nothing in the app marks one
+ * of them validated: they stay "not validated" until a real set on a real phone is measured against criteria.json. Ids are kept equal to
+ * criteria-replay.json by a test.
+ */
+export type LiveOnly = { id: string; title: string; why: string; how: string; result: "loop" | "battery" | "manual" };
+export const LIVE_ONLY: LiveOnly[] = [
+  { id: "L1_speed", title: "Counting speed with shot review on and off", why: "The review recorder runs inside the live camera loop; only the live loop can show its cost.", how: "Turn on Timing diagnostics. Count one set with shot review off, then a set of the same drill with it on. Come back and tap Refresh.", result: "loop" },
+  { id: "L2_counts", title: "Same shots counted with review on and off", why: "Counting must not change. This is the real-phone check of that.", how: "Do the same drill twice (review off, then on) and compare the counted makes and misses with what you saw.", result: "manual" },
+  { id: "L3_battery", title: "Battery over a 15-minute set", why: "The browser cannot read the battery on iPhone, and heat only shows over a real set.", how: "Note the battery % and the time before and after each of two 15-minute sets (review off, then on) and enter them.", result: "battery" },
+  { id: "L4_capture", title: "Paths captured for new live shots", why: "How many live shots get a trustworthy path depends on the real camera and light.", how: "After a camera set with shot review on, open Review your shots and note how many shots show a clear path.", result: "manual" },
+  { id: "L5_clips", title: "Video for new shots shows with its path", why: "Clips are only kept until a set is saved, so this can only be checked right after a live set.", how: "End a camera set, open Review your shots before saving, and watch a shot: the video should play under the path.", result: "manual" },
+  { id: "L6_survival", title: "Saved paths survive for days", why: "Safari can clear a website's storage after about a week unused; only time shows it.", how: "Keep paths on, add the app to the Home Screen, and check the Shot history again after a week.", result: "manual" },
+  { id: "L7_homescreen", title: "Camera and review work from the Home Screen app", why: "The Home Screen app and Safari tabs behave differently on iPhone.", how: "Open the app from the Home Screen, run a camera set, and open Review your shots.", result: "manual" },
+  { id: "L8_reference", title: "Camera check when holding the phone", why: "Hand-held drift and real light cannot be replayed.", how: "Open Camera reference, set a reference, put the phone down again and check.", result: "manual" },
+];

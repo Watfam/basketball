@@ -1,0 +1,120 @@
+{
+ "note": "Headless desktop Chrome, iPhone-sized viewport. Not an iPhone result.",
+ "checks": [
+  {
+   "name": "off by default: switch says off and nothing is kept",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "one tap turns keeping on (and shot review with it, which paths need)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "one tap turns it off again and says what stays",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "seed 8 real-derived sets",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "status in plain words",
+   "pass": true,
+   "detail": "Kept now: 8 sets, 168 shots, about 269 KB."
+  },
+  {
+   "name": "turned off but data present: says new sets keep nothing and old stays",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "export",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a file was downloaded",
+   "pass": true,
+   "detail": "hardwood-lab-tracking-2026-10-15.json"
+  },
+  {
+   "name": "file: right format, 8 sets, 168 shots, checksum",
+   "pass": true,
+   "detail": "249 KB"
+  },
+  {
+   "name": "file: no player ids, labels, server ids or images",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "UI says it was not uploaded",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "delete everything (confirms)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "empty after delete",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "import preview in plain words",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "import confirm",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "restored: 8 sets, 168 shots, note says nothing else changed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "same file again: all already here",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a changed file is refused plainly",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a not json file is refused plainly",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a foreign file is refused plainly",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "saved data unchanged by refused files",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "nothing sent anywhere",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no page errors",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

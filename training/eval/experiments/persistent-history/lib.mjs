@@ -17,5 +17,5 @@ export async function loadHistoryLib() {
     }
   }
   const load = (rel) => import(pathToFileURL(path.join(OUT, rel)).href);
-  return { core: await load("lib/review/history-core.mjs"), consistency: await load("lib/review/consistency.mjs"), recorder: await load("lib/review/recorder.mjs"), types: await load("lib/review/history-types.mjs") };
+  return { core: await load("lib/review/history-core.mjs"), consistency: await load("lib/review/consistency.mjs"), recorder: await load("lib/review/recorder.mjs"), types: await load("lib/review/history-types.mjs"), transfer: await load("lib/review/history-transfer.mjs") };
 }

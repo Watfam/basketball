@@ -110,14 +110,14 @@ export type ImportPlan =
   | { ok: true; sessions: PlannedSession[]; summary: Record<SessionOutcome, number>; shotsToAdd: number; exportedAt: string; includesLabels: boolean };
 
 const REFUSAL: Record<ImportRefusal, string> = {
-  too_big: "This file is too large to be a tracking-history export.",
+  too_big: "This file is too large to be a shot-paths export.",
   not_json: "This file is not readable. It may be damaged or it is not a Hardwood Lab export.",
-  wrong_format: "This is not a Hardwood Lab tracking-history file.",
+  wrong_format: "This is not a Hardwood Lab shot-paths file.",
   newer_version: "This file was made by a newer version of the app. Update the app to import it.",
   bad_version: "This file's version is not one this app understands.",
   altered: "This file has been changed or cut short since it was exported, so it was not imported. Export it again from the original phone.",
   empty: "This file has no sessions in it.",
-  read_only: "The history on this phone was written by a newer version of the app, so nothing can be imported into it by this version.",
+  read_only: "The shot paths on this phone were saved by a newer version of the app, so this version cannot import into them.",
 };
 const refuse = (reason: ImportRefusal): ImportPlan => ({ ok: false, reason, message: REFUSAL[reason] });
 
@@ -205,7 +205,7 @@ export async function planImport(text: string, backend: HistoryBackend, playerId
     const live = !!prior && !prior.deletedAt;
     if (live && opts.onDuplicate === "skip") { planned.push({ startedAt, shots: rows.length, outcome: "duplicate", note: "already on this phone" }); summary.duplicate += 1; continue; }
     const freed = live && prior ? { shots: prior.shots, bytes: prior.bytes } : { shots: 0, bytes: 0 };
-    if (rows.length > shotsLeft + freed.shots || bytes > bytesLeft + freed.bytes) { planned.push({ startedAt, shots: rows.length, outcome: "too_big", note: "it would not fit in the space tracking history is allowed" }); summary.too_big += 1; continue; }
+    if (rows.length > shotsLeft + freed.shots || bytes > bytesLeft + freed.bytes) { planned.push({ startedAt, shots: rows.length, outcome: "too_big", note: "it would not fit in the space allowed for shot paths" }); summary.too_big += 1; continue; }
     shotsLeft -= rows.length - freed.shots; bytesLeft -= bytes - freed.bytes;
     const label = typeof s.label === "string" && s.label.length <= 200 ? s.label : null;
     const session: HistorySession = { v: HISTORY_SCHEMA, sessionKey: key, playerId, sessionId: null, label, startedAt, savedAt: now, shots: rows.length, withTracking: rows.filter((r) => r.tracked).length, framing: framing ?? null, bytes };
