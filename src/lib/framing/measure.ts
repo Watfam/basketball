@@ -245,9 +245,9 @@ function board(W: Work, rim: RimFit, issues: string[]): { fit: BoardFit } | null
     }
     return hit / (n + 1);
   };
-  void mh; void mv;
   let bestScore = -1;
-  let fitBest: { corners: [Pt, Pt, Pt, Pt]; support: [number, number, number, number] } | null = null;
+  let bestEdges: [Edge, Edge, Edge, Edge] | null = null;
+  let bestCorners: [Pt, Pt, Pt, Pt] | null = null;
   for (const t of tops) for (const bo of bottoms) for (const l of lefts) for (const r of rights) {
     const tl = meet(t, l), tr = meet(t, r), br = meet(bo, r), bl = meet(bo, l);
     const wAvg = (len(tl, tr) + len(bl, br)) / 2, hAvg = (len(tl, bl) + len(tr, br)) / 2;
@@ -255,11 +255,48 @@ function board(W: Work, rim: RimFit, issues: string[]): { fit: BoardFit } | null
     if (!(tl.y < bl.y && tr.y < br.y && tl.x < tr.x && bl.x < br.x)) continue;
     const sup: [number, number, number, number] = [cover(mh, tl, tr, true), cover(mh, bl, br, true), cover(mv, tl, bl, false), cover(mv, tr, br, false)];
     const sc = (sup[0] + sup[1] + sup[2] + sup[3]) / 4 + 0.5 * Math.min(...sup);
-    if (sc > bestScore) { bestScore = sc; fitBest = { corners: [tl, tr, br, bl], support: sup }; }
+    if (sc > bestScore) { bestScore = sc; bestEdges = [t, bo, l, r]; bestCorners = [tl, tr, br, bl]; }
   }
-  if (!fitBest) { issues.push("the lines found do not form a plausible backboard"); return null; }
-  const [tl, tr] = fitBest.corners;
-  const corners = fitBest.corners, support = fitBest.support;
+  if (!bestEdges) { issues.push("the lines found do not form a plausible backboard"); return null; }
+  // Refine each line to the centre of its bar, then rebuild the corners and the coverage from the refined lines.
+  const refine = (e: Edge, horizontal: boolean, from: Pt, to: Pt): Edge => {
+    const half = Math.max(3, Math.round(0.12 * rw) + 2);
+    const mk = horizontal ? mh : mv;
+    const uA = (horizontal ? from.x : from.y) - (horizontal ? rim.cx : rim.cy), uB = (horizontal ? to.x : to.y) - (horizontal ? rim.cx : rim.cy);
+    const lo = Math.min(uA, uB), hi = Math.max(uA, uB), inset = 0.1 * (hi - lo);
+    const pts: [number, number][] = [];
+    for (let u = Math.ceil(lo + inset); u <= hi - inset; u += 1) {
+      const pred = e.a + e.b * u;
+      let sum = 0, n = 0;
+      for (let k = -half; k <= half; k += 1) {
+        const x = horizontal ? rim.cx + u : rim.cx + pred + k;
+        const y = horizontal ? rim.cy + pred + k : rim.cy + u;
+        const lx = Math.round(x - roi.x0), ly = Math.round(y - roi.y0);
+        if (lx < 0 || ly < 0 || lx >= roi.w || ly >= roi.h) continue;
+        if (mk[ly * roi.w + lx]) { sum += k; n += 1; }
+      }
+      if (n) pts.push([u, pred + sum / n]);
+    }
+    const fit = (p: [number, number][]) => {
+      const n = p.length;
+      let su = 0, sv = 0, suu = 0, suv = 0;
+      for (const [u, v] of p) { su += u; sv += v; suu += u * u; suv += u * v; }
+      const den = n * suu - su * su;
+      const b = den === 0 ? 0 : (n * suv - su * sv) / den;
+      return { a: (sv - b * su) / n, b };
+    };
+    if (pts.length < 8) return e;
+    let f = fit(pts);
+    const kept = pts.filter(([u, v]) => Math.abs(v - (f.a + f.b * u)) <= 2.5);
+    if (kept.length >= 8) f = fit(kept);
+    return { ...e, a: f.a, b: f.b };
+  };
+  const [t0, bo0, l0, r0] = bestEdges;
+  const c0 = bestCorners as [Pt, Pt, Pt, Pt];
+  const t1 = refine(t0, true, c0[0], c0[1]), bo1 = refine(bo0, true, c0[3], c0[2]), l1 = refine(l0, false, c0[0], c0[3]), r1 = refine(r0, false, c0[1], c0[2]);
+  const tl = meet(t1, l1), tr = meet(t1, r1), br = meet(bo1, r1), bl = meet(bo1, l1);
+  const corners: [Pt, Pt, Pt, Pt] = [tl, tr, br, bl];
+  const support: [number, number, number, number] = [cover(mh, tl, tr, true), cover(mh, bl, br, true), cover(mv, tl, bl, false), cover(mv, tr, br, false)];
   return { fit: { corners, support, cutTop: Math.min(tl.y, tr.y) < 2 } };
 }
 

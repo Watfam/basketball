@@ -14,8 +14,9 @@ export async function loadFraming() {
     fs.writeFileSync(path.join(OUT, name.replace(/\.ts$/, ".mjs")), js);
   }
   const load = (n) => import(pathToFileURL(path.join(OUT, n + ".mjs")).href + "?t=" + Date.now());
-  return { measure: await load("measure") };
+  return { measure: await load("measure"), descriptor: await load("descriptor") };
 }
 export const STILLS = path.join(ROOT, "training/work/framing/stills");
 export const CLIPS = ["IMG_4836", "IMG_4839", "IMG_4840", "IMG_4844", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"];
 export const KS = [1, 3, 5, 7, 9];
+export const KS_B = [2, 4, 6, 8, 10];
