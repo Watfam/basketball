@@ -1,0 +1,51 @@
+{
+  "registered": "2026-10-18",
+  "status": "REGISTERED BEFORE THE CANDIDATE EXISTS AND BEFORE THE DIAGNOSTIC HAS BEEN RUN ON ANY PIPELINE. The frozen scorer (training/eval/lib/shots.mjs align + baseline-v0) is unchanged and stays the historical comparison; this diagnostic is a separate view. Nothing here may change after results exist: add criteria-v2.json and say so.",
+  "disclosure": "Written after Phase 4 and after looking at three things: (1) the Phase-4 and Experiment-1 per-clip results, which show the same shot is lost by the cv_nearest machine on IMG_4872 (first sighting 3359, 58 frames after the shot at 3301) and not by the Kalman machine; (2) filmstrips of the native window at IMG_4872 frames 1, 3301 and 3359 and IMG_4873 frames 433, 892, 4021, by eye by one annotator: IMG_4872 frame 1 and IMG_4873 frames 892 and 4021 show an empty hoop (no ball at the rim), IMG_4872 3301 and 3359 are two real shots, IMG_4873 433 is a real shot; (3) the union of first-sighting frames of the baseline, Kalman round-2 and cv_nearest round-2 pipelines (counts per clip). It does not know how the candidate behaves.",
+  "three_problems_kept_apart": {
+    "1_detection_and_association": "did the detections and tracks exist for the ball of each shot: reported as the share of reference shots with at least one non-clutter zone observation in their window and, for merged pairs, whether the two balls are different tracks (a boundary that association could have used)",
+    "2_segmentation": "does the predicted shot start and end where the reference shot does: boundary correct, merged, split, missing, extra (below)",
+    "3_pairing": "does the scorer pair the right predicted and written shots: the frozen scorer pairs by order with a V2-agreement alignment and can slide by one shot; the diagnostic pairs by TIME, so a lost shot costs one missing shot and never a cascade of wrong outcomes"
+  },
+  "reference_shots": {
+    "what_it_is": "a per-clip list of shot times (reference frames at 30 fps) with the written outcome attached. It is a reference for SEGMENTATION, not ground truth for detection; there is no frame-accurate human timing of every shot in the repository.",
+    "construction": "(a) take the first-zone-sighting frames of the counted shots of three EXISTING pipelines at 30 fps, as stored in training/eval/experiments/shot-intelligence/results/accuracy.json: baseline_legacy, tracks_kalman_round2 and tracks (cv_nearest + round-2 machine); (b) cluster the frames by chaining: a frame within 30 frames of the previous frame of the cluster joins it; (c) a reference shot is a cluster supported by at least 2 of the 3 pipelines; its time is the median of its frames; (d) a reference shot judged by eye to show no ball at the rim is marked phantom and dropped: IMG_4872 frame 1, IMG_4873 frames 892 and 4021 (adjudicated before registration, list closed; no other cluster is adjudicated); (e) the written outcomes are attached to the remaining reference shots in time order when their number equals the written count; when it does not (IMG_4851: 17 against 18) the attachment uses the frozen scorer's alignment and the clip is flagged outcome_assignment_ambiguous and excluded from outcome-correctness percentages (its segmentation counts still count).",
+    "circularity_and_how_it_is_limited": "the three pipelines used to build the reference are not the candidate; the candidate is a fourth pipeline run only after this file is committed. The reference is biased toward shots those pipelines see (a shot none of them counts is invisible to it, as is a phantom all three count that was not adjudicated); it is a segmentation reference, not an accuracy claim.",
+    "known_expected_counts": "reference count equals the written count on every clip except IMG_4851 (the written list has one more shot than any pipeline finds)"
+  },
+  "matching_rules": {
+    "defined_before_evaluating_any_candidate": true,
+    "coverage": "a predicted shot p (a counted call with first, last) COVERS a reference shot r when p.first - 25 <= r.t <= p.last + 15 (reference frames)",
+    "classes": {
+      "matched": "p covers exactly one reference shot r, and r is covered by exactly one prediction",
+      "boundary_correct": "a matched pair with |p.first - r.t| <= 15 frames",
+      "merged": "p covers two or more reference shots (counted once as a merged prediction; k references are 'merged-into'; none of the k is scored for outcome)",
+      "split": "r is covered by two or more predictions (counted once as a split reference)",
+      "missing": "r is covered by no prediction",
+      "extra": "p covers no reference shot",
+      "outcome_correct_or_incorrect": "only for matched pairs: the prediction's V4 call equals the written outcome of r"
+    },
+    "tie_rule": "coverage is evaluated for all pairs first, classes are then assigned from the coverage counts; there is no greedy pairing",
+    "reported_per_clip_and_pooled": ["predictions", "references", "matched", "boundary_correct", "merged predictions (and references merged)", "split references", "missing", "extra", "matched outcome correct", "matched outcome incorrect", "merged references not scored"],
+    "also_reported_for_comparison": "the frozen scorer's right calls (baseline-v0 rule), unchanged"
+  },
+  "controls_to_run_before_the_candidate": ["baseline_legacy (the shipped grouping)", "tracks_kalman_round2", "tracks (cv_nearest + round-2 machine)"],
+  "candidate": {
+    "name": "second-shot arrival",
+    "scope": "a change to ONE decision of the round-2 shot machine: when a non-clutter track that is not a linked successor makes a zone observation while a shot is open, the machine attaches it to the open shot (round 2). The candidate OPENS A NEW SHOT instead, closing the open one, when ALL of: (i) the new track was first observed at least 25 reference frames after the open shot's first sighting; (ii) the new track's first observation lies at least 60 px above the rim (it came in from above, as a shot does, rather than being born at the rim as a rebound or a bounce is); (iii) the open shot's tracks have made no non-clutter zone observation in the last 8 reference frames (the open shot has completed its visit to the rim zone); (iv) the new track is not within 40 px of the open shot's last observation at a gap of at most 12 frames (the existing successor test, so a bounce that loses the track and finds it again stays one shot). Everything else, the tracker (cv_nearest), spot memory, clutter, decision window and the shipped V4 decision, is the round-2 machine unchanged.",
+    "why_this_and_not_more": "Experiment 1 round 1 split on 'a different track after 8 frames' and over-split rebounds; round 2 never split and merges two real shots that arrive 58 frames apart. Conditions (i)-(iv) separate the two failure modes using what the track already knows (its birth position, age, and whether the open shot has gone quiet). No new model run, no new tracker, no tuning of any value: the four numbers (25, 60, 8, the successor test) are fixed here from the quantities in the machine (60 px is the rule's own 'below the rim' scale reversed, 8 is the old registered separation, 25 is below the shortest observed true spacing of two shots in these clips and above the rebound time scale), and are not tuned.",
+    "implementation": "training/eval/experiments/shot-separation/separator.mjs, a copy of the round-2 machine with that one change behind a parameter (arrival: false reproduces round 2 exactly, checked by a test); the tracker directory is not edited.",
+    "sensitivity_reported_not_chosen": "none; no alternative values are run"
+  },
+  "criteria": {
+    "note": "evaluated at 30 fps and 15 fps. 15 fps uses the same reference times (taken at 30 fps) and the even-frame detections.",
+    "P1_merges": "zero merged predictions on IMG_4872 at both rates, and the total of merged predictions over the eight clips is below the control 'tracks' total",
+    "P2_no_new_splits": "total split references over the eight clips no higher than the control 'tracks' total",
+    "P3_no_new_extras": "total extra predictions no higher than the control 'tracks' total",
+    "P4_outcomes_of_matched_shots": "over matched shots on the clips not flagged ambiguous: pooled outcome-correct at least the control 'tracks' pooled and, on the seven clips other than IMG_4873, no clip loses 2 or more matched-correct shots against the baseline_legacy control",
+    "P5_historical_scorer": "the frozen scorer's rule from the Experiment-1 D1: on the seven clips other than IMG_4873 no clip loses 2 or more correct calls against baseline-v0 and the pooled net is not -3 or worse, at both rates; D2 (IMG_4873: at least 20 of 22 matched, V4 right on at least 17, longest merged shot at most 100 sightings) and D5 (continuity at least 90%) and D7 (legacy equivalence) also hold",
+    "P6_no_worse_phantom_and_retention": "IMG_4873 phantom share in evidence not above the control 'tracks' value plus 1 point; stall survival at 15 frames not below the control value minus 2 points; zero annotated genuine balls classified as clutter; the known failures of the parent (injected-phantom margin, stall survival, 30 fps timing tail) are reported, not required to be fixed",
+    "decision_rule": "RECOMMENDED FOR A LATER INTEGRATION EXPERIMENT only if P1-P6 all hold at both rates. Otherwise NOT RECOMMENDED, with the failed criteria listed. Nothing is promoted into src/ without Matt's approval. No second round is planned; if a registered change is made after results it is a new numbered file."
+  },
+  "limits_to_state_in_the_report": ["no untouched footage; every clip seen before", "reference times come from existing pipelines plus six adjudicated frames, not from frame-accurate human annotation", "IMG_4851 outcome assignment is ambiguous (one written shot never detected)", "the candidate is evaluated on the same eight clips that motivated it (the IMG_4872 merge): it cannot show generalisation, only that it fixes the known case without new harm", "desktop timings"]
+}
