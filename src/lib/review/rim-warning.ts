@@ -21,7 +21,7 @@ export const RIM_RADIUS = 60;
 export const K_MIN = 2;
 export type RimWarningThresholds = { tShot: number; tFrac: number };
 /** Set from the development clips by the registered rule (thresholds.json). */
-export const RIM_WARNING_THRESHOLDS: RimWarningThresholds | null = null;
+export const RIM_WARNING_THRESHOLDS: RimWarningThresholds | null = { tShot: 0.25, tFrac: 0.2 };
 
 /** Share of a record's looked-at frames in which a flagged box sat near the rim; null if the camera never looked in this record. */
 export function shotRimShare(record: ReviewRecord, radius: number = RIM_RADIUS): number | null {

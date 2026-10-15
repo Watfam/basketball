@@ -1,0 +1,1640 @@
+{
+ "generated": "2026-10-15T12:20:19.904Z",
+ "thresholds": {
+  "tShot": 0.25,
+  "tFrac": 0.2
+ },
+ "phantom_spot_from_rim_phantom_analysis": {
+  "x": 179.7,
+  "y": 194.1
+ },
+ "caveat": "NOT independent validation: all eight clips were seen in earlier phases; exactly one clip has the phantom.",
+ "real": {
+  "15fps": {
+   "IMG_4839": {
+    "counted": 29,
+    "records": 29,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 20,
+      "n": 9,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4840": {
+    "counted": 32,
+    "records": 32,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 20,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4851": {
+    "counted": 17,
+    "records": 17,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 7,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4866": {
+    "counted": 19,
+    "records": 19,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 9,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4867": {
+    "counted": 16,
+    "records": 16,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 6,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4872": {
+    "counted": 23,
+    "records": 23,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4873": {
+    "counted": 12,
+    "records": 12,
+    "warn": true,
+    "reason": "warn",
+    "affected": 2,
+    "affected_share": 0.167,
+    "empty_records": 6,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0.182,
+     0,
+     0,
+     0.5,
+     0,
+     0.061,
+     0,
+     0.318
+    ],
+    "truly_affected": 3,
+    "flagged_truly_affected": 2,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4874": {
+    "counted": 20,
+    "records": 20,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   }
+  },
+  "30fps": {
+   "IMG_4839": {
+    "counted": 28,
+    "records": 28,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 20,
+      "n": 8,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4840": {
+    "counted": 32,
+    "records": 32,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 20,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4851": {
+    "counted": 17,
+    "records": 17,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 7,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4866": {
+    "counted": 19,
+    "records": 19,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 9,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4867": {
+    "counted": 16,
+    "records": 16,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 6,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4872": {
+    "counted": 24,
+    "records": 24,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4873": {
+    "counted": 11,
+    "records": 11,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 1,
+    "affected_share": 0.091,
+    "empty_records": 6,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0.18,
+     0,
+     0,
+     0,
+     0.074,
+     0,
+     0.292
+    ],
+    "truly_affected": 2,
+    "flagged_truly_affected": 1,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   },
+   "IMG_4874": {
+    "counted": 21,
+    "records": 21,
+    "warn": false,
+    "reason": "too_few_affected",
+    "affected": 0,
+    "affected_share": 0,
+    "empty_records": 0,
+    "shares": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "truly_affected": 0,
+    "flagged_truly_affected": 0,
+    "flagged_not_truly_affected": 0,
+    "windows": [
+     {
+      "from": 0,
+      "n": 10,
+      "warn": false
+     },
+     {
+      "from": 10,
+      "n": 10,
+      "warn": false
+     }
+    ]
+   }
+  }
+ },
+ "injection": {
+  "label": "SYNTHETIC. Not a real-clip result.",
+  "cells": [
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4839",
+    "warn": false,
+    "affected": 0,
+    "records": 30,
+    "counted_clean": 29,
+    "counted_injected": 30
+   },
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4840",
+    "warn": false,
+    "affected": 2,
+    "records": 32,
+    "counted_clean": 32,
+    "counted_injected": 32
+   },
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4851",
+    "warn": false,
+    "affected": 0,
+    "records": 18,
+    "counted_clean": 17,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4866",
+    "warn": false,
+    "affected": 2,
+    "records": 21,
+    "counted_clean": 19,
+    "counted_injected": 21
+   },
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4867",
+    "warn": false,
+    "affected": 1,
+    "records": 16,
+    "counted_clean": 16,
+    "counted_injected": 16
+   },
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4872",
+    "warn": false,
+    "affected": 1,
+    "records": 23,
+    "counted_clean": 23,
+    "counted_injected": 23
+   },
+   {
+    "duty": 0.05,
+    "spot": 0,
+    "clip": "IMG_4874",
+    "warn": false,
+    "affected": 1,
+    "records": 22,
+    "counted_clean": 20,
+    "counted_injected": 22
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4839",
+    "warn": false,
+    "affected": 1,
+    "records": 28,
+    "counted_clean": 29,
+    "counted_injected": 28
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4840",
+    "warn": false,
+    "affected": 1,
+    "records": 31,
+    "counted_clean": 32,
+    "counted_injected": 31
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4851",
+    "warn": false,
+    "affected": 0,
+    "records": 17,
+    "counted_clean": 17,
+    "counted_injected": 17
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4866",
+    "warn": false,
+    "affected": 1,
+    "records": 20,
+    "counted_clean": 19,
+    "counted_injected": 20
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4867",
+    "warn": false,
+    "affected": 2,
+    "records": 16,
+    "counted_clean": 16,
+    "counted_injected": 16
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4872",
+    "warn": false,
+    "affected": 0,
+    "records": 22,
+    "counted_clean": 23,
+    "counted_injected": 22
+   },
+   {
+    "duty": 0.05,
+    "spot": 1,
+    "clip": "IMG_4874",
+    "warn": false,
+    "affected": 0,
+    "records": 22,
+    "counted_clean": 20,
+    "counted_injected": 22
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4839",
+    "warn": false,
+    "affected": 5,
+    "records": 31,
+    "counted_clean": 29,
+    "counted_injected": 31
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4840",
+    "warn": false,
+    "affected": 5,
+    "records": 32,
+    "counted_clean": 32,
+    "counted_injected": 32
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 6,
+    "records": 20,
+    "counted_clean": 17,
+    "counted_injected": 20
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4866",
+    "warn": false,
+    "affected": 3,
+    "records": 19,
+    "counted_clean": 19,
+    "counted_injected": 19
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4867",
+    "warn": false,
+    "affected": 2,
+    "records": 18,
+    "counted_clean": 16,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4872",
+    "warn": false,
+    "affected": 2,
+    "records": 23,
+    "counted_clean": 23,
+    "counted_injected": 23
+   },
+   {
+    "duty": 0.1,
+    "spot": 0,
+    "clip": "IMG_4874",
+    "warn": false,
+    "affected": 4,
+    "records": 24,
+    "counted_clean": 20,
+    "counted_injected": 24
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4839",
+    "warn": false,
+    "affected": 1,
+    "records": 28,
+    "counted_clean": 29,
+    "counted_injected": 28
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4840",
+    "warn": false,
+    "affected": 1,
+    "records": 34,
+    "counted_clean": 32,
+    "counted_injected": 34
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 4,
+    "records": 18,
+    "counted_clean": 17,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 7,
+    "records": 20,
+    "counted_clean": 19,
+    "counted_injected": 20
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4867",
+    "warn": false,
+    "affected": 1,
+    "records": 17,
+    "counted_clean": 16,
+    "counted_injected": 17
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4872",
+    "warn": false,
+    "affected": 3,
+    "records": 22,
+    "counted_clean": 23,
+    "counted_injected": 22
+   },
+   {
+    "duty": 0.1,
+    "spot": 1,
+    "clip": "IMG_4874",
+    "warn": false,
+    "affected": 2,
+    "records": 20,
+    "counted_clean": 20,
+    "counted_injected": 20
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4839",
+    "warn": true,
+    "affected": 8,
+    "records": 29,
+    "counted_clean": 29,
+    "counted_injected": 29
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4840",
+    "warn": false,
+    "affected": 3,
+    "records": 31,
+    "counted_clean": 32,
+    "counted_injected": 31
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 4,
+    "records": 15,
+    "counted_clean": 17,
+    "counted_injected": 15
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 10,
+    "records": 24,
+    "counted_clean": 19,
+    "counted_injected": 24
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4867",
+    "warn": true,
+    "affected": 10,
+    "records": 20,
+    "counted_clean": 16,
+    "counted_injected": 20
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4872",
+    "warn": true,
+    "affected": 8,
+    "records": 26,
+    "counted_clean": 23,
+    "counted_injected": 26
+   },
+   {
+    "duty": 0.2,
+    "spot": 0,
+    "clip": "IMG_4874",
+    "warn": true,
+    "affected": 8,
+    "records": 25,
+    "counted_clean": 20,
+    "counted_injected": 25
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4839",
+    "warn": true,
+    "affected": 7,
+    "records": 27,
+    "counted_clean": 29,
+    "counted_injected": 27
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4840",
+    "warn": false,
+    "affected": 4,
+    "records": 32,
+    "counted_clean": 32,
+    "counted_injected": 32
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 4,
+    "records": 18,
+    "counted_clean": 17,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 5,
+    "records": 23,
+    "counted_clean": 19,
+    "counted_injected": 23
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4867",
+    "warn": true,
+    "affected": 6,
+    "records": 19,
+    "counted_clean": 16,
+    "counted_injected": 19
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4872",
+    "warn": false,
+    "affected": 4,
+    "records": 24,
+    "counted_clean": 23,
+    "counted_injected": 24
+   },
+   {
+    "duty": 0.2,
+    "spot": 1,
+    "clip": "IMG_4874",
+    "warn": true,
+    "affected": 9,
+    "records": 23,
+    "counted_clean": 20,
+    "counted_injected": 23
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4839",
+    "warn": true,
+    "affected": 5,
+    "records": 19,
+    "counted_clean": 29,
+    "counted_injected": 19
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4840",
+    "warn": true,
+    "affected": 6,
+    "records": 26,
+    "counted_clean": 32,
+    "counted_injected": 26
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 9,
+    "records": 21,
+    "counted_clean": 17,
+    "counted_injected": 21
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 6,
+    "records": 19,
+    "counted_clean": 19,
+    "counted_injected": 19
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4867",
+    "warn": true,
+    "affected": 9,
+    "records": 18,
+    "counted_clean": 16,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4872",
+    "warn": true,
+    "affected": 3,
+    "records": 18,
+    "counted_clean": 23,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.42,
+    "spot": 0,
+    "clip": "IMG_4874",
+    "warn": true,
+    "affected": 5,
+    "records": 20,
+    "counted_clean": 20,
+    "counted_injected": 20
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4839",
+    "warn": true,
+    "affected": 9,
+    "records": 28,
+    "counted_clean": 29,
+    "counted_injected": 28
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4840",
+    "warn": true,
+    "affected": 5,
+    "records": 21,
+    "counted_clean": 32,
+    "counted_injected": 21
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 7,
+    "records": 15,
+    "counted_clean": 17,
+    "counted_injected": 15
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 3,
+    "records": 14,
+    "counted_clean": 19,
+    "counted_injected": 14
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4867",
+    "warn": true,
+    "affected": 8,
+    "records": 18,
+    "counted_clean": 16,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4872",
+    "warn": true,
+    "affected": 11,
+    "records": 24,
+    "counted_clean": 23,
+    "counted_injected": 24
+   },
+   {
+    "duty": 0.42,
+    "spot": 1,
+    "clip": "IMG_4874",
+    "warn": true,
+    "affected": 5,
+    "records": 18,
+    "counted_clean": 20,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4839",
+    "warn": true,
+    "affected": 5,
+    "records": 18,
+    "counted_clean": 29,
+    "counted_injected": 18
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4840",
+    "warn": true,
+    "affected": 8,
+    "records": 22,
+    "counted_clean": 32,
+    "counted_injected": 22
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4851",
+    "warn": true,
+    "affected": 4,
+    "records": 13,
+    "counted_clean": 17,
+    "counted_injected": 13
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 4,
+    "records": 11,
+    "counted_clean": 19,
+    "counted_injected": 11
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4867",
+    "warn": true,
+    "affected": 4,
+    "records": 14,
+    "counted_clean": 16,
+    "counted_injected": 14
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4872",
+    "warn": true,
+    "affected": 4,
+    "records": 16,
+    "counted_clean": 23,
+    "counted_injected": 16
+   },
+   {
+    "duty": 0.6,
+    "spot": 0,
+    "clip": "IMG_4874",
+    "warn": true,
+    "affected": 4,
+    "records": 16,
+    "counted_clean": 20,
+    "counted_injected": 16
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4839",
+    "warn": true,
+    "affected": 10,
+    "records": 22,
+    "counted_clean": 29,
+    "counted_injected": 22
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4840",
+    "warn": true,
+    "affected": 5,
+    "records": 16,
+    "counted_clean": 32,
+    "counted_injected": 16
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4851",
+    "warn": false,
+    "affected": 1,
+    "records": 8,
+    "counted_clean": 17,
+    "counted_injected": 8
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4866",
+    "warn": true,
+    "affected": 3,
+    "records": 14,
+    "counted_clean": 19,
+    "counted_injected": 14
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4867",
+    "warn": true,
+    "affected": 5,
+    "records": 11,
+    "counted_clean": 16,
+    "counted_injected": 11
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4872",
+    "warn": true,
+    "affected": 5,
+    "records": 14,
+    "counted_clean": 23,
+    "counted_injected": 14
+   },
+   {
+    "duty": 0.6,
+    "spot": 1,
+    "clip": "IMG_4874",
+    "warn": false,
+    "affected": 1,
+    "records": 10,
+    "counted_clean": 20,
+    "counted_injected": 10
+   }
+  ],
+  "by_duty": {
+   "0.05": {
+    "k": 0,
+    "n": 14,
+    "rate": 0,
+    "wilson95": [
+     0,
+     0.215
+    ],
+    "mean_counted_clean": 22.3,
+    "mean_counted_injected": 22.7,
+    "shots_lost_total": 3,
+    "cells_losing_2_or_more_shots": 0
+   },
+   "0.1": {
+    "k": 3,
+    "n": 14,
+    "rate": 0.214,
+    "wilson95": [
+     0.076,
+     0.476
+    ],
+    "mean_counted_clean": 22.3,
+    "mean_counted_injected": 23.3,
+    "shots_lost_total": 2,
+    "cells_losing_2_or_more_shots": 0
+   },
+   "0.2": {
+    "k": 11,
+    "n": 14,
+    "rate": 0.786,
+    "wilson95": [
+     0.524,
+     0.924
+    ],
+    "mean_counted_clean": 22.3,
+    "mean_counted_injected": 24,
+    "shots_lost_total": 5,
+    "cells_losing_2_or_more_shots": 2
+   },
+   "0.42": {
+    "k": 14,
+    "n": 14,
+    "rate": 1,
+    "wilson95": [
+     0.785,
+     1
+    ],
+    "mean_counted_clean": 22.3,
+    "mean_counted_injected": 19.9,
+    "shots_lost_total": 42,
+    "cells_losing_2_or_more_shots": 7
+   },
+   "0.6": {
+    "k": 12,
+    "n": 14,
+    "rate": 0.857,
+    "wilson95": [
+     0.601,
+     0.96
+    ],
+    "mean_counted_clean": 22.3,
+    "mean_counted_injected": 14.6,
+    "shots_lost_total": 107,
+    "cells_losing_2_or_more_shots": 14
+   }
+  }
+ },
+ "summary": {
+  "C1_false_warnings_whole_clips": {
+   "k": 0,
+   "n": 7,
+   "rate": 0,
+   "wilson95": [
+    0,
+    0.354
+   ],
+   "clips": [],
+   "pass": true
+  },
+  "C2_missed_warning_IMG_4873": {
+   "warned": true,
+   "pass": true
+  },
+  "C3_shot_level": {
+   "phantom_clip": {
+    "k": 2,
+    "n": 3,
+    "rate": 0.667,
+    "wilson95": [
+     0.208,
+     0.939
+    ]
+   },
+   "clean_clips_flagged": {
+    "k": 0,
+    "n": 156,
+    "rate": 0,
+    "wilson95": [
+     0,
+     0.024
+    ]
+   },
+   "pass": false
+  },
+  "windows_reported_not_scored": {
+   "clean_windows_warned": {
+    "k": 0,
+    "n": 16,
+    "rate": 0,
+    "wilson95": [
+     0,
+     0.194
+    ]
+   },
+   "phantom_windows_warned": {
+    "k": 0,
+    "n": 1,
+    "rate": 0,
+    "wilson95": [
+     0,
+     0.793
+    ]
+   }
+  },
+  "sensitivity_30fps": {
+   "clean_clips_warned": [],
+   "IMG_4873_warned": false,
+   "IMG_4873_flagged_truly_affected": "1/2"
+  },
+  "C4_injection": {
+   "warn_at_0_42_and_0_60": {
+    "k": 26,
+    "n": 28,
+    "rate": 0.929,
+    "wilson95": [
+     0.774,
+     0.98
+    ]
+   },
+   "warn_at_0_05": {
+    "k": 0,
+    "n": 14,
+    "rate": 0,
+    "wilson95": [
+     0,
+     0.215
+    ],
+    "mean_counted_clean": 22.3,
+    "mean_counted_injected": 22.7,
+    "shots_lost_total": 3,
+    "cells_losing_2_or_more_shots": 0
+   },
+   "pass": true
+  }
+ }
+}
