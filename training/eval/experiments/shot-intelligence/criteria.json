@@ -1,0 +1,108 @@
+{
+  "registered": "2026-10-17",
+  "status": "REGISTERED BEFORE ANY PHASE-4 CODE EXISTS. The frozen baseline was reproduced first (node training/eval/run-baseline.mjs --id phase4-check, then compare.mjs against baseline-v0: no change in any area; the temporary report files were deleted). thresholds.json, baseline-v0 and datasets.lock are untouched. Nothing here may change after results exist: add criteria-v2.json and say so. No criterion was derived from the output of any code in this directory.",
+  "disclosure": "Written after Experiments 1 and 2 and the rim-phantom study. It therefore knows: the Kalman associator was no better than constant-velocity nearest-neighbour (cv_nearest); the round-2 shot machine (silence-closed shots, other tracks attached as evidence, decision-time clutter from spot memory) matched baseline-v0 within one call on seven clips and lifted IMG_4873 from 11 to 20 correct, failing only the injected-phantom margin (max 11.1% against 10%), stall survival and timing tails; the release is observed in 1 of 174 shots in the 416 px window; IMG_4873 is a different regime (far shooter, 12-15 px ball). It does not know how any fingerprint measurement, coaching statement or cv_nearest shot-machine result behaves.",
+  "data": {
+    "clips": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867", "IMG_4872", "IMG_4873", "IMG_4874"],
+    "roles": { "development": ["IMG_4839", "IMG_4840", "IMG_4851", "IMG_4866", "IMG_4867"], "validation": ["IMG_4872", "IMG_4873"], "diagnostic_not_a_benchmark": ["IMG_4874"] },
+    "limits": "every clip was seen in earlier phases and ball-6 trained on all but IMG_4874; nothing here is independent generalisation. Shot outcome comes from Matt's written lists paired to counted shots by the baseline's V2-agreement alignment, which can slide by one shot after a lost shot (the IMG_4872 effect seen in Experiment 1); labels are therefore good but not perfect, and the V4 call is stored separately and is never a feature.",
+    "tuning_vs_evaluation": "no parameter in Workstreams A-C is tuned: every threshold below is fixed here. Workstream D tunes nothing either (cv_nearest and the round-2 machine are used as they stand).",
+    "detections": "saved ball-6 detections of the production window (all frames) for fingerprints, trails and the accuracy experiment; for the replay's optional context view only, the Experiment-2 detections of the production window plus the 2x rim-centred window on the sampled shots (frames F-75..F+15)."
+  },
+  "units": "positions in base-window pixels (u) as in every saved detection; fingerprint lengths normalised by the shot's own ball width in u (bw = ball widths, an image-space scale). No metre, degree-of-entry or 3D claim anywhere: the 'approach direction' is the image-space direction of motion; 'lateral' is IMAGE-HORIZONTAL and is not the shooter's left/right (the camera angle differs per clip and a side-on camera cannot see depth).",
+  "workstream_A_replay": {
+    "association_baseline": "Experiment-1 tracker with the cv_nearest associator (constant-velocity prediction, Euclidean gate of 30 px per reference frame, size ratio 0.5-2) plus the spot-memory clutter exclusion of the round-2 shot machine. The Kalman associator is not used.",
+    "trail_rules": {
+      "link": "two consecutive observed points are linked only if they belong to the same track, or to a successor track (machine rule) within 3 processed frames, within 30 px per reference frame of travel and a size ratio in [0.5, 2]",
+      "break_on": ["a gap of more than 3 processed frames", "a link that fails the test above", "a competing box (score >= 0.25, not the chosen one) within 1.5 ball widths of the chosen point at either end of the link (identity ambiguous)", "a clutter observation (motionless at an occupied rim spot)"],
+      "reconstructed": "only inside a gap of 1-3 processed frames between two observed points of the same trail: constant-acceleration interpolation from two points each side where available, else linear; drawn dashed and typed 'reconstructed'; never used as a fingerprint measurement",
+      "uncertainty": "observed points: +-1.74 px (the p95 centre error of ball-6 against blind annotation in baseline-v0); reconstructed points: the measured p95 interpolation error of the constant-acceleration baseline for that gap length and region (Experiment 1, results/motion.json: 1.75/1.99/2.29 px free flight, 1.92/2.61/3.48 px near rim for 1/2/3 frames); both are image-space and say nothing about physical error",
+      "confidence": "detector score per point; mean score and observed share per trail segment"
+    },
+    "approach_portion": "observed points whose y lies 50-120 px above the rim, descending, in the 20 frames before the first zone sighting (Experiment 2 definition)"
+  },
+  "workstream_B_fingerprint": {
+    "schema_version": "shot-fingerprint/1",
+    "measurements_core": ["rim_level_x_bw", "approach_direction_deg", "descent_speed_bw_per_frame", "closest_approach_bw", "observed_flight_frames", "approach_observed_frames", "path_fit_rms_bw", "rim_interaction_observed"],
+    "measurements_reported_not_core": ["apex_observed", "apex_height_above_rim_bw", "first_observed_frames_before_first_zone", "gap_count", "max_gap_frames", "mean_score", "ambiguous_break"],
+    "definitions": {
+      "ball_width": "median box width of the shot's observed points within 120 px above the rim down to the rim; if fewer than 3, the clip's median at the rim; the source is recorded",
+      "rim_level_x_bw": "signed image-horizontal offset (rim centre = 0, +x = image right), in ball widths, of the OBSERVED point nearest to rim level within +-0.5 bw of it, before or at the first zone sighting + 3 frames; unavailable if none",
+      "approach_direction_deg": "angle from straight down of a least-squares line through the observed descending points 1-4 bw above the rim level (positive = moving toward image right), at least 3 points; image-space only",
+      "descent_speed_bw_per_frame": "median vertical step of consecutive observed points in that band per 30 fps frame (steps over gaps divided by the gap length), at least 2 steps",
+      "closest_approach_bw": "minimum distance from the rim centre to any observed point from 10 frames before the first zone sighting to 15 frames after, in ball widths",
+      "observed_flight_frames": "processed frames between the first and last observed point of the trail up to the first zone sighting, expressed at 30 fps",
+      "approach_observed_frames": "number of observed points in the approach portion",
+      "path_fit_rms_bw": "RMS residual in ball widths of a linear x(t) and quadratic y(t) fit to the observed points of the last 20 frames before the rim level, at least 6 points; a measure of how smooth the observed path is",
+      "rim_interaction_observed": "true if, after the closest approach, an observed point rises at least 1 bw above the rim level (a bounce or rim-out) ; false if at least 4 observed points follow the closest approach and none rises; unavailable otherwise"
+    },
+    "unavailable_rule": "a missing or unreliable measurement is null with a reason code; it is never filled by interpolation, a fitted parabola or a default",
+    "repeatability_criterion": "30 fps against 15 fps (even frames) on the same shots: a core measurement is STABLE if, over shots where it is available at both rates (at least 15), Spearman rho >= 0.8 and median absolute difference <= 0.35 x the between-shot standard deviation (MAD*1.4826 if the SD is inflated by outliers: the smaller is used). A measurement used by the coaching engine must be STABLE and available on at least 60% of the baseline-matched shots of the set.",
+    "clustering": "per clip (camera differs between clips): shots with the rim-level path (observed x offset in ball widths at levels 4,3,2,1 and 0 bw above the rim, each level the observed point within +-0.4 bw of it) available at 3 or more levels are clustered by average linkage on the RMS difference over shared levels (at least 3), cut at 1.0 bw; clusters of fewer than 3 are 'unclustered'. A pattern is reported as repeatable only if the 30 fps and 15 fps clusterings agree (adjusted Rand index >= 0.6 on shared shots).",
+    "outcome_firewall": "outcome labels live under 'labels' and are read only by comparison and coaching code, never by the fingerprint generator; a unit test permutes the labels and requires bit-identical measurements; the V4 call is under 'labels.v4' and is excluded from every comparison as an input"
+  },
+  "workstream_C_coaching": {
+    "sets": "each clip alone; and S4 pooled (IMG_4839 + IMG_4840, identical window and camera position). No other pooling.",
+    "preconditions_per_statement": "at least 8 makes and 8 misses with the measurement available and STABLE (recent-variability statements: at least 8 shots in each block); shot-level quality gate: the measurement is available and the trail has no ambiguous break within the approach portion; set-level: the measurement available on at least 60% of matched shots",
+    "statements": {
+      "S1_offset_size": "|rim_level_x_bw| of misses minus makes (median difference)",
+      "S2_miss_side": "median signed rim_level_x_bw of misses minus that of makes (image-horizontal side)",
+      "S3_consistency": "ratio of the spread (MAD*1.4826) of rim_level_x_bw, misses over makes",
+      "S4_recent_variability": "ratio of the spread of rim_level_x_bw in the last 8 shots (in time order) over the previous shots",
+      "S5_path_cluster": "association of rim-level path cluster with outcome (Fisher exact, clusters with at least 3 shots, repeatable per the clustering criterion)"
+    },
+    "support_rule": "a statement is SUPPORTED only if (a) preconditions hold, (b) the seeded bootstrap 95% interval (2000 resamples, shots resampled within group) of its effect excludes 0, (c) its size is at least the practical minimum (0.25 bw for S1/S2, a ratio of at least 1.5 or at most 0.67 for S3/S4, an odds ratio of at least 3 for S5), (d) the seeded permutation p-value (5000 permutations of outcome labels, for S4 of block labels) after Holm correction across the statements tried for that set is below 0.05. Otherwise the engine ABSTAINS with a reason code (insufficient_n, low_availability, unstable_measure, interval_includes_zero, below_practical_size, not_significant_after_correction, ambiguous_camera_view).",
+    "required_fields": ["id", "status", "set", "claim_observation", "interpretation_limit", "supporting_shot_ids", "measurement", "n_by_group", "measurement_quality", "uncertainty", "comparison_baseline", "observation_vs_interpretation"],
+    "language_rules": "the engine may describe where the ball was OBSERVED; it may not name or imply a body, release, form or mechanical cause. A lint rejects any statement text containing: elbow, wrist, shoulder, grip, follow-through, form, mechanics, release, posture, stance, 'you should', 'because'. Interpretation text is limited to: 'This describes where the ball was observed in the image; it does not identify a cause.' and equivalents without those words. Image-horizontal is never called left/right of the shooter.",
+    "validity_tests": {
+      "placebo": "outcome labels permuted within each set (400 seeded shuffles per set); the share of shuffles that yield at least one SUPPORTED statement must be at most 10% per set (the Holm level promises about 5%)",
+      "replication": "for every SUPPORTED statement, the sign (or the direction of the ratio) in the first half and in the second half of the set (time order) must agree with the full set; reported as a share, no pass/fail when fewer than 3 statements are supported",
+      "abstention": "unit tests: fewer than the minimum shots, an unstable measurement, an ambiguous camera view and a null effect each produce an abstention with the right reason code and never a statement"
+    },
+    "demonstration_rule": "the report shows every SUPPORTED statement the real data yields and a representative abstention for every reason code that occurs. If the real data supports no statement, the report says so; thresholds are not loosened to produce one."
+  },
+  "workstream_D_accuracy": {
+    "candidate_assessment": {
+      "scale": "benefit and risk from Experiments 1 and 2 and the rim-phantom study; complexity as effort in this repository on an 8 GB Mac",
+      "candidates": [
+        { "name": "hard-negative training for rim hardware", "benefit": "root-cause fix for the phantom (42% of IMG_4873 frames)", "complexity": "high: retrain ball-6 on Colab, new exam round", "data": "one clip, one rim and lens (about 1,800 oracle-marked phantom boxes on IMG_4873; kids footage, local only); thin and single-camera, high overfitting risk", "processing_cost": "none at run time", "regression_risk": "high (any retrain can move every clip); the production model is frozen", "measure": "ball-6 exam plus the full baseline", "decision": "not now: cannot be done and exam-validated in this environment, and the data is one rim" },
+        { "name": "additional held-ball training examples", "benefit": "would raise release visibility (3-7%)", "complexity": "high", "data": "17 annotated in-hand frames of 88; far too few; mining more needs new annotation", "processing_cost": "none", "regression_risk": "medium", "measure": "release observed share", "decision": "not now: annotation-bound" },
+        { "name": "multi-scale detector training", "benefit": "would let a 2x window keep detections (ball 12 px)", "complexity": "high (retrain)", "data": "exists in principle (the clips have scales 1.0-1.9)", "processing_cost": "none at run time but a second inference for the wider view", "regression_risk": "medium-high", "measure": "X5 retention of Experiment 2", "decision": "later, after the context window is measured on a phone" },
+        { "name": "lightweight constant-velocity association layer", "benefit": "persistent id for trails, replay and fingerprints; Experiment 1: no worse than Kalman at association, simpler", "complexity": "low (exists as the cv_nearest associator)", "data": "none", "processing_cost": "median about 0.01 ms per frame in Experiment 1", "regression_risk": "low if kept beside, not instead of, the shipped grouping", "measure": "the T1-T5 criteria of Experiment 1", "decision": "candidate" },
+        { "name": "more reliable shot separation", "benefit": "stops phantom-merged shots (IMG_4873 baseline merges up to 1044 sightings)", "complexity": "low-medium (the round-2 silence-closed machine exists)", "data": "none", "processing_cost": "small", "regression_risk": "low-medium", "measure": "T1-T5", "decision": "candidate, evaluated together with the association layer because the machine consumes tracks" },
+        { "name": "better use of detector confidence and temporal evidence", "benefit": "spot memory plus track motion already uses temporal evidence; score enters the association cost", "complexity": "low", "data": "none", "processing_cost": "small", "regression_risk": "low", "measure": "T3, T4", "decision": "included inside the chosen experiment" }
+      ],
+      "selected": "ONE experiment: the round-2 shot machine (silence-closed shots, attached evidence, decision-time clutter from spot memory) driven by the cv_nearest tracker instead of the Kalman tracker. It combines the lightweight association layer and more reliable shot separation because the machine consumes tracks; hard-negative training and held-ball examples need retraining and annotation and are recommended for a separate, human-supported phase.",
+      "expected_and_stated_before_running": "it may fail the same margins the Kalman version failed (injected phantom share on one 30 fps cell, stall survival, 30 fps timing tail). Whatever happens is reported; no round 2 of this experiment is planned."
+    },
+    "configuration": "tracker: associator cv_nearest, model and parameters as in the Experiment-1 defaults (unused by cv_nearest except the lifecycle), retainFrames 1500; machine: shotmachine.mjs as committed at b0e1b89 (round 2), decision: the shipped V4 functions via decide.mjs. Production grouping untouched.",
+    "protocol": "the Experiment-1 harness (eval-shots.mjs) with the 'tracks' configuration replaced by this one: ball-6 detections score >= 0.25... as the app (>= 0.2), 30 fps and 15 fps, scored exactly as baseline-v0 (same pairing, same annotated phantom-candidate removal), injection (seed_base 20261020), stall (seed_base 20261030) and the genuine-retention and annotated-frame checks unchanged.",
+    "criteria_all_must_hold_at_BOTH_frame_rates": {
+      "D1_no_harm": "on the seven clips other than IMG_4873, thresholds.json's shot rule as in Experiment 1: no clip loses 2 or more correct calls against baseline-v0 and the pooled paired net is not -3 or worse",
+      "D2_regression_case_4873": "at least 20 of 22 written shots matched AND V4 right on at least 17 AND longest merged shot at most 100 zone sightings (IMG_4873 is a known regression case, not a generalisation test)",
+      "D3_false_positive_suppression": "phantom boxes in shot evidence at most 10% on IMG_4873 and in every injected configuration; pooled injected V4-right of the development clips (mean over the four injections) within 3 calls of the clean baseline; no counted shot absent from baseline-v0 on any clean development clip",
+      "D4_genuine_retention": "at most 0.5% of genuine development boxes are observation-level clutter; zero annotated genuine balls are clutter; at least 95% of baseline in-zone genuine boxes of baseline-matched shots are in the new evidence; stalled-shot survival at 15 frames at least 95%; annotated in-hand balls retained as live tracks and not clutter in at least 90%",
+      "D5_continuity": "at least 90% of baseline-matched correct shots on the development clips have at least 90% of their genuine zone-window boxes in one track (or a linked successor)",
+      "D6_overhead": "tracker plus machine median at most 0.1 ms and p99.9 at most 2 ms per processed frame on this desktop (not a phone); the worst frame is reported",
+      "D7_legacy_equivalence": "the decision replica fed legacy grouping reproduces baseline-v0 exactly (T13 of Experiment 1, rerun)"
+    },
+    "decision_rule": "RECOMMENDED FOR A LATER INTEGRATION EXPERIMENT only if D1-D7 all hold at both frame rates. Otherwise NOT RECOMMENDED, with the failed criteria listed, and improvement is claimed only where a criterion defines it. Nothing is promoted into src/ without Matt's approval."
+  },
+  "workstream_E_protection": {
+    "baseline": "reproduced before this file (no change in any area)",
+    "tests": "app tests (node training/tools/43-run-tests.mjs, 93), harness tests (node --test training/eval/lib/*.test.mjs, 47), every experiment's tests, new tests for trail, fingerprint, coaching, lint and abstention",
+    "production_unchanged": "git diff of src/ and public/ over Phase 4 is empty; baseline-v0, thresholds.json and datasets.lock verify (the lock's date stamp is not a content change)",
+    "performance": "reported, not gated except D6: tracker+machine per frame (both rates), trail+fingerprint+insights per shot (ms), resident memory delta of the full-clip pass (MB, desktop)",
+    "replay_check": "the replay page is opened in the Browser pane; stepping, source toggle, make/miss comparison and the observed/reconstructed/gap legend are checked by screenshot; replay frames and any image of Matt's kids stay in git-ignored training/work/ and are never committed"
+  },
+  "workstream_A_criteria": {
+    "A1_no_phantom_in_trails": "on IMG_4873, oracle-marked phantom boxes make up at most 2% of the points of the shot trails and no trail has more than 2 phantom points",
+    "A2_no_unrelated_links": "an independent verifier re-checks every link of every trail of all eight clips against the link rule; zero violations",
+    "A3_breaks_not_bridges": "unit scenarios (rebound ball after the shot, second ball within 1.5 ball widths, a gap of 4 frames, a clutter box on the rim, a dribble before the shot) each produce a broken trail, never a continuous one",
+    "A4_reconstruction_error": "masked-point test on real observed trails: hide 1, 2 and 3 consecutive interior observed points, reconstruct, compare to the hidden observations: median error at most 1.0 px and p95 at most 4.0 px in base-window units per gap length (Experiment-1 baseline numbers say 0.5-0.9 and 1.7-3.5)",
+    "A5_determinism_and_types": "building the replay data twice gives byte-identical files; every point carries a type (observed or reconstructed); no reconstructed point appears outside a gap of 1-3 frames; unit tests",
+    "A6_demonstration": "the replay opens, steps frame by frame and shows at least one make and one miss with their observed paths, gaps and approach portion (screenshots)",
+    "reported_not_required": "share of baseline-matched shots with an observed approach portion at 30 and 15 fps; trail break counts and reasons"
+  },
+  "limits_to_state_in_the_report": ["no untouched footage; all clips seen before; ball-6 trained on seven of eight", "outcome labels from a written list with possible pairing slides", "image-space measurements only; the camera angle differs per clip, so image-horizontal offset is not the shooter's lateral error", "ball width normalisation changes with perspective and with the detector box convention", "fingerprints use only the production window; release, apex and early flight are mostly unobserved", "per-clip sets are small (about 16-32 shots); few statements can reach support", "desktop timings"]
+}
