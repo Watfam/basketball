@@ -1,0 +1,109 @@
+{
+ "checks": [
+  {
+   "name": "seed three sessions",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "controls show what is kept",
+   "pass": true,
+   "detail": "Kept now: 3 sessions, 110 shots, about 159 KB (this app's total storage on the phone: 331 KB of 10240.3 MB)."
+  },
+  {
+   "name": "export button works",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a file was downloaded",
+   "pass": true,
+   "detail": "hardwood-lab-tracking-2026-10-15.json"
+  },
+  {
+   "name": "file: right format, 3 sessions, 110 shots, checksum",
+   "pass": true,
+   "detail": "147919 bytes"
+  },
+  {
+   "name": "file: no identifiers, no labels, no images",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "UI says it was not uploaded",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "delete all",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "empty after delete",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "preview shows 3 new sessions, nothing hidden",
+   "pass": true,
+   "detail": "hardwood-lab-tracking-2026-10-15.json: 3 sessions in the file, exported 2026-10-15."
+  },
+  {
+   "name": "import confirmed",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "imported: 3 sessions, 110 shots in the store",
+   "pass": true,
+   "detail": "Imported 3 new sessions (110 shots). Nothing else on this phone changed."
+  },
+  {
+   "name": "history is queryable through the app's own loader",
+   "pass": true,
+   "detail": "[60,25,25]"
+  },
+  {
+   "name": "marker set so deleting a saved session reaches imported history",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "importing the same file again: all 3 already here, import disabled",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a changed file is refused with a plain message",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a non-JSON file is refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "a foreign JSON file is refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "history unchanged by refused files",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no network request carried the file (only local pages and assets)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "name": "no page errors",
+   "pass": true,
+   "detail": ""
+  }
+ ]
+}

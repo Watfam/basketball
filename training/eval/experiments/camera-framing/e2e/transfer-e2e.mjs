@@ -1,0 +1,63 @@
+// Browser check of export/import on the real UI (needs the temporary /lab/transfer-demo route; see REPORT.md "Reproduce"). Uses puppeteer-core from the scratchpad.
+import puppeteer from "puppeteer-core";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+const URL = "http://localhost:3101/lab/transfer-demo", out = { checks: [] };
+const ok = (name, pass, detail = "") => { out.checks.push({ name, pass: !!pass, detail }); console.log(pass ? "PASS" : "FAIL", name, detail); };
+const dl = fs.mkdtempSync(path.join(os.tmpdir(), "hl-dl-"));
+const browser = await puppeteer.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: "new", args: ["--no-sandbox"], defaultViewport: { width: 420, height: 1000 } });
+const page = await browser.newPage(); const reqs = [], errs = [];
+page.on("request", (r) => reqs.push(r.url())); page.on("pageerror", (e) => errs.push(String(e).slice(0, 200)));
+const cdp = await page.createCDPSession(); await cdp.send("Browser.setDownloadBehavior", { behavior: "allow", downloadPath: dl });
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const text = () => page.$eval("#c", (d) => d.innerText);
+const go = async () => { await page.goto(URL, { waitUntil: "networkidle2", timeout: 120000 }); await page.waitForFunction(() => window.__h, { timeout: 30000 }); await page.waitForSelector("#c section"); };
+await go();
+ok("seed three sessions", JSON.stringify(await page.evaluate(() => window.__h.seed())) === '["saved","saved","saved"]');
+await go(); await wait(400);
+ok("controls show what is kept", /Kept now: 3 sessions, 110 shots/.test(await text()), (await text()).match(/Kept now[^\n]*/)?.[0]);
+// export (labels off)
+const click = async (label) => page.evaluate((label) => { const b = [...document.querySelectorAll("#c button")].find((x) => x.innerText.trim().toLowerCase().startsWith(label.toLowerCase())); if (!b || b.disabled) return false; b.click(); return true; }, label);
+ok("export button works", await click("Export this player"));
+await wait(1500);
+let files = fs.readdirSync(dl).filter((f) => f.endsWith(".json"));
+ok("a file was downloaded", files.length === 1, files.join(","));
+const exported = fs.readFileSync(path.join(dl, files[0]), "utf8");
+const parsed = JSON.parse(exported);
+ok("file: right format, 3 sessions, 110 shots, checksum", parsed.format === "hardwood-lab.tracking-history" && parsed.counts.sessions === 3 && parsed.counts.shots === 110 && /^[0-9a-f]{64}$/.test(parsed.checksum), `${exported.length} bytes`);
+ok("file: no identifiers, no labels, no images", !/demo|srv-|Secret label|data:|blob:/.test(exported));
+ok("UI says it was not uploaded", /not uploaded/.test(await text()));
+// wipe, import
+page.once("dialog", (d) => d.accept());
+ok("delete all", await click("Delete all tracking history")); await wait(800);
+ok("empty after delete", /Kept now: 0 sessions/.test(await text()));
+const input = await page.$("#c input[type=file]");
+await input.uploadFile(path.join(dl, files[0])); await wait(1200);
+let t = await text();
+ok("preview shows 3 new sessions, nothing hidden", /3 sessions in the file/.test(t) && /3 new/.test(t) && /Import 3 sessions/i.test(t), t.match(/hardwood[^\n]*/)?.[0]);
+ok("import confirmed", await click("Import 3")); await wait(1500);
+t = await text();
+ok("imported: 3 sessions, 110 shots in the store", /Kept now: 3 sessions, 110 shots/.test(t) && /Imported 3 new sessions/.test(t), t.match(/Imported[^\n]*/)?.[0]);
+const after = await page.evaluate(() => window.__h.load());
+ok("history is queryable through the app's own loader", after.sessions.length === 3 && after.shots === 110 && after.sessions.every((s) => s[2] === null), JSON.stringify(after.sessions.map((s) => s[1])));
+ok("marker set so deleting a saved session reaches imported history", await page.evaluate(() => localStorage.getItem("hl:history:used") === "1"));
+// again: duplicates
+await input.uploadFile(path.join(dl, files[0])); await wait(1200); t = await text();
+ok("importing the same file again: all 3 already here, import disabled", /3 already on this phone/.test(t) && await page.evaluate(() => { const b = [...document.querySelectorAll("#c button")].find((x) => x.innerText.trim().toLowerCase().startsWith("import 0")); return !!b && b.disabled; }));
+await click("Cancel"); await wait(200);
+// corrupted
+const bad = path.join(dl, "bad.json"); fs.writeFileSync(bad, exported.replace('"made":true', '"made":false'));
+await input.uploadFile(bad); await wait(1200); t = await text();
+ok("a changed file is refused with a plain message", /changed or cut short/.test(t) && !/Import \d/i.test(t));
+fs.writeFileSync(bad, "{not json"); await input.uploadFile(bad); await wait(1200); t = await text();
+ok("a non-JSON file is refused", /not readable/.test(t));
+fs.writeFileSync(bad, JSON.stringify({ hello: 1 })); await input.uploadFile(bad); await wait(1200); t = await text();
+ok("a foreign JSON file is refused", /not a Hardwood Lab/.test(t));
+ok("history unchanged by refused files", (await page.evaluate(() => window.__h.load())).shots === 110);
+ok("no network request carried the file (only local pages and assets)", reqs.every((u) => /localhost:3101/.test(u)), reqs.filter((u) => !/localhost:3101/.test(u)).slice(0, 3).join(" "));
+ok("no page errors", errs.length === 0, errs.join(" | "));
+await page.screenshot({ path: "/private/tmp/claude-501/-Users-WatfordFamily-Desktop-basketball-app/d6fe762f-a87f-466b-a84e-5fe55a87eca6/scratchpad/transfer.png" });
+fs.writeFileSync("/Users/WatfordFamily/Desktop/basketball-app/training/eval/experiments/camera-framing/results/transfer-e2e.json", JSON.stringify(out, null, 1));
+await browser.close();
+console.log(out.checks.filter((c) => !c.pass).length ? "SOME FAILED" : "ALL PASSED");
