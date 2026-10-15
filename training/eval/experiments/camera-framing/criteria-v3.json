@@ -1,0 +1,54 @@
+{
+  "registered": "2026-10-14",
+  "status": "AMENDMENT written after the DEVELOPMENT clips (IMG_4839, 4840, 4851, 4866, 4867) were measured and the detector (src/lib/framing/measure.ts at the commit that carries this file) was frozen, and BEFORE any validation or diagnostic clip (IMG_4844, 4872, 4873, 4874, 4836) was measured by M1, before any synthetic or model-based control was run, and before M2 existed. It is a POST-HOC redesign of how F2 is used, labelled as such. criteria.json and criteria-v2.json are not edited. Nothing below may change after validation results exist.",
+
+  "dev_results_that_stand": {
+    "strict_F2_pooled_over_all_5_dev_clips (criteria.json)": {
+      "posX_px": 3.61, "posY_px": 1.33, "log_size_sd": 0.119, "elev_rel_sd": 0.181, "az_rel_sd": 0.228, "off_sd": 0.377, "roll_sd_deg": 1.58,
+      "verdict": "FAIL for pos (x, limit 3 px), size (limit 0.03), elev (limit 0.08), az (limit 0.05), off (limit 0.04), roll (limit 0.5 degree). Taken strictly, M1 fails F2 and must not be integrated."
+    },
+    "why": "IMG_4851 (strongly side-on) is the whole difference for pos, az and off: its board quad is wrong or hijacked by the gutter and the wall on 4 of 5 stills (eye review of the overlays; the quad is wrong-but-confident, which is an F1 failure). Without IMG_4851 the pooled values are posX 0.62 px, posY 1.44 px, log_size 0.0377, elev 0.131, az 0.0446, off 0.0251, asp 0.0223, roll 1.50 degrees: pos, az and off pass their limits, size narrowly fails (0.0377 vs 0.03), elev and roll fail clearly.",
+    "overlay_review_dev (F1 on dev)": "IMG_4839, 4840, 4866 and 4867 overlays: rim ellipse on the rim and board quad on the white frame in every still that produced one; 1 of 5 abstained (4839-9, weakest edge 35 percent). IMG_4851: 4 of 5 wrong-but-confident. The rim ellipse is consistently a little SMALLER than the visible ring (colour mask misses dull stretches): its width is a repeatable definition, not a measurement of the true rim.",
+    "rim_position": "posX/posY repeat to under 1.5 px; the seed from the app's aim lands on the rim in every dev still."
+  },
+
+  "redesign": {
+    "principle": "The descriptor carries its own repeat spread. A saved session's framing is the mean of up to 5 stills taken 0.5 to 1 s apart, with a per-quantity standard deviation. A quantity is USABLE from a descriptor only if it passes its own gate; an unusable quantity is not used and the app abstains on what it answers. This turns the F2 limit from a pooled detector property (which IMG_4851 sinks) into a per-session self-consistency test (which IMG_4851 should fail by itself). Whether it does is tested on clips this design has not seen.",
+    "gate": "quantity q is usable iff (a) valid in at least 4 of the 5 stills and (b) 3 x sd_q <= 2 x F_q, with F_q the floors of criteria.json / v2: pos 0.02 of frame, size 0.10 (log), az 0.10 (relative), asp 0.10 (relative), off 0.06 (rim widths), elev 0.10 (relative), roll 1.5 degrees.",
+    "gate_on_dev": "elev (sd 0.077 to 0.174 relative) and roll (sd 1.1 to 2.3 degrees) fail the gate on every dev clip, so M1 declares them UNUSABLE at this image size and they are never used to classify. They are reported as 'not verified'. IMG_4851 fails the gate for size, az, off and asp (sd 0.25 to 0.82), as it should. Dev clips 4839, 4840, 4866, 4867 pass the gate for pos, size, az, off and asp (off for 4839: sd 0.040, exactly at the limit)."
+  },
+
+  "added_quantity": {
+    "asp": "board width at mid-height divided by board height at mid-width. Independent of the rim colour fit. It goes with the cosine of the azimuth like az. Added because the rim width (a thin orange ring, 2 to 3 px thick at 1080p) is the noisiest input to az. Floor 0.10 relative; same gate."
+  },
+
+  "tolerances_derived_by_the_registered_rule": {
+    "rule": "T_q = max(F_q, 3 x pooled within-clip SD of q over the development clips that passed the gate (so IMG_4851 does not set them)",
+    "pooled_sd": { "log_size": 0.0377, "az_rel": 0.0446, "off": 0.0251, "asp_rel": 0.0223, "posX_px": 0.62, "posY_px": 1.44 },
+    "T": { "pos": 0.02, "log_size": 0.113, "az_rel": 0.134, "off": 0.075, "asp_rel": 0.10 },
+    "not_used": "elev and roll (failed the gate on all dev clips)"
+  },
+
+  "classification_v3": {
+    "azimuth_cues": ["az", "off", "asp"],
+    "view_angle_class": "Let U be the azimuth cues usable on BOTH descriptors. If |U| < 2: unknown. Else for each cue in U apply the decision_rule of criteria.json (within / beyond / straddles). not_comparable iff at least 2 cues in U are beyond. comparable_view iff every cue in U is within. Anything else: unknown.",
+    "final_class": "comparable_view and pos and size within T => comparable. comparable_view and (pos or size beyond T, with both usable) => normalizable (shift and divide by rim width). comparable_view and pos or size unusable => unknown. Every class carries unverified = ['roll', 'elevation'] (or the quantities M2 verifies) so the caveat is always visible.",
+    "pair_uncertainty": "u = sqrt(sd_a^2 + sd_b^2) per cue as in criteria.json (a 2u margin on each side)."
+  },
+
+  "M2_spec_registered_now": {
+    "what": "hoop-patch registration. A stored grey hoop patch (rim at its centre, 4 rim widths wide by 3 high, 160 px wide when stored) is matched against a new frame by normalised correlation of edge maps over: horizontal scale sx and vertical scale sy independently (0.7 to 1.45 in steps of 0.03), shift (+-0.5 rim width), and roll (-6 to +6 degrees in steps of 1.5). Output: best score, sx, sy, shift in rim widths, roll, and the score at the second-best distinct peak.",
+    "uses": "sx/sy not equal to 1 means the board and the rim are foreshortened differently, which is a view change; roll gives the roll that M1 cannot measure. It needs a stored picture, so it belongs only to the optional on-phone camera reference, never to a history export.",
+    "gate": "usable iff best score >= 0.35 and best score >= 1.3 x the second-best distinct peak. Abstain otherwise.",
+    "tolerance_floors": { "sx/sy": "relative change 0.08", "roll": "1.5 degrees", "shift": "0.15 rim width (beyond = normalizable, not incomparable)" },
+    "controls": "same-clip stills (positive), synthetic pan/zoom/roll of a real still (known truth, similarity), and the real 4844 camera-moved pair. Azimuth/elevation sensitivity of M2 on imagery is NOT testable on this footage (no controlled view change) and is reported as untested."
+  },
+
+  "controls_clarified": {
+    "IMG_4844": "The background registration (results/background-registration.json) shows the camera moved during the clip (first vs last still: shift (-0.052, -0.009) of the frame, scale 0.952, correlation 0.725 at best against 0.305 unshifted). So IMG_4844 is NOT a same-camera control. Its rim_native in datasets.json is not where the rim is in the stills; seeds for IMG_4844 are by eye. It is used only as a real 'camera moved within a recording' example (first vs last still must not be classed comparable) and as a drift-warning example for the reference workflow.",
+    "real_pair_truth": "same camera: background shift <= 0.01 of the frame AND scale within 2.5 percent AND correlation >= 0.8 (only IMG_4839|IMG_4840 and same-clip pairs of the other clips qualify). Different pan/tilt/zoom: background shift > 0.03 or scale off by more than 5 percent with correlation >= 0.5, or correlation < 0.35 at the best fit. Pairs with background shifts between these (for example 4839 vs 4867, 4839 vs 4872, 4867 vs 4872) are 'unresolved' and are listed, not scored: the background cannot separate a camera that turned from a camera that moved.",
+    "M0_on_real_pairs": "M0 is evaluated with what datasets.json records for each clip (rim_native fraction and window scale); the recorded ball width is not available for the clips, so only the rim-position and scale tolerances are applied. This UNDERSTATES M0's strictness and is stated wherever M0 appears."
+  },
+
+  "unchanged": "F1 to F7 pass thresholds, the integration rule, the data roles and the limits statement of criteria.json. Under the strict reading of F2 M1 has already failed on pooled dev; the redesign above is therefore reported as a different design tested on validation clips, and the strict failure is reported alongside."
+}
