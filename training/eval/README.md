@@ -138,3 +138,7 @@ method with the same signature as the baselines.
 ## Phase 10 (camera inside the training plans)
 
 `experiments/camera-in-training/REPORT.md`: architecture map, which existing drills can be tracked and why, how a camera result is saved into the existing workout log (no new tables; one row per workout entry, idempotent), the way back to the workout step, Film Room linkage, manual correction, what is compared and what is not, and what is camera-counted vs player-reported. `verify-production-unchanged.mjs` shows no detection or counting file changed; the frozen baseline reproduces with no change. `e2e/` holds the browser checks and the temporary demo route they need.
+
+## Phase 11 (validating the integration; auditing the plans)
+
+`experiments/camera-in-training/db-validation/`: the camera-to-workout saving run against a real Postgres loaded with the repo's own schema, migrations, seeds and Row Level Security (ownership, duplicates, offline, corrections, repeat attempts, concurrency with and without a unique index), plus a read-only check of the query shapes against the live API. `REPORT.md` there has the results; `proposed-0023-*.sql` is a proposal and is not applied. `experiments/camera-in-training/GAME-SHOOTING-AUDIT.md`: what the existing shooting plans actually prescribe, what the camera does and does not see, and three proposed improvements.

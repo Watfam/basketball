@@ -32,8 +32,7 @@ basis is then recorded as "keyword" instead of "defined".
 | Big Man Post-Up Footwork | none | No | Post moves; the camera is set up for jump shots |
 | Ball-handling drills (e.g. Pound Dribble Series, Attack Cone Series) | none | No | Not shooting |
 
-No existing drill is a movement, change-of-direction or decision-making shot. Those categories exist in the vocabulary but are empty, and a test
-fails when one gets a member, so this report must be updated at that point. Nothing is claimed for them.
+No existing drill is *only* a movement, change-of-direction or decision-making shot, so those categories have no members in this single-category model. That under-describes some drills: the Pin-Down drill is both a catch and a sprint beforehand, and the pull-ups and step-back move through their dribbles. The Phase 11 audit (GAME-SHOOTING-AUDIT.md) lists what each drill prescribes as separate attributes. Nothing is claimed for the empty categories.
 
 ## 3. The integration
 
@@ -95,8 +94,7 @@ Shot sets linked to a drill are excluded from the separate "shooting" activity t
 
 Existing relationships only (`drill-film.ts`). Seeds link: Building a Repeatable Release → Form Shooting Progression; Footwork Into the Pull-Up →
 Off-the-Dribble Pull-Up Series; Creating Separation Off the Bounce → Wing Step-Back. Elbow Pull-Up gets Footwork Into the Pull-Up as a **related**
-lesson (labelled so). Catch-and-Shoot, Free Throw Reset and Beat the Clock have no lesson in the library, and none is invented: the card shows
-nothing rather than a guess.
+lesson (labelled so). Free Throw Reset and Beat the Clock have no lesson. Catch-and-Shoot has none by direct link, but the Phase 11 audit found two existing lessons that match its cue text and an existing study session; none is invented, and none is linked without your say-so. Also from the audit: the Creating Separation link to Wing Step-Back depends on the order the seed files were run (the drill is created by a later file), so check it in your database.
 
 - Trainer lessons carry no URL in the seeds; a lesson shows "Watch the lesson" only when a watchable URL exists, and says "No video is linked to
   this lesson yet" otherwise. The household's own link (`film_links`) wins when present. (The old drill card ignored household links; the new
