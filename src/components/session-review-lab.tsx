@@ -2,7 +2,8 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { SESSION_REVIEW_KEY } from "@/lib/review/flag";
-import { DEBUG_KEY, loadPersisted, type DiagSummary } from "@/lib/review/diagnostics";
+import { DEBUG_KEY, loadPersisted, loadPersistedFor, type DiagSummary } from "@/lib/review/diagnostics";
+import { judge, judgeBattery, judgeLoop, runPhoneTest, type BatterySet, type Check, type PhoneReport } from "@/lib/review/phonetest";
 import { HISTORY_RETAIN_KEY } from "@/lib/review/history-settings";
 import { idbHistory } from "@/lib/review/history-store";
 import { runSelfTest, type SelfTestReport } from "@/lib/review/selftest";
@@ -29,6 +30,24 @@ export function SessionReviewLab() {
     try { setReport(await runSelfTest(idbHistory, [40, 100, 250], setProgress)); setProgress(null); } catch (e) { setProgress(`Self-test stopped: ${e instanceof Error ? e.message : String(e)}`); }
   };
   const text = report ? JSON.stringify({ ...report, live_loop: live }, null, 1) : "";
+  const [phone, setPhone] = useState<PhoneReport | null>(null);
+  const [phoneMsg, setPhoneMsg] = useState<string | null>(null);
+  const [bat, setBat] = useState<{ off: Partial<BatterySet>; on: Partial<BatterySet> }>({ off: {}, on: {} });
+  const [copiedPhone, setCopiedPhone] = useState(false);
+  const [loopSets, setLoopSets] = useState(() => (typeof window === "undefined" ? { off: null, on: null } : { off: loadPersistedFor("off"), on: loadPersistedFor("on") }));
+  const runPhone = async (askPersist: boolean) => {
+    setPhone(null);
+    try { setPhone(await runPhoneTest(idbHistory, setPhoneMsg, { askPersist })); setPhoneMsg(null); } catch (e) { setPhoneMsg(`Phone test stopped: ${e instanceof Error ? e.message : String(e)}`); }
+  };
+  const loop = judgeLoop(loopSets.off?.summary, loopSets.on?.summary);
+  const full = (b: Partial<BatterySet>): BatterySet | null => (b.start !== undefined && b.end !== undefined && b.minutes !== undefined ? (b as BatterySet) : null);
+  const batteryCheck = judgeBattery(full(bat.off), full(bat.on));
+  const checks: Check[] = [...(phone ? judge(phone) : []), ...loop.checks, batteryCheck];
+  const phoneText = phone ? JSON.stringify({ phone, checks, loop: { off: loop.off, on: loop.on }, battery_by_hand: bat, note: "Browser measurements only. Desktop numbers are never substituted." }, null, 1) : "";
+  const badge = (v: Check["verdict"]) => (v === "pass" ? "text-green-700" : v === "fail" ? "text-red-700" : "text-foreground-mute");
+  const num = (k: "off" | "on", f: keyof BatterySet) => (
+    <input inputMode="numeric" aria-label={`Battery ${f} with review ${k}`} className="w-14 rounded-md border border-line bg-surface px-1 py-0.5 text-base" value={bat[k][f] ?? ""} onChange={(e) => setBat({ ...bat, [k]: { ...bat[k], [f]: e.target.value === "" ? undefined : Number(e.target.value) } })} />
+  );
   const row = (label: string, on: boolean, key: string, hint: string) => (
     <label className="flex items-start gap-2 py-1.5 text-[13px]"><input type="checkbox" className="mt-1" checked={on} onChange={(e) => setFlag(key, e.target.checked)} /><span><b>{label}</b><span className="block text-[11px] text-foreground-mute">{hint}</span></span></label>
   );
@@ -58,6 +77,36 @@ export function SessionReviewLab() {
             {report.recorder && <p className="mt-2">Recorder cost per processed frame: median {report.recorder.median_us} µs, 99th percentile {report.recorder.p99_us} µs ({report.recorder.frames} frames).</p>}
             <Button variant="secondary" size="sm" className="mt-2" onClick={() => { void navigator.clipboard?.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); }}>{copied ? "Copied" : "Copy report"}</Button>
             <textarea readOnly rows={5} value={text} onFocus={(e) => e.currentTarget.select()} className="mt-2 w-full rounded-lg border border-line bg-surface p-2 text-base text-foreground" />
+          </div>
+        )}
+      </section>
+
+      <section aria-label="Phone readiness test" className="rounded-2xl border border-line bg-surface p-3 text-[12px] text-foreground-dim">
+        <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Phone readiness test</p>
+        <ol className="mt-1 list-decimal space-y-0.5 pl-5">
+          <li>Open this page on the iPhone, on the same Wi-Fi, with the app added to the Home Screen if you use it that way.</li>
+          <li>Tap <b>Run the phone test</b> and leave the screen on for about a minute.</li>
+          <li>Turn on <b>Timing diagnostics</b>. Count one normal set with <b>Session review off</b>, then one of the same drill with it <b>on</b> (100+ shots of frames each, about a minute of counting is enough).</li>
+          <li>Come back here and tap <b>Refresh</b>. For battery, note the percentage and minutes of two 15-minute sets and type them in.</li>
+          <li>Tap <b>Copy results</b> and paste them to me. Anything the phone cannot report shows as &ldquo;not measured&rdquo;, never as a pass.</li>
+        </ol>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button size="sm" onClick={() => void runPhone(true)} disabled={!!phoneMsg && !phoneMsg.startsWith("Phone test stopped")}>Run the phone test</Button>
+          <Button variant="secondary" size="sm" onClick={() => setLoopSets({ off: loadPersistedFor("off"), on: loadPersistedFor("on") })}>Refresh</Button>
+        </div>
+        {phoneMsg && <p aria-live="polite" className="mt-2 text-foreground">{phoneMsg}</p>}
+        <p className="mt-2 font-semibold text-foreground">Live sets: review off {loop.off.frames} frames, on {loop.on.frames} frames.</p>
+        <div className="mt-1 flex flex-wrap items-center gap-1">Battery by hand, review off: start % {num("off", "start")} end % {num("off", "end")} minutes {num("off", "minutes")}</div>
+        <div className="mt-1 flex flex-wrap items-center gap-1">Review on: start % {num("on", "start")} end % {num("on", "end")} minutes {num("on", "minutes")}</div>
+        {(phone || loop.off.frames > 0 || loop.on.frames > 0) && (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[420px] text-left text-[11px]">
+              <thead><tr className="text-foreground-mute"><th>Check</th><th>Result</th><th>This phone</th><th>Limit</th></tr></thead>
+              <tbody>{checks.map((c) => <tr key={c.id} className="border-t border-line align-top"><td className="pr-2">{c.label}</td><td className={`pr-2 font-bold ${badge(c.verdict)}`}>{c.verdict === "not_measured" ? "not measured" : c.verdict}</td><td className="pr-2">{c.value}</td><td>{c.limit}</td></tr>)}</tbody>
+            </table>
+            {phone && <p className="mt-2">{phone.capabilities.standalone ? "Running from the Home Screen." : "Running in a browser tab (Safari can clear a site's storage if it is not opened for about a week; adding the app to the Home Screen avoids that)."} Storage marker age: {phone.persistence.marker ? `${phone.persistence.marker.ageHours} hours` : "unknown"}. Whole test: {(phone.totalMs / 1000).toFixed(1)} s.</p>}
+            <Button variant="secondary" size="sm" className="mt-2" onClick={() => { void navigator.clipboard?.writeText(phoneText).then(() => { setCopiedPhone(true); setTimeout(() => setCopiedPhone(false), 1500); }); }}>{copiedPhone ? "Copied" : "Copy results"}</Button>
+            <textarea readOnly rows={5} value={phoneText} onFocus={(e) => e.currentTarget.select()} className="mt-2 w-full rounded-lg border border-line bg-surface p-2 text-base text-foreground" />
           </div>
         )}
       </section>

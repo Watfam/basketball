@@ -1,0 +1,11 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: "new", args: ["--no-sandbox", "--enable-precise-memory-info"], defaultViewport: { width: 420, height: 1200 } });
+const p = await b.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(String(e).slice(0, 200)));
+await p.goto("http://localhost:3101/lab/phone-demo", { waitUntil: "networkidle2", timeout: 120000 });
+await p.evaluate(() => { const bt = [...document.querySelectorAll("button")].find((x) => x.innerText.toLowerCase().startsWith("run the phone test")); bt.click(); });
+await p.waitForFunction(() => document.body.innerText.includes("Whole test:"), { timeout: 180000 });
+const t = await p.evaluate(() => { const s = document.querySelector("section[aria-label='Phone readiness test']"); return s.innerText; });
+console.log(t.slice(t.indexOf("CHECK"), t.indexOf("CHECK") + 1500));
+console.log("errors", errs);
+await p.screenshot({ path: "/private/tmp/claude-501/-Users-WatfordFamily-Desktop-basketball-app/d6fe762f-a87f-466b-a84e-5fe55a87eca6/scratchpad/phone.png", fullPage: true });
+await b.close();

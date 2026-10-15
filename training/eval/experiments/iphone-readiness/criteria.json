@@ -1,0 +1,18 @@
+{
+  "registered": "2026-10-15",
+  "status": "REGISTERED BEFORE ANY PHONE RESULT EXISTS (no iPhone measurement has been made by anyone; every number in this repo about phone speed is a desktop number and is labelled so). The first five limits restate the pass criteria written at the end of Phase 6 (persistent-history/REPORT.md, section 8); the rest are new. A test (src/lib/review/phonetest.test.ts) keeps src/lib/review/phonetest.ts PHONE_CRITERIA equal to this file.",
+  "criteria": {
+    "save250Ms": { "limit": 1000, "meaning": "saving a 250-shot session's tracking history, milliseconds (it runs after the save and never blocks it)" },
+    "list1000Ms": { "limit": 3000, "meaning": "reading a history of 1,000+ shots (four 250-shot sessions)" },
+    "analyse250Ms": { "limit": 3000, "meaning": "analysing one 250-shot session" },
+    "renderPerShotMs": { "limit": 50, "meaning": "95th percentile of building a shot's trail and drawing it on a 416 px canvas (the work of opening a shot in Session review), 100 shots" },
+    "recorderP99Us": { "limit": 500, "meaning": "99th percentile of the review recorder's cost per processed frame in the live loop, microseconds" },
+    "stressSlowdown": { "limit": 2.0, "meaning": "five rounds of load-and-analyse over 1,000 shots: no failure, last round at most this many times the first" },
+    "loopWorkIncreaseMs": { "limit": 2, "meaning": "median work per live-loop frame with Session review on minus off, from two real sets on the phone (needs 100+ frames each)" },
+    "fpsDrop": { "limit": 1, "meaning": "frames per second with review off minus on, from the same two sets" },
+    "batteryExtraPointsPer15Min": { "limit": 2, "meaning": "extra battery percentage points over a 15 minute set with review and retention on versus off, entered by hand (the browser cannot read the battery on iPhone)" },
+    "countedShotsEqual": { "limit": "equal", "meaning": "counted shots in a flag-on set equal a flag-off set of the same drill, checked by the player; the counting path is unchanged by construction and by the test suite but this is the real-phone check" }
+  },
+  "what_a_browser_cannot_see": "iPhone Safari offers no battery API, no thermal state, no JavaScript heap size and no per-process memory. The test reports those as 'not measured' and never as a pass. Memory pressure is therefore tested indirectly (five load-and-analyse rounds over 1,000 shots, slowdown and failures) and by noticing whether the page was reloaded by the phone mid-test (a run marker survives a reload). Storage eviction cannot be tested in minutes: the test records a marker and its age so the player can see, days later, whether it survived (Safari can clear the storage of a website that has not been opened for about a week unless it is added to the Home Screen or marked persistent).",
+  "decision_rule": "Phase 7 does NOT claim any iPhone performance. When Matt runs the test, every check is pass / fail / not_measured against the limits above; the history feature stays off by default until the checks that could be measured pass on his phone."
+}

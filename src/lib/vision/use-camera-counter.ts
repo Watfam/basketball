@@ -431,9 +431,13 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     let slowSince: number | null = null;
     let lastStatus = 0;
     const recent: number[] = [];
+    const diag = debugEnabled();
+    let prevT0 = 0, diagFrames = 0;
 
     while (run === runRef.current) {
       const t0 = performance.now();
+      if (diag && prevT0) recordDiag("loop.interval_ms", t0 - prevT0);
+      prevT0 = t0;
       const { crop } = core.window;
       ctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, MODEL_INPUT, MODEL_INPUT);
       const img = ctx.getImageData(0, 0, MODEL_INPUT, MODEL_INPUT);
@@ -457,7 +461,9 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       const modelRan = gate.step(moved, t0);
       if (modelRan) {
         try {
+          const d0 = diag ? performance.now() : 0;
           const { detections } = await detector.detect(img);
+          if (diag) recordDiag("loop.detect_ms", performance.now() - d0);
           balls = detections.filter((d) => d.classId === detector.ballClass);
         } catch (e) {
           if (run !== runRef.current) return;
@@ -480,6 +486,12 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
           refRef.current = { ...refRef.current, scale: core.scale };
           writeDraft(HOOP_REF_KEY, encodeRef(refRef.current));
         }
+      }
+
+      if (diag) {
+        recordDiag("loop.work_ms", performance.now() - t0);
+        diagFrames += 1;
+        if (diagFrames % 150 === 0) persistDiag();
       }
 
       const now = performance.now();
@@ -525,6 +537,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     const flush = flushRef.current;
     flushRef.current = null;
     flush?.();
+    if (debugEnabled()) persistDiag();
     teardown();
     setPhase("idle");
     setHealth(null);

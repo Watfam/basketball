@@ -23,7 +23,15 @@ export function summarize(): DiagSummary[] {
   return [...samples.entries()].map(([name, a]) => { const s = [...a].sort((x, y) => x - y); return { name, n: s.length, medianMs: s[s.length >> 1], p95Ms: s[Math.min(s.length - 1, Math.floor(s.length * 0.95))], maxMs: s[s.length - 1] }; });
 }
 export function persist() {
-  try { window.localStorage.setItem(DIAG_KEY, JSON.stringify({ at: new Date().toISOString(), summary: summarize() })); } catch { /* storage unavailable */ }
+  try {
+    const body = JSON.stringify({ at: new Date().toISOString(), summary: summarize() });
+    window.localStorage.setItem(DIAG_KEY, body);
+    // Also kept per state of the session-review switch, so a set with it off can be compared with a set with it on.
+    window.localStorage.setItem(`${DIAG_KEY}:${window.localStorage.getItem("hl:session-review") === "1" ? "on" : "off"}`, body);
+  } catch { /* storage unavailable */ }
+}
+export function loadPersistedFor(state: "on" | "off"): { at: string; summary: DiagSummary[] } | null {
+  try { return JSON.parse(window.localStorage.getItem(`${DIAG_KEY}:${state}`) ?? "null"); } catch { return null; }
 }
 export function loadPersisted(): { at: string; summary: DiagSummary[] } | null {
   try { return JSON.parse(window.localStorage.getItem(DIAG_KEY) ?? "null"); } catch { return null; }
