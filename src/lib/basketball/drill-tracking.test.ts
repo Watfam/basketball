@@ -136,3 +136,33 @@ test("manual corrections after saving: totals change, the first saved numbers st
   assert.ok(!(await adjustTrackedDrill(s, { playerId: "p9", workoutSessionId: "w1", workoutDrillId: "e1", makes: 1, attempts: 2 })).ok);
   const none = memory(); const r = await adjustTrackedDrill(none, { playerId: "p1", workoutSessionId: "w1", workoutDrillId: "e1", makes: 1, attempts: 2 }); assert.ok(!r.ok && r.code === "no_result");
 });
+
+// ---- when the database also enforces one row per entry (the proposed unique index) -------------------------------------------------------
+function uniqueEntries(s: ReturnType<typeof memory>) {
+  const insert = s.insertLog;
+  s.insertLog = async (r) => {
+    if ([...s.rows.values()].some((x) => x.session_id === r.session_id && x.entry === r.workout_drill_id && r.workout_drill_id)) { await new Promise((q) => setTimeout(q, 0)); throw Object.assign(new Error("duplicate key value violates unique constraint"), { code: "23505" }); }
+    return insert(r);
+  };
+  return s;
+}
+
+test("with a unique index, a lost insert race is not an error: the save merges with the row that got there first", async () => {
+  const s = uniqueEntries(memory());
+  const out = await Promise.all([saveTrackedDrill(s, input), saveTrackedDrill(s, input), saveTrackedDrill(s, { ...input, shotSessionId: "ss2" })]);
+  assert.ok(out.every((r) => r.ok), "no save fails");
+  assert.equal(s.rows.size, 1);
+  assert.ok(parseTracked([...s.rows.values()][0].metrics), "the survivor is the tracked result");
+});
+
+test("with a unique index, a plain tap that loses the race to a tracked save keeps the tracked result and reports it", async () => {
+  const s = uniqueEntries(memory());
+  const [t, p] = await Promise.all([saveTrackedDrill(s, input), saveDrillLog(s, { sessionId: "w1", drillId: "d1", workoutDrillId: "e1", metrics: PLAIN })]);
+  assert.ok(t.ok); assert.equal(s.rows.size, 1); assert.ok(parseTracked([...s.rows.values()][0].metrics));
+  assert.ok(["insert", "keep"].includes(p.action));
+});
+
+test("any other insert failure still fails (only a unique violation is treated as a lost race)", async () => {
+  const s = memory(); s.insertLog = async () => { throw Object.assign(new Error("permission denied"), { code: "42501" }); };
+  await assert.rejects(saveTrackedDrill(s, input), /permission denied/);
+});

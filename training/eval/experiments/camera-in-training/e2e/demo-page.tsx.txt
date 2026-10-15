@@ -31,8 +31,8 @@ function Demo() {
   const v = useSearchParams().get("view") ?? "workout";
   const ctx = { workoutSessionId: W, workoutDrillId: E1, drillName: "Free Throw Reset", variant: "Right wing", goal: { kind: "shots" as const, target: 5 } };
   const start: DrillStart = { context: ctx, categoryLabel: "Stationary shooting", planLabel: "Week 2 · Day 1", workoutName: "Shooting Day", lesson };
-  if (v === "workout" || v === "result")
-    return <SessionPlayer playerId={P} sessionId={W} workoutName="Shooting Day" drills={drills} level="intermediate" volumeStep={0} alreadyCompleted={false} initialLoggedEntryIds={[]} entryExtras={extras} trackedResults={v === "result" ? { [E1]: tracked } : {}} focusEntryId={v === "result" ? E1 : null} />;
+  if (v === "workout" || v === "result" || v === "waiting")
+    return <SessionPlayer playerId={P} sessionId={W} workoutName="Shooting Day" drills={drills} level="intermediate" volumeStep={0} alreadyCompleted={false} initialLoggedEntryIds={v === "waiting" ? [E3] : []} entryExtras={extras} trackedResults={v === "result" ? { [E1]: tracked } : {}} focusEntryId={v === "result" ? E1 : null} />;
   return (
     <div className="mx-auto w-full max-w-md p-4">
       <ShootingHub playerId={P} playerName="Demo" suggestedLabels={[]} drill={v === "problem" ? { problem: "This drill is about form, so there is nothing for the camera to count." } : start}>

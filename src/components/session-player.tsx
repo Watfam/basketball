@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -25,6 +25,8 @@ import { DrillTrackingPanel } from "@/components/drill-tracking-panel";
 import type { EntryExtras } from "@/lib/basketball/drill-session-view";
 import type { TrackedMetrics } from "@/lib/basketball/drill-tracking";
 import { useWakeLock } from "@/lib/use-wake-lock";
+import { parseTracked } from "@/lib/basketball/drill-tracking";
+import { pendingDrill, retryPendingDrill } from "@/lib/drill-attach";
 import { DrillSoundControls } from "@/components/sound-controls";
 import { Button, buttonClass } from "@/components/ui/button";
 import { FormError } from "@/components/ui/field";
@@ -208,8 +210,44 @@ export function SessionPlayer({
     }, 400);
   }
 
+  // A tracked drill whose result has not reached the server yet (the signal dropped while it saved). It is tried again here, so it does not have to
+  // wait for a visit to the shooting page, and a workout is never finished or thrown away underneath it.
+  const [waitingResult, setWaitingResult] = useState(false);
+  const retryWaiting = useCallback(async (): Promise<"none" | "saved" | "waiting"> => {
+    const r = await retryPendingDrill(playerId);
+    const still = pendingDrill(playerId);
+    setWaitingResult(!!still && still.context.workoutSessionId === sessionId);
+    if (!r || r.pending.context.workoutSessionId !== sessionId) return still && still.context.workoutSessionId === sessionId ? "waiting" : "none";
+    if (r.outcome.phase === "saved") {
+      const m = parseTracked(r.outcome.metrics);
+      const at = drills.findIndex((d) => d.id === r.pending.context.workoutDrillId);
+      if (m && at >= 0) {
+        setResults((prev) => ({ ...prev, [r.pending.context.workoutDrillId]: m }));
+        setCompleted((prev) => new Set(prev).add(at));
+      }
+      return "saved";
+    }
+    if (r.outcome.phase === "failed" && r.outcome.message) setError(r.outcome.message);
+    return r.outcome.phase === "waiting" ? "waiting" : "none";
+  }, [playerId, sessionId, drills]);
+  useEffect(() => {
+    if (!pendingDrill(playerId)) return;
+    const again = () => void retryWaiting();
+    again();
+    window.addEventListener("online", again);
+    document.addEventListener("visibilitychange", again);
+    return () => {
+      window.removeEventListener("online", again);
+      document.removeEventListener("visibilitychange", again);
+    };
+  }, [playerId, sessionId, retryWaiting]);
+
   function finishSession() {
     startTransition(async () => {
+      if (pendingDrill(playerId)?.context.workoutSessionId === sessionId && (await retryWaiting()) === "waiting") {
+        setError("A drill you tracked is still waiting to be saved because there is no connection. Finish the workout once you are back online.");
+        return;
+      }
       const result = await completeWorkoutSession(sessionId);
       if (result?.error) {
         setError(result.error);
@@ -256,7 +294,7 @@ export function SessionPlayer({
   function exitSession() {
     haptic("tap");
     startTransition(async () => {
-      if (doneCount === 0) await discardWorkoutSession(sessionId);
+      if (doneCount === 0 && !(pendingDrill(playerId)?.context.workoutSessionId === sessionId)) await discardWorkoutSession(sessionId);
       router.push(`/players/${playerId}`);
     });
   }
@@ -377,6 +415,11 @@ export function SessionPlayer({
         ))}
       </div>
 
+      {waitingResult && !error && (
+        <p className="mt-4 rounded-xl border border-line bg-surface px-4 py-3 text-center text-xs text-foreground-dim" role="status">
+          A drill you tracked is still saving to this workout. It will finish on its own when you are back online.
+        </p>
+      )}
       {error && <FormError className="mt-4">{error}</FormError>}
 
       <Button

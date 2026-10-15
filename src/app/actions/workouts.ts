@@ -85,7 +85,8 @@ export async function logDrillProgress(
     .schema("hoops")
     .from("session_logs")
     .insert({ session_id: sessionId, drill_id: drillId, workout_drill_id: workoutDrillId ?? null, metrics });
-  if (error) return { error: error.message };
+  // 23505: the one-row-per-entry rule (if the database enforces it) says this entry already has its row, which is what the player wanted.
+  if (error && error.code !== "23505") return { error: error.message };
   return { error: null };
 }
 

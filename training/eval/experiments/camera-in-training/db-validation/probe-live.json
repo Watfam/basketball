@@ -1,0 +1,71 @@
+{
+ "at": "2026-10-15T17:03:38.515Z",
+ "note": "read only, no sign-in, random ids, nothing written",
+ "out": [
+  {
+   "name": "workout_sessions: id, player_id, workout_id, status",
+   "ok": true,
+   "result": null
+  },
+  {
+   "name": "workout_drills with the drills(name, skill_tags) embed",
+   "ok": true,
+   "result": null
+  },
+  {
+   "name": "shot_sessions: ended_at, deleted_at, rule_version, model_version",
+   "ok": true,
+   "result": null
+  },
+  {
+   "name": "shots: made, source, detected_made, added_by_hand",
+   "ok": true,
+   "result": 0
+  },
+  {
+   "name": "session_logs: id, metrics, created_at filtered by session and workout_drill_id",
+   "ok": true,
+   "result": 0
+  },
+  {
+   "name": "shooting page query: session_logs + inner embed of workout_sessions + metrics->>type filter",
+   "ok": true,
+   "result": 0
+  },
+  {
+   "name": "activity query: session_logs + workout_sessions!inner(player_id)",
+   "ok": true,
+   "result": 0
+  },
+  {
+   "name": "live schema has the columns session_logs(id, session_id, drill_id, workout_drill_id, metrics, created_at)",
+   "ok": true,
+   "result": "6 columns"
+  },
+  {
+   "name": "live schema has the columns workout_sessions(id, player_id, workout_id, status, started_at, completed_at)",
+   "ok": true,
+   "result": "6 columns"
+  },
+  {
+   "name": "live schema has the columns shot_sessions(id, player_id, ended_at, deleted_at, rule_version, model_version, label, started_at)",
+   "ok": true,
+   "result": "8 columns"
+  },
+  {
+   "name": "live schema has the columns shots(session_id, made, source, detected_made, added_by_hand)",
+   "ok": true,
+   "result": "5 columns"
+  },
+  {
+   "name": "live schema has the columns workout_drills(id, workout_id, drill_id, variant_label)",
+   "ok": true,
+   "result": "4 columns"
+  },
+  {
+   "name": "live schema has the columns drills(id, name, skill_tags)",
+   "ok": true,
+   "result": "3 columns"
+  }
+ ]
+}

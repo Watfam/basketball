@@ -43,10 +43,10 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
 import { clockStart, draftGoal, draftKey, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
-import { DEFINITIVE_FAILURES, drillSetLabel, parsePending, pendingKey, sameDrill, workoutReturnPath, type DrillContext } from "@/lib/basketball/drill-context";
+import { drillSetLabel, sameDrill, workoutReturnPath, type DrillContext } from "@/lib/basketball/drill-context";
+import { attachDrillResult, retryPendingDrill, type DrillOutcome } from "@/lib/drill-attach";
 import { isProblem, type DrillStart, type DrillStartProblem } from "@/lib/basketball/drill-start";
-import { saveDrillTracking } from "@/app/actions";
-import { DrillMismatch, DrillResultNote, DrillStartScreen, type DrillOutcome } from "@/components/drill-start-screen";
+import { DrillMismatch, DrillResultNote, DrillStartScreen } from "@/components/drill-start-screen";
 import { buildCameraReport, formatCameraReport } from "@/lib/basketball/camera-report";
 
 /**
@@ -335,43 +335,26 @@ export function ShootingHub({
     };
   }, [hasDraft, key, runSync]);
 
-  /**
-   * Attach a saved set to its workout drill. The marker stays on this phone until the server has answered for good, so a dropped signal or a
-   * closed app only delays the result; the server keeps one result per workout drill, so asking twice is harmless.
-   */
   const attachToDrill = useCallback(
     async (context: DrillContext, shotSessionId: string) => {
-      writeDraft(pendingKey(playerId), JSON.stringify({ playerId, shotSessionId, context }));
       setDrillOutcome({ phase: "saving", message: null, metrics: null });
-      let res: Awaited<ReturnType<typeof saveDrillTracking>>;
-      try {
-        res = await saveDrillTracking({ playerId, workoutSessionId: context.workoutSessionId, workoutDrillId: context.workoutDrillId, shotSessionId, goal: context.goal });
-      } catch {
-        res = { error: "offline", code: "offline" };
-      }
-      if (!res.error) {
-        writeDraft(pendingKey(playerId), null);
-        setDrillOutcome({ phase: "saved", message: null, metrics: res.metrics ?? null });
-      } else if (res.code && DEFINITIVE_FAILURES.has(res.code)) {
-        writeDraft(pendingKey(playerId), null);
-        setDrillOutcome({ phase: "failed", message: res.error, metrics: null });
-      } else {
-        setDrillOutcome({ phase: "waiting", message: null, metrics: null });
-      }
+      setDrillOutcome(await attachDrillResult(playerId, context, shotSessionId));
     },
     [playerId]
   );
 
-  // A result that did not land last time (offline, app closed) is tried again when the app opens and when the signal returns.
+  // A result that did not land last time (offline, app closed) is tried again when the app opens and when the signal returns. The workout screen does
+  // the same, so it is not stuck waiting for a visit to this page.
   useEffect(() => {
     const retry = () => {
-      const p = parsePending(readDraft(pendingKey(playerId)), playerId);
-      if (p) void attachToDrill(p.context, p.shotSessionId);
+      void retryPendingDrill(playerId).then((r) => {
+        if (r) setDrillOutcome(r.outcome);
+      });
     };
     retry();
     window.addEventListener("online", retry);
     return () => window.removeEventListener("online", retry);
-  }, [playerId, attachToDrill]);
+  }, [playerId]);
 
   function start(label: string, chosen: Goal | null = goal, context?: DrillContext, useCamera: boolean = countWithCamera) {
     // Remembered as a one-tap start for next time, newest first. A drill's own setup is not: it is reached from the workout.
@@ -524,7 +507,10 @@ export function ShootingHub({
     void retainHistory({ playerId, snapshot: { ...snapshot, sessionId: snapshot.sessionId ?? lastSessionId.current } });
     const shotSessionId = snapshot.sessionId ?? lastSessionId.current;
     setDrillOutcome(null);
-    if (snapshot.context && shotSessionId) void attachToDrill(snapshot.context, shotSessionId);
+    if (snapshot.context) {
+      if (shotSessionId) void attachToDrill(snapshot.context, shotSessionId);
+      else setDrillOutcome({ phase: "failed", message: "The shots are saved in your shooting history, but could not be linked to the drill.", metrics: null });
+    }
     setFinished({
       context: snapshot.context ?? null,
       label: snapshot.label || null,
@@ -635,8 +621,9 @@ export function ShootingHub({
           </div>
           {finished.context ? (
             <div className="mt-8 flex flex-col gap-2.5">
-              <Button onClick={() => router.push(workoutReturnPath(playerId, finished.context!))} className="py-4">
-                Back to your workout
+              {/* Held for a moment while the result is being added, so the workout screen opens already showing it. */}
+              <Button onClick={() => router.push(workoutReturnPath(playerId, finished.context!))} disabled={!drillOutcome || drillOutcome.phase === "saving"} className="py-4">
+                {!drillOutcome || drillOutcome.phase === "saving" ? "Saving to your workout…" : "Back to your workout"}
               </Button>
               <Button variant="secondary" onClick={() => startDrill(finished.context!)} className="py-4">
                 Track this drill again

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { describeGoal } from "@/lib/basketball/goals";
 import { describeHow, parseTracked } from "@/lib/basketball/drill-tracking";
 import type { DrillStart } from "@/lib/basketball/drill-start";
+import type { DrillOutcome } from "@/lib/drill-attach";
 
 /** What is counted and what is not, in the words used everywhere else (WHAT_IS_MEASURED in drill-shooting.ts). */
 function Honesty({ camera }: { camera: boolean }) {
@@ -85,8 +86,6 @@ export function DrillMismatch({ openLabel, drillName, onResume, onReplace }: { o
     </section>
   );
 }
-
-export type DrillOutcome = { phase: "saving" | "saved" | "waiting" | "failed"; message: string | null; metrics: Record<string, unknown> | null };
 
 /** On the "Session saved" screen of a drill-linked set: where the result went, in plain words, and the way back. */
 export function DrillResultNote({ outcome }: { outcome: DrillOutcome | null }) {

@@ -26,19 +26,38 @@ const fail = (code: SaveCode, message: string): SaveResult => ({ ok: false, code
 const goalOf = (g: TrackingGoal | null | undefined): TrackingGoal | null =>
   g && (g.kind === "shots" || g.kind === "time") && Number.isInteger(g.target) && g.target > 0 && g.target <= 3600 ? { kind: g.kind, target: g.target } : null;
 
-/** Apply a plan, then converge: if a concurrent save added a second row meanwhile, both saves settle on the same one. */
-async function apply(store: DrillStore, sessionId: string, entry: { id: string; drill_id: string }, plan: MergePlan, kind: "tracked" | "plain" | "skip", incoming: Record<string, unknown>) {
+/** A unique-index violation (Postgres 23505): another save for the same workout entry got there first. */
+const lostInsertRace = (e: unknown) => (e as { code?: string } | null)?.code === "23505";
+
+/**
+ * Apply a plan, then converge: if a concurrent save added a second row meanwhile, both saves settle on the same one. When the database also enforces
+ * one row per entry (the proposed unique index), a lost insert race is not an error: the other save's row is read and merged with, exactly as if it
+ * had been there at the start. Returns the plan that actually took effect, and the rows it was based on.
+ */
+async function apply(store: DrillStore, sessionId: string, entry: { id: string; drill_id: string }, plan: MergePlan, kind: "tracked" | "plain" | "skip", incoming: Record<string, unknown>): Promise<{ plan: MergePlan; rows: LogRow[] | null }> {
   if (plan.deleteIds.length) await store.deleteLogs(plan.deleteIds);
   if (plan.action === "update") await store.updateLog(plan.targetId, plan.metrics);
   if (plan.action === "insert") {
-    await store.insertLog({ session_id: sessionId, drill_id: entry.drill_id, workout_drill_id: entry.id, metrics: plan.metrics });
+    try {
+      await store.insertLog({ session_id: sessionId, drill_id: entry.drill_id, workout_drill_id: entry.id, metrics: plan.metrics });
+    } catch (e) {
+      if (!lostInsertRace(e)) throw e;
+      const after = await store.logs(sessionId, entry.id);
+      const again = mergeDrillLog(after, { kind, metrics: incoming });
+      if (again.action === "insert") throw e;
+      if (again.deleteIds.length) await store.deleteLogs(again.deleteIds);
+      if (again.action === "update") await store.updateLog(again.targetId, again.metrics);
+      return { plan: again, rows: after };
+    }
     const after = await store.logs(sessionId, entry.id);
     if (after.length > 1) {
       const again = mergeDrillLog(after, { kind, metrics: incoming });
       if (again.deleteIds.length) await store.deleteLogs(again.deleteIds);
       if (again.action === "update") await store.updateLog(again.targetId, again.metrics);
+      return { plan: again, rows: after };
     }
   }
+  return { plan, rows: null };
 }
 
 /** The set the camera (or the taps) shot for this workout entry is now the drill's result. Safe to call any number of times. */
@@ -61,9 +80,14 @@ export async function saveTrackedDrill(
 
   const metrics = buildTrackedMetrics({ drill: entry.drill ?? { name: "" }, variant: entry.variant_label, goal: goalOf(input.goal), shots, shotSessionId: ss.id, ruleVersion: ss.rule_version, modelVersion: ss.model_version }) as unknown as Record<string, unknown>;
   const plan = mergeDrillLog(await store.logs(ws.id, entry.id), { kind: "tracked", metrics });
-  await apply(store, ws.id, entry, plan, "tracked", metrics);
-  const final = plan.action === "keep" ? ((await store.logs(ws.id, entry.id))[0]?.metrics as Record<string, unknown>) : plan.metrics;
-  return { ok: true, metrics: final, action: plan.action };
+  const done = await apply(store, ws.id, entry, plan, "tracked", metrics);
+  let final: Record<string, unknown>;
+  if (done.plan.action === "keep") {
+    const rows = done.rows ?? (await store.logs(ws.id, entry.id));
+    const kept = done.plan.targetId;
+    final = (rows.find((r) => r.id === kept) ?? rows[0])?.metrics as Record<string, unknown>;
+  } else final = done.plan.metrics;
+  return { ok: true, metrics: final, action: done.plan.action };
 }
 
 /** The workout player's own saves (a done drill or a skip), one row per entry. A plain save never replaces a tracked result. */
@@ -78,8 +102,8 @@ export async function saveDrillLog(
   const kind = isSkippedLog(input.metrics) ? "skip" : "plain";
   const entry = { id: input.workoutDrillId, drill_id: input.drillId };
   const plan = mergeDrillLog(await store.logs(input.sessionId, entry.id), { kind, metrics: input.metrics });
-  await apply(store, input.sessionId, entry, plan, kind, input.metrics);
-  return plan.action === "keep" ? { action: "keep", reason: plan.reason } : { action: plan.action };
+  const done = await apply(store, input.sessionId, entry, plan, kind, input.metrics);
+  return done.plan.action === "keep" ? { action: "keep", reason: done.plan.reason } : { action: done.plan.action };
 }
 
 /** The player corrects the totals of a saved tracked result. */
