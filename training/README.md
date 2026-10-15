@@ -854,3 +854,9 @@ outside it, none detected); the camera does not cut them off. A 2x rim-centred w
 shots from 32% to 62%, but keeps only about half the confident production-window detections on its own (production window plus 2x window keeps all, two inferences).
 Release is observed in 3-7% of shots under every strategy (the held ball is the weak link), a stacked window above the hoop does not help, the full frame
 at 416 and nine tiles fail on scale or cost. **No phone-compatible strategy met the registered bar; nothing integrated, `src/` untouched.** Read `REPORT.md` there.
+
+### Phase 4: shot intelligence (2026-10-17), `training/eval/experiments/shot-intelligence/`
+Flight-path replay (offline HTML, `make-replay.mjs`), shot fingerprints (`shot-fingerprint/1`, observed points only, explicit unavailability),
+an evidence-backed insight engine that abstains when evidence is thin, and one accuracy experiment (cv_nearest with the round-2 shot machine). Criteria registered first,
+three labelled amendments. Replay and fingerprints work; the engine supports only "misses were farther from the rim centre" (mostly face validity) on two clips and
+abstains on 40 of 45 statements (placebo false-claim rate 0-2%); the accuracy experiment is NOT RECOMMENDED (one merged shot slides the pairing on IMG_4872). Nothing integrated, `src/` untouched. Read `REPORT.md` there.

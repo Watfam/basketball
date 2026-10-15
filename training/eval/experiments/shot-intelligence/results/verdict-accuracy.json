@@ -1,0 +1,114 @@
+{
+ "generated": "2026-10-15T01:16:43.748Z",
+ "config": "tracks",
+ "rows": [
+  {
+   "fps": "30fps",
+   "id": "D1",
+   "name": "no harm on the seven other clips",
+   "status": "FAIL",
+   "detail": "pooled -11; at -2 or worse: IMG_4872 -9; per clip 4839:0 4840:0 4851:0 4866:-1 4867:0 4872:-9 4874:-1"
+  },
+  {
+   "fps": "30fps",
+   "id": "D2",
+   "name": "regression case IMG_4873",
+   "status": "pass",
+   "detail": "matched 20/22, V4 right 19 (need 17), longest merged 97 (baseline 1044)"
+  },
+  {
+   "fps": "30fps",
+   "id": "D3",
+   "name": "false-positive suppression",
+   "status": "FAIL",
+   "detail": "4873 phantom in evidence 5.5% (baseline 14.8%); injected max 13.9%; injected pooled V4 103.8 vs clean 107; extra counted shots on clean dev clips 0"
+  },
+  {
+   "fps": "30fps",
+   "id": "D4",
+   "name": "genuine-ball retention",
+   "status": "FAIL",
+   "detail": "clutter 0/7682 (0.00%); annotated clutter 0/21; zone boxes kept 95.3%; stall survival at 15 frames 97/107 (90.7%); in-hand retained 7/7"
+  },
+  {
+   "fps": "30fps",
+   "id": "D5",
+   "name": "continuity",
+   "status": "pass",
+   "detail": "107/109 (98.2%)"
+  },
+  {
+   "fps": "30fps",
+   "id": "D6",
+   "name": "overhead (desktop Mac, not a phone)",
+   "status": "FAIL",
+   "detail": "median <= 0.018 ms, worst-clip p99.9 32.15 ms (limit 2), worst frame 99.3 ms"
+  },
+  {
+   "fps": "30fps",
+   "id": "D7",
+   "name": "legacy equivalence",
+   "status": "pass",
+   "detail": "16 checks identical"
+  },
+  {
+   "fps": "15fps",
+   "id": "D1",
+   "name": "no harm on the seven other clips",
+   "status": "FAIL",
+   "detail": "pooled -4; at -2 or worse: IMG_4872 -2; per clip 4839:0 4840:0 4851:0 4866:-1 4867:0 4872:-2 4874:-1"
+  },
+  {
+   "fps": "15fps",
+   "id": "D2",
+   "name": "regression case IMG_4873",
+   "status": "pass",
+   "detail": "matched 20/22, V4 right 19 (need 17), longest merged 24 (baseline 525)"
+  },
+  {
+   "fps": "15fps",
+   "id": "D3",
+   "name": "false-positive suppression",
+   "status": "FAIL",
+   "detail": "4873 phantom in evidence 0.1% (baseline 16.5%); injected max 9.4%; injected pooled V4 102.8 vs clean 106; extra counted shots on clean dev clips 0"
+  },
+  {
+   "fps": "15fps",
+   "id": "D4",
+   "name": "genuine-ball retention",
+   "status": "FAIL",
+   "detail": "clutter 1/3777 (0.03%); annotated clutter 0/21; zone boxes kept 94.0%; stall survival at 15 frames 99/107 (92.5%); in-hand retained 7/7"
+  },
+  {
+   "fps": "15fps",
+   "id": "D5",
+   "name": "continuity",
+   "status": "pass",
+   "detail": "107/108 (99.1%)"
+  },
+  {
+   "fps": "15fps",
+   "id": "D6",
+   "name": "overhead (desktop Mac, not a phone)",
+   "status": "pass",
+   "detail": "median <= 0.013 ms, worst-clip p99.9 0.19 ms (limit 2), worst frame 1.9 ms"
+  },
+  {
+   "fps": "15fps",
+   "id": "D7",
+   "name": "legacy equivalence",
+   "status": "pass",
+   "detail": "16 checks identical"
+  }
+ ],
+ "verdict": "NOT RECOMMENDED",
+ "failed": [
+  "D1@30fps",
+  "D3@30fps",
+  "D4@30fps",
+  "D6@30fps",
+  "D1@15fps",
+  "D3@15fps",
+  "D4@15fps"
+ ]
+}

@@ -1,0 +1,614 @@
+{
+ "generated": "2026-10-15T01:11:45.502Z",
+ "availability": {
+  "30fps": {
+   "IMG_4839": {
+    "shots": 28,
+    "matched": 28,
+    "makes": 17,
+    "rim_level_x_bw": 22,
+    "approach_direction_deg": 20,
+    "descent_speed_bw_per_frame": 22,
+    "closest_approach_bw": 22,
+    "observed_flight_frames": 24,
+    "approach_observed_frames": 28,
+    "path_fit_rms_bw": 22,
+    "rim_interaction_observed": 19,
+    "usable": 20
+   },
+   "IMG_4840": {
+    "shots": 32,
+    "matched": 32,
+    "makes": 14,
+    "rim_level_x_bw": 31,
+    "approach_direction_deg": 31,
+    "descent_speed_bw_per_frame": 31,
+    "closest_approach_bw": 31,
+    "observed_flight_frames": 32,
+    "approach_observed_frames": 32,
+    "path_fit_rms_bw": 31,
+    "rim_interaction_observed": 31,
+    "usable": 30
+   },
+   "IMG_4851": {
+    "shots": 17,
+    "matched": 17,
+    "makes": 9,
+    "rim_level_x_bw": 10,
+    "approach_direction_deg": 9,
+    "descent_speed_bw_per_frame": 10,
+    "closest_approach_bw": 11,
+    "observed_flight_frames": 17,
+    "approach_observed_frames": 17,
+    "path_fit_rms_bw": 11,
+    "rim_interaction_observed": 11,
+    "usable": 10
+   },
+   "IMG_4866": {
+    "shots": 17,
+    "matched": 17,
+    "makes": 11,
+    "rim_level_x_bw": 16,
+    "approach_direction_deg": 13,
+    "descent_speed_bw_per_frame": 15,
+    "closest_approach_bw": 16,
+    "observed_flight_frames": 17,
+    "approach_observed_frames": 17,
+    "path_fit_rms_bw": 16,
+    "rim_interaction_observed": 16,
+    "usable": 11
+   },
+   "IMG_4867": {
+    "shots": 15,
+    "matched": 15,
+    "makes": 9,
+    "rim_level_x_bw": 13,
+    "approach_direction_deg": 13,
+    "descent_speed_bw_per_frame": 12,
+    "closest_approach_bw": 13,
+    "observed_flight_frames": 14,
+    "approach_observed_frames": 15,
+    "path_fit_rms_bw": 13,
+    "rim_interaction_observed": 13,
+    "usable": 6
+   },
+   "IMG_4872": {
+    "shots": 23,
+    "matched": 23,
+    "makes": 13,
+    "rim_level_x_bw": 15,
+    "approach_direction_deg": 12,
+    "descent_speed_bw_per_frame": 15,
+    "closest_approach_bw": 15,
+    "observed_flight_frames": 22,
+    "approach_observed_frames": 23,
+    "path_fit_rms_bw": 15,
+    "rim_interaction_observed": 15,
+    "usable": 15
+   },
+   "IMG_4873": {
+    "shots": 21,
+    "matched": 20,
+    "makes": 9,
+    "rim_level_x_bw": 17,
+    "approach_direction_deg": 15,
+    "descent_speed_bw_per_frame": 16,
+    "closest_approach_bw": 17,
+    "observed_flight_frames": 18,
+    "approach_observed_frames": 20,
+    "path_fit_rms_bw": 17,
+    "rim_interaction_observed": 17,
+    "usable": 14
+   },
+   "IMG_4874": {
+    "shots": 20,
+    "matched": 19,
+    "makes": 12,
+    "rim_level_x_bw": 10,
+    "approach_direction_deg": 8,
+    "descent_speed_bw_per_frame": 9,
+    "closest_approach_bw": 10,
+    "observed_flight_frames": 17,
+    "approach_observed_frames": 19,
+    "path_fit_rms_bw": 10,
+    "rim_interaction_observed": 10,
+    "usable": 9
+   }
+  },
+  "15fps": {
+   "IMG_4839": {
+    "shots": 28,
+    "matched": 28,
+    "makes": 17,
+    "rim_level_x_bw": 24,
+    "approach_direction_deg": 14,
+    "descent_speed_bw_per_frame": 12,
+    "closest_approach_bw": 25,
+    "observed_flight_frames": 28,
+    "approach_observed_frames": 28,
+    "path_fit_rms_bw": 25,
+    "rim_interaction_observed": 21,
+    "usable": 22
+   },
+   "IMG_4840": {
+    "shots": 32,
+    "matched": 32,
+    "makes": 14,
+    "rim_level_x_bw": 32,
+    "approach_direction_deg": 29,
+    "descent_speed_bw_per_frame": 29,
+    "closest_approach_bw": 32,
+    "observed_flight_frames": 32,
+    "approach_observed_frames": 32,
+    "path_fit_rms_bw": 32,
+    "rim_interaction_observed": 31,
+    "usable": 31
+   },
+   "IMG_4851": {
+    "shots": 17,
+    "matched": 17,
+    "makes": 9,
+    "rim_level_x_bw": 13,
+    "approach_direction_deg": 10,
+    "descent_speed_bw_per_frame": 10,
+    "closest_approach_bw": 14,
+    "observed_flight_frames": 17,
+    "approach_observed_frames": 17,
+    "path_fit_rms_bw": 14,
+    "rim_interaction_observed": 14,
+    "usable": 13
+   },
+   "IMG_4866": {
+    "shots": 17,
+    "matched": 17,
+    "makes": 11,
+    "rim_level_x_bw": 16,
+    "approach_direction_deg": 11,
+    "descent_speed_bw_per_frame": 10,
+    "closest_approach_bw": 16,
+    "observed_flight_frames": 17,
+    "approach_observed_frames": 17,
+    "path_fit_rms_bw": 16,
+    "rim_interaction_observed": 16,
+    "usable": 12
+   },
+   "IMG_4867": {
+    "shots": 15,
+    "matched": 15,
+    "makes": 9,
+    "rim_level_x_bw": 12,
+    "approach_direction_deg": 8,
+    "descent_speed_bw_per_frame": 7,
+    "closest_approach_bw": 12,
+    "observed_flight_frames": 14,
+    "approach_observed_frames": 15,
+    "path_fit_rms_bw": 12,
+    "rim_interaction_observed": 11,
+    "usable": 8
+   },
+   "IMG_4872": {
+    "shots": 22,
+    "matched": 22,
+    "makes": 12,
+    "rim_level_x_bw": 19,
+    "approach_direction_deg": 12,
+    "descent_speed_bw_per_frame": 16,
+    "closest_approach_bw": 20,
+    "observed_flight_frames": 22,
+    "approach_observed_frames": 22,
+    "path_fit_rms_bw": 20,
+    "rim_interaction_observed": 20,
+    "usable": 18
+   },
+   "IMG_4873": {
+    "shots": 21,
+    "matched": 20,
+    "makes": 9,
+    "rim_level_x_bw": 18,
+    "approach_direction_deg": 12,
+    "descent_speed_bw_per_frame": 14,
+    "closest_approach_bw": 18,
+    "observed_flight_frames": 18,
+    "approach_observed_frames": 20,
+    "path_fit_rms_bw": 18,
+    "rim_interaction_observed": 17,
+    "usable": 16
+   },
+   "IMG_4874": {
+    "shots": 18,
+    "matched": 17,
+    "makes": 12,
+    "rim_level_x_bw": 15,
+    "approach_direction_deg": 8,
+    "descent_speed_bw_per_frame": 10,
+    "closest_approach_bw": 15,
+    "observed_flight_frames": 16,
+    "approach_observed_frames": 17,
+    "path_fit_rms_bw": 15,
+    "rim_interaction_observed": 13,
+    "usable": 14
+   }
+  }
+ },
+ "repeatability": {
+  "shots_paired": 164,
+  "measures": {
+   "rim_level_x_bw": {
+    "n": 128,
+    "spearman": 0.987,
+    "median_abs_diff": 0.021,
+    "between_shot_spread": 0.6086,
+    "ratio": 0.035,
+    "STABLE": true,
+    "per_clip_n": {
+     "IMG_4839": 21,
+     "IMG_4840": 30,
+     "IMG_4851": 10,
+     "IMG_4866": 16,
+     "IMG_4867": 10,
+     "IMG_4872": 14,
+     "IMG_4873": 17,
+     "IMG_4874": 10
+    }
+   },
+   "approach_direction_deg": {
+    "n": 92,
+    "spearman": 0.961,
+    "median_abs_diff": 2.25,
+    "between_shot_spread": 60.3228,
+    "ratio": 0.037,
+    "STABLE": true,
+    "per_clip_n": {
+     "IMG_4839": 13,
+     "IMG_4840": 28,
+     "IMG_4851": 7,
+     "IMG_4866": 11,
+     "IMG_4867": 8,
+     "IMG_4872": 8,
+     "IMG_4873": 11,
+     "IMG_4874": 6
+    }
+   },
+   "descent_speed_bw_per_frame": {
+    "n": 96,
+    "spearman": 0.927,
+    "median_abs_diff": 0.0216,
+    "between_shot_spread": 0.1282,
+    "ratio": 0.168,
+    "STABLE": true,
+    "per_clip_n": {
+     "IMG_4839": 12,
+     "IMG_4840": 28,
+     "IMG_4851": 8,
+     "IMG_4866": 10,
+     "IMG_4867": 7,
+     "IMG_4872": 11,
+     "IMG_4873": 14,
+     "IMG_4874": 6
+    }
+   },
+   "closest_approach_bw": {
+    "n": 129,
+    "spearman": 0.906,
+    "median_abs_diff": 0.018,
+    "between_shot_spread": 0.51,
+    "ratio": 0.035,
+    "STABLE": true,
+    "per_clip_n": {
+     "IMG_4839": 21,
+     "IMG_4840": 30,
+     "IMG_4851": 11,
+     "IMG_4866": 16,
+     "IMG_4867": 10,
+     "IMG_4872": 14,
+     "IMG_4873": 17,
+     "IMG_4874": 10
+    }
+   },
+   "observed_flight_frames": {
+    "n": 156,
+    "spearman": 0.875,
+    "median_abs_diff": 1,
+    "between_shot_spread": 13.1362,
+    "ratio": 0.076,
+    "STABLE": true,
+    "per_clip_n": {
+     "IMG_4839": 23,
+     "IMG_4840": 31,
+     "IMG_4851": 17,
+     "IMG_4866": 17,
+     "IMG_4867": 13,
+     "IMG_4872": 21,
+     "IMG_4873": 18,
+     "IMG_4874": 16
+    }
+   },
+   "approach_observed_frames": {
+    "n": 164,
+    "spearman": 0.885,
+    "median_abs_diff": 2,
+    "between_shot_spread": 4.9196,
+    "ratio": 0.407,
+    "STABLE": false,
+    "per_clip_n": {
+     "IMG_4839": 25,
+     "IMG_4840": 31,
+     "IMG_4851": 17,
+     "IMG_4866": 17,
+     "IMG_4867": 14,
+     "IMG_4872": 21,
+     "IMG_4873": 21,
+     "IMG_4874": 18
+    }
+   },
+   "path_fit_rms_bw": {
+    "n": 129,
+    "spearman": 0.88,
+    "median_abs_diff": 0.0317,
+    "between_shot_spread": 0.1675,
+    "ratio": 0.189,
+    "STABLE": true,
+    "per_clip_n": {
+     "IMG_4839": 21,
+     "IMG_4840": 30,
+     "IMG_4851": 11,
+     "IMG_4866": 16,
+     "IMG_4867": 10,
+     "IMG_4872": 14,
+     "IMG_4873": 17,
+     "IMG_4874": 10
+    }
+   }
+  }
+ },
+ "clustering": {
+  "IMG_4839": {
+   "30fps": {
+    "shots_clustered": 21,
+    "clusters": [
+     5,
+     6
+    ],
+    "unclustered": 10
+   },
+   "15fps": {
+    "shots_clustered": 21,
+    "clusters": [
+     8,
+     3
+    ],
+    "unclustered": 10
+   },
+   "shared_shots": 18,
+   "ARI": 0.274,
+   "repeatable": false
+  },
+  "IMG_4840": {
+   "30fps": {
+    "shots_clustered": 31,
+    "clusters": [
+     13,
+     3
+    ],
+    "unclustered": 15
+   },
+   "15fps": {
+    "shots_clustered": 30,
+    "clusters": [
+     9,
+     3
+    ],
+    "unclustered": 18
+   },
+   "shared_shots": 28,
+   "ARI": 0.523,
+   "repeatable": false
+  },
+  "IMG_4851": {
+   "30fps": {
+    "shots_clustered": 10,
+    "clusters": [
+     5
+    ],
+    "unclustered": 5
+   },
+   "15fps": {
+    "shots_clustered": 12,
+    "clusters": [
+     3,
+     3
+    ],
+    "unclustered": 6
+   },
+   "shared_shots": 9,
+   "ARI": 0.369,
+   "repeatable": false
+  },
+  "IMG_4866": {
+   "30fps": {
+    "shots_clustered": 14,
+    "clusters": [
+     3,
+     3,
+     3
+    ],
+    "unclustered": 5
+   },
+   "15fps": {
+    "shots_clustered": 14,
+    "clusters": [
+     3,
+     3
+    ],
+    "unclustered": 8
+   },
+   "shared_shots": 14,
+   "ARI": 0.098,
+   "repeatable": false
+  },
+  "IMG_4867": {
+   "30fps": {
+    "shots_clustered": 13,
+    "clusters": [
+     5
+    ],
+    "unclustered": 8
+   },
+   "15fps": {
+    "shots_clustered": 12,
+    "clusters": [
+     6
+    ],
+    "unclustered": 6
+   },
+   "shared_shots": 10,
+   "ARI": 1,
+   "repeatable": true
+  },
+  "IMG_4872": {
+   "30fps": {
+    "shots_clustered": 15,
+    "clusters": [
+     5
+    ],
+    "unclustered": 10
+   },
+   "15fps": {
+    "shots_clustered": 19,
+    "clusters": [
+     7
+    ],
+    "unclustered": 12
+   },
+   "shared_shots": 14,
+   "ARI": 1,
+   "repeatable": true
+  },
+  "IMG_4873": {
+   "30fps": {
+    "shots_clustered": 13,
+    "clusters": [
+     3
+    ],
+    "unclustered": 10
+   },
+   "15fps": {
+    "shots_clustered": 13,
+    "clusters": [
+     3
+    ],
+    "unclustered": 10
+   },
+   "shared_shots": 12,
+   "ARI": 1,
+   "repeatable": true
+  },
+  "IMG_4874": {
+   "30fps": {
+    "shots_clustered": 8,
+    "clusters": [],
+    "unclustered": 8
+   },
+   "15fps": {
+    "shots_clustered": 9,
+    "clusters": [
+     3
+    ],
+    "unclustered": 6
+   },
+   "shared_shots": 6,
+   "ARI": 0,
+   "repeatable": false
+  }
+ },
+ "makes_vs_misses_descriptive": {
+  "IMG_4839": {
+   "makes_n": 12,
+   "misses_n": 8,
+   "median_abs_offset_makes": 0.265,
+   "median_abs_offset_misses": 2.439,
+   "diff_median_abs": 2.174,
+   "ci95": {
+    "lo": 0.07499999999999996,
+    "hi": 3.982,
+    "n": 2000
+   }
+  },
+  "IMG_4840": {
+   "makes_n": 12,
+   "misses_n": 18,
+   "median_abs_offset_makes": 0.133,
+   "median_abs_offset_misses": 2.881,
+   "diff_median_abs": 2.749,
+   "ci95": {
+    "lo": 1.3367499999999999,
+    "hi": 3.8575125000000003,
+    "n": 2000
+   }
+  },
+  "IMG_4851": {
+   "makes_n": 3,
+   "misses_n": 7,
+   "median_abs_offset_makes": 0.147,
+   "median_abs_offset_misses": 1.43,
+   "diff_median_abs": 1.283,
+   "ci95": {
+    "lo": 0.8499999999999999,
+    "hi": 4.5760000000000005,
+    "n": 2000
+   }
+  },
+  "IMG_4866": {
+   "makes_n": 9,
+   "misses_n": 2,
+   "median_abs_offset_makes": 0.208,
+   "median_abs_offset_misses": 1.714,
+   "diff_median_abs": 1.506,
+   "ci95": null
+  },
+  "IMG_4867": {
+   "makes_n": 4,
+   "misses_n": 2,
+   "median_abs_offset_makes": 0.192,
+   "median_abs_offset_misses": 4.968,
+   "diff_median_abs": 4.776,
+   "ci95": null
+  },
+  "IMG_4872": {
+   "makes_n": 9,
+   "misses_n": 6,
+   "median_abs_offset_makes": 0.271,
+   "median_abs_offset_misses": 1.933,
+   "diff_median_abs": 1.662,
+   "ci95": {
+    "lo": -2.309,
+    "hi": 2.952,
+    "n": 2000
+   }
+  },
+  "IMG_4873": {
+   "makes_n": 7,
+   "misses_n": 7,
+   "median_abs_offset_makes": 0.132,
+   "median_abs_offset_misses": 1.585,
+   "diff_median_abs": 1.453,
+   "ci95": {
+    "lo": 1.0739999999999998,
+    "hi": 2.417,
+    "n": 2000
+   }
+  },
+  "IMG_4874": {
+   "makes_n": 3,
+   "misses_n": 6,
+   "median_abs_offset_makes": 0.179,
+   "median_abs_offset_misses": 1.661,
+   "diff_median_abs": 1.482,
+   "ci95": {
+    "lo": 0.4170000000000001,
+    "hi": 4.6979999999999995,
+    "n": 2000
+   }
+  }
+ }
+}

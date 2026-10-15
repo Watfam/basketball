@@ -1,0 +1,1746 @@
+{
+ "generated": "2026-10-15T01:13:18.567Z",
+ "sets": {
+  "IMG_4839": {
+   "matched": 28,
+   "makes": 17,
+   "usable_with_measure": 20,
+   "statements": [
+    {
+     "id": "S5",
+     "set": "IMG_4839",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2754",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3860",
+      "IMG_4839:3964",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899"
+     ],
+     "reason": "unstable_measure",
+     "detail": "the rim-level path clustering does not agree between 30 and 15 fps",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S1",
+     "set": "IMG_4839",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3964",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:2754",
+      "IMG_4839:3860",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899"
+     ],
+     "n_by_group": {
+      "make": 12,
+      "miss": 8
+     },
+     "measurement_quality": {
+      "matched_shots": 28,
+      "with_measurement": 20,
+      "availability": 0.71,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 2.174,
+      "ci95": {
+       "lo": 0.064,
+       "hi": 3.961
+      },
+      "permutation_p": 0.0012,
+      "holm_adjusted_p": 0.0048,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "supported",
+     "claim_observation": "In IMG_4839, at rim level the ball was observed 2.17 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median absolute offset; 12 makes, 8 misses).",
+     "measurement": "rim_level_x_bw",
+     "comparison_baseline": "the same clip's makes against its misses",
+     "observation_vs_interpretation": {
+      "observation": "In IMG_4839, at rim level the ball was observed 2.17 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median absolute offset; 12 makes, 8 misses).",
+      "interpretation": "This describes where the ball was observed in the image; it does not identify a cause."
+     }
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4839",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3964",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:2754",
+      "IMG_4839:3860",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899"
+     ],
+     "n_by_group": {
+      "make": 12,
+      "miss": 8
+     },
+     "measurement_quality": {
+      "matched_shots": 28,
+      "with_measurement": 20,
+      "availability": 0.71,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 0.315,
+      "ci95": null,
+      "permutation_p": 0.4155,
+      "holm_adjusted_p": 0.831,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "claim_observation": null
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4839",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3964",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:2754",
+      "IMG_4839:3860",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899"
+     ],
+     "n_by_group": {
+      "make": 12,
+      "miss": 8
+     },
+     "measurement_quality": {
+      "matched_shots": 28,
+      "with_measurement": 20,
+      "availability": 0.71,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 8.867,
+      "ci95": {
+       "lo": 1.028,
+       "hi": 72.757
+      },
+      "permutation_p": 0.0182,
+      "holm_adjusted_p": 0.0546,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "not_significant_after_correction",
+     "claim_observation": null
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4839",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2754",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3860",
+      "IMG_4839:3964",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899"
+     ],
+     "n_by_group": {
+      "earlier": 12,
+      "last_8": 8
+     },
+     "measurement_quality": {
+      "matched_shots": 28,
+      "with_measurement": 20,
+      "availability": 0.71,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 0.879,
+      "ci95": null,
+      "permutation_p": 0.8412,
+      "holm_adjusted_p": 0.8412,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "claim_observation": null
+    }
+   ]
+  },
+  "IMG_4840": {
+   "matched": 32,
+   "makes": 14,
+   "usable_with_measure": 30,
+   "statements": [
+    {
+     "id": "S5",
+     "set": "IMG_4840",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:775",
+      "IMG_4840:919",
+      "IMG_4840:1192",
+      "IMG_4840:1367",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2275",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2787",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4033",
+      "IMG_4840:4274",
+      "IMG_4840:4479",
+      "IMG_4840:4623",
+      "IMG_4840:4822",
+      "IMG_4840:4905"
+     ],
+     "reason": "unstable_measure",
+     "detail": "the rim-level path clustering does not agree between 30 and 15 fps",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S1",
+     "set": "IMG_4840",
+     "supporting_shot_ids": [
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:919",
+      "IMG_4840:1367",
+      "IMG_4840:2275",
+      "IMG_4840:2787",
+      "IMG_4840:4033",
+      "IMG_4840:4479",
+      "IMG_4840:4905",
+      "IMG_4840:775",
+      "IMG_4840:1192",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4274",
+      "IMG_4840:4623",
+      "IMG_4840:4822"
+     ],
+     "n_by_group": {
+      "make": 12,
+      "miss": 18
+     },
+     "measurement_quality": {
+      "matched_shots": 32,
+      "with_measurement": 30,
+      "availability": 0.94,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 2.749,
+      "ci95": {
+       "lo": 1.326,
+       "hi": 3.858
+      },
+      "permutation_p": 0.0082,
+      "holm_adjusted_p": 0.0246,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "supported",
+     "claim_observation": "In IMG_4840, at rim level the ball was observed 2.75 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median absolute offset; 12 makes, 18 misses).",
+     "measurement": "rim_level_x_bw",
+     "comparison_baseline": "the same clip's makes against its misses",
+     "observation_vs_interpretation": {
+      "observation": "In IMG_4840, at rim level the ball was observed 2.75 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median absolute offset; 12 makes, 18 misses).",
+      "interpretation": "This describes where the ball was observed in the image; it does not identify a cause."
+     }
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4840",
+     "supporting_shot_ids": [
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:919",
+      "IMG_4840:1367",
+      "IMG_4840:2275",
+      "IMG_4840:2787",
+      "IMG_4840:4033",
+      "IMG_4840:4479",
+      "IMG_4840:4905",
+      "IMG_4840:775",
+      "IMG_4840:1192",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4274",
+      "IMG_4840:4623",
+      "IMG_4840:4822"
+     ],
+     "n_by_group": {
+      "make": 12,
+      "miss": 18
+     },
+     "measurement_quality": {
+      "matched_shots": 32,
+      "with_measurement": 30,
+      "availability": 0.94,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": -1.671,
+      "ci95": {
+       "lo": -3.802,
+       "hi": 0.445
+      },
+      "permutation_p": 0.025,
+      "holm_adjusted_p": 0.05,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "claim_observation": null
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4840",
+     "supporting_shot_ids": [
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:919",
+      "IMG_4840:1367",
+      "IMG_4840:2275",
+      "IMG_4840:2787",
+      "IMG_4840:4033",
+      "IMG_4840:4479",
+      "IMG_4840:4905",
+      "IMG_4840:775",
+      "IMG_4840:1192",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4274",
+      "IMG_4840:4623",
+      "IMG_4840:4822"
+     ],
+     "n_by_group": {
+      "make": 12,
+      "miss": 18
+     },
+     "measurement_quality": {
+      "matched_shots": 32,
+      "with_measurement": 30,
+      "availability": 0.94,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 19.753,
+      "ci95": {
+       "lo": 4.932,
+       "hi": 138.559
+      },
+      "permutation_p": 0.0006,
+      "holm_adjusted_p": 0.0024,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "supported",
+     "claim_observation": "In IMG_4840, the observed rim-level position varied 19.75 times as much on misses as on makes (spread = MAD; 12 makes, 18 misses).",
+     "measurement": "rim_level_x_bw",
+     "comparison_baseline": "the same clip's makes against its misses",
+     "observation_vs_interpretation": {
+      "observation": "In IMG_4840, the observed rim-level position varied 19.75 times as much on misses as on makes (spread = MAD; 12 makes, 18 misses).",
+      "interpretation": "This describes where the ball was observed in the image; it does not identify a cause."
+     }
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4840",
+     "supporting_shot_ids": [
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:775",
+      "IMG_4840:919",
+      "IMG_4840:1192",
+      "IMG_4840:1367",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2275",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2787",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4033",
+      "IMG_4840:4274",
+      "IMG_4840:4479",
+      "IMG_4840:4623",
+      "IMG_4840:4822",
+      "IMG_4840:4905"
+     ],
+     "n_by_group": {
+      "earlier": 22,
+      "last_8": 8
+     },
+     "measurement_quality": {
+      "matched_shots": 32,
+      "with_measurement": 30,
+      "availability": 0.94,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 1.018,
+      "ci95": null,
+      "permutation_p": 0.9846,
+      "holm_adjusted_p": 0.9846,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "claim_observation": null
+    }
+   ]
+  },
+  "IMG_4851": {
+   "matched": 17,
+   "makes": 9,
+   "usable_with_measure": 10,
+   "statements": [
+    {
+     "id": "S1",
+     "set": "IMG_4851",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4851:461",
+      "IMG_4851:741",
+      "IMG_4851:1123",
+      "IMG_4851:1273",
+      "IMG_4851:1490",
+      "IMG_4851:1948",
+      "IMG_4851:3124",
+      "IMG_4851:3230",
+      "IMG_4851:3320",
+      "IMG_4851:3744"
+     ],
+     "reason": "ambiguous_camera_view",
+     "detail": "side-on camera: image-horizontal offset is mostly depth, not lateral error",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4851",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4851:461",
+      "IMG_4851:741",
+      "IMG_4851:1123",
+      "IMG_4851:1273",
+      "IMG_4851:1490",
+      "IMG_4851:1948",
+      "IMG_4851:3124",
+      "IMG_4851:3230",
+      "IMG_4851:3320",
+      "IMG_4851:3744"
+     ],
+     "reason": "ambiguous_camera_view",
+     "detail": "side-on camera: image-horizontal offset is mostly depth, not lateral error",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4851",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4851:461",
+      "IMG_4851:741",
+      "IMG_4851:1123",
+      "IMG_4851:1273",
+      "IMG_4851:1490",
+      "IMG_4851:1948",
+      "IMG_4851:3124",
+      "IMG_4851:3230",
+      "IMG_4851:3320",
+      "IMG_4851:3744"
+     ],
+     "reason": "ambiguous_camera_view",
+     "detail": "side-on camera: image-horizontal offset is mostly depth, not lateral error",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4851",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4851:461",
+      "IMG_4851:741",
+      "IMG_4851:1123",
+      "IMG_4851:1273",
+      "IMG_4851:1490",
+      "IMG_4851:1948",
+      "IMG_4851:3124",
+      "IMG_4851:3230",
+      "IMG_4851:3320",
+      "IMG_4851:3744"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 59% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S5",
+     "set": "IMG_4851",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4851:461",
+      "IMG_4851:741",
+      "IMG_4851:1123",
+      "IMG_4851:1273",
+      "IMG_4851:1490",
+      "IMG_4851:1948",
+      "IMG_4851:3124",
+      "IMG_4851:3230",
+      "IMG_4851:3320",
+      "IMG_4851:3744"
+     ],
+     "reason": "unstable_measure",
+     "detail": "the rim-level path clustering does not agree between 30 and 15 fps",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    }
+   ]
+  },
+  "IMG_4866": {
+   "matched": 17,
+   "makes": 11,
+   "usable_with_measure": 11,
+   "statements": [
+    {
+     "id": "S1",
+     "set": "IMG_4866",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4866:174",
+      "IMG_4866:466",
+      "IMG_4866:754",
+      "IMG_4866:1008",
+      "IMG_4866:1190",
+      "IMG_4866:1704",
+      "IMG_4866:2177",
+      "IMG_4866:2392",
+      "IMG_4866:2639",
+      "IMG_4866:3002",
+      "IMG_4866:3542"
+     ],
+     "reason": "insufficient_n",
+     "detail": "9 makes and 2 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4866",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4866:174",
+      "IMG_4866:466",
+      "IMG_4866:754",
+      "IMG_4866:1008",
+      "IMG_4866:1190",
+      "IMG_4866:1704",
+      "IMG_4866:2177",
+      "IMG_4866:2392",
+      "IMG_4866:2639",
+      "IMG_4866:3002",
+      "IMG_4866:3542"
+     ],
+     "reason": "insufficient_n",
+     "detail": "9 makes and 2 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4866",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4866:174",
+      "IMG_4866:466",
+      "IMG_4866:754",
+      "IMG_4866:1008",
+      "IMG_4866:1190",
+      "IMG_4866:1704",
+      "IMG_4866:2177",
+      "IMG_4866:2392",
+      "IMG_4866:2639",
+      "IMG_4866:3002",
+      "IMG_4866:3542"
+     ],
+     "reason": "insufficient_n",
+     "detail": "9 makes and 2 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4866",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4866:174",
+      "IMG_4866:466",
+      "IMG_4866:754",
+      "IMG_4866:1008",
+      "IMG_4866:1190",
+      "IMG_4866:1704",
+      "IMG_4866:2177",
+      "IMG_4866:2392",
+      "IMG_4866:2639",
+      "IMG_4866:3002",
+      "IMG_4866:3542"
+     ],
+     "reason": "insufficient_n",
+     "detail": "11 shots with the measurement; need 8 recent plus 8 earlier",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S5",
+     "set": "IMG_4866",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4866:174",
+      "IMG_4866:466",
+      "IMG_4866:754",
+      "IMG_4866:1008",
+      "IMG_4866:1190",
+      "IMG_4866:1704",
+      "IMG_4866:2177",
+      "IMG_4866:2392",
+      "IMG_4866:2639",
+      "IMG_4866:3002",
+      "IMG_4866:3542"
+     ],
+     "reason": "unstable_measure",
+     "detail": "the rim-level path clustering does not agree between 30 and 15 fps",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    }
+   ]
+  },
+  "IMG_4867": {
+   "matched": 15,
+   "makes": 9,
+   "usable_with_measure": 6,
+   "statements": [
+    {
+     "id": "S1",
+     "set": "IMG_4867",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4867:384",
+      "IMG_4867:1133",
+      "IMG_4867:1693",
+      "IMG_4867:2579",
+      "IMG_4867:2879",
+      "IMG_4867:3504"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 40% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4867",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4867:384",
+      "IMG_4867:1133",
+      "IMG_4867:1693",
+      "IMG_4867:2579",
+      "IMG_4867:2879",
+      "IMG_4867:3504"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 40% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4867",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4867:384",
+      "IMG_4867:1133",
+      "IMG_4867:1693",
+      "IMG_4867:2579",
+      "IMG_4867:2879",
+      "IMG_4867:3504"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 40% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4867",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4867:384",
+      "IMG_4867:1133",
+      "IMG_4867:1693",
+      "IMG_4867:2579",
+      "IMG_4867:2879",
+      "IMG_4867:3504"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 40% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S5",
+     "set": "IMG_4867",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4867:384",
+      "IMG_4867:1133",
+      "IMG_4867:1693",
+      "IMG_4867:2579",
+      "IMG_4867:2879",
+      "IMG_4867:3504"
+     ],
+     "reason": "insufficient_n",
+     "detail": "1 repeatable path clusters with at least 3 shots; need 2",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    }
+   ]
+  },
+  "IMG_4872": {
+   "matched": 23,
+   "makes": 13,
+   "usable_with_measure": 15,
+   "statements": [
+    {
+     "id": "S1",
+     "set": "IMG_4872",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4872:206",
+      "IMG_4872:371",
+      "IMG_4872:866",
+      "IMG_4872:1294",
+      "IMG_4872:1622",
+      "IMG_4872:1770",
+      "IMG_4872:2043",
+      "IMG_4872:2453",
+      "IMG_4872:2591",
+      "IMG_4872:2729",
+      "IMG_4872:3118",
+      "IMG_4872:3301",
+      "IMG_4872:3826",
+      "IMG_4872:3947",
+      "IMG_4872:4163"
+     ],
+     "reason": "insufficient_n",
+     "detail": "9 makes and 6 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4872",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4872:206",
+      "IMG_4872:371",
+      "IMG_4872:866",
+      "IMG_4872:1294",
+      "IMG_4872:1622",
+      "IMG_4872:1770",
+      "IMG_4872:2043",
+      "IMG_4872:2453",
+      "IMG_4872:2591",
+      "IMG_4872:2729",
+      "IMG_4872:3118",
+      "IMG_4872:3301",
+      "IMG_4872:3826",
+      "IMG_4872:3947",
+      "IMG_4872:4163"
+     ],
+     "reason": "insufficient_n",
+     "detail": "9 makes and 6 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4872",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4872:206",
+      "IMG_4872:371",
+      "IMG_4872:866",
+      "IMG_4872:1294",
+      "IMG_4872:1622",
+      "IMG_4872:1770",
+      "IMG_4872:2043",
+      "IMG_4872:2453",
+      "IMG_4872:2591",
+      "IMG_4872:2729",
+      "IMG_4872:3118",
+      "IMG_4872:3301",
+      "IMG_4872:3826",
+      "IMG_4872:3947",
+      "IMG_4872:4163"
+     ],
+     "reason": "insufficient_n",
+     "detail": "9 makes and 6 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4872",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4872:206",
+      "IMG_4872:371",
+      "IMG_4872:866",
+      "IMG_4872:1294",
+      "IMG_4872:1622",
+      "IMG_4872:1770",
+      "IMG_4872:2043",
+      "IMG_4872:2453",
+      "IMG_4872:2591",
+      "IMG_4872:2729",
+      "IMG_4872:3118",
+      "IMG_4872:3301",
+      "IMG_4872:3826",
+      "IMG_4872:3947",
+      "IMG_4872:4163"
+     ],
+     "reason": "insufficient_n",
+     "detail": "15 shots with the measurement; need 8 recent plus 8 earlier",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S5",
+     "set": "IMG_4872",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4872:206",
+      "IMG_4872:371",
+      "IMG_4872:866",
+      "IMG_4872:1294",
+      "IMG_4872:1622",
+      "IMG_4872:1770",
+      "IMG_4872:2043",
+      "IMG_4872:2453",
+      "IMG_4872:2591",
+      "IMG_4872:2729",
+      "IMG_4872:3118",
+      "IMG_4872:3301",
+      "IMG_4872:3826",
+      "IMG_4872:3947",
+      "IMG_4872:4163"
+     ],
+     "reason": "insufficient_n",
+     "detail": "1 repeatable path clusters with at least 3 shots; need 2",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    }
+   ]
+  },
+  "IMG_4873": {
+   "matched": 20,
+   "makes": 9,
+   "usable_with_measure": 14,
+   "statements": [
+    {
+     "id": "S1",
+     "set": "IMG_4873",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4873:165",
+      "IMG_4873:372",
+      "IMG_4873:763",
+      "IMG_4873:988",
+      "IMG_4873:1307",
+      "IMG_4873:1398",
+      "IMG_4873:1677",
+      "IMG_4873:2330",
+      "IMG_4873:2602",
+      "IMG_4873:2817",
+      "IMG_4873:2953",
+      "IMG_4873:3143",
+      "IMG_4873:3284",
+      "IMG_4873:3412"
+     ],
+     "reason": "insufficient_n",
+     "detail": "7 makes and 7 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4873",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4873:165",
+      "IMG_4873:372",
+      "IMG_4873:763",
+      "IMG_4873:988",
+      "IMG_4873:1307",
+      "IMG_4873:1398",
+      "IMG_4873:1677",
+      "IMG_4873:2330",
+      "IMG_4873:2602",
+      "IMG_4873:2817",
+      "IMG_4873:2953",
+      "IMG_4873:3143",
+      "IMG_4873:3284",
+      "IMG_4873:3412"
+     ],
+     "reason": "insufficient_n",
+     "detail": "7 makes and 7 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4873",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4873:165",
+      "IMG_4873:372",
+      "IMG_4873:763",
+      "IMG_4873:988",
+      "IMG_4873:1307",
+      "IMG_4873:1398",
+      "IMG_4873:1677",
+      "IMG_4873:2330",
+      "IMG_4873:2602",
+      "IMG_4873:2817",
+      "IMG_4873:2953",
+      "IMG_4873:3143",
+      "IMG_4873:3284",
+      "IMG_4873:3412"
+     ],
+     "reason": "insufficient_n",
+     "detail": "7 makes and 7 misses with the measurement; need 8 of each",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4873",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4873:165",
+      "IMG_4873:372",
+      "IMG_4873:763",
+      "IMG_4873:988",
+      "IMG_4873:1307",
+      "IMG_4873:1398",
+      "IMG_4873:1677",
+      "IMG_4873:2330",
+      "IMG_4873:2602",
+      "IMG_4873:2817",
+      "IMG_4873:2953",
+      "IMG_4873:3143",
+      "IMG_4873:3284",
+      "IMG_4873:3412"
+     ],
+     "reason": "insufficient_n",
+     "detail": "14 shots with the measurement; need 8 recent plus 8 earlier",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S5",
+     "set": "IMG_4873",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4873:165",
+      "IMG_4873:372",
+      "IMG_4873:763",
+      "IMG_4873:988",
+      "IMG_4873:1307",
+      "IMG_4873:1398",
+      "IMG_4873:1677",
+      "IMG_4873:2330",
+      "IMG_4873:2602",
+      "IMG_4873:2817",
+      "IMG_4873:2953",
+      "IMG_4873:3143",
+      "IMG_4873:3284",
+      "IMG_4873:3412"
+     ],
+     "reason": "insufficient_n",
+     "detail": "1 repeatable path clusters with at least 3 shots; need 2",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    }
+   ]
+  },
+  "IMG_4874": {
+   "matched": 19,
+   "makes": 12,
+   "usable_with_measure": 9,
+   "statements": [
+    {
+     "id": "S1",
+     "set": "IMG_4874",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4874:163",
+      "IMG_4874:1082",
+      "IMG_4874:1938",
+      "IMG_4874:2170",
+      "IMG_4874:2512",
+      "IMG_4874:3276",
+      "IMG_4874:3690",
+      "IMG_4874:4350",
+      "IMG_4874:4485"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 47% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S2",
+     "set": "IMG_4874",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4874:163",
+      "IMG_4874:1082",
+      "IMG_4874:1938",
+      "IMG_4874:2170",
+      "IMG_4874:2512",
+      "IMG_4874:3276",
+      "IMG_4874:3690",
+      "IMG_4874:4350",
+      "IMG_4874:4485"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 47% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S3",
+     "set": "IMG_4874",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4874:163",
+      "IMG_4874:1082",
+      "IMG_4874:1938",
+      "IMG_4874:2170",
+      "IMG_4874:2512",
+      "IMG_4874:3276",
+      "IMG_4874:3690",
+      "IMG_4874:4350",
+      "IMG_4874:4485"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 47% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S4",
+     "set": "IMG_4874",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4874:163",
+      "IMG_4874:1082",
+      "IMG_4874:1938",
+      "IMG_4874:2170",
+      "IMG_4874:2512",
+      "IMG_4874:3276",
+      "IMG_4874:3690",
+      "IMG_4874:4350",
+      "IMG_4874:4485"
+     ],
+     "reason": "low_availability",
+     "detail": "measurement available on 47% of matched shots, need 60%",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S5",
+     "set": "IMG_4874",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4874:163",
+      "IMG_4874:1082",
+      "IMG_4874:1938",
+      "IMG_4874:2170",
+      "IMG_4874:2512",
+      "IMG_4874:3276",
+      "IMG_4874:3690",
+      "IMG_4874:4350",
+      "IMG_4874:4485"
+     ],
+     "reason": "unstable_measure",
+     "detail": "the rim-level path clustering does not agree between 30 and 15 fps",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    }
+   ]
+  },
+  "S4 session (IMG_4839 + IMG_4840)": {
+   "matched": 60,
+   "makes": 31,
+   "usable_with_measure": 50,
+   "statements": [
+    {
+     "id": "S5",
+     "set": "S4 session (IMG_4839 + IMG_4840)",
+     "status": "abstained",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2754",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3860",
+      "IMG_4839:3964",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899",
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:775",
+      "IMG_4840:919",
+      "IMG_4840:1192",
+      "IMG_4840:1367",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2275",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2787",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4033",
+      "IMG_4840:4274",
+      "IMG_4840:4479",
+      "IMG_4840:4623",
+      "IMG_4840:4822",
+      "IMG_4840:4905"
+     ],
+     "reason": "unstable_measure",
+     "detail": "the rim-level path clustering does not agree between 30 and 15 fps",
+     "claim_observation": null,
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause."
+    },
+    {
+     "id": "S1",
+     "set": "S4 session (IMG_4839 + IMG_4840)",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3964",
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:919",
+      "IMG_4840:1367",
+      "IMG_4840:2275",
+      "IMG_4840:2787",
+      "IMG_4840:4033",
+      "IMG_4840:4479",
+      "IMG_4840:4905",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:2754",
+      "IMG_4839:3860",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899",
+      "IMG_4840:775",
+      "IMG_4840:1192",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4274",
+      "IMG_4840:4623",
+      "IMG_4840:4822"
+     ],
+     "n_by_group": {
+      "make": 24,
+      "miss": 26
+     },
+     "measurement_quality": {
+      "matched_shots": 60,
+      "with_measurement": 50,
+      "availability": 0.83,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 2.255,
+      "ci95": {
+       "lo": 1.214,
+       "hi": 3.653
+      },
+      "permutation_p": 0.0002,
+      "holm_adjusted_p": 0.0008,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "supported",
+     "claim_observation": "In S4 session (IMG_4839 + IMG_4840), at rim level the ball was observed 2.26 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median absolute offset; 24 makes, 26 misses).",
+     "measurement": "rim_level_x_bw",
+     "comparison_baseline": "the same clip's makes against its misses",
+     "observation_vs_interpretation": {
+      "observation": "In S4 session (IMG_4839 + IMG_4840), at rim level the ball was observed 2.26 ball widths farther from the rim centre (image-horizontal) on misses than on makes (median absolute offset; 24 makes, 26 misses).",
+      "interpretation": "This describes where the ball was observed in the image; it does not identify a cause."
+     }
+    },
+    {
+     "id": "S2",
+     "set": "S4 session (IMG_4839 + IMG_4840)",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3964",
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:919",
+      "IMG_4840:1367",
+      "IMG_4840:2275",
+      "IMG_4840:2787",
+      "IMG_4840:4033",
+      "IMG_4840:4479",
+      "IMG_4840:4905",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:2754",
+      "IMG_4839:3860",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899",
+      "IMG_4840:775",
+      "IMG_4840:1192",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4274",
+      "IMG_4840:4623",
+      "IMG_4840:4822"
+     ],
+     "n_by_group": {
+      "make": 24,
+      "miss": 26
+     },
+     "measurement_quality": {
+      "matched_shots": 60,
+      "with_measurement": 50,
+      "availability": 0.83,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": -1.211,
+      "ci95": {
+       "lo": -2.421,
+       "hi": 0.607
+      },
+      "permutation_p": 0.0002,
+      "holm_adjusted_p": 0.0008,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "claim_observation": null
+    },
+    {
+     "id": "S3",
+     "set": "S4 session (IMG_4839 + IMG_4840)",
+     "supporting_shot_ids": [
+      "IMG_4839:155",
+      "IMG_4839:329",
+      "IMG_4839:427",
+      "IMG_4839:1133",
+      "IMG_4839:1412",
+      "IMG_4839:1538",
+      "IMG_4839:2065",
+      "IMG_4839:2899",
+      "IMG_4839:3361",
+      "IMG_4839:3506",
+      "IMG_4839:3687",
+      "IMG_4839:3964",
+      "IMG_4840:90",
+      "IMG_4840:280",
+      "IMG_4840:394",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:919",
+      "IMG_4840:1367",
+      "IMG_4840:2275",
+      "IMG_4840:2787",
+      "IMG_4840:4033",
+      "IMG_4840:4479",
+      "IMG_4840:4905",
+      "IMG_4839:855",
+      "IMG_4839:990",
+      "IMG_4839:2754",
+      "IMG_4839:3860",
+      "IMG_4839:4166",
+      "IMG_4839:4613",
+      "IMG_4839:4782",
+      "IMG_4839:4899",
+      "IMG_4840:775",
+      "IMG_4840:1192",
+      "IMG_4840:1510",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4840:3426",
+      "IMG_4840:3545",
+      "IMG_4840:3725",
+      "IMG_4840:3869",
+      "IMG_4840:4274",
+      "IMG_4840:4623",
+      "IMG_4840:4822"
+     ],
+     "n_by_group": {
+      "make": 24,
+      "miss": 26
+     },
+     "measurement_quality": {
+      "matched_shots": 60,
+      "with_measurement": 50,
+      "availability": 0.83,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 16.047,
+      "ci95": {
+       "lo": 6.011,
+       "hi": 31.214
+      },
+      "permutation_p": 0.0002,
+      "holm_adjusted_p": 0.0008,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "supported",
+     "claim_observation": "In S4 session (IMG_4839 + IMG_4840), the observed rim-level position varied 16.05 times as much on misses as on makes (spread = MAD; 24 makes, 26 misses).",
+     "measurement": "rim_level_x_bw",
+     "comparison_baseline": "the same clip's makes against its misses",
+     "observation_vs_interpretation": {
+      "observation": "In S4 session (IMG_4839 + IMG_4840), the observed rim-level position varied 16.05 times as much on misses as on makes (spread = MAD; 24 makes, 26 misses).",
+      "interpretation": "This describes where the ball was observed in the image; it does not identify a cause."
+     }
+    },
+    {
+     "id": "S4",
+     "set": "S4 session (IMG_4839 + IMG_4840)",
+     "supporting_shot_ids": [
+      "IMG_4840:90",
+      "IMG_4839:155",
+      "IMG_4840:280",
+      "IMG_4839:329",
+      "IMG_4840:394",
+      "IMG_4839:427",
+      "IMG_4840:511",
+      "IMG_4840:638",
+      "IMG_4840:775",
+      "IMG_4839:855",
+      "IMG_4840:919",
+      "IMG_4839:990",
+      "IMG_4839:1133",
+      "IMG_4840:1192",
+      "IMG_4840:1367",
+      "IMG_4839:1412",
+      "IMG_4840:1510",
+      "IMG_4839:1538",
+      "IMG_4840:1650",
+      "IMG_4840:1881",
+      "IMG_4840:2046",
+      "IMG_4839:2065",
+      "IMG_4840:2275",
+      "IMG_4840:2448",
+      "IMG_4840:2648",
+      "IMG_4839:2754",
+      "IMG_4840:2787",
+      "IMG_4839:2899",
+      "IMG_4840:2973",
+      "IMG_4840:3131",
+      "IMG_4840:3275",
+      "IMG_4839:3361",
+      "IMG_4840:3426",
+      "IMG_4839:3506",
+      "IMG_4840:3545",
+      "IMG_4839:3687",
+      "IMG_4840:3725",
+      "IMG_4839:3860",
+      "IMG_4840:3869",
+      "IMG_4839:3964",
+      "IMG_4840:4033",
+      "IMG_4839:4166",
+      "IMG_4840:4274",
+      "IMG_4840:4479",
+      "IMG_4839:4613",
+      "IMG_4840:4623",
+      "IMG_4839:4782",
+      "IMG_4840:4822",
+      "IMG_4839:4899",
+      "IMG_4840:4905"
+     ],
+     "n_by_group": {
+      "earlier": 42,
+      "last_8": 8
+     },
+     "measurement_quality": {
+      "matched_shots": 60,
+      "with_measurement": 50,
+      "availability": 0.83,
+      "measurement_stable_30_vs_15fps": true
+     },
+     "uncertainty": {
+      "effect": 6.025,
+      "ci95": null,
+      "permutation_p": 0.0638,
+      "holm_adjusted_p": 0.0638,
+      "tried_for_set": 4
+     },
+     "interpretation_limit": "This describes where the ball was observed in the image; it does not identify a cause.",
+     "status": "abstained",
+     "reason": "interval_includes_zero",
+     "claim_observation": null
+    }
+   ]
+  }
+ },
+ "placebo": {
+  "IMG_4839": {
+   "shuffles": 400,
+   "with_supported": 4,
+   "by_statement": {
+    "S1": 4,
+    "S3": 1
+   },
+   "false_claim_rate": 0.01
+  },
+  "IMG_4840": {
+   "shuffles": 400,
+   "with_supported": 1,
+   "by_statement": {
+    "S2": 1
+   },
+   "false_claim_rate": 0.0025
+  },
+  "IMG_4851": {
+   "shuffles": 400,
+   "with_supported": 0,
+   "by_statement": {},
+   "false_claim_rate": 0
+  },
+  "IMG_4866": {
+   "shuffles": 400,
+   "with_supported": 0,
+   "by_statement": {},
+   "false_claim_rate": 0
+  },
+  "IMG_4867": {
+   "shuffles": 400,
+   "with_supported": 0,
+   "by_statement": {},
+   "false_claim_rate": 0
+  },
+  "IMG_4872": {
+   "shuffles": 400,
+   "with_supported": 0,
+   "by_statement": {},
+   "false_claim_rate": 0
+  },
+  "IMG_4873": {
+   "shuffles": 400,
+   "with_supported": 0,
+   "by_statement": {},
+   "false_claim_rate": 0
+  },
+  "IMG_4874": {
+   "shuffles": 400,
+   "with_supported": 0,
+   "by_statement": {},
+   "false_claim_rate": 0
+  },
+  "S4 session (IMG_4839 + IMG_4840)": {
+   "shuffles": 400,
+   "with_supported": 8,
+   "by_statement": {
+    "S2": 4,
+    "S3": 4,
+    "S1": 3
+   },
+   "false_claim_rate": 0.02
+  }
+ },
+ "replication": [
+  {
+   "set": "IMG_4839",
+   "id": "S1",
+   "halves": [
+    1.766,
+    2.5820000000000003
+   ],
+   "agree": true,
+   "note": "S1/S2 only; halves need 3 of each outcome"
+  },
+  {
+   "set": "IMG_4840",
+   "id": "S1",
+   "halves": [
+    3.862,
+    2.002
+   ],
+   "agree": true,
+   "note": "S1/S2 only; halves need 3 of each outcome"
+  },
+  {
+   "set": "IMG_4840",
+   "id": "S3",
+   "halves": [
+    null,
+    null
+   ],
+   "agree": null,
+   "note": "S1/S2 only; halves need 3 of each outcome"
+  },
+  {
+   "set": "S4 session (IMG_4839 + IMG_4840)",
+   "id": "S1",
+   "halves": [
+    3.7350000000000003,
+    2.601
+   ],
+   "agree": true,
+   "note": "S1/S2 only; halves need 3 of each outcome"
+  },
+  {
+   "set": "S4 session (IMG_4839 + IMG_4840)",
+   "id": "S3",
+   "halves": [
+    null,
+    null
+   ],
+   "agree": null,
+   "note": "S1/S2 only; halves need 3 of each outcome"
+  }
+ ]
+}

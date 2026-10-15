@@ -1,0 +1,40 @@
+{
+ "note": "desktop Mac (i5, 8 GB), one Node process; not phone numbers",
+ "memory": {
+  "IMG_4840": {
+   "frames": 5200,
+   "heap_growth_after_gc_MB": 1.33,
+   "heap_peak_sampled_MB": 16.75,
+   "tracks_alive": 43,
+   "mode": "production-style: retainFrames 1500, views pruned"
+  },
+  "IMG_4873": {
+   "frames": 4352,
+   "heap_growth_after_gc_MB": 0.09,
+   "heap_peak_sampled_MB": 14.57,
+   "tracks_alive": 52,
+   "mode": "production-style: retainFrames 1500, views pruned"
+  }
+ },
+ "per_shot_ms": {
+  "pipeline_plus_trails_whole_clip": {
+   "ms": 142,
+   "shots": 32,
+   "ms_per_shot": 4.4
+  }
+ },
+ "per_frame_ms": {
+  "IMG_4840": {
+   "median": 0.0115,
+   "p99": 0.2935,
+   "p999": 4.915,
+   "max": 12.46
+  },
+  "IMG_4873": {
+   "median": 0.0207,
+   "p99": 0.2624,
+   "p999": 4.237,
+   "max": 21.27
+  }
+ }
+}
