@@ -1,0 +1,24 @@
+"use client";
+import { useCallback, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { CameraStage } from "@/components/camera-stage";
+import { useCameraCounter } from "@/lib/vision/use-camera-counter";
+import type { Shot } from "@/lib/basketball/shooting";
+
+// Temporary: the real hook and stage on a fake camera, to walk start, aim, count, pause, re-aim, resume.
+declare global { interface Window { __cam: ReturnType<typeof useCameraCounter>; __log: string[]; } }
+export default function Page() {
+  const timed = useSearchParams().get("goal") === "time";
+  const [shots, setShots] = useState<Shot[]>([]);
+  const log = useRef<string[]>([]);
+  const onShot = useCallback(() => {}, []);
+  const camera = useCameraCounter({ onShot });
+  if (typeof window !== "undefined") { window.__cam = camera; window.__log = log.current; }
+  const add = (made: boolean) => setShots((s) => [...s, { seq: s.length + 1, made, detectedMade: made, flagged: false, zone: null, source: "camera", at: new Date().toISOString() } as unknown as Shot]);
+  return (
+    <div>
+      {camera.phase === "idle" && <button id="open" onClick={() => void camera.start()} className="m-4 rounded bg-white p-3 text-black">open</button>}
+      <CameraStage camera={camera} shots={shots} label="Test" playerName="Demo" goal={timed ? { kind: "time", target: 5 } : null} elapsedMs={null} lastCall={null} sound={false} onToggleSound={() => {}} zone={null} onZone={() => {}} syncText="Saved" syncOffline={false} error={null} ending={false} onLog={add} onUndo={() => {}} onFlip={() => {}} onEnd={() => log.current.push("END")} onDiscard={() => log.current.push("DISCARD")} onUseTaps={() => {}} />
+    </div>
+  );
+}

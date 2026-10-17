@@ -34,3 +34,11 @@ Turn on VoiceOver. On Progress, swipe through: every control should say what it 
 
 ## What to send back
 For each test: pass, or what happened and a screenshot. For test 1 step 5 and test 6, the words and controls that confused anyone.
+
+## Test 7: Aiming and re-aiming (10 min, camera)
+1. Open the camera in landscape. Without touching the picture, tap Start. It should say to touch the rim first (not just sit there).
+2. Touch the front of the rim and lift. The ring should be where your finger was. If it is higher or lower, take a screenshot straight away and tell me which way and how far (about a finger width?).
+3. Press Start. For three seconds a ring says "Counting here": is it on the rim?
+4. Shoot a few. Three dots menu, "Pause and re-aim the camera". The score should say how many shots are kept. Move the phone to another spot, touch the rim, press Resume counting. Shoot a few more. Do both groups of shots count?
+5. Turn the phone from upright to sideways while aiming, then tap the rim, then Start.
+6. End the set. In Progress the set should appear as one set.

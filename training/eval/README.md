@@ -154,3 +154,7 @@ method with the same signature as the baselines.
 ## Phase 14 (validation and release readiness)
 
 `experiments/analytics-audit/REPORT.md`: audit of every player-facing statement (pre-registered, simulated with the app's own rules: false "Clear" on a screen fell from 27% to 6% with no variation), the optional phone-placement question, the live-data integrity query (`supabase/checks/p14_integrity.sql`, tested on a real Postgres by `db-validation/check-p14.mjs`), mobile and accessibility results, release readiness, and `IPHONE-TESTS.md` (the remaining device tests). Production counting files unchanged.
+
+## Rim aiming and re-aim (after Phase 14)
+
+`experiments/camera-aim/REPORT.md` and `aim-e2e.mjs`: a Start button that explains itself, one box for ring and touch, a "Counting here" ring after Start, and pause-and-re-aim in the menu. Camera screen and hook changed on purpose; `verify-production-unchanged.mjs` now also checks that nothing that counts a shot was removed from them.

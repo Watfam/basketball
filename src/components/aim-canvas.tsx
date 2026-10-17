@@ -13,6 +13,16 @@ const LOUPE_LIFT = 110;
 type Aim = { x: number; y: number };
 
 /**
+ * The box the camera picture is drawn in, in the canvas's own pixels, read from the video element itself. The ring, the magnifier and the touch
+ * all use this one box, so where the ring is drawn and where a touch lands cannot disagree with what is on the screen, whatever the browser does
+ * to the layout when the phone turns.
+ */
+function pictureBox(canvas: HTMLCanvasElement, video: HTMLVideoElement) {
+  const c = canvas.getBoundingClientRect(), v = video.getBoundingClientRect();
+  return { x: v.left - c.left, y: v.top - c.top, w: v.width, h: v.height };
+}
+
+/**
  * Aiming at the rim: touch the picture, slide until the cross in the magnifier
  * sits on the front of the rim, lift. The magnifier floats above the finger
  * (a finger is far bigger than a rim), and the rim keeps a ring on the picture.
@@ -24,6 +34,7 @@ export function AimCanvas({
   onAim,
   active,
   tone,
+  shieldRef,
 }: {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   getAim: () => Aim;
@@ -33,6 +44,8 @@ export function AimCanvas({
   active: boolean;
   /** Ring colour while the rim position came from the finder rather than a finger. */
   tone: "hand" | "found";
+  /** The control bar over the picture. A touch that lands on it is a button press, never a rim touch. */
+  shieldRef?: React.RefObject<HTMLElement | null>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const touch = useRef<{ id: number; x: number; y: number } | null>(null);
@@ -58,7 +71,9 @@ export function AimCanvas({
       if (!ctx || !video?.videoWidth) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
-      const r = containedRect(w, h, video.videoWidth, video.videoHeight);
+      const box = pictureBox(canvas, video);
+      const cr = containedRect(box.w, box.h, video.videoWidth, video.videoHeight);
+      const r = { x: box.x + cr.x, y: box.y + cr.y, w: cr.w, h: cr.h };
       const aim = getAim();
       const ax = r.x + aim.x * r.w;
       const ay = r.y + aim.y * r.h;
@@ -129,6 +144,20 @@ export function AimCanvas({
     };
   }, [videoRef, getAim, tone]);
 
+  // A finger that never reports lifting (a system gesture, another app, the screen locking) must not leave the magnifier stuck open.
+  useEffect(() => {
+    const release = () => { touch.current = null; };
+    window.addEventListener("blur", release);
+    document.addEventListener("visibilitychange", release);
+    return () => {
+      window.removeEventListener("blur", release);
+      document.removeEventListener("visibilitychange", release);
+    };
+  }, []);
+  useEffect(() => {
+    if (!active) touch.current = null;
+  }, [active]);
+
   const move = (e: React.PointerEvent<HTMLCanvasElement>, commit: boolean) => {
     const video = videoRef.current;
     const t = touch.current;
@@ -136,7 +165,8 @@ export function AimCanvas({
     const r = e.currentTarget.getBoundingClientRect();
     t.x = e.clientX - r.left;
     t.y = e.clientY - r.top;
-    const f = pictureFraction(t.x, t.y, { w: r.width, h: r.height }, { w: video.videoWidth, h: video.videoHeight });
+    const box = pictureBox(e.currentTarget, video);
+    const f = pictureFraction(t.x - box.x, t.y - box.y, { w: box.w, h: box.h }, { w: video.videoWidth, h: video.videoHeight });
     if (f) onAim(f.x, f.y, commit);
   };
 
@@ -147,6 +177,8 @@ export function AimCanvas({
       className={`absolute inset-0 z-10 h-full w-full touch-none ${active ? "" : "pointer-events-none"}`}
       onPointerDown={(e) => {
         if (!active) return;
+        const bar = shieldRef?.current?.getBoundingClientRect();
+        if (bar && e.clientX >= bar.left && e.clientX <= bar.right && e.clientY >= bar.top && e.clientY <= bar.bottom) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         touch.current = { id: e.pointerId, x: 0, y: 0 };
         haptic("tap");
@@ -162,6 +194,9 @@ export function AimCanvas({
         haptic("tap");
       }}
       onPointerCancel={() => {
+        touch.current = null;
+      }}
+      onLostPointerCapture={() => {
         touch.current = null;
       }}
     />

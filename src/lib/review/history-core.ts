@@ -112,6 +112,8 @@ export type RetainInput = {
   shots: ShotInput[];
   records: Map<string, ReviewRecord>;
   framing: HistoryFraming | null;
+  /** The player's own answer about the phone, or the app's note that the camera was re-aimed during the set. */
+  setup?: CameraSetup | null;
 };
 export type RetainResult = { status: "saved" | "nothing_to_keep" | "limit" | "read_only" | "error"; sessionKey: string; shots: number; tracked: number; bytes: number; ms: number; message?: string };
 
@@ -145,7 +147,7 @@ export async function retainSession(backend: HistoryBackend, input: RetainInput,
     const tracked = rows.filter((r) => r.tracked).length, bytes = rows.reduce((a, r) => a + r.bytes, 0);
     const u = await usage(backend);
     if (u.shots + rows.length > HISTORY_LIMITS.maxShots || u.bytes + bytes > HISTORY_LIMITS.maxBytes) return done({ status: "limit", ...empty, message: `Tracking history is full (${u.shots} shots, ${(u.bytes / 1e6).toFixed(1)} MB). Delete old sessions to keep more.` });
-    const session: HistorySession = { v: HISTORY_SCHEMA, sessionKey: input.sessionKey, playerId: input.playerId, sessionId: input.sessionId, label: input.label, startedAt: input.startedAt, savedAt: now, shots: rows.length, withTracking: tracked, framing: input.framing, bytes };
+    const session: HistorySession = { v: HISTORY_SCHEMA, sessionKey: input.sessionKey, playerId: input.playerId, sessionId: input.sessionId, label: input.label, startedAt: input.startedAt, savedAt: now, shots: rows.length, withTracking: tracked, framing: input.framing, ...(input.setup ? { setup: input.setup } : {}), bytes };
     await backend.saveSession(session, rows);
     return done({ status: "saved", sessionKey: input.sessionKey, shots: rows.length, tracked, bytes });
   } catch (e) {

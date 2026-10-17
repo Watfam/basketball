@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { useCameraCounter } from "@/lib/vision/use-camera-counter";
 import { ZONES, type Shot, type ZoneKey } from "@/lib/basketball/shooting";
 import type { Goal } from "@/lib/basketball/goals";
@@ -8,6 +8,7 @@ import { describeGoal } from "@/lib/basketball/goals";
 import { scoreBug, type ScoreBug } from "@/lib/basketball/score-bug";
 import { haptic } from "@/lib/haptics";
 import { primeAlerts } from "@/lib/alerts";
+import { containedRect } from "@/lib/vision/contain";
 import { AimCanvas } from "@/components/aim-canvas";
 import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ export function CameraStage(props: StageProps) {
   const { phase, videoRef } = camera;
   const bug = scoreBug(shots, goal, elapsedMs);
   const [menu, setMenu] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
   const aiming = phase === "aiming" || phase === "starting";
   const showSetup = phase === "idle" || phase === "error";
 
@@ -71,6 +73,7 @@ export function CameraStage(props: StageProps) {
               getAim={camera.getAim}
               onAim={camera.aimAt}
               active={phase === "aiming"}
+              shieldRef={panelRef}
               tone={camera.find.kind === "strong" || camera.find.kind === "fair" ? "found" : "hand"}
             />
           )}
@@ -79,6 +82,7 @@ export function CameraStage(props: StageProps) {
               Opening the camera…
             </p>
           )}
+          {phase === "counting" && <RimCheck camera={camera} />}
           {showSetup && <SetupCard error={camera.error} start={camera.start} />}
           {lastCall && <CallFlash call={lastCall} />}
           <TopBar {...props} aiming={aiming} menuOpen={menu} setMenu={setMenu} />
@@ -86,7 +90,7 @@ export function CameraStage(props: StageProps) {
       </div>
 
       {aiming ? (
-        <AimPanel camera={camera} onDiscard={props.onDiscard} onUseTaps={props.onUseTaps} />
+        <AimPanel camera={camera} panelRef={panelRef} bug={bug} onDiscard={props.onDiscard} onUseTaps={props.onUseTaps} onEnd={props.onEnd} ending={props.ending} />
       ) : (
         <>
           <Bar {...props} bug={bug} />
@@ -175,6 +179,32 @@ function CallFlash({ call }: { call: { made: boolean; flagged: boolean; at: numb
   );
 }
 
+/** For three seconds after counting starts, a ring where the camera is counting around, so a rim that was aimed in the wrong place is seen at once. */
+function RimCheck({ camera }: { camera: Camera }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const on = setTimeout(() => {
+      const v = camera.videoRef.current;
+      if (!v?.videoWidth) return;
+      const r = containedRect(v.clientWidth, v.clientHeight, v.videoWidth, v.videoHeight);
+      const a = camera.getAim();
+      setPos({ x: r.x + a.x * r.w, y: r.y + a.y * r.h });
+    }, 0);
+    const off = setTimeout(() => setPos(null), 3200);
+    return () => {
+      clearTimeout(on);
+      clearTimeout(off);
+    };
+  }, [camera]);
+  if (!pos) return null;
+  return (
+    <div aria-hidden className="pointer-events-none absolute z-10 motion-safe:animate-pulse" style={{ left: pos.x, top: pos.y }}>
+      <div className="-ml-5 -mt-5 h-10 w-10 rounded-full border-[3px] border-accent shadow-[0_0_0_2px_rgba(0,0,0,0.5)]" />
+      <p className="-ml-14 mt-1 w-28 text-center text-[11px] font-extrabold uppercase tracking-wide text-accent [text-shadow:0_1px_2px_rgba(0,0,0,0.9)]">Counting here</p>
+    </div>
+  );
+}
+
 function SetupCard({ error, start }: { error: string | null; start: Camera["start"] }) {
   return (
     <div className="absolute inset-0 z-10 grid place-items-center overflow-y-auto bg-background/85 p-4 landscape:pb-28 landscape:pt-12">
@@ -205,19 +235,28 @@ function SetupCard({ error, start }: { error: string | null; start: Camera["star
 
 /* ---- Aiming -------------------------------------------------------------- */
 
-function AimPanel({ camera, onDiscard, onUseTaps }: { camera: Camera; onDiscard: () => void; onUseTaps: () => void }) {
-  const { phase, tight, find, autoIn, aimed, speed } = camera;
+function AimPanel({ camera, panelRef, bug, onDiscard, onUseTaps, onEnd, ending }: { camera: Camera; panelRef: React.RefObject<HTMLDivElement | null>; bug: ScoreBug; onDiscard: () => void; onUseTaps: () => void; onEnd: () => void; ending: boolean }) {
+  const { phase, tight, find, autoIn, aimed, speed, reaiming } = camera;
   const slow = speed.kind === "slow";
   const ready = phase === "aiming";
+  // A button that does nothing looks broken. Tapping Start before it can start says why, instead of being swallowed.
+  const blocked = !ready || !aimed || speed.kind === "checking";
+  const [nudge, setNudge] = useState<string | null>(null);
+  useEffect(() => {
+    if (!nudge) return;
+    const id = setTimeout(() => setNudge(null), 3500);
+    return () => clearTimeout(id);
+  }, [nudge]);
   let message: string;
-  if (!ready) message = "Opening the camera…";
+  if (reaiming) message = `Paused: ${bug.makes} of ${bug.attempts} so far. Move the phone if you need to. Then touch the front of the rim and lift. Counting is off until you press Resume.`;
+  else if (!ready) message = "Opening the camera…";
   else if (find.kind === "searching") message = "Looking for your hoop… or touch the picture and slide to the front of the rim.";
   else if (find.kind === "strong") message = speed.kind === "checking" ? "Hoop found. Checking this phone is fast enough…" : `Hoop found. Counting starts in ${autoIn ?? 0}…`;
   else if (find.kind === "fair") message = "Is this the rim? If not, touch the picture and slide it there, then lift.";
   else message = aimed ? "Slide to move the ring onto the front of the rim, then lift. Ready when it is." : "Touch the picture and slide to the front of the rim, then lift.";
 
   return (
-    <div className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-x-0 landscape:bottom-0 landscape:z-30 landscape:flex-row landscape:items-center landscape:gap-4 landscape:bg-background/85 landscape:pl-[max(0.75rem,env(safe-area-inset-left))] landscape:pr-[max(0.75rem,env(safe-area-inset-right))] landscape:backdrop-blur">
+    <div ref={panelRef} className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-x-0 landscape:bottom-0 landscape:z-30 landscape:flex-row landscape:items-center landscape:gap-4 landscape:bg-background/85 landscape:pl-[max(0.75rem,env(safe-area-inset-left))] landscape:pr-[max(0.75rem,env(safe-area-inset-right))] landscape:backdrop-blur">
       <div className="min-w-0 flex-1">
         <p role="status" className="text-sm font-semibold text-foreground">
           {message}
@@ -231,6 +270,11 @@ function AimPanel({ camera, onDiscard, onUseTaps }: { camera: Camera; onDiscard:
             (a warm phone does this: shade it or let it cool). Counting by tapping is safer for this set.
           </p>
         )}
+        {nudge && (
+          <p role="alert" className="mt-1.5 rounded-lg bg-accent/15 px-3 py-1.5 text-xs font-bold text-accent-hover">
+            {nudge}
+          </p>
+        )}
         {tight && (
           <p className="mt-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger">
             The rim is too near the top of the picture, so the ball&rsquo;s way in is cut off. Tilt the phone down or step back.
@@ -238,9 +282,15 @@ function AimPanel({ camera, onDiscard, onUseTaps }: { camera: Camera; onDiscard:
         )}
       </div>
       <div className="grid shrink-0 grid-cols-2 items-center gap-2 landscape:flex">
-        <Button variant="ghost" size="sm" onClick={onDiscard} className="order-2 landscape:order-none">
-          Cancel set
-        </Button>
+        {reaiming ? (
+          <Button variant="ghost" size="sm" onClick={onEnd} disabled={bug.attempts === 0 || ending} className="order-2 min-h-11 landscape:order-none">
+            End set
+          </Button>
+        ) : (
+          <Button variant="ghost" size="sm" onClick={onDiscard} className="order-2 min-h-11 landscape:order-none">
+            Cancel set
+          </Button>
+        )}
         {find.kind === "strong" && (
           <Button variant="secondary" size="md" onClick={camera.cancelAuto} className="order-2 landscape:order-none">
             Aim again
@@ -254,14 +304,19 @@ function AimPanel({ camera, onDiscard, onUseTaps }: { camera: Camera; onDiscard:
         <Button
           variant={slow ? "secondary" : "primary"}
           size={slow ? "md" : "lg"}
-          disabled={!ready || !aimed || speed.kind === "checking"}
+          aria-disabled={blocked}
           onClick={() => {
+            if (blocked) {
+              haptic("tap");
+              setNudge(!ready ? "The camera is still opening." : !aimed ? "Touch the picture on the front of the rim first, then press Start." : "One moment: checking this phone is fast enough.");
+              return;
+            }
             primeAlerts();
             void camera.startCounting();
           }}
-          className={slow ? "order-2 landscape:order-none" : "order-1 col-span-2 landscape:order-none landscape:min-w-44"}
+          className={`${slow ? "order-2 landscape:order-none" : "order-1 col-span-2 landscape:order-none landscape:min-w-44"} ${blocked ? "opacity-50" : ""}`}
         >
-          {slow ? "Count anyway" : find.kind === "strong" ? "Start now" : "Start counting"}
+          {reaiming ? "Resume counting" : slow ? "Count anyway" : find.kind === "strong" ? "Start now" : "Start counting"}
         </Button>
       </div>
     </div>
@@ -396,7 +451,8 @@ function Controls({ onLog, onUndo, onEnd, shots, ending, error }: StageProps) {
 
 /* ---- ⋯ menu ----------------------------------------------------------------- */
 
-function Menu({ sound, onToggleSound, zone, onZone, onUndo, onDiscard, shots, ending, syncText, close }: StageProps & { close: () => void }) {
+function Menu({ camera, goal, sound, onToggleSound, zone, onZone, onUndo, onDiscard, shots, ending, syncText, close }: StageProps & { close: () => void }) {
+  const timed = goal?.kind === "time";
   return (
     <>
       <button type="button" aria-label="Close menu" className="fixed inset-0 z-40 cursor-default" onClick={close} />
@@ -417,6 +473,27 @@ function Menu({ sound, onToggleSound, zone, onZone, onUndo, onDiscard, shots, en
           <span>Make / miss sound</span>
           <span className={sound ? "text-accent" : "text-foreground-mute"}>{sound ? "On" : "Off"}</span>
         </button>
+
+        {camera.phase === "counting" && (
+          <div>
+            <Button
+              variant="secondary"
+              size="md"
+              block
+              disabled={timed}
+              onClick={() => {
+                haptic("tap");
+                close();
+                camera.reaim();
+              }}
+            >
+              Pause and re-aim the camera
+            </Button>
+            <p className="mt-1 text-[11px] text-foreground-mute">
+              {timed ? "Not during a timed set: the clock would keep running." : "Counting stops while you move the phone to a new spot. Your shots so far are kept and the set carries on."}
+            </p>
+          </div>
+        )}
 
         <div>
           <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-foreground-mute">Spot (stays until you change it)</p>

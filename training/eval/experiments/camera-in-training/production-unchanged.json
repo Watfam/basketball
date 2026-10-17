@@ -8,7 +8,16 @@
   "src/lib/basketball/activity-server.ts",
   "src/lib/basketball/shot-draft.ts"
  ],
+ "aim_ui_files_changed_on_purpose": [
+  "src/components/camera-stage.tsx",
+  "src/lib/vision/use-camera-counter.ts"
+ ],
+ "aim_ui_removed_lines": {
+  "src/components/camera-stage.tsx": 13,
+  "src/lib/vision/use-camera-counter.ts": 1
+ },
+ "aim_ui_removed_lines_touching_counting": [],
  "hub_removed_lines": 17,
  "hub_removed_lines_touching_counting": [],
- "checked_at": "2026-10-17T18:03:48.747Z"
+ "checked_at": "2026-10-17T19:08:33.525Z"
 }

@@ -6,6 +6,8 @@ import { idbHistory } from "./history-store.ts";
 import { historyRetentionEnabled } from "./history-settings.ts";
 import { getReviewRecords } from "./review-store.ts";
 import { markHistoryUsed, reconcileHistoryNow } from "./history-ops.ts";
+import { readDraft } from "../use-local-draft.ts";
+import { REAIM_KEY, reaimedSince } from "./reaim-mark.ts";
 import { record as recordDiag, debugEnabled, persist as persistDiag } from "./diagnostics.ts";
 
 export const LAST_RESULT_KEY = "hl:history:last";
@@ -41,6 +43,8 @@ export async function retainHistory(args: { playerId: string; snapshot: Snapshot
       startedAt: s.startedAt,
       shots: s.shots.map((x) => ({ seq: x.seq, made: x.made, detectedMade: x.detectedMade, flagged: x.flagged, tMs: x.tMs, replayId: x.replayId })),
       records,
+      // The camera was paused and re-aimed during this set: its picture changed part way, so it is kept apart from other sets.
+      setup: reaimedSince(readDraft(REAIM_KEY), s.startedAt) ? { v: 1, position: "unsure", moved: "yes" } : null,
       framing: s.camera ? { rimX: s.camera.rimX, rimY: s.camera.rimY, scale: s.cameraStats?.scale ?? first?.scale ?? 1, ballWidthPx: s.cameraStats?.ballWidth ?? null } : null,
     });
     try { window.localStorage.setItem(LAST_RESULT_KEY, JSON.stringify({ at: Date.now(), status: res.status, shots: res.shots, tracked: res.tracked, bytes: res.bytes, ms: Math.round(res.ms), message: res.message ?? null })); } catch { /* storage unavailable */ }

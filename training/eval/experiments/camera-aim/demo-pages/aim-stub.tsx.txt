@@ -1,0 +1,28 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { CameraStage } from "@/components/camera-stage";
+
+// Temporary: the real stage with a fake camera (a drawn picture with the rim at 50%, 30%), to see where taps land.
+declare global { interface Window { __calls: string[]; __aim: { x: number; y: number }; } }
+export default function Page() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const aim = useRef({ x: 0.5, y: 0.5, scale: 1 });
+  const [aimed, setAimed] = useState(false);
+  const [phase, setPhase] = useState<"aiming" | "counting">("aiming");
+  useEffect(() => {
+    window.__calls = [];
+    const c = document.createElement("canvas"); c.width = 1280; c.height = 720;
+    const g = c.getContext("2d")!;
+    const tick = () => { g.fillStyle = "#335"; g.fillRect(0, 0, 1280, 720); g.strokeStyle = "#f60"; g.lineWidth = 6; g.beginPath(); g.ellipse(640, 216, 30, 10, 0, 0, 7); g.stroke(); g.fillStyle = "#fff"; g.fillRect(0, 700, 1280, 20); requestAnimationFrame(tick); };
+    tick();
+    const v = videoRef.current!; v.srcObject = c.captureStream(15); v.play().catch(() => {});
+  }, []);
+  const camera = {
+    videoRef, phase, error: null, health: null, tight: false, loadingStep: null, find: { kind: "none" } as const, autoIn: null, aimed, speed: { kind: "ok" } as const,
+    start: async () => {}, stop: () => {}, cancelAuto: () => {},
+    getAim: () => aim.current,
+    aimAt: (fx: number, fy: number, commit = true) => { aim.current = { ...aim.current, x: fx, y: fy }; window.__aim = { x: fx, y: fy }; window.__calls.push(`aim ${fx.toFixed(3)},${fy.toFixed(3)} ${commit ? "commit" : "slide"}`); setAimed(true); },
+    startCounting: async () => { window.__calls.push("START"); setPhase("counting"); },
+  } as never;
+  return <CameraStage camera={camera} shots={[]} label="Test" playerName="Demo" goal={null} elapsedMs={null} lastCall={null} sound={false} onToggleSound={() => {}} zone={null} onZone={() => {}} syncText="" syncOffline={false} error={null} ending={false} onLog={() => {}} onUndo={() => {}} onFlip={() => {}} onEnd={() => {}} onDiscard={() => {}} onUseTaps={() => {}} />;
+}

@@ -9,6 +9,7 @@ import { SLOW_FPS, SPEED_FRAMES, speedVerdict } from "@/lib/vision/speed-check";
 import { createCountingCore, SCALE_LIMITS, type SizingStatus } from "@/lib/vision/counting";
 import type { ShotCall } from "@/lib/vision/shotRules";
 import { readDraft, writeDraft } from "@/lib/use-local-draft";
+import { REAIM_KEY, nextReaim } from "@/lib/review/reaim-mark";
 import { CLIP, createReplayBuffer } from "@/lib/vision/replay-buffer";
 import { saveReplay } from "@/lib/vision/replay-store";
 import { sessionReviewEnabled } from "@/lib/review/flag";
@@ -121,6 +122,8 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
   /** The rim has a position the player (or the finder) chose, not just the default. */
   const [aimed, setAimed] = useState(false);
   const [speed, setSpeed] = useState<SpeedState>({ kind: "idle" });
+  /** Counting is paused so the player can move the phone and aim again; the picture and the model stay open and the shots so far are kept. */
+  const [reaiming, setReaiming] = useState(false);
   const speedRef = useRef<Promise<void> | null>(null);
 
   const aimRef = useRef<Aim>({ ...DEFAULT_RIM, scale: 1 });
@@ -246,6 +249,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     setFind({ kind: "idle" });
     setAutoIn(null);
     setSpeed({ kind: "idle" });
+    setReaiming(false);
     handAimedRef.current = false;
     const saved = savedAim();
     aimRef.current = saved ?? { ...DEFAULT_RIM, scale: 1 };
@@ -351,6 +355,35 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     setFind({ kind: "none" });
   }, []);
 
+  /**
+   * Pause counting to move the phone and aim again. Shots still being decided are decided now and kept (as when a set ends), the counting loop
+   * stops, and the camera picture and the ball model stay open. The player aims, and counting starts again with a fresh window on the new rim.
+   * Nothing about how a shot is counted changes; the set carries on in the same session. The re-aim is noted so the saved set is not pooled
+   * with sets filmed from one place (src/lib/review/reaim-mark.ts).
+   */
+  const reaim = useCallback(() => {
+    if (phase !== "counting") return;
+    const flush = flushRef.current;
+    flushRef.current = null;
+    flush?.();
+    runRef.current += 1;
+    try {
+      writeDraft(REAIM_KEY, nextReaim(readDraft(REAIM_KEY), null, Date.now()));
+    } catch {
+      // The note is a safeguard for saved history; counting goes on without it.
+    }
+    // No hoop finder here: the phone has not moved yet, so it would "find" the old spot and restart counting before the player could move it.
+    handAimedRef.current = true;
+    setHealth(null);
+    setLoadingStep(null);
+    setAutoIn(null);
+    setFind({ kind: "none" });
+    setAimed(true);
+    setReaiming(true);
+    setPhase("aiming");
+    refreshTight();
+  }, [phase, refreshTight]);
+
   const getAim = useCallback(() => aimRef.current, []);
 
   /** Aimed: count. Waits for the model if it's still loading. */
@@ -359,6 +392,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     const video = videoRef.current;
     if (!video?.videoWidth || !detectorRef.current) return;
     setAutoIn(null);
+    setReaiming(false);
     setPhase("counting");
     // A speed check still running shares the model; let it finish.
     await speedRef.current?.catch(() => {});
@@ -541,7 +575,8 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     teardown();
     setPhase("idle");
     setHealth(null);
+    setReaiming(false);
   }, [teardown]);
 
-  return { videoRef, phase, error, health, tight, loadingStep, find, autoIn, aimed, speed, start, aimAt, cancelAuto, getAim, startCounting, stop };
+  return { videoRef, phase, error, health, tight, loadingStep, find, autoIn, aimed, speed, reaiming, start, aimAt, cancelAuto, reaim, getAim, startCounting, stop };
 }
