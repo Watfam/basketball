@@ -142,3 +142,7 @@ method with the same signature as the baselines.
 ## Phase 11 (validating the integration; auditing the plans)
 
 `experiments/camera-in-training/db-validation/`: the camera-to-workout saving run against a real Postgres loaded with the repo's own schema, migrations, seeds and Row Level Security (ownership, duplicates, offline, corrections, repeat attempts, concurrency with and without a unique index), plus a read-only check of the query shapes against the live API. `REPORT.md` there has the results; `proposed-0023-*.sql` is a proposal and is not applied. `experiments/camera-in-training/GAME-SHOOTING-AUDIT.md`: what the existing shooting plans actually prescribe, what the camera does and does not see, and three proposed improvements.
+
+## Phase 12 (benchmarks, Progress, Film Room links, unique index)
+
+`experiments/camera-in-training/BENCHMARKS.md`: the three fixed-protocol shooting benchmarks (version 1), how they sit in the Six-Week Shot Builder, the Progress screen and its uncertainty rules, the Film Room links, migration 0023 (prepared, not applied; exact steps), a Phase 10 timed-drill unit defect found and fixed, before/after tests, limitations. `db-validation/run-p12.mjs` runs the files that would go to the live project against a real Postgres. SQL: `supabase/migrations/0023_*`, `seed_0024_*`, `seed_0025_*`, `fix_0026_*`, `checks/`, `rollback/`.

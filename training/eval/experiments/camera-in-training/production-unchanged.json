@@ -8,7 +8,7 @@
   "src/lib/basketball/activity-server.ts",
   "src/lib/basketball/shot-draft.ts"
  ],
- "hub_removed_lines": 13,
+ "hub_removed_lines": 17,
  "hub_removed_lines_touching_counting": [],
- "checked_at": "2026-10-15T17:16:08.262Z"
+ "checked_at": "2026-10-17T12:15:27.545Z"
 }

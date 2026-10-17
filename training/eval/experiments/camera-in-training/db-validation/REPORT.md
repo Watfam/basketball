@@ -50,7 +50,7 @@ So the race is real: simultaneous inserts both succeed and a reader can see two 
 
 What a constraint would still add: if the server process dies between the insert and the clean-up, a duplicate can stay until that drill is saved again. Duplicates would also be double-counted in "By kind of shot" until then. I could not make this happen by waiting; I know it is possible from reading the code.
 
-With the proposed index (`proposed-0023-one-log-per-workout-entry.sql`, **not applied and not in `supabase/migrations`**) the same 240 trials: always 1 row, no reader ever saw a duplicate, no save failed. The code now treats a unique violation as "someone else got there first" and merges with their row instead of failing (tested in memory and in real Postgres). The migration refuses to run, changing nothing, if any entry already has two rows.
+With the index (now `supabase/migrations/0023_one_log_per_workout_entry.sql`, prepared in Phase 12 and **not applied to the live project**; see ../BENCHMARKS.md for the steps) the same 240 trials: always 1 row, no reader ever saw a duplicate, no save failed. The code now treats a unique violation as "someone else got there first" and merges with their row instead of failing (tested in memory and in real Postgres). The migration refuses to run, changing nothing, if any entry already has two rows.
 
 **Recommendation:** apply it, after this read-only check in the Supabase SQL editor (it only reads):
 

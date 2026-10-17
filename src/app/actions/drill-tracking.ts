@@ -15,7 +15,7 @@ import { revalidatePlayerSessionViews } from "./revalidate";
 export type TrackedSaveOutcome = { error: string | null; code?: string; metrics?: Record<string, unknown>; action?: string };
 
 /** Called by the shooting screen when a drill-linked set has been saved. Safe to call again for the same set. */
-export async function saveDrillTracking(input: { playerId: string; workoutSessionId: string; workoutDrillId: string; shotSessionId: string; goal?: TrackingGoal | null }): Promise<TrackedSaveOutcome> {
+export async function saveDrillTracking(input: { playerId: string; workoutSessionId: string; workoutDrillId: string; shotSessionId: string; goal?: TrackingGoal | null; conditions?: Record<string, string> | null; clockComplete?: boolean | null }): Promise<TrackedSaveOutcome> {
   try {
     const supabase = await createClient();
     const r: SaveResult = await saveTrackedDrill(supabaseDrillStore(supabase), input);

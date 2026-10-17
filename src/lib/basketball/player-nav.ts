@@ -31,7 +31,7 @@ export function activePlayerTab(pathname: string, playerId: string, search = "")
   if (rest.startsWith("/workouts") || rest.startsWith("/programs") || rest.startsWith("/film") || rest === "/sessions") {
     return "train";
   }
-  if (rest.startsWith("/me") || rest.startsWith("/assessments") || (rest === "" && new URLSearchParams(search).get("tab") === "profile")) {
+  if (rest.startsWith("/me") || rest.startsWith("/progress") || rest.startsWith("/assessments") || (rest === "" && new URLSearchParams(search).get("tab") === "profile")) {
     return "me";
   }
   return "today";

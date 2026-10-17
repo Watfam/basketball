@@ -32,7 +32,8 @@ const results = []; let failures = 0;
 const check = (name, ok, detail = "") => { results.push({ name, ok: !!ok, detail }); if (!ok) failures++; console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail ? "  [" + detail + "]" : ""}`); };
 const uuid = () => crypto.randomUUID();
 
-const db = await boot({ log: console.log });
+// 0023 (one row per workout entry) is applied later, from the real migration file, so the first races run without any constraint.
+const db = await boot({ log: console.log, skipMigrations: [/^0023_/] });
 const A = db.admin;
 const [U1, U2, U3] = [uuid(), uuid(), uuid()];
 for (const [id, e] of [[U1, "owner1@test"], [U2, "owner2@test"], [U3, "kid-login@test"]]) await A.query("insert into auth.users (id, email) values ($1,$2)", [id, e]);
@@ -245,8 +246,8 @@ check("a tracked result is never lost to a racing plain tap or skip", noIdx.ever
 check("no racing save fails with an error", noIdx.every((x) => x.calls_that_errored === 0), noIdx.map((x) => x.calls_that_errored).join(","));
 
 // ================= 7. the same races WITH the proposed unique index =================
-console.log("\n== 7. The same races with the proposed unique index ==");
-const idxSql = fs.readFileSync(path.join(HERE, "proposed-0023-one-log-per-workout-entry.sql"), "utf8");
+console.log("\n== 7. The same races with the unique index (migration 0023) ==");
+const idxSql = fs.readFileSync(path.join(ROOT, "supabase/migrations/0023_one_log_per_workout_entry.sql"), "utf8");
 await A.query(idxSql);
 const withIdx = [];
 for (const [name, mk] of Object.entries(mixes)) withIdx.push(await race(name, mk, { withIndex: true }));

@@ -30,6 +30,13 @@ export type Draft = {
   goal?: Goal | null;
   /** Drafts from the first version of this, which only counted shots. */
   stopAt?: number | null;
+  /**
+   * A drill set that runs to a clock, in seconds ("Beat the Clock": 90). Kept apart from goal on purpose: a goal of kind time is in whole minutes
+   * and is what the saved set's history shows, so a 90-second drill clock must not be squeezed into it. Drill sets only.
+   */
+  clockSeconds?: number;
+  /** When the player ended the set (ms since 1970), so the time spent reviewing the calls is not counted as shooting time. */
+  endedAtMs?: number;
   /** Counted by the camera (taps can still add a shot it missed). */
   mode?: "camera";
   /** Where the rim was aimed, as fractions of the picture, once counting started. */
@@ -48,6 +55,11 @@ export type Draft = {
 export function draftGoal(d: Draft): Goal | null {
   if (d.goal) return parseGoal(d.goal);
   return d.stopAt ? { kind: "shots", target: d.stopAt } : null;
+}
+
+/** The goal the counter runs to: the player's own goal, or the drill's clock expressed as minutes for the counter only (never saved as the set's goal). */
+export function effectiveGoal(d: Draft): Goal | null {
+  return draftGoal(d) ?? (typeof d.clockSeconds === "number" && d.clockSeconds > 0 ? { kind: "time", target: d.clockSeconds / 60 } : null);
 }
 
 /** When a set's clock started (ms), or null if it is waiting for the first shot. */

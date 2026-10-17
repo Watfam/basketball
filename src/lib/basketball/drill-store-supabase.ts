@@ -12,13 +12,13 @@ export function supabaseDrillStore(supabase: Supabase): DrillStore {
       return ok(await hoops.from("workout_sessions").select("id, player_id, workout_id, status").eq("id", id).maybeSingle());
     },
     async entry(entryId) {
-      const r = ok(await hoops.from("workout_drills").select("id, workout_id, drill_id, variant_label, drills(name, skill_tags)").eq("id", entryId).maybeSingle()) as { id: string; workout_id: string; drill_id: string; variant_label: string | null; drills: unknown } | null;
+      const r = ok(await hoops.from("workout_drills").select("id, workout_id, drill_id, variant_label, target_sets, target_reps, target_duration_seconds, levels, level_targets, drills(name, skill_tags)").eq("id", entryId).maybeSingle()) as { id: string; workout_id: string; drill_id: string; variant_label: string | null; target_sets: number | null; target_reps: number | null; target_duration_seconds: number | null; levels: string[] | null; level_targets: unknown; drills: unknown } | null;
       if (!r) return null;
       const d = r.drills as unknown as { name: string; skill_tags: string[] | null } | { name: string; skill_tags: string[] | null }[] | null;
-      return { id: r.id, workout_id: r.workout_id, drill_id: r.drill_id, variant_label: r.variant_label, drill: Array.isArray(d) ? (d[0] ?? null) : d };
+      return { id: r.id, workout_id: r.workout_id, drill_id: r.drill_id, variant_label: r.variant_label, target_sets: r.target_sets, target_reps: r.target_reps, target_duration_seconds: r.target_duration_seconds, levels: r.levels, level_targets: r.level_targets, drill: Array.isArray(d) ? (d[0] ?? null) : d };
     },
     async shotSession(id) {
-      return ok(await hoops.from("shot_sessions").select("id, player_id, ended_at, deleted_at, rule_version, model_version").eq("id", id).maybeSingle());
+      return ok(await hoops.from("shot_sessions").select("id, player_id, ended_at, deleted_at, rule_version, model_version, goal_reached, label").eq("id", id).maybeSingle());
     },
     async shots(shotSessionId) {
       return ok(await hoops.from("shots").select("made, source, detected_made, added_by_hand").eq("session_id", shotSessionId).limit(1000)) ?? [];

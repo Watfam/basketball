@@ -1,5 +1,5 @@
 {
- "at": "2026-10-15T17:03:38.515Z",
+ "at": "2026-10-15T18:13:05.773Z",
  "note": "read only, no sign-in, random ids, nothing written",
  "out": [
   {
@@ -38,6 +38,21 @@
    "result": 0
   },
   {
+   "name": "progress page query: session_logs + inner workout_sessions + nested program_days, drills(name), ordered",
+   "ok": true,
+   "result": 0
+  },
+  {
+   "name": "film study sessions: film_session_items with the film_sessions(id, name) embed",
+   "ok": true,
+   "result": 0
+  },
+  {
+   "name": "the benchmark workout lookup by name",
+   "ok": true,
+   "result": null
+  },
+  {
    "name": "live schema has the columns session_logs(id, session_id, drill_id, workout_drill_id, metrics, created_at)",
    "ok": true,
    "result": "6 columns"
@@ -48,9 +63,9 @@
    "result": "6 columns"
   },
   {
-   "name": "live schema has the columns shot_sessions(id, player_id, ended_at, deleted_at, rule_version, model_version, label, started_at)",
+   "name": "live schema has the columns shot_sessions(id, player_id, ended_at, deleted_at, rule_version, model_version, label, started_at, goal_reached)",
    "ok": true,
-   "result": "8 columns"
+   "result": "9 columns"
   },
   {
    "name": "live schema has the columns shots(session_id, made, source, detected_made, added_by_hand)",
@@ -58,14 +73,34 @@
    "result": "5 columns"
   },
   {
-   "name": "live schema has the columns workout_drills(id, workout_id, drill_id, variant_label)",
+   "name": "live schema has the columns workout_drills(id, workout_id, drill_id, variant_label, target_sets, target_reps, target_duration_seconds, levels, level_targets)",
    "ok": true,
-   "result": "4 columns"
+   "result": "9 columns"
   },
   {
    "name": "live schema has the columns drills(id, name, skill_tags)",
    "ok": true,
    "result": "3 columns"
+  },
+  {
+   "name": "live schema has the columns film_resources(id, title, url, watch_for, skill_tags, drill_id, sort_order)",
+   "ok": true,
+   "result": "7 columns"
+  },
+  {
+   "name": "live schema has the columns film_session_items(film_resource_id, film_session_id)",
+   "ok": true,
+   "result": "2 columns"
+  },
+  {
+   "name": "live schema has the columns film_sessions(id, name)",
+   "ok": true,
+   "result": "2 columns"
+  },
+  {
+   "name": "live schema has the columns program_days(week_number, day_number, workout_id, volume_step, is_deload)",
+   "ok": true,
+   "result": "5 columns"
   }
  ]
 }

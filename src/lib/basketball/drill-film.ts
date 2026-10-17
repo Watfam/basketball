@@ -45,3 +45,26 @@ export function lessonUrl(lesson: Pick<Lesson, "id" | "url">, householdLinks: Re
   if (own && isWatchableUrl(own)) return own;
   return lesson.url && isWatchableUrl(lesson.url) ? lesson.url : null;
 }
+
+/**
+ * Every lesson the Film Room links to this drill (its own drill_id), most relevant first (the Film Room's own order, then title so the order never
+ * depends on how the rows came back). Falls back to the single related lesson only when nothing is linked.
+ */
+export function lessonsForDrill(drill: { id: string; name: string }, lessons: Lesson[]): { primary: Lesson; more: Lesson[]; basis: "linked" | "related" } | null {
+  const order = (a: Lesson, b: Lesson) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.title.localeCompare(b.title);
+  const linked = lessons.filter((l) => l.drill_id === drill.id).sort(order);
+  if (linked.length) return { primary: linked[0], more: linked.slice(1, 3), basis: "linked" };
+  const one = lessonForDrill(drill, lessons);
+  return one ? { primary: one.lesson, more: [], basis: one.basis } : null;
+}
+
+export type StudySession = { id: string; name: string; lessonIds: string[] };
+
+/** The existing Film Room study session that contains the most of the drill's linked lessons, or null. A study session is never linked to a drill by itself. */
+export function studySessionFor(linkedLessonIds: string[], sessions: StudySession[]): { id: string; name: string; lessonCount: number } | null {
+  const want = new Set(linkedLessonIds);
+  const scored = sessions.map((s) => ({ s, n: s.lessonIds.filter((id) => want.has(id)).length })).filter((x) => x.n > 0);
+  scored.sort((a, b) => b.n - a.n || a.s.name.localeCompare(b.s.name));
+  const top = scored[0];
+  return top ? { id: top.s.id, name: top.s.name, lessonCount: top.s.lessonIds.length } : null;
+}

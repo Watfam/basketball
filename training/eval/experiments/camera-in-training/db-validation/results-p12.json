@@ -1,0 +1,326 @@
+{
+ "at": "2026-10-15T18:11:17.625Z",
+ "engine": "PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit",
+ "results": [
+  {
+   "name": "no existing workout entry is mistaken for a benchmark",
+   "ok": true,
+   "detail": "46 entries"
+  },
+  {
+   "name": "seed_0024 adds exactly one workout",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the workout has the three benchmark entries, and each is exactly its protocol",
+   "ok": true,
+   "detail": "Free Throw Reset / Benchmark v1; Catch-and-Shoot off the Pin-Down / Benchmark v1 · both wings; Beat the Clock Finisher / Benchmark v1 · right elbow"
+  },
+  {
+   "name": "each benchmark entry points at the EXISTING drill (no new drill was created)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "seed_0024 run again adds nothing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the benchmark day is added to weeks 1, 3 and 6 only, as day 4",
+   "ok": true,
+   "detail": "[[1,4],[3,4],[6,4]]"
+  },
+  {
+   "name": "it is never stepped up, and only week 6 (the lighter week) is marked as such",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "seed_0025 run again adds nothing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "every pre-existing row in workouts, entries, drills, programs and program days is byte-identical afterwards",
+   "ok": true,
+   "detail": "workouts:true workout_drills:true drills:true program_days:true programs:true"
+  },
+  {
+   "name": "rows added: 1 workout, 3 entries, 3 program days, nothing else",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "what every one of the 18 existing program days asks for, at all three levels, is exactly the same as before",
+   "ok": true,
+   "detail": "18 days x 3 levels"
+  },
+  {
+   "name": "the benchmark entries ask for the same thing in week 1, 3 and 6 and at every level (30 shots, 30 shots, 90 s)",
+   "ok": true,
+   "detail": "{\"sets\":3,\"reps\":10,\"durationSeconds\":null} {\"sets\":2,\"reps\":15,\"durationSeconds\":null} {\"sets\":null,\"reps\":null,\"durationSeconds\":90}"
+  },
+  {
+   "name": "while a normal entry still grows with the week (Elbow Pull-Up right side, intermediate: week 1 vs week 5)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "seed_0024 refuses when a drill name is ambiguous",
+   "ok": true,
+   "detail": "Expected exactly one drill each named Free Throw Reset, Catch-and-Shoot off the "
+  },
+  {
+   "name": "seed_0024 refuses when a drill is missing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "seed_0025 refuses when the program name is ambiguous",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "seed_0025 refuses when the benchmark workout is missing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "rollback 0025 removes the three days and nothing else",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "rollback 0025 refuses once a workout was started on a benchmark day",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "rollback 0024 refuses while the workout is scheduled or used",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "before the fix: Catch-and-Shoot has no linked lesson and Creating Separation is not linked to Wing Step-Back (the seed order problem, reproduced)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "every identifier the fix needs resolves to exactly one row (looked up by title and name, not typed in)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "before: the drill card finds no lesson for Catch-and-Shoot, and Wing Step-Back only a 'related' one",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "after: exactly the three lessons were linked, to the right drills",
+   "ok": true,
+   "detail": "Linked \"Playing Without the Ball\" to \"Catch-and-Shoot off the Pin-Down\" | Linked \"Curry: Feet Ready Before the Ball Arrives\" to \"Catch-and-Shoot off the Pin-Down\" | Linked \"Creating Separation Off the Bounce\" to \"Wing Step-Back\""
+  },
+  {
+   "name": "no web address was read, changed or created: every url is byte-identical",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no lesson was added or removed, and the study session is intact",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the drill card now shows two linked lessons for Catch-and-Shoot and its existing study session (3 lessons)",
+   "ok": true,
+   "detail": "Playing Without the Ball + Curry: Feet Ready Before the Ball Arrives -> Get Open Without the Ball"
+  },
+  {
+   "name": "Wing Step-Back now shows its own lesson as linked, not just related",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "run again: reports 'already linked' and changes nothing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a lesson that already points at a different drill is left alone",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "...and it stays pointing there afterwards",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a duplicated lesson title stops the fix with a clear message",
+   "ok": true,
+   "detail": "Lesson \"Playing Without the Ball\" matched 2 rows and drill \"Catch-and-Shoot off the Pin-Do"
+  },
+  {
+   "name": "a missing drill stops the fix",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the rollback is accepted and touches only these lessons",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "each result attached to ITS OWN benchmark, one row per entry, three weeks",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "weeks 1, 3 and 6 are assigned from the program day, for all three benchmarks",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "free throws: 17, 19, 22 of 30 compared week 1 to week 6, a 17-point rise that is correctly NOT called clear",
+   "ok": true,
+   "detail": "57% to 73% (+17 points). That is not a clear change: with 30 and 30 shots the plausible range is -7 to 38 points and inc"
+  },
+  {
+   "name": "catch-and-shoot keeps who passed (partner), and its 15 flips/hand additions are shown as data-quality notes",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the clock benchmark is complete and compared by share, with its caveat",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "results read back from the real database carry the camera counts (not taps)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a catch-and-shoot set cannot become the free-throw benchmark result",
+   "ok": true,
+   "detail": "wrong_set"
+  },
+  {
+   "name": "nor can a free-shooting set with some other name",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "another household cannot attach a benchmark to this player's workout (row security)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "another household's set cannot be used as a benchmark result",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the same benchmark saved three more times is still one row and not a redo",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a manual correction (19 to 18) is kept, keeps the first saved numbers, and survives a re-save",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "running the benchmark again replaces it, counts one redo, and the first run stays in shooting history",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a result from another benchmark version is kept apart and never compared with the current one",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a 22-shot run is listed but left out of comparisons",
+   "ok": true,
+   "detail": "[true,null,[[30,true,1],[30,true,3],[30,true,6],[22,false,null]]]"
+  },
+  {
+   "name": "the comparison still starts at week 1, so the interrupted run could not distort it",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a benchmark workout done without the camera completes as a plain log and simply is not a benchmark result",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "an ordinary tracked drill in an ordinary workout is saved as before and is NOT a benchmark",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "it still counts as practice volume, separately",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "before: no such index, and the read-only duplicate check finds nothing in this data",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "with a duplicate present the read-only check lists it, and the migration stops with a plain message",
+   "ok": true,
+   "detail": "session_logs has 1 workout entries with more than one row. Nothing was"
+  },
+  {
+   "name": "...and it neither deleted nor merged anything, and created no index",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "applied on clean data: the index exists, is valid and is unique, with the intended definition",
+   "ok": true,
+   "detail": "CREATE UNIQUE INDEX session_logs_one_per_entry ON hoops.session_logs USING btree (session_id, workout_drill_id) WHERE (workout_drill_id IS NOT NULL)"
+  },
+  {
+   "name": "every existing row is untouched (same rows, same hash), and the policies are exactly the same",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "running it again changes nothing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a second row for the same workout entry is refused (23505); a different entry, and rows with no entry id, are fine",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "row security still holds under the index: another household and anonymous callers are refused",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the app's own save, with the index in place, still works for benchmark saves",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "four simultaneous saves of one benchmark: all succeed, one row, never a redo",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "rollback drops only the index: rows and policies unchanged by it, and double entries are possible again",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

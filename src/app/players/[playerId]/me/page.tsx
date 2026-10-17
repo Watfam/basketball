@@ -15,6 +15,10 @@ import { computeStreakWeeks, dailyActivity, isAssessmentStale, lastAssessedLabel
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { playerLevel, type ComputedPlayerType, type SkillLevel } from "@/lib/basketball/assessment";
 import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
+import { loadProgressRows } from "@/lib/basketball/progress-server";
+import { daysAgo } from "@/lib/basketball/progress-range";
+import { analyzeBenchmarks, volumeSummary } from "@/lib/basketball/benchmark-analysis";
+import { BENCHMARKS } from "@/lib/basketball/benchmarks";
 
 const EMPTY_RATINGS: Ratings = { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 };
 
@@ -28,7 +32,7 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
   const supabase = await createClient();
   const hoops = supabase.schema("hoops");
 
-  const [{ data: { user } }, { data: player }, { data: assessments }, { data: lastCombine }, { data: seasonRows }, activity] =
+  const [{ data: { user } }, { data: player }, { data: assessments }, { data: lastCombine }, { data: seasonRows }, activity, progress] =
     await Promise.all([
       supabase.auth.getUser(),
       hoops.from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
@@ -56,6 +60,7 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
         .gte("started_at", seasonStart().toISOString())
         .limit(1000),
       loadActivity(supabase, playerId),
+      loadProgressRows(supabase, playerId),
     ]);
 
   if (!user) redirect("/login");
@@ -76,6 +81,10 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
   const week = thisWeek(activity.activities);
   const season = totalSessions(seasonRows ?? []);
   const milestones = buildMilestones(dates.length, streakWeeks);
+  const fourWeeksAgo = daysAgo(28);
+  const recentWorkouts = activity.activities.filter((a) => a.kind === "workout" && a.at >= fourWeeksAgo).length;
+  const recentVolume = volumeSummary(progress.rows, { from: fourWeeksAgo });
+  const benchmarksRun = analyzeBenchmarks(progress.rows).filter((r) => r.groups.some((g) => g.current && g.comparable.length > 0)).length;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -93,6 +102,25 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
           totalSessions={dates.length}
           seasonPct={season.attempts > 0 ? formatPercentage(season.pct) : null}
         />
+
+        <section aria-label="Progress">
+          <SectionHeading title="Progress" caption="Last 4 weeks" />
+          <div className="grid grid-cols-3 gap-2.5">
+            {[
+              { label: "Workouts", value: String(recentWorkouts), sub: "finished", href: `/players/${playerId}/progress?range=4w` },
+              { label: "Shots tracked", value: String(recentVolume.attempts), sub: "effort, not skill", href: `/players/${playerId}/progress?range=4w` },
+              { label: "Benchmarks", value: `${benchmarksRun} of ${BENCHMARKS.length}`, sub: "run so far", href: `/players/${playerId}/progress?view=benchmarks&range=all` },
+            ].map((t) => (
+              <Link key={t.label} href={t.href} className="flex min-h-24 flex-col justify-between rounded-2xl border border-line bg-surface p-3 transition-colors hover:border-line-strong">
+                <span className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-foreground-mute">{t.label}</span>
+                <span><span className="block font-display text-2xl leading-none text-foreground">{t.value}</span><span className="mt-0.5 block text-[11px] font-bold leading-snug text-foreground-dim">{t.sub}</span></span>
+              </Link>
+            ))}
+          </div>
+          <Link href={`/players/${playerId}/progress`} className="-mb-2 mt-1 flex min-h-11 items-center justify-between rounded-lg px-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent">
+            Progress and analytics <span aria-hidden>›</span>
+          </Link>
+        </section>
 
         <section>
           <SectionHeading title="Your game" caption={measured ? `Measured · ${lastAssessedLabel(ratedAt)}` : "Self-rated"} />
@@ -151,6 +179,7 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
 
         <CardSection className="overflow-hidden">
           {[
+            { href: `/players/${playerId}/progress`, label: "Progress and analytics", sub: "Benchmarks, trends, and the work behind them" },
             { href: `/players/${playerId}/assessments`, label: "Ratings history", sub: "Every rating, and what changed" },
             { href: `/players/${playerId}/sessions`, label: "Workout history", sub: "Every workout, finished or not" },
             { href: `/players/${playerId}/shooting`, label: "Shooting history", sub: "Every set, by drill" },

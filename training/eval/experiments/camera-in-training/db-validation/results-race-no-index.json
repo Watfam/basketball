@@ -1,0 +1,78 @@
+{
+ "at": "2026-10-15T18:12:06.050Z",
+ "trials": 20,
+ "race": [
+  {
+   "name": "same set saved twice (hub finish + retry)",
+   "trials": 20,
+   "rowsAfterIsNot1": 0,
+   "zeroRows": 0,
+   "multiRowsAfter": 0,
+   "trackedLost": 0,
+   "calls_that_errored": 0,
+   "trialsWhereAReaderSawDuplicates": 20,
+   "maxRowsSeen": 2,
+   "longestDuplicateWindowMs": 94
+  },
+  {
+   "name": "same set saved three times",
+   "trials": 20,
+   "rowsAfterIsNot1": 0,
+   "zeroRows": 0,
+   "multiRowsAfter": 0,
+   "trackedLost": 0,
+   "calls_that_errored": 0,
+   "trialsWhereAReaderSawDuplicates": 20,
+   "maxRowsSeen": 3,
+   "longestDuplicateWindowMs": 114
+  },
+  {
+   "name": "tracked save + plain 'done' tap at once",
+   "trials": 20,
+   "rowsAfterIsNot1": 0,
+   "zeroRows": 0,
+   "multiRowsAfter": 0,
+   "trackedLost": 0,
+   "calls_that_errored": 0,
+   "trialsWhereAReaderSawDuplicates": 0,
+   "maxRowsSeen": 1,
+   "longestDuplicateWindowMs": 0
+  },
+  {
+   "name": "double-tapped 'done' (no camera)",
+   "trials": 20,
+   "rowsAfterIsNot1": 0,
+   "zeroRows": 0,
+   "multiRowsAfter": 0,
+   "trackedLost": 0,
+   "calls_that_errored": 0,
+   "trialsWhereAReaderSawDuplicates": 20,
+   "maxRowsSeen": 2,
+   "longestDuplicateWindowMs": 111
+  },
+  {
+   "name": "two different sets for the same drill at once",
+   "trials": 20,
+   "rowsAfterIsNot1": 0,
+   "zeroRows": 0,
+   "multiRowsAfter": 0,
+   "trackedLost": 0,
+   "calls_that_errored": 0,
+   "trialsWhereAReaderSawDuplicates": 20,
+   "maxRowsSeen": 2,
+   "longestDuplicateWindowMs": 105
+  },
+  {
+   "name": "tracked save + skip at once",
+   "trials": 20,
+   "rowsAfterIsNot1": 0,
+   "zeroRows": 0,
+   "multiRowsAfter": 0,
+   "trackedLost": 0,
+   "calls_that_errored": 0,
+   "trialsWhereAReaderSawDuplicates": 0,
+   "maxRowsSeen": 1,
+   "longestDuplicateWindowMs": 0
+  }
+ ]
+}

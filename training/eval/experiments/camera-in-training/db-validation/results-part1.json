@@ -1,0 +1,200 @@
+{
+ "at": "2026-10-15T18:11:26.547Z",
+ "results": [
+  {
+   "name": "repo schema, 14 migrations and 9 seeds load into real Postgres",
+   "ok": true,
+   "detail": "24 files"
+  },
+  {
+   "name": "the seeded workout the tests use has the real drills",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "another household (own player id) cannot attach to this workout",
+   "ok": true,
+   "detail": "no_workout"
+  },
+  {
+   "name": "another household forging the player id sees nothing (RLS) and is refused",
+   "ok": true,
+   "detail": "no_workout"
+  },
+  {
+   "name": "an unauthenticated caller is refused",
+   "ok": true,
+   "detail": "no_workout"
+  },
+  {
+   "name": "same household but the wrong player in the request is refused",
+   "ok": true,
+   "detail": "no_workout"
+  },
+  {
+   "name": "a sibling's shot set cannot be attached to this player's drill",
+   "ok": true,
+   "detail": "no_shots"
+  },
+  {
+   "name": "another household's shot set cannot be attached (invisible to RLS)",
+   "ok": true,
+   "detail": "no_shots"
+  },
+  {
+   "name": "none of the refusals wrote anything",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "RLS: another household cannot insert a log into this workout",
+   "ok": true,
+   "detail": "42501"
+  },
+  {
+   "name": "RLS: anonymous cannot insert a log",
+   "ok": true,
+   "detail": "42501"
+  },
+  {
+   "name": "RLS: another household cannot read, change or delete this workout's logs",
+   "ok": true,
+   "detail": "0/0/0 rows"
+  },
+  {
+   "name": "the owner saves to their own player's workout",
+   "ok": true,
+   "detail": "insert"
+  },
+  {
+   "name": "saved result has the right shape and counts",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a player's separate linked login cannot reach the workout at all (existing RLS: households is owner-only), so cannot save to it either",
+   "ok": true,
+   "detail": "0 rows"
+  },
+  {
+   "name": "the same set saved three times leaves exactly one row",
+   "ok": true,
+   "detail": "1 row(s); actions insert/update/update"
+  },
+  {
+   "name": "resume then save again updates the one row to the new totals",
+   "ok": true,
+   "detail": "9/12"
+  },
+  {
+   "name": "a set with no shots is refused and writes nothing",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a set deleted before it attached is refused",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a finished workout is not changed by a late save",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a drill from a different workout is refused",
+   "ok": true,
+   "detail": "no_entry"
+  },
+  {
+   "name": "a form drill (not trackable) is refused",
+   "ok": true,
+   "detail": "not_trackable"
+  },
+  {
+   "name": "fixing the numbers changes the result and keeps the first saved numbers",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "saving the same set again does not undo the player's correction",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "putting the original numbers back clears the 'changed' note",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "makes above attempts is refused",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a fraction is refused",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "another household cannot correct it",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "correcting a drill with no tracked result is refused",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a correction after the workout is finished is allowed (review later)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "tracking the same drill again replaces the result with the new set (one row)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the earlier shot set and its shots are untouched in shooting history",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a plain 'done' tap afterwards keeps the tracked result",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a skip afterwards does not erase the tracked work",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a drill skipped then tracked ends as one tracked result",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a double-tapped 'done' (no camera) is one row",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "a legacy log with no entry id and another entry's plain log are left exactly as they were",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "an ordinary camera-free workout saves exactly as before (one plain row, no tracking block)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "parseTracked ignores every legacy shape",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

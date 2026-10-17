@@ -1,6 +1,6 @@
 // Read-only check that the app's database queries are accepted by the REAL project's API (PostgREST), without signing in and without writing.
 // It uses the public anon key from .env.local (never printed) and random ids, so Row Level Security returns nothing; what it proves is that every
-// column, embed and filter the drill code uses exists and parses on the live schema. Needs the libraries transpiled by run.mjs (training/work/p11).
+// column, embed and filter the drill code uses exists and parses on the live schema. Needs the libraries transpiled by run.mjs (training/work/p12).
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -11,7 +11,7 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL, key = env.NEXT_PUBLIC_SUPABASE_ANON_KE
 if (!url || !key) throw new Error("no Supabase settings in .env.local");
 const req = createRequire(path.join(ROOT, "node_modules") + "/");
 const { PostgrestClient } = req("@supabase/postgrest-js");
-const { supabaseDrillStore } = await import(path.join(ROOT, "training/work/p11/src/lib/basketball/drill-store-supabase.mjs"));
+const { supabaseDrillStore } = await import(path.join(ROOT, "training/work/p12/src/lib/basketball/drill-store-supabase.mjs"));
 // The same query client supabase-js uses for data; the realtime/auth parts of supabase-js need a newer Node than this Mac has and are not involved here.
 const sb = new PostgrestClient(`${url}/rest/v1`, { headers: { apikey: key, Authorization: `Bearer ${key}` }, schema: "hoops" });
 const id = () => crypto.randomUUID();
@@ -34,7 +34,19 @@ await t("activity query: session_logs + workout_sessions!inner(player_id)", asyn
 });
 // The writes were NOT executed. To check the columns they use exist (insert: session_id, drill_id, workout_drill_id, metrics; update: metrics), ask for
 // each column on its own: the API rejects an unknown column even when row security returns no rows.
-const want = { session_logs: ["id", "session_id", "drill_id", "workout_drill_id", "metrics", "created_at"], workout_sessions: ["id", "player_id", "workout_id", "status", "started_at", "completed_at"], shot_sessions: ["id", "player_id", "ended_at", "deleted_at", "rule_version", "model_version", "label", "started_at"], shots: ["session_id", "made", "source", "detected_made", "added_by_hand"], workout_drills: ["id", "workout_id", "drill_id", "variant_label"], drills: ["id", "name", "skill_tags"] };
+await t("progress page query: session_logs + inner workout_sessions + nested program_days, drills(name), ordered", async () => {
+  const r = await hoops.from("session_logs").select("id, session_id, metrics, created_at, drills(name), workout_sessions!inner(player_id, started_at, status, program_days(week_number, day_number))").eq("workout_sessions.player_id", id()).eq("metrics->>type", "shooting").order("created_at", { ascending: false }).limit(2000);
+  if (r.error) throw new Error(r.error.message); return r.data.length;
+});
+await t("film study sessions: film_session_items with the film_sessions(id, name) embed", async () => {
+  const r = await hoops.from("film_session_items").select("film_resource_id, film_sessions(id, name)");
+  if (r.error) throw new Error(r.error.message); return r.data.length;
+});
+await t("the benchmark workout lookup by name", async () => {
+  const r = await hoops.from("workouts").select("id").eq("name", "Shot Builder — Benchmark Check (v1)").limit(1).maybeSingle();
+  if (r.error) throw new Error(r.error.message); return r.data;
+});
+const want = { session_logs: ["id", "session_id", "drill_id", "workout_drill_id", "metrics", "created_at"], workout_sessions: ["id", "player_id", "workout_id", "status", "started_at", "completed_at"], shot_sessions: ["id", "player_id", "ended_at", "deleted_at", "rule_version", "model_version", "label", "started_at", "goal_reached"], shots: ["session_id", "made", "source", "detected_made", "added_by_hand"], workout_drills: ["id", "workout_id", "drill_id", "variant_label", "target_sets", "target_reps", "target_duration_seconds", "levels", "level_targets"], drills: ["id", "name", "skill_tags"], film_resources: ["id", "title", "url", "watch_for", "skill_tags", "drill_id", "sort_order"], film_session_items: ["film_resource_id", "film_session_id"], film_sessions: ["id", "name"], program_days: ["week_number", "day_number", "workout_id", "volume_step", "is_deload"] };
 for (const [tbl, list] of Object.entries(want)) await t(`live schema has the columns ${tbl}(${list.join(", ")})`, async () => { for (const c of list) { const r = await hoops.from(tbl).select(c).limit(1); if (r.error) throw new Error(`${c}: ${r.error.message}`); } return list.length + " columns"; });
 fs.writeFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "probe-live.json"), JSON.stringify({ at: new Date().toISOString(), note: "read only, no sign-in, random ids, nothing written", out }, null, 1));
 process.exit(out.every((x) => x.ok) ? 0 : 1);

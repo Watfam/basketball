@@ -33,5 +33,6 @@ export async function loadDrillStart(supabase: Supabase, a: { playerId: string; 
     planLabel: day ? `Week ${day.week_number} · Day ${day.day_number}` : null,
     workoutName,
     lesson: x.lesson,
+    benchmark: x.benchmark,
   };
 }

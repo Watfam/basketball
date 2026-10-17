@@ -69,14 +69,14 @@ test("adjusting totals: whole numbers, makes within attempts, the first saved nu
 });
 
 // ---- the store, in memory, with async gaps so interleavings are real ----------------------------------------------------------------------
-function memory(over: { ws?: Partial<{ player_id: string; status: string; workout_id: string | null }>; shots?: ShotRow[]; shotOwner?: string | null; deleted?: string | null; drill?: string; skill?: string[] } = {}) {
+function memory(over: { ws?: Partial<{ player_id: string; status: string; workout_id: string | null }>; shots?: ShotRow[]; shotOwner?: string | null; deleted?: string | null; drill?: string; skill?: string[]; entry?: Record<string, unknown>; goalReached?: boolean; ssLabel?: string | null } = {}) {
   let n = 0; const rows = new Map<string, LogRow & { session_id: string; entry: string | null }>();
   const tick = () => new Promise((r) => setTimeout(r, 0));
   const store: DrillStore & { rows: typeof rows } = {
     rows,
     async workoutSession(id) { await tick(); return id === "w1" ? { id, player_id: "p1", workout_id: "wk", status: "in_progress", ...over.ws } : null; },
-    async entry(id) { await tick(); return id === "e1" ? { id, workout_id: "wk", drill_id: "d1", variant_label: "Right side", drill: { name: over.drill ?? "Elbow Pull-Up", skill_tags: over.skill ?? ["shooting", "ball_handling"] } } : null; },
-    async shotSession(id) { await tick(); return id.startsWith("ss") ? { id, player_id: over.shotOwner === undefined ? "p1" : over.shotOwner, ended_at: "x", deleted_at: over.deleted ?? null, rule_version: "v4", model_version: "ball-6" } : null; },
+    async entry(id) { await tick(); return id === "e1" ? { id, workout_id: "wk", drill_id: "d1", variant_label: "Right side", drill: { name: over.drill ?? "Elbow Pull-Up", skill_tags: over.skill ?? ["shooting", "ball_handling"] }, ...over.entry } : null; },
+    async shotSession(id) { await tick(); return id.startsWith("ss") ? { id, player_id: over.shotOwner === undefined ? "p1" : over.shotOwner, ended_at: "x", deleted_at: over.deleted ?? null, rule_version: "v4", model_version: "ball-6", ...(over.ssLabel !== undefined ? { label: over.ssLabel } : {}) } : null; },
     async shots() { await tick(); return over.shots ?? Array.from({ length: 10 }, (_, i) => cam(i < 6)); },
     async logs(s, e) { await tick(); return [...rows.values()].filter((r) => r.session_id === s && r.entry === e).map((r) => ({ id: r.id, metrics: r.metrics, created_at: r.created_at })); },
     async insertLog(r) { await tick(); const id = `L${++n}`; rows.set(id, { id, metrics: r.metrics, created_at: `2026-10-16T10:00:0${n}Z`, session_id: r.session_id, entry: r.workout_drill_id }); return id; },
@@ -165,4 +165,94 @@ test("with a unique index, a plain tap that loses the race to a tracked save kee
 test("any other insert failure still fails (only a unique violation is treated as a lost race)", async () => {
   const s = memory(); s.insertLog = async () => { throw Object.assign(new Error("permission denied"), { code: "42501" }); };
   await assert.rejects(saveTrackedDrill(s, input), /permission denied/);
+});
+
+
+// ---- benchmarks ------------------------------------------------------------------------------------------------------------------------------
+const bmEntry = (key: "ft" | "cs" | "clock") => ({
+  ft: { drill: "Free Throw Reset", entry: { variant_label: "Benchmark v1", target_sets: 3, target_reps: 10, target_duration_seconds: null, levels: [], level_targets: {} } },
+  cs: { drill: "Catch-and-Shoot off the Pin-Down", entry: { variant_label: "Benchmark v1 · both wings", target_sets: 2, target_reps: 15, target_duration_seconds: null, levels: [], level_targets: {} } },
+  clock: { drill: "Beat the Clock Finisher", entry: { variant_label: "Benchmark v1 · right elbow", target_sets: null, target_reps: null, target_duration_seconds: 90, levels: [], level_targets: {} } },
+}[key]);
+const thirty = Array.from({ length: 30 }, (_, i) => cam(i < 21));
+const metricsOf = (s: ReturnType<typeof memory>) => parseTracked([...s.rows.values()][0].metrics)!;
+
+test("a benchmark entry is recognised from the entry itself and carries its protocol, whatever goal the client sent", async () => {
+  const s = memory({ ...bmEntry("ft"), shots: thirty });
+  const r = await saveTrackedDrill(s, { ...input, goal: { kind: "shots", target: 5 } });
+  assert.ok(r.ok); const m = metricsOf(s);
+  assert.equal(m.benchmark?.protocol, "free_throw@v1"); assert.deepEqual(m.target, { kind: "shots", value: 30 }); assert.equal(m.benchmark?.redo, 0);
+  assert.equal(m.category, "stationary");
+});
+
+test("an edited or look-alike entry is an ordinary drill: no benchmark block, so it can never be compared as one", async () => {
+  const s = memory({ ...bmEntry("ft"), entry: { ...bmEntry("ft").entry, target_reps: 12 }, shots: thirty });
+  await saveTrackedDrill(s, input); assert.equal(metricsOf(s).benchmark, undefined);
+  const s2 = memory({ drill: "Free Throw Reset", entry: { variant_label: null, target_sets: 2, target_reps: 2 }, shots: thirty });
+  await saveTrackedDrill(s2, input); assert.equal(metricsOf(s2).benchmark, undefined);
+});
+
+test("the catch-and-shoot benchmark keeps who passed, refuses an unknown answer, and says when it was not recorded", async () => {
+  const a = memory({ ...bmEntry("cs"), shots: thirty }); await saveTrackedDrill(a, { ...input, conditions: { pass_from: "partner" } });
+  assert.deepEqual([metricsOf(a).benchmark?.conditions, metricsOf(a).benchmark?.conditions_complete], [{ pass_from: "partner" }, true]);
+  const b = memory({ ...bmEntry("cs"), shots: thirty }); await saveTrackedDrill(b, { ...input, conditions: { pass_from: "robot" } });
+  assert.deepEqual([metricsOf(b).benchmark?.conditions, metricsOf(b).benchmark?.conditions_complete], [null, false]);
+  const c = memory({ ...bmEntry("cs"), shots: thirty }); const r = await saveTrackedDrill(c, input);
+  assert.ok(r.ok, "a missing answer does not lose the result"); assert.equal(metricsOf(c).benchmark?.conditions_complete, false);
+});
+
+test("a timed benchmark is complete only if the shooting screen says the clock ran out", async () => {
+  const a = memory({ ...bmEntry("clock"), shots: thirty.slice(0, 14) }); await saveTrackedDrill(a, { ...input, clockComplete: true });
+  assert.equal(metricsOf(a).benchmark?.clock_complete, true); assert.deepEqual(metricsOf(a).target, { kind: "time", value: 90 });
+  const b = memory({ ...bmEntry("clock"), shots: thirty.slice(0, 14) }); await saveTrackedDrill(b, { ...input, clockComplete: false });
+  assert.equal(metricsOf(b).benchmark?.clock_complete, false);
+  const c = memory({ ...bmEntry("clock"), shots: thirty.slice(0, 14) }); await saveTrackedDrill(c, input);
+  assert.equal(metricsOf(c).benchmark?.clock_complete, false, "unknown is not complete");
+  const ft = memory({ ...bmEntry("ft"), shots: thirty }); await saveTrackedDrill(ft, { ...input, clockComplete: true });
+  assert.equal(metricsOf(ft).benchmark?.clock_complete, null, "a fixed-attempt benchmark has no clock");
+});
+
+test("running a benchmark again replaces it and counts the redo; saving the same run again changes nothing", async () => {
+  const s = memory({ ...bmEntry("ft"), shots: thirty });
+  await saveTrackedDrill(s, input); await saveTrackedDrill(s, input); await saveTrackedDrill(s, input);
+  assert.equal(metricsOf(s).benchmark?.redo, 0, "the same run saved again is not a redo");
+  await saveTrackedDrill(s, { ...input, shotSessionId: "ss2" }); assert.equal(metricsOf(s).benchmark?.redo, 1); assert.equal(s.rows.size, 1);
+  await saveTrackedDrill(s, { ...input, shotSessionId: "ss2" }); assert.equal(metricsOf(s).benchmark?.redo, 1, "and saving the redo again keeps it at one");
+  await saveTrackedDrill(s, { ...input, shotSessionId: "ss3" }); assert.equal(metricsOf(s).benchmark?.redo, 2);
+});
+
+test("a correction after saving keeps the benchmark block, and so does saving again", async () => {
+  const s = memory({ ...bmEntry("ft"), shots: thirty }); await saveTrackedDrill(s, input);
+  const r = await adjustTrackedDrill(s, { playerId: "p1", workoutSessionId: "w1", workoutDrillId: "e1", makes: 20, attempts: 30 }); assert.ok(r.ok);
+  const m = metricsOf(s); assert.equal(m.benchmark?.protocol, "free_throw@v1"); assert.equal(m.tracking.adjusted?.original.makes, 21);
+  await saveTrackedDrill(s, input); const again = metricsOf(s);
+  assert.equal(again.makes, 20, "the correction survives"); assert.equal(again.benchmark?.protocol, "free_throw@v1");
+});
+
+test("benchmark and execution blocks round-trip, and rubbish in them is dropped, never thrown", () => {
+  const base = buildTrackedMetrics({ drill: { name: "Free Throw Reset" }, variant: "Benchmark v1", goal: { kind: "shots", target: 30 }, shots: thirty, shotSessionId: "ss1", benchmark: { protocol: "free_throw@v1", conditions: null, conditions_complete: true, clock_complete: null, redo: 0 } });
+  assert.deepEqual(parseTracked(JSON.parse(JSON.stringify(base)))?.benchmark, base.benchmark);
+  assert.equal(parseTracked({ ...base, benchmark: { protocol: "nonsense" } })!.benchmark, undefined);
+  assert.equal(parseTracked({ ...base, benchmark: "x" })!.benchmark, undefined);
+  const exec = { v: 1, lesson_id: "l1", by: "player", cues: [{ text: "Land where you took off", rating: "mostly" }, { text: 3 }, null] };
+  assert.deepEqual(parseTracked({ ...base, execution: exec })!.execution, { v: 1, lesson_id: "l1", by: "player", cues: [{ text: "Land where you took off", rating: "mostly" }] });
+  assert.equal(parseTracked({ ...base, execution: { v: 2 } })!.execution, undefined);
+  assert.equal(parseTracked({ ...base, benchmark: { ...base.benchmark!, conditions: { pass_from: 5, a: "b" } } })!.benchmark!.conditions!.a, "b");
+});
+
+test("a future execution check saved on a result survives a re-save of the same set", async () => {
+  const s = memory({ ...bmEntry("ft"), shots: thirty }); await saveTrackedDrill(s, input);
+  const row = [...s.rows.values()][0]; row.metrics = { ...(row.metrics as object), execution: { v: 1, lesson_id: null, by: "coach", cues: [{ text: "Eyes on the same spot", rating: "yes" }] } };
+  await saveTrackedDrill(s, input); assert.equal(metricsOf(s).execution?.cues[0].rating, "yes");
+});
+
+test("a benchmark result must come from a set shot for that benchmark; an ordinary drill has no such rule", async () => {
+  const right = memory({ ...bmEntry("ft"), shots: thirty, ssLabel: "Free Throw Reset · Benchmark v1" });
+  assert.ok((await saveTrackedDrill(right, input)).ok);
+  const wrong = memory({ ...bmEntry("ft"), shots: thirty, ssLabel: "Three-pointers" });
+  const r = await saveTrackedDrill(wrong, input);
+  assert.ok(!r.ok && r.code === "wrong_set"); assert.equal(wrong.rows.size, 0, "nothing is written");
+  const other = memory({ ...bmEntry("ft"), shots: thirty, ssLabel: "Catch-and-Shoot off the Pin-Down · Benchmark v1 · both wings" });
+  assert.ok(!(await saveTrackedDrill(other, input)).ok, "another benchmark's set cannot be used either");
+  const plain = memory({ ssLabel: "anything" }); assert.ok((await saveTrackedDrill(plain, input)).ok, "an ordinary drill accepts any of the player's own sets, as before");
 });

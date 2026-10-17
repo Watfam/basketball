@@ -12,6 +12,7 @@
  *             this existed still resolves
  */
 
+import { isBenchmarkLabel } from "./benchmarks.ts";
 import type { SkillLevel } from "./assessment";
 
 export type LevelTarget = {
@@ -64,6 +65,10 @@ export function resolvePrescription(
   level: SkillLevel,
   volumeStep = 0
 ): Prescription {
+  // A benchmark is the same test every time: it is never stepped up by the program week and never scaled by level (benchmarks.ts).
+  if (isBenchmarkLabel(entry.variant_label)) {
+    return { sets: entry.target_sets ?? null, reps: entry.target_reps ?? null, durationSeconds: entry.target_duration_seconds ?? null };
+  }
   const levelTarget = entry.level_targets?.[level];
 
   const sets = levelTarget?.sets ?? entry.target_sets ?? null;

@@ -42,7 +42,7 @@ import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
-import { clockStart, draftGoal, draftKey, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
+import { clockStart, draftGoal, draftKey, effectiveGoal, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
 import { drillSetLabel, sameDrill, workoutReturnPath, type DrillContext } from "@/lib/basketball/drill-context";
 import { attachDrillResult, retryPendingDrill, type DrillOutcome } from "@/lib/drill-attach";
 import { isProblem, type DrillStart, type DrillStartProblem } from "@/lib/basketball/drill-start";
@@ -379,6 +379,8 @@ export function ShootingHub({
         shots: [],
         zone: null,
         goal: chosen,
+        // A drill clock is in seconds and lives beside the goal, never inside it (shot-draft.ts).
+        ...(context?.goal?.kind === "time" ? { clockSeconds: context.goal.target } : {}),
         ...(useCamera ? { mode: "camera" as const, camera: null } : {}),
         ...(context ? { context } : {}),
         rev: 1,
@@ -432,6 +434,7 @@ export function ShootingHub({
       edit((x) => ({
         ...x,
         reviewing: true,
+        endedAtMs: x.endedAtMs ?? Date.now(),
         cameraStats: r.n > 0 ? { avgFps: r.sum / r.n, minFps: r.min, slowSeen: r.slowSeen, scale: r.scale, ballWidth: r.ballWidth } : x.cameraStats,
       }));
     } else void finish();
@@ -479,6 +482,8 @@ export function ShootingHub({
     if (camera.phase !== "idle") camera.stop();
     const fresh = parseDraft(readDraft(key));
     if (!fresh || fresh.shots.length === 0) return;
+    // When shooting stopped: not later than the player ended it, so reviewing the calls is not counted as shooting time.
+    const endMs = fresh.endedAtMs ?? Date.now();
     setEnding(true);
     setError(null);
 
@@ -508,7 +513,11 @@ export function ShootingHub({
     const shotSessionId = snapshot.sessionId ?? lastSessionId.current;
     setDrillOutcome(null);
     if (snapshot.context) {
-      if (shotSessionId) void attachToDrill(snapshot.context, shotSessionId);
+      // A timed drill counts as complete only if the clock ran its full length (a small allowance for the first shot starting it).
+      const c0 = clockStart(snapshot);
+      const clockComplete = snapshot.clockSeconds ? c0 !== null && endMs - c0 >= snapshot.clockSeconds * 1000 - 750 : undefined;
+      const withClock = { ...snapshot.context, ...(clockComplete === undefined ? {} : { clockComplete }) };
+      if (shotSessionId) void attachToDrill(withClock, shotSessionId);
       else setDrillOutcome({ phase: "failed", message: "The shots are saved in your shooting history, but could not be linked to the drill.", metrics: null });
     }
     setFinished({
@@ -516,8 +525,8 @@ export function ShootingHub({
       label: snapshot.label || null,
       shots: snapshot.shots,
       startedAt: new Date(clockStart(snapshot) ?? Date.parse(snapshot.startedAt)).toISOString(),
-      endedAt: new Date().toISOString(),
-      goal: draftGoal(snapshot),
+      endedAt: new Date(endMs).toISOString(),
+      goal: effectiveGoal(snapshot),
     });
     writeDraft(key, null);
     // Saved: the replays have done their job and are deleted from the phone.
@@ -544,9 +553,12 @@ export function ShootingHub({
 
   /** Start a set for a workout drill: named for the drill, its own goal, the camera if the app allows it (the player can still tap). */
   function startDrill(context: DrillContext) {
-    const g: Goal | null = context.goal ? clampGoal({ kind: context.goal.kind, target: context.goal.target }) : null;
-    // The set runs to the goal the screen can actually hold, and the result is kept against that same goal.
-    const ctx: DrillContext = { ...context, goal: g && (g.kind === "shots" || g.kind === "time") ? { kind: g.kind, target: g.target } : null };
+    const raw = context.goal;
+    // Shot goals are held to what the counter can run; a clock is kept in seconds as the drill defines it (see shot-draft.ts).
+    const g: Goal | null = raw && raw.kind === "shots" ? clampGoal({ kind: "shots", target: raw.target }) : null;
+    const goalForContext = raw ? (raw.kind === "shots" ? { kind: "shots" as const, target: g!.target } : { kind: "time" as const, target: Math.min(3600, Math.max(10, Math.round(raw.target))) }) : null;
+    const ctx: DrillContext = { ...context, goal: goalForContext };
+    delete ctx.clockComplete;
     start(drillSetLabel(ctx), g, ctx, cameraAllowed);
   }
 
@@ -565,7 +577,7 @@ export function ShootingHub({
   const openDrill = drill && !isProblem(drill) ? drill : null;
 
   // A time goal needs a clock that ticks without any taps.
-  const activeGoal = draft ? draftGoal(draft) : null;
+  const activeGoal = draft ? effectiveGoal(draft) : null;
   const [now, setNow] = useState(() => Date.now());
   const timed = activeGoal?.kind === "time";
   // A camera set shows its clock whether or not it has a time goal.
@@ -871,7 +883,7 @@ export function ShootingHub({
         <DrillStartScreen
           drill={openDrill}
           cameraOn={cameraAllowed}
-          onStart={() => startDrill(openDrill.context)}
+          onStart={(conditions) => startDrill(conditions ? { ...openDrill.context, conditions } : openDrill.context)}
           onSkip={() => router.replace(plainPath)}
           backHref={workoutReturnPath(playerId, openDrill.context)}
         />

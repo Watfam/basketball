@@ -1,5 +1,7 @@
 import { adjustTracked, buildTrackedMetrics, mergeDrillLog, parseTracked, type LogRow, type MergePlan, type ShotRow, type TrackedMetrics } from "./drill-tracking.ts";
 import { shootingProfile, type TrackingGoal } from "./drill-shooting.ts";
+import { drillSetLabel } from "./drill-context.ts";
+import { benchmarkForEntry, benchmarkGoal, checkConditions, protocolId } from "./benchmarks.ts";
 import { isSkippedLog } from "./session-logs.ts";
 
 /**
@@ -10,8 +12,8 @@ import { isSkippedLog } from "./session-logs.ts";
 
 export interface DrillStore {
   workoutSession(id: string): Promise<{ id: string; player_id: string; workout_id: string | null; status: string } | null>;
-  entry(entryId: string): Promise<{ id: string; workout_id: string; drill_id: string; variant_label: string | null; drill: { name: string; skill_tags: string[] | null } | null } | null>;
-  shotSession(id: string): Promise<{ id: string; player_id: string | null; ended_at: string | null; deleted_at: string | null; rule_version: string | null; model_version: string | null } | null>;
+  entry(entryId: string): Promise<{ id: string; workout_id: string; drill_id: string; variant_label: string | null; drill: { name: string; skill_tags: string[] | null } | null; target_sets?: number | null; target_reps?: number | null; target_duration_seconds?: number | null; levels?: string[] | null; level_targets?: unknown } | null>;
+  shotSession(id: string): Promise<{ id: string; player_id: string | null; ended_at: string | null; deleted_at: string | null; rule_version: string | null; model_version: string | null; goal_reached?: boolean | null; label?: string | null } | null>;
   shots(shotSessionId: string): Promise<ShotRow[]>;
   logs(sessionId: string, entryId: string): Promise<LogRow[]>;
   insertLog(row: { session_id: string; drill_id: string; workout_drill_id: string | null; metrics: Record<string, unknown> }): Promise<string>;
@@ -19,7 +21,7 @@ export interface DrillStore {
   deleteLogs(ids: string[]): Promise<void>;
 }
 
-export type SaveCode = "no_workout" | "closed" | "no_entry" | "not_trackable" | "no_shots" | "bad_input" | "no_result";
+export type SaveCode = "no_workout" | "closed" | "no_entry" | "not_trackable" | "no_shots" | "bad_input" | "no_result" | "wrong_set";
 export type SaveResult = { ok: true; metrics: Record<string, unknown>; action: "insert" | "update" | "keep" } | { ok: false; code: SaveCode; message: string };
 const fail = (code: SaveCode, message: string): SaveResult => ({ ok: false, code, message });
 
@@ -63,7 +65,7 @@ async function apply(store: DrillStore, sessionId: string, entry: { id: string; 
 /** The set the camera (or the taps) shot for this workout entry is now the drill's result. Safe to call any number of times. */
 export async function saveTrackedDrill(
   store: DrillStore,
-  input: { playerId: string; workoutSessionId: string; workoutDrillId: string; shotSessionId: string; goal?: TrackingGoal | null }
+  input: { playerId: string; workoutSessionId: string; workoutDrillId: string; shotSessionId: string; goal?: TrackingGoal | null; conditions?: unknown; clockComplete?: boolean | null }
 ): Promise<SaveResult> {
   if (!input.playerId || !input.workoutSessionId || !input.workoutDrillId || !input.shotSessionId) return fail("bad_input", "Missing workout, drill or shot set.");
   const ws = await store.workoutSession(input.workoutSessionId);
@@ -78,7 +80,15 @@ export async function saveTrackedDrill(
   const shots = await store.shots(ss.id);
   if (shots.length === 0) return fail("no_shots", "No shots were counted, so the drill was not marked done.");
 
-  const metrics = buildTrackedMetrics({ drill: entry.drill ?? { name: "" }, variant: entry.variant_label, goal: goalOf(input.goal), shots, shotSessionId: ss.id, ruleVersion: ss.rule_version, modelVersion: ss.model_version }) as unknown as Record<string, unknown>;
+  // A benchmark is recognised only from the entry itself (drill, variant label and prescription all exactly the protocol); its goal is the protocol's.
+  const protocol = benchmarkForEntry({ drillName: entry.drill?.name ?? "", variantLabel: entry.variant_label, sets: entry.target_sets ?? null, reps: entry.target_reps ?? null, seconds: entry.target_duration_seconds ?? null, levels: entry.levels, levelTargets: entry.level_targets });
+  // A benchmark result may only come from a set that was shot FOR that benchmark (the set is named after the drill and its variant when it starts).
+  if (protocol && ss.label !== undefined && ss.label !== drillSetLabel({ drillName: entry.drill?.name ?? "", variant: entry.variant_label })) {
+    return fail("wrong_set", "That set of shots was not shot for this benchmark, so it was not used as the result. The shots are saved in your shooting history.");
+  }
+  const cond = protocol ? checkConditions(protocol, input.conditions) : null;
+  const benchmark = protocol && cond ? { protocol: protocolId(protocol), conditions: cond.conditions, conditions_complete: cond.complete, clock_complete: protocol.clockSeconds ? input.clockComplete === true : null, redo: 0 } : undefined;
+  const metrics = buildTrackedMetrics({ drill: entry.drill ?? { name: "" }, variant: entry.variant_label, goal: protocol ? benchmarkGoal(protocol) : goalOf(input.goal), shots, shotSessionId: ss.id, ruleVersion: ss.rule_version, modelVersion: ss.model_version, benchmark }) as unknown as Record<string, unknown>;
   const plan = mergeDrillLog(await store.logs(ws.id, entry.id), { kind: "tracked", metrics });
   const done = await apply(store, ws.id, entry, plan, "tracked", metrics);
   let final: Record<string, unknown>;

@@ -543,7 +543,7 @@ function DrillCard({
       {/* The lesson itself, inline. Sending a player off to the Film Room
           mid-set would cost them the set; one cue read here is worth more
           than a link they won't follow. */}
-      {extras?.lesson && <DrillLesson lesson={extras.lesson} />}
+      {extras?.lesson && <DrillLesson lesson={extras.lesson} playerId={playerId} />}
       {!extras?.lesson && film && (film.watch_for ?? []).length > 0 && (
         <div className="mt-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-3.5 py-3">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--data-cyan)]">
@@ -607,6 +607,7 @@ function DrillCard({
           sessionId={sessionId}
           entryId={drill.id}
           tracking={extras.tracking}
+          benchmark={extras.benchmark}
           result={result}
           onResult={onResult}
           onNext={result ? onNext : undefined}

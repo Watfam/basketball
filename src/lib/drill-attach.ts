@@ -21,7 +21,7 @@ export function attachDrillResult(playerId: string, context: DrillContext, shotS
   const p = (async (): Promise<DrillOutcome> => {
     let res: Awaited<ReturnType<typeof saveDrillTracking>>;
     try {
-      res = await saveDrillTracking({ playerId, workoutSessionId: context.workoutSessionId, workoutDrillId: context.workoutDrillId, shotSessionId, goal: context.goal });
+      res = await saveDrillTracking({ playerId, workoutSessionId: context.workoutSessionId, workoutDrillId: context.workoutDrillId, shotSessionId, goal: context.goal, conditions: context.conditions ?? null, clockComplete: context.clockComplete ?? null });
     } catch {
       res = { error: "offline", code: "offline" };
     }

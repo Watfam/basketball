@@ -1,5 +1,5 @@
 {
- "at": "2026-10-15T17:09:35.053Z",
+ "at": "2026-10-15T18:12:43.569Z",
  "engine": "PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit",
  "files": 24,
  "results": [
@@ -232,31 +232,31 @@
  "noIndex": [
   {
    "name": "same set saved twice (hub finish + retry)",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
    "trackedLost": 0,
    "calls_that_errored": 0,
-   "trialsWhereAReaderSawDuplicates": 40,
+   "trialsWhereAReaderSawDuplicates": 20,
    "maxRowsSeen": 2,
-   "longestDuplicateWindowMs": 108
+   "longestDuplicateWindowMs": 94
   },
   {
    "name": "same set saved three times",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
    "trackedLost": 0,
    "calls_that_errored": 0,
-   "trialsWhereAReaderSawDuplicates": 40,
+   "trialsWhereAReaderSawDuplicates": 20,
    "maxRowsSeen": 3,
-   "longestDuplicateWindowMs": 132
+   "longestDuplicateWindowMs": 114
   },
   {
    "name": "tracked save + plain 'done' tap at once",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -268,31 +268,31 @@
   },
   {
    "name": "double-tapped 'done' (no camera)",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
    "trackedLost": 0,
    "calls_that_errored": 0,
-   "trialsWhereAReaderSawDuplicates": 40,
+   "trialsWhereAReaderSawDuplicates": 20,
    "maxRowsSeen": 2,
-   "longestDuplicateWindowMs": 132
+   "longestDuplicateWindowMs": 111
   },
   {
    "name": "two different sets for the same drill at once",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
    "trackedLost": 0,
    "calls_that_errored": 0,
-   "trialsWhereAReaderSawDuplicates": 40,
+   "trialsWhereAReaderSawDuplicates": 20,
    "maxRowsSeen": 2,
-   "longestDuplicateWindowMs": 117
+   "longestDuplicateWindowMs": 105
   },
   {
    "name": "tracked save + skip at once",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -306,7 +306,7 @@
  "withIndex": [
   {
    "name": "same set saved twice (hub finish + retry)",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -318,7 +318,7 @@
   },
   {
    "name": "same set saved three times",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -330,7 +330,7 @@
   },
   {
    "name": "tracked save + plain 'done' tap at once",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -342,7 +342,7 @@
   },
   {
    "name": "double-tapped 'done' (no camera)",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -354,7 +354,7 @@
   },
   {
    "name": "two different sets for the same drill at once",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,
@@ -366,7 +366,7 @@
   },
   {
    "name": "tracked save + skip at once",
-   "trials": 40,
+   "trials": 20,
    "rowsAfterIsNot1": 0,
    "zeroRows": 0,
    "multiRowsAfter": 0,

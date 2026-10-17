@@ -9,6 +9,25 @@ import { isSkippedLog } from "./session-logs.ts";
 
 export type TrackingSource = "camera" | "taps" | "mixed";
 
+/** Set only on a result that is a standardized benchmark (benchmarks.ts). */
+export type BenchmarkBlock = {
+  /** "free_throw@v1": which protocol and version this result was taken under. Results of different protocols or versions are never compared. */
+  protocol: string;
+  /** What the player said about the test conditions (for example who passed), or null when the protocol has none or it was not recorded. */
+  conditions: Record<string, string> | null;
+  conditions_complete: boolean;
+  /** Timed protocols: the clock ran to its limit. Null for fixed-attempt protocols. */
+  clock_complete: boolean | null;
+  /** How many times the benchmark was run again in the same workout. The latest run is the result; the count is shown as a data-quality note. */
+  redo: number;
+};
+
+/**
+ * Reserved for a future short check of how a rep was executed, built from the lesson's own coaching cues. Nothing writes it yet; it is kept
+ * through every save and correction so adding the check later needs no migration. Player- or coach-reported, never camera-measured.
+ */
+export type ExecutionCheck = { v: 1; lesson_id: string | null; by: "player" | "coach"; cues: { text: string; rating: "yes" | "mostly" | "no" | null }[] };
+
 export type TrackedMetrics = {
   type: "shooting";
   variant: string | null;
@@ -34,6 +53,8 @@ export type TrackedMetrics = {
     /** Set when the player changed the totals after saving; keeps the first saved numbers. */
     adjusted: { original: { makes: number; attempts: number } } | null;
   };
+  benchmark?: BenchmarkBlock;
+  execution?: ExecutionCheck;
 };
 
 export type ShotRow = { made: boolean; source: string; detected_made: boolean | null; added_by_hand?: boolean | null };
@@ -60,6 +81,7 @@ export function buildTrackedMetrics(input: {
   shotSessionId: string;
   ruleVersion?: string | null;
   modelVersion?: string | null;
+  benchmark?: BenchmarkBlock;
 }): TrackedMetrics {
   const s = summarizeShots(input.shots), profile = shootingProfile(input.drill);
   return {
@@ -74,6 +96,7 @@ export function buildTrackedMetrics(input: {
       v: 1, source: s.source, shot_session_id: input.shotSessionId, camera_attempts: s.camera_attempts, camera_makes: s.camera_makes, flipped: s.flipped, added_by_hand: s.added_by_hand,
       rule_version: input.ruleVersion ?? null, model_version: input.modelVersion ?? null, adjusted: null,
     },
+    ...(input.benchmark ? { benchmark: input.benchmark } : {}),
   };
 }
 
@@ -97,7 +120,23 @@ export function parseTracked(metrics: unknown): TrackedMetrics | null {
       model_version: typeof t.model_version === "string" ? t.model_version : null,
       adjusted: t.adjusted && int(t.adjusted.original?.makes) && int(t.adjusted.original?.attempts) ? { original: { makes: t.adjusted.original.makes, attempts: t.adjusted.original.attempts } } : null,
     },
+    ...(parseBenchmark(m.benchmark) ? { benchmark: parseBenchmark(m.benchmark)! } : {}),
+    ...(parseExecution(m.execution) ? { execution: parseExecution(m.execution)! } : {}),
   };
+}
+
+function parseBenchmark(b: unknown): BenchmarkBlock | null {
+  const x = b as Partial<BenchmarkBlock> | null;
+  if (!x || typeof x !== "object" || typeof x.protocol !== "string" || !/^[a-z_]+@v\d+$/.test(x.protocol)) return null;
+  const c = x.conditions && typeof x.conditions === "object" && !Array.isArray(x.conditions) ? Object.fromEntries(Object.entries(x.conditions).filter(([, v]) => typeof v === "string")) as Record<string, string> : null;
+  return { protocol: x.protocol, conditions: c && Object.keys(c).length ? c : null, conditions_complete: x.conditions_complete === true, clock_complete: typeof x.clock_complete === "boolean" ? x.clock_complete : null, redo: int(x.redo) ? x.redo : 0 };
+}
+
+function parseExecution(e: unknown): ExecutionCheck | null {
+  const x = e as Partial<ExecutionCheck> | null;
+  if (!x || typeof x !== "object" || x.v !== 1 || (x.by !== "player" && x.by !== "coach") || !Array.isArray(x.cues)) return null;
+  const cues = x.cues.filter((c) => c && typeof c.text === "string").map((c) => ({ text: c.text.slice(0, 200), rating: c.rating === "yes" || c.rating === "mostly" || c.rating === "no" ? c.rating : null }));
+  return { v: 1, lesson_id: typeof x.lesson_id === "string" ? x.lesson_id : null, by: x.by, cues };
 }
 
 /** Plain-words account of how the numbers came about. Nothing here claims more than was counted. */
@@ -142,9 +181,15 @@ export function mergeDrillLog(existing: LogRow[], incoming: { kind: IncomingKind
     const inc = parseTracked(incoming.metrics);
     const prev = parseTracked(anchor.metrics);
     let metrics = incoming.metrics;
-    if (inc && prev && prev.tracking.shot_session_id === inc.tracking.shot_session_id && prev.tracking.adjusted) {
-      metrics = { ...inc, makes: prev.makes, attempts: prev.attempts, tracking: { ...inc.tracking, adjusted: prev.tracking.adjusted } };
+    const same = !!(inc && prev && prev.tracking.shot_session_id === inc.tracking.shot_session_id);
+    if (same && prev!.tracking.adjusted) {
+      metrics = { ...inc, makes: prev!.makes, attempts: prev!.attempts, tracking: { ...inc!.tracking, adjusted: prev!.tracking.adjusted } };
     }
+    // A benchmark run again in the same workout replaces the earlier run but says so; saving the same run again changes nothing.
+    if (inc?.benchmark && prev?.benchmark && prev.benchmark.protocol === inc.benchmark.protocol) {
+      metrics = { ...metrics, benchmark: { ...inc.benchmark, redo: same ? prev.benchmark.redo : prev.benchmark.redo + 1 } };
+    }
+    if (same && prev!.execution && !inc!.execution) metrics = { ...metrics, execution: prev!.execution };
     return { action: "update", targetId: anchor.id, metrics, deleteIds: others };
   }
   if (incoming.kind === "skip") {

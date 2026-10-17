@@ -26,7 +26,7 @@ grant execute on function auth.uid(), auth.role() to anon, authenticated, servic
 
 export const files = (dir) => fs.readdirSync(path.join(ROOT, dir)).filter((f) => f.endsWith(".sql")).sort();
 
-export async function boot({ port = 54330, dataDir, seeds = true, log = () => {} } = {}) {
+export async function boot({ port = 54330, dataDir, seeds = true, skipMigrations = [], extraFiles = [], log = () => {} } = {}) {
   const dir = dataDir ?? fs.mkdtempSync("/private/tmp/hl-pg-");
   const pg = new EmbeddedPostgres({ databaseDir: dir, user: "postgres", password: "pw", port, persistent: false, onLog: () => {}, onError: () => {} });
   await pg.initialise(); await pg.start(); await pg.createDatabase("hl");
@@ -36,9 +36,10 @@ export async function boot({ port = 54330, dataDir, seeds = true, log = () => {}
   const applied = [];
   const run = async (rel) => { await admin.query(fs.readFileSync(path.join(ROOT, rel), "utf8")); applied.push(rel); };
   await run("supabase/schema.sql");
-  for (const f of files("supabase/migrations")) await run(`supabase/migrations/${f}`);
+  for (const f of files("supabase/migrations")) if (!skipMigrations.some((re) => re.test(f))) await run(`supabase/migrations/${f}`);
   if (seeds) for (const f of ["seed_content.sql", "seed_0003_depth_and_handle_program.sql", "seed_0005_film_room.sql", "seed_0006_pro_film.sql", "seed_0008_film_links_and_sessions.sql", "seed_0011_combine_drills.sql", "seed_0013_combine_bands.sql", "seed_0014_hennen_and_remove_tiktok.sql", "seed_program_shot_builder.sql"]) { try { await run(`supabase/${f}`); } catch (e) { log(`seed ${f} failed: ${e.message}`); applied.push(`${f} FAILED: ${e.message}`); } }
-  return { pg, connect, admin, applied, port, stop: async () => { await admin.end(); await pg.stop(); fs.rmSync(dir, { recursive: true, force: true }); } };
+  for (const f of extraFiles) { try { await run(f); } catch (e) { log(`${f} failed: ${e.message}`); applied.push(`${f} FAILED: ${e.message}`); } }
+  return { pg, connect, admin, applied, port, run, stop: async () => { await admin.end(); await pg.stop(); fs.rmSync(dir, { recursive: true, force: true }); } };
 }
 
 /** Run fn in one transaction as the signed-in user (a Supabase JWT in effect: role authenticated, sub = user id), or as anon when userId is null. */
