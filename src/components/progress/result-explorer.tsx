@@ -18,7 +18,7 @@ const longDay = (iso: string) => new Date(iso).toLocaleDateString(undefined, { w
 /** More results than this are not all drawn at once on a phone: the newest are, with a way to show the rest. */
 const SHOW_AT_MOST = 40;
 
-export function ResultExplorer({ results: all, playerId, label }: { results: BenchmarkResult[]; playerId: string; label: string }) {
+export function ResultExplorer({ results: all, playerId, label, fromHref }: { results: BenchmarkResult[]; playerId: string; label: string; /** Where this screen is, so the shot page can bring the player back to the same place. */ fromHref?: string }) {
   const [showAll, setShowAll] = useState(false);
   const results = useMemo(() => (showAll || all.length <= SHOW_AT_MOST ? all : all.slice(-SHOW_AT_MOST)), [all, showAll]);
   const [sel, setSel] = useState(all.length - 1);
@@ -62,7 +62,7 @@ export function ResultExplorer({ results: all, playerId, label }: { results: Ben
         </ul>
         <div className="mt-3 flex flex-wrap gap-x-5 text-[11px] font-extrabold uppercase tracking-[0.12em]">
           <Link href={`/players/${playerId}/sessions/${r.workoutSessionId}`} className="-my-2 inline-flex min-h-11 items-center py-2 text-accent">The workout ›</Link>
-          <Link href={`/players/${playerId}/shooting/${r.shotSessionId}`} className="-my-2 inline-flex min-h-11 items-center py-2 text-accent">Every shot and replay ›</Link>
+          <Link href={`/players/${playerId}/shooting/${r.shotSessionId}${fromHref ? `?from=${encodeURIComponent(fromHref)}` : ""}`} className="-my-2 inline-flex min-h-11 items-center py-2 text-accent">Every shot and replay ›</Link>
         </div>
       </div>
 

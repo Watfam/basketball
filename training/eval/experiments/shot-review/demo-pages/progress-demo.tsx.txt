@@ -1,0 +1,49 @@
+import { ProgressView } from "@/components/progress/progress-view";
+import { parseRange } from "@/lib/basketball/progress-range";
+import { buildTrackedMetrics, type BenchmarkBlock, type ShotRow } from "@/lib/basketball/drill-tracking";
+import type { ProgressRow } from "@/lib/basketball/progress-rows";
+
+const P = "11111111-1111-4111-8111-111111111111";
+type Sp = { s?: string; range?: string; from?: string; to?: string; view?: string; benchmark?: string; category?: string; drill?: string };
+const shots = (makes: number, n: number, o: { taps?: boolean; flip?: number; hand?: number } = {}): ShotRow[] => Array.from({ length: n }, (_, i) => (o.taps ? { made: i < makes, source: "manual", detected_made: null, added_by_hand: false } : { made: i < makes, source: "camera", detected_made: o.flip && i < o.flip ? !(i < makes) : i < makes, added_by_hand: !!o.hand && i >= n - o.hand }));
+let n = 0;
+function row(drill: string, label: string, makes: number, attempts: number, week: number | null, at: string, bm: Partial<BenchmarkBlock> & { protocol: string } | null, o: { taps?: boolean; flip?: number; hand?: number } = {}): ProgressRow {
+  n += 1;
+  const metrics = buildTrackedMetrics({ drill: { name: drill }, variant: label, goal: null, shots: shots(makes, attempts, o), shotSessionId: `22222222-2222-4222-8222-${String(n).padStart(12, "0")}`, benchmark: bm ? { conditions: null, conditions_complete: true, clock_complete: null, redo: 0, ...bm } : undefined });
+  return { logId: `l${n}`, workoutSessionId: `33333333-3333-4333-8333-${String(n).padStart(12, "0")}`, at, week, day: week === null ? null : 4, metrics, drillName: drill, status: "completed" };
+}
+const ft = (m: number, a: number, w: number | null, at: string, bm: Partial<BenchmarkBlock> = {}, o = {}) => row("Free Throw Reset", "Benchmark v1", m, a, w, at, { protocol: "free_throw@v1", ...bm }, o);
+const cs = (m: number, w: number | null, at: string, pass: "partner" | "self" | null, o = {}) => row("Catch-and-Shoot off the Pin-Down", "Benchmark v1 · both wings", m, 30, w, at, { protocol: "catch_and_shoot@v1", conditions: pass ? { pass_from: pass } : null, conditions_complete: pass !== null }, o);
+const clock = (m: number, a: number, w: number | null, at: string, complete = true) => row("Beat the Clock Finisher", "Benchmark v1 · right elbow", m, a, w, at, { protocol: "beat_the_clock@v1", clock_complete: complete });
+const today = () => new Date();
+const ago = (d: number) => new Date(today().getTime() - d * 864e5).toISOString();
+
+function scenario(s: string): ProgressRow[] {
+  if (s === "empty") return [];
+  if (s === "sparse") return [ft(17, 30, 1, ago(10))];
+  if (s === "next") return [ft(17, 30, 1, ago(40)), ft(19, 30, 3, ago(20)), clock(6, 12, 1, ago(40)), clock(7, 13, 3, ago(20)), cs(18, 1, ago(10), "partner")];
+  if (s === "mixed") return [
+    ft(17, 30, 1, ago(40), {}, { flip: 2, hand: 1 }), ft(19, 30, 3, ago(26), { redo: 1 }), ft(20, 22, 4, ago(20)), ft(22, 30, 6, ago(5), {}, { taps: true }), ft(29, 30, null, ago(12), { protocol: "free_throw@v2" } as never),
+    cs(18, 1, ago(40), "partner"), cs(16, 3, ago(26), "self"), cs(21, 6, ago(5), "partner"), cs(14, null, ago(2), null),
+    clock(6, 12, 1, ago(40)), clock(5, 9, 3, ago(26), false), clock(7, 13, 6, ago(5)),
+    row("Elbow Pull-Up", "Right side", 14, 24, 2, ago(33), null),
+  ];
+  if (s === "large") {
+    const rows: ProgressRow[] = [];
+    for (let i = 0; i < 600; i += 1) { const at = ago(1000 - i); rows.push(ft(15 + (i % 9), 30, (i % 6) + 1, at), cs(16 + (i % 7), (i % 6) + 1, at, i % 2 ? "partner" : "self"), clock(5 + (i % 6), 12 + (i % 5), (i % 6) + 1, at)); }
+    for (let i = 0; i < 400; i += 1) rows.push(row("Elbow Pull-Up", "Right side", 10 + (i % 8), 24, (i % 6) + 1, ago(1000 - i * 2), null));
+    return rows;
+  }
+  const el = (m: number, w: number, d: number, side = "Right side") => row("Elbow Pull-Up", side, m, 24, w, ago(d), null);
+  return [ft(17, 30, 1, ago(40)), ft(19, 30, 3, ago(26)), ft(22, 30, 6, ago(5)), cs(18, 1, ago(40), "partner", { flip: 3, hand: 1 }), cs(19, 3, ago(26), "partner"), cs(21, 6, ago(5), "partner"), clock(6, 12, 1, ago(40)), clock(6, 13, 3, ago(26)), clock(7, 14, 6, ago(5)),
+    el(8, 2, 36), el(10, 3, 29), el(21, 5, 8), el(11, 3, 29, "Left side"), el(12, 5, 8, "Left side"),
+    row("Wing Step-Back", "Right wing", 9, 24, 4, ago(20), null), row("Wing Step-Back", "Right wing", 11, 24, 5, ago(6), null)];
+}
+
+export default async function Demo({ searchParams }: { searchParams: Promise<Sp> }) {
+  const sp = await searchParams;
+  const rows = scenario(sp.s ?? "rich");
+  const ats = rows.map((r) => new Date(r.at));
+  const lessonFor = (name: string) => (name === "Catch-and-Shoot off the Pin-Down" ? { title: "Playing Without the Ball", watched: false, url: "https://www.youtube.com/watch?v=abc", href: `/players/${P}/film?lesson=l1` } : name === "Elbow Pull-Up" ? { title: "Footwork Into the Pull-Up", watched: true, url: null, href: `/players/${P}/film?lesson=l2` } : null);
+  return <ProgressView playerId={P} playerName="Demo" range={parseRange({ range: sp.range ?? "all", from: sp.from, to: sp.to })} view={sp.view === "benchmarks" ? "benchmarks" : sp.view === "shooting" ? "shooting" : "overview"} selected={sp.benchmark} category={sp.category} drill={sp.drill} now={new Date()} lessonFor={lessonFor} rows={rows} workoutAts={ats} hasBenchmarkWorkout truncated={false} basePath="/lab/p12-demo" keepQuery={{ s: sp.s ?? "rich" }} />;
+}

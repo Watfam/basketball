@@ -13,6 +13,7 @@ import { PathChart, type ChartLine } from "@/components/path-chart";
 import { HistoryShotViewer } from "@/components/history-shot-viewer";
 import { Button } from "@/components/ui/button";
 import { TrackingHistoryControls } from "@/components/tracking-history-controls";
+import { ShotExplorer } from "@/components/shots/shot-explorer";
 
 /**
  * Shot history (EXPERIMENTAL, behind the hl:session-review flag): your saved sets, each shot's path to watch again, makes against misses, and
@@ -44,6 +45,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
   const [mode, setMode] = useState<"outcome" | "pick">("outcome");
   const [scope, setScope] = useState(0);
   const [settings, setSettings] = useState(false);
+  const [lineCap, setLineCap] = useState(12);
 
   const load = useCallback(async () => {
     const t0 = performance.now();
@@ -88,7 +90,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
   }, [h]);
 
   const mm = useMemo(() => makesVersusMisses((group?.shots ?? []).map(rowOf)), [group]);
-  const outLines: ChartLine[] = useMemo(() => outcomeLines(group?.shots ?? []).map((l) => ({ pts: l.pts, color: l.made ? MAKE : MISS })), [group]);
+  const outLines: ChartLine[] = useMemo(() => outcomeLines(group?.shots ?? [], lineCap).map((l) => ({ pts: l.pts, color: l.made ? MAKE : MISS })), [group, lineCap]);
   const pickLines: ChartLine[] = chosen.flatMap((x, n) => pathPieces(x).filter((p) => p.length >= 2).map((pts) => ({ pts, color: PALETTE[n % PALETTE.length] })));
   const nMake = outLines.filter((l) => l.color === MAKE).length, nMiss = outLines.length - nMake;
 
@@ -127,6 +129,15 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
           <p className="rounded-2xl border border-line bg-surface p-3 text-[12px] text-foreground-dim">No shot paths are kept yet. Switch on &ldquo;Keep shot paths&rdquo; above, then shoot a set with the camera and save it. Sets saved before that, and sets counted by tapping, have no paths.</p>
         )}
 
+        {hasData && (
+          <ShotExplorer
+            sessions={h!.sessions}
+            shots={h!.shots}
+            initial={{ sessionKey: focused?.sessionKey }}
+            advanced={
+              <details className="rounded-2xl border border-line bg-surface px-3 py-1">
+                <summary className="flex min-h-12 cursor-pointer items-center text-sm font-extrabold text-foreground-dim">Advanced: every path, measurements, statistics, saved sets</summary>
+                <div className="space-y-3 pb-3">
         {hasData && (
           <section aria-label="Saved sets" className="rounded-2xl border border-line bg-surface p-3">
             <div className="flex items-center justify-between">
@@ -196,7 +207,8 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
                 )}
                 {groups.length > 1 && <p className="mt-1 text-[11px] text-foreground-mute">Sets filmed from a different spot or zoom are kept apart: their paths cannot be fairly put on one picture.</p>}
                 <PathChart lines={outLines} label="Paths of makes and misses side by side, with the rim at the centre" />
-                <p className="mt-1 text-[11px] text-foreground-mute">The rim is the orange bar. Each square is two ball widths. Up is up in the picture. Most recent shots with a trustworthy path, up to 120.</p>
+                <div className="mt-1 flex gap-2">{lineCap < 120 ? <button type="button" onClick={() => setLineCap(120)} className="min-h-11 text-[11px] font-extrabold text-accent underline underline-offset-2">Show up to 120 paths</button> : <button type="button" onClick={() => setLineCap(12)} className="min-h-11 text-[11px] font-extrabold text-accent underline underline-offset-2">Show fewer</button>}</div>
+                <p className="mt-1 text-[11px] text-foreground-mute">The rim is the orange bar. Each square is two ball widths. Up is up in the picture. Showing the newest {outLines.length} paths.</p>
                 <p className="mt-1 text-[12px] text-foreground-dim"><b style={{ color: MAKE }}>●</b> {nMake} make path{nMake === 1 ? "" : "s"} · <b style={{ color: MISS }}>●</b> {nMiss} miss path{nMiss === 1 ? "" : "s"}</p>
                 <p aria-live="polite" className="mt-2 rounded-lg bg-raised px-2 py-1.5 text-[12px] text-foreground-dim">{mm.sentence}</p>
               </>
@@ -253,7 +265,8 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
         {hasData && !analytics && <p className="rounded-2xl border border-line bg-surface p-3 text-[12px] text-foreground-mute">Looking for patterns…</p>}
         {hasData && analytics && (
           <section aria-label="Patterns" className="rounded-2xl border border-line bg-surface p-3 text-[12px] text-foreground-dim">
-            <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Patterns across sets</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Statistics across sets</p>
+            <p className="mt-1 text-foreground-mute">Where the ball crossed the rim&apos;s height is the only thing measured here. Some lines below restate what a miss is (a miss is a ball that did not go through the middle), so they are kept here and not shown first.</p>
             <p className="mt-1">Only where the ball crossed the rim&apos;s height is looked at. A pattern here says where the ball was seen, not why.</p>
             {analytics.groups.map((g, gi) => (
               <div key={g.name} className="mt-3">
@@ -268,6 +281,11 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
               </div>
             ))}
           </section>
+        )}
+                </div>
+              </details>
+            }
+          />
         )}
       </div>
     </div>

@@ -1,0 +1,234 @@
+{
+ "real": {
+  "tracks": 142,
+  "ballWidthPx_median": 24.4,
+  "pixelsPerMetreAtRim": 102,
+  "widthNoise_relative_robust_sd": 0.044,
+  "apparentSizeRatio_firstThird_over_lastThird": {
+   "median": 1.033,
+   "p10": 0.839,
+   "p90": 1.336
+  },
+  "logWidthSlope_per_s": {
+   "median": -0.015,
+   "p10": -0.247,
+   "p90": 0.137
+  },
+  "frameInterval_ms_median": 67,
+  "sizeCueSignalToNoise": 1.5,
+  "simulatedApparentSizeRatio": {
+   "median": 1.535,
+   "p10": 1.37,
+   "p90": 1.904
+  }
+ },
+ "bounds": {
+  "S1_bestCase_perfectCalibration_noWidth": [
+   {
+    "quantity": "apex height above the rim (m)",
+    "tolerance": 0.15,
+    "median": 0.039,
+    "p90": 0.135,
+    "shareWithinTolerance": 0.93,
+    "meets": true
+   },
+   {
+    "quantity": "entry angle (deg)",
+    "tolerance": 3,
+    "median": 1.321,
+    "p90": 1.949,
+    "shareWithinTolerance": 1,
+    "meets": true
+   },
+   {
+    "quantity": "sideways at the rim (cm)",
+    "tolerance": 5,
+    "median": 0.449,
+    "p90": 0.563,
+    "shareWithinTolerance": 1,
+    "meets": true
+   },
+   {
+    "quantity": "depth at the rim (cm)",
+    "tolerance": 10,
+    "median": 8.727,
+    "p90": 19.433,
+    "shareWithinTolerance": 0.62,
+    "meets": false
+   }
+  ],
+  "S1_withWidthCue": [
+   {
+    "quantity": "apex height above the rim (m)",
+    "tolerance": 0.15,
+    "median": 0.017,
+    "p90": 0.034,
+    "shareWithinTolerance": 1,
+    "meets": true
+   },
+   {
+    "quantity": "entry angle (deg)",
+    "tolerance": 3,
+    "median": 0.589,
+    "p90": 0.893,
+    "shareWithinTolerance": 1,
+    "meets": true
+   },
+   {
+    "quantity": "sideways at the rim (cm)",
+    "tolerance": 5,
+    "median": 0.426,
+    "p90": 0.462,
+    "shareWithinTolerance": 1,
+    "meets": true
+   },
+   {
+    "quantity": "depth at the rim (cm)",
+    "tolerance": 10,
+    "median": 6.006,
+    "p90": 8.307,
+    "shareWithinTolerance": 0.96,
+    "meets": true
+   }
+  ],
+  "S2_roughlyKnownCamera_noWidth": [
+   {
+    "quantity": "apex height above the rim (m)",
+    "tolerance": 0.15,
+    "median": 0.223,
+    "p90": 0.297,
+    "shareWithinTolerance": 0,
+    "meets": false
+   },
+   {
+    "quantity": "entry angle (deg)",
+    "tolerance": 3,
+    "median": 2.971,
+    "p90": 4.736,
+    "shareWithinTolerance": 0.53,
+    "meets": false
+   },
+   {
+    "quantity": "sideways at the rim (cm)",
+    "tolerance": 5,
+    "median": 1.247,
+    "p90": 3.679,
+    "shareWithinTolerance": 0.95,
+    "meets": true
+   },
+   {
+    "quantity": "depth at the rim (cm)",
+    "tolerance": 10,
+    "median": 157.846,
+    "p90": 173.703,
+    "shareWithinTolerance": 0,
+    "meets": false
+   }
+  ],
+  "S2_withWidthCue": [
+   {
+    "quantity": "apex height above the rim (m)",
+    "tolerance": 0.15,
+    "median": 0.197,
+    "p90": 0.241,
+    "shareWithinTolerance": 0,
+    "meets": false
+   },
+   {
+    "quantity": "entry angle (deg)",
+    "tolerance": 3,
+    "median": 2.367,
+    "p90": 4.397,
+    "shareWithinTolerance": 0.76,
+    "meets": false
+   },
+   {
+    "quantity": "sideways at the rim (cm)",
+    "tolerance": 5,
+    "median": 1.196,
+    "p90": 3.639,
+    "shareWithinTolerance": 0.95,
+    "meets": true
+   },
+   {
+    "quantity": "depth at the rim (cm)",
+    "tolerance": 10,
+    "median": 154.766,
+    "p90": 171.145,
+    "shareWithinTolerance": 0,
+    "meets": false
+   }
+  ]
+ },
+ "sameShotDifferentCameras": {
+  "trueApexAboveRim_m": 0.66,
+  "trueEntryAngle_deg": 41,
+  "views": [
+   {
+    "cameraPitch_deg": 1,
+    "cameraBehindShooter_m": 1,
+    "highestPointInPicture_px_above_rim": 299,
+    "ballWidthAtApexPx": 68
+   },
+   {
+    "cameraPitch_deg": 1,
+    "cameraBehindShooter_m": 3,
+    "highestPointInPicture_px_above_rim": 164,
+    "ballWidthAtApexPx": 37
+   },
+   {
+    "cameraPitch_deg": 1,
+    "cameraBehindShooter_m": 6,
+    "highestPointInPicture_px_above_rim": 121,
+    "ballWidthAtApexPx": 31
+   },
+   {
+    "cameraPitch_deg": 6,
+    "cameraBehindShooter_m": 1,
+    "highestPointInPicture_px_above_rim": 271,
+    "ballWidthAtApexPx": 64
+   },
+   {
+    "cameraPitch_deg": 6,
+    "cameraBehindShooter_m": 3,
+    "highestPointInPicture_px_above_rim": 155,
+    "ballWidthAtApexPx": 35
+   },
+   {
+    "cameraPitch_deg": 6,
+    "cameraBehindShooter_m": 6,
+    "highestPointInPicture_px_above_rim": 117,
+    "ballWidthAtApexPx": 30
+   },
+   {
+    "cameraPitch_deg": 11,
+    "cameraBehindShooter_m": 1,
+    "highestPointInPicture_px_above_rim": 246,
+    "ballWidthAtApexPx": 59
+   },
+   {
+    "cameraPitch_deg": 11,
+    "cameraBehindShooter_m": 3,
+    "highestPointInPicture_px_above_rim": 149,
+    "ballWidthAtApexPx": 34
+   },
+   {
+    "cameraPitch_deg": 11,
+    "cameraBehindShooter_m": 6,
+    "highestPointInPicture_px_above_rim": 115,
+    "ballWidthAtApexPx": 30
+   }
+  ]
+ },
+ "noise": {
+  "positionPx": 1,
+  "widthRelative": 0.044
+ },
+ "simulated": 400,
+ "tolerances": {
+  "apex height above the rim (m)": 0.15,
+  "entry angle (deg)": 3,
+  "sideways at the rim (cm)": 5,
+  "depth at the rim (cm)": 10
+ }
+}

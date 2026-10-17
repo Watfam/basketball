@@ -114,6 +114,16 @@ function toResult(row: BenchmarkRow, p: BenchmarkProtocol | null): BenchmarkResu
   };
 }
 
+/** First against latest of a list of comparable results, with the same rules for a benchmark and for an ordinary drill. */
+export function compareList(list: BenchmarkResult[], opts: { timed?: boolean } = {}): Comparison | null {
+  return compare({ clockSeconds: opts.timed ? 1 : null } as BenchmarkProtocol, list);
+}
+
+/** Two specific results (for example the previous run and the latest). */
+export function compareTwo(a: BenchmarkResult, b: BenchmarkResult, opts: { timed?: boolean } = {}): Comparison | null {
+  return compare({ clockSeconds: opts.timed ? 1 : null } as BenchmarkProtocol, [a, b]);
+}
+
 function compare(p: BenchmarkProtocol, list: BenchmarkResult[]): Comparison | null {
   if (list.length < 2) return null;
   const a = list[0], b = list[list.length - 1];
@@ -208,4 +218,25 @@ export function whatThisShows(report: BenchmarkReport[], volume: ReturnType<type
 export function weekLabel(week: number | null, planned: boolean): string {
   if (week === null) return "Outside the program";
   return planned ? `Week ${week} · planned benchmark week` : `Week ${week} · extra run`;
+}
+
+/**
+ * Results of an ordinary tracked drill (not a benchmark) in the same shape the benchmark screens use, so the same chart, the same rules and the
+ * same data-quality notes apply. A run of fewer than 5 attempts is too small to read and is left out of comparisons. Different runs of an ordinary
+ * drill can be different amounts of work, which is shown, not hidden.
+ */
+export function drillResults(rows: BenchmarkRow[]): BenchmarkResult[] {
+  return [...rows].sort((a, b) => a.at.localeCompare(b.at)).map((row) => {
+    const m = row.metrics, t = m.tracking;
+    const flags: Flag[] = [];
+    if (m.attempts < 5) flags.push({ kind: "incomplete", text: `Only ${m.attempts} attempts: too few to read`, excludes: true });
+    if (m.tracking.adjusted) flags.push({ kind: "adjusted", text: `Totals changed by you after saving (first saved ${t.adjusted!.original.makes} of ${t.adjusted!.original.attempts})`, excludes: false });
+    if (t.source === "taps") flags.push({ kind: "source", text: "Counted by your taps, not the camera", excludes: false });
+    if (t.flipped + t.added_by_hand > 0 && t.source !== "taps") flags.push({ kind: "corrected", text: `${t.flipped ? `${t.flipped} camera call${t.flipped === 1 ? "" : "s"} you changed` : ""}${t.flipped && t.added_by_hand ? " and " : ""}${t.added_by_hand ? `${t.added_by_hand} shot${t.added_by_hand === 1 ? "" : "s"} you added` : ""}`, excludes: false });
+    return {
+      logId: row.logId, workoutSessionId: row.workoutSessionId, shotSessionId: t.shot_session_id, at: row.at, week: row.week, day: row.day, planned: false,
+      attempts: m.attempts, makes: m.makes, pct: m.attempts > 0 ? (100 * m.makes) / m.attempts : null, ci: wilson(m.makes, m.attempts),
+      comparable: m.attempts >= 5, flags, source: t.source,
+    };
+  });
 }

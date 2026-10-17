@@ -146,3 +146,7 @@ method with the same signature as the baselines.
 ## Phase 12 (benchmarks, Progress, Film Room links, unique index)
 
 `experiments/camera-in-training/BENCHMARKS.md`: the three fixed-protocol shooting benchmarks (version 1), how they sit in the Six-Week Shot Builder, the Progress screen and its uncertainty rules, the Film Room links, migration 0023 (prepared, not applied; exact steps), a Phase 10 timed-drill unit defect found and fixed, before/after tests, limitations. `db-validation/run-p12.mjs` runs the files that would go to the live project against a real Postgres. SQL: `supabase/migrations/0023_*`, `seed_0024_*`, `seed_0025_*`, `fix_0026_*`, `checks/`, `rollback/`.
+
+## Phase 13 (shot review redesign, side-view study, coaching insights)
+
+`experiments/shot-review/REPORT.md`: Watch a shot / Compare two / Where they went replace the cluttered overlay (old analytics kept under Advanced), the insights engine and Progress Shooting drill-down with safe return links, tests and rendering measurements, what stays experimental. `experiments/side-view/` (PREREGISTRATION.md, study.mjs, REPORT.md): what a single rear camera can and cannot recover; decision is the camera's own view, no per-shot estimated side view. Production counting files unchanged; frozen baseline reproduces.

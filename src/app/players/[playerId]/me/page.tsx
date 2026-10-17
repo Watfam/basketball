@@ -108,7 +108,7 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
           <div className="grid grid-cols-3 gap-2.5">
             {[
               { label: "Workouts", value: String(recentWorkouts), sub: "finished", href: `/players/${playerId}/progress?range=4w` },
-              { label: "Shots tracked", value: String(recentVolume.attempts), sub: "effort, not skill", href: `/players/${playerId}/progress?range=4w` },
+              { label: "Shots tracked", value: String(recentVolume.attempts), sub: "effort, not skill", href: `/players/${playerId}/progress?view=shooting&range=4w` },
               { label: "Benchmarks", value: `${benchmarksRun} of ${BENCHMARKS.length}`, sub: "run so far", href: `/players/${playerId}/progress?view=benchmarks&range=all` },
             ].map((t) => (
               <Link key={t.label} href={t.href} className="flex min-h-24 flex-col justify-between rounded-2xl border border-line bg-surface p-3 transition-colors hover:border-line-strong">

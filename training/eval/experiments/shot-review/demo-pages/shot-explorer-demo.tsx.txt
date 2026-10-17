@@ -1,0 +1,50 @@
+import fs from "node:fs";
+import { ShotExplorer } from "@/components/shots/shot-explorer";
+import type { HistoryPoint, HistorySession, HistoryShot } from "@/lib/review/history-types";
+
+type Sp = { s?: string };
+const SAMPLE = "/Users/WatfordFamily/Desktop/basketball-app/training/work/phone-replay/hardwood-lab-replay-sample.json";
+
+function load(): { sessions: HistorySession[]; shots: HistoryShot[] } {
+  const d = JSON.parse(fs.readFileSync(SAMPLE, "utf8"));
+  const sessions: HistorySession[] = [], shots: HistoryShot[] = [];
+  d.sessions.forEach((s: { startedAt: string; framing: HistorySession["framing"]; shots: Omit<HistoryShot, "v" | "id" | "sessionKey" | "playerId" | "savedAt" | "bytes">[] }, i: number) => {
+    const key = `k${i}`;
+    sessions.push({ v: 1, sessionKey: key, playerId: "p", sessionId: null, label: i % 2 ? "Catch and shoot" : null, startedAt: s.startedAt, savedAt: 0, shots: s.shots.length, withTracking: s.shots.filter((x) => x.tracked).length, framing: s.framing, bytes: 0 });
+    for (const x of s.shots) shots.push({ ...x, v: 1, id: `${key}-${x.seq}`, sessionKey: key, playerId: "p", savedAt: 0, bytes: 0 } as HistoryShot);
+  });
+  return { sessions, shots };
+}
+
+export default async function Demo({ searchParams }: { searchParams: Promise<Sp> }) {
+  const sp = await searchParams;
+  const s = sp.s ?? "real";
+  let { sessions, shots } = load();
+  if (s === "clear") {
+    const first = sessions[0]; const mine = shots.filter((x) => x.sessionKey === first.sessionKey && x.quality.level === "tracked");
+    const make = mine.find((x) => x.made && x.fingerprint?.m.rim_level_x_bw != null)!, miss = mine.find((x) => !x.made && x.fingerprint?.m.rim_level_x_bw != null) ?? mine.find((x) => !x.made)!;
+    sessions = [first]; shots = [make, miss].filter(Boolean);
+  } else if (s === "sparse") {
+    sessions = [sessions[0]]; shots = shots.filter((x) => x.sessionKey === "k0").slice(0, 3);
+  } else if (s === "incomplete") {
+    sessions = [sessions[0]];
+    const base = shots.filter((x) => x.sessionKey === "k0" && x.tracked && x.points.length > 10).slice(0, 3);
+    shots = [{ ...base[0], id: "inc", seq: 1, points: base[0].points.slice(0, 5), quality: { level: "partial", reasons: [] } }, { ...base[1], id: "ok1", seq: 2 }, { ...base[2], id: "ok2", seq: 3, made: !base[2].made }] as HistoryShot[];
+  } else if (s === "uncertain") {
+    sessions = [sessions[0]];
+    const base = shots.filter((x) => x.sessionKey === "k0" && x.tracked && x.points.length > 14).slice(0, 2);
+    const pts = base[0].points.map((p, i) => (i === 4 ? ([p[0], p[1], p[2], p[3], 30] as HistoryPoint) : p)).filter((_, i) => i < 8 || i > 10);
+    shots = [{ ...base[0], id: "unsure", seq: 1, points: pts, quality: { level: "partial", reasons: ["the path has 2 separate pieces"] } }, { ...base[1], id: "plain", seq: 2, made: !base[1].made }] as HistoryShot[];
+  } else if (s === "corrected") {
+    sessions = [sessions[0]];
+    shots = shots.filter((x) => x.sessionKey === "k0").slice(0, 6).map((x, i) => (i === 1 ? { ...x, detectedMade: !x.made } : x));
+  } else if (s === "nopath") {
+    sessions = [sessions[0]];
+    shots = shots.filter((x) => x.sessionKey === "k0").slice(0, 4).map((x, i) => (i < 2 ? { ...x, tracked: false, points: [], fingerprint: null, quality: { level: "none", reasons: [] } } : x)) as HistoryShot[];
+  } else if (s === "large") {
+    const S: HistorySession[] = [], H: HistoryShot[] = [];
+    for (let r = 0; r < 10; r += 1) for (const se of sessions) { const key = `${se.sessionKey}-${r}`; S.push({ ...se, sessionKey: key }); for (const x of shots.filter((y) => y.sessionKey === se.sessionKey)) H.push({ ...x, id: `${x.id}-${r}`, sessionKey: key }); }
+    sessions = S; shots = H;
+  }
+  return <div className="theme-dark min-h-screen bg-background p-4 text-foreground"><div className="mx-auto max-w-md"><ShotExplorer sessions={sessions} shots={shots} advanced={<details className="rounded-2xl border border-line bg-surface px-3 py-1"><summary className="flex min-h-12 cursor-pointer items-center text-sm font-extrabold text-foreground-dim">Advanced: every path, measurements, statistics, saved sets</summary></details>} /></div></div>;
+}

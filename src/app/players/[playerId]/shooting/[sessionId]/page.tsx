@@ -3,15 +3,19 @@ import { createClient } from "@/lib/supabase/server";
 import { SessionSummary } from "@/components/shot-summary";
 import { DeleteShotSessionButton } from "@/components/delete-shot-session-button";
 import { detectorAgreement, formatPercentage, type Shot } from "@/lib/basketball/shooting";
+import { safeFrom } from "@/lib/basketball/safe-from";
 import { PageHeader } from "@/components/ui/page-header";
 import { TrackingHistoryEntry } from "@/components/tracking-history-entry";
 
 export default async function ShotSessionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ playerId: string; sessionId: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { playerId, sessionId } = await params;
+  const from = safeFrom((await searchParams).from, playerId);
   const supabase = await createClient();
 
   const [{ data: { user } }, { data: session }, { data: shotRows }] = await Promise.all([
@@ -53,7 +57,7 @@ export default async function ShotSessionPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/players/${playerId}/shooting`, label: "Shooting" }} width="md" />
+      <PageHeader back={from ? { href: from, label: "Progress" } : { href: `/players/${playerId}/shooting`, label: "Shooting" }} width="md" />
 
       <main className="mx-auto w-full max-w-md flex-1 space-y-6 px-4 py-5 sm:py-8">
         <section className="rounded-3xl border border-line bg-surface p-6">
