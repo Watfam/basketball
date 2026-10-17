@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
@@ -97,12 +97,12 @@ export function ShootSetup({
         {children}
       </section>
 
-      {open === "drill" && <DrillSheet labels={labels} label={label} recent={otherRecent(recent, label ?? "", goal)} lastSix={lastSix} onLabel={(l) => { onLabel(l); close(); }} onUseSetup={(s) => { onUseSetup(s); close(); }} onClose={close} opener={opener} />}
+      {open === "drill" && <DrillSheet labels={labels} label={label} recent={otherRecent(recent, label ?? "", goal)} lastSix={lastSix} onLabel={onLabel} onUseSetup={onUseSetup} onClose={close} opener={opener} />}
       {open === "count" && (
         <Sheet title="How do you want to count?" onClose={close} opener={opener}>
           <Options>
-            <Opt selected={countWithCamera} title="Camera" sub="Phone on a stand counts. You check the unsure ones." onPick={() => { onCount(true); close(); }} />
-            <Opt selected={!countWithCamera} title="Tap counter" sub="Tap make or miss yourself. No stand needed." onPick={() => { onCount(false); close(); }} />
+            <Opt selected={countWithCamera} title="Camera" sub="Phone on a stand counts. You check the unsure ones." onPick={() => onCount(true)} />
+            <Opt selected={!countWithCamera} title="Tap counter" sub="Tap make or miss yourself. No stand needed." onPick={() => onCount(false)} />
           </Options>
         </Sheet>
       )}
@@ -111,30 +111,121 @@ export function ShootSetup({
   );
 }
 
-function Sheet({ title, onClose, opener, children, footer }: { title: string; onClose: () => void; opener: HTMLElement | null; children: ReactNode; footer?: ReactNode }) {
+const SheetClose = createContext<() => void>(() => {});
+
+/** Closes the sheet the way a swipe would: it slides away, then goes. */
+function DoneButton() {
+  const close = useContext(SheetClose);
+  return <Button size="lg" block onClick={() => { haptic("tap"); close(); }}>Done</Button>;
+}
+
+const SLIDE_MS = 280;
+const CLOSE_PX = 110;
+const CLOSE_SPEED = 0.55;
+
+/**
+ * A bottom sheet that behaves like one on a phone: it slides up, follows a finger that pulls it down, and either slides away (a long enough pull, or a quick
+ * flick) or springs back. Choosing something in it does not close it; swiping down, Done, a tap outside or Escape do. The pull works from the grab handle and
+ * title, and from anywhere on the sheet when its list is scrolled to the top. Respects "reduce motion".
+ */
+function Sheet({ title, onClose, opener, children }: { title: string; onClose: () => void; opener: HTMLElement | null; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
   useEffect(() => { closeRef.current = onClose; });
+  const [shown, setShown] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [dy, setDy] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [height, setHeight] = useState(500);
+  const closingRef = useRef(false);
+  const ms = () => (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : SLIDE_MS);
+
+  const requestClose = () => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    setClosing(true);
+    setTimeout(() => closeRef.current(), ms());
+  };
+  const closeNow = useRef(requestClose);
+  useEffect(() => { closeNow.current = requestClose; });
+
   useEffect(() => {
     const back = opener;
-    ref.current?.focus();
-    const key = (e: KeyboardEvent) => { if (e.key === "Escape") closeRef.current(); };
+    const id = requestAnimationFrame(() => { setHeight(ref.current?.offsetHeight ?? 500); setShown(true); });
+    ref.current?.focus({ preventScroll: true });
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") closeNow.current(); };
     window.addEventListener("keydown", key);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", key); document.body.style.overflow = overflow; back?.focus(); };
+    return () => { cancelAnimationFrame(id); window.removeEventListener("keydown", key); document.body.style.overflow = overflow; back?.focus(); };
   }, [opener]);
+
+  // The pull. Native listeners, because a pull has to stop the page's own scrolling and React's touch handlers cannot.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let startY = 0, lastY = 0, lastT = 0, speed = 0, active = false, pulling = false, fromTop = false, pull = 0;
+    const onStart = (e: TouchEvent) => {
+      if (closingRef.current || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const inHead = t.clientY - el.getBoundingClientRect().top < 72;
+      const onField = (e.target as HTMLElement).closest("input, textarea");
+      active = !onField;
+      fromTop = inHead || el.scrollTop <= 0;
+      pulling = false; pull = 0; startY = lastY = t.clientY; lastT = performance.now(); speed = 0;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!active) return;
+      const y = e.touches[0].clientY, now = performance.now();
+      const d = y - startY;
+      if (!pulling) {
+        if (d > 8 && fromTop && el.scrollTop <= 0) { pulling = true; setDragging(true); }
+        else if (d < -8 || (d > 8 && !fromTop)) { active = false; return; }
+        else return;
+      }
+      e.preventDefault();
+      if (now > lastT) speed = (y - lastY) / (now - lastT);
+      lastY = y; lastT = now;
+      pull = Math.max(0, d - 8);
+      setDy(pull);
+    };
+    const onEnd = () => {
+      if (!pulling) { active = false; return; }
+      active = false; pulling = false;
+      setDragging(false);
+      if (pull > CLOSE_PX || (speed > CLOSE_SPEED && pull > 24)) { haptic("tap"); closeNow.current(); } else setDy(0);
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onEnd);
+    el.addEventListener("touchcancel", onEnd);
+    return () => { el.removeEventListener("touchstart", onStart); el.removeEventListener("touchmove", onMove); el.removeEventListener("touchend", onEnd); el.removeEventListener("touchcancel", onEnd); };
+  }, []);
+
+  const away = closing || !shown;
+  const dur = dragging ? 0 : ms();
+  const fade = away ? 0 : Math.max(0, 1 - dy / Math.max(1, height));
   // Drawn on the page itself, not inside the setup's own layout: a parent that spaces its children would otherwise shift a full-screen sheet.
   return createPortal(
-    <div className="fixed inset-0 z-50">
-      <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 h-full w-full cursor-default bg-black/45" />
-      <div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className="animate-rise absolute inset-x-0 bottom-0 mx-auto max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2.5 outline-none">
-        <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line-strong" />
-        <h2 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">{title}</h2>
-        <div className="mt-3">{children}</div>
-        {footer && <div className="mt-3">{footer}</div>}
+    <SheetClose.Provider value={requestClose}>
+      <div className="fixed inset-0 z-50">
+        <button type="button" aria-label="Close" tabIndex={-1} onClick={requestClose} className="absolute inset-0 h-full w-full cursor-default bg-black/45" style={{ opacity: fade, transition: dragging ? "none" : `opacity ${dur}ms ease-out` }} />
+        <div
+          ref={ref}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          tabIndex={-1}
+          className="absolute inset-x-0 bottom-0 mx-auto max-h-[88dvh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-3xl border border-line bg-surface px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-1 outline-none will-change-transform"
+          style={{ transform: away ? "translateY(100%)" : `translateY(${dy}px)`, transition: dragging ? "none" : `transform ${dur}ms cubic-bezier(0.22, 1, 0.36, 1)` }}
+        >
+          <div aria-hidden className="mx-auto flex h-6 w-16 items-center justify-center"><span className="h-1 w-10 rounded-full bg-line-strong" /></div>
+          <h2 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">{title}</h2>
+          <div className="mt-3">{children}</div>
+          <div className="mt-4"><DoneButton /></div>
+        </div>
       </div>
-    </div>,
+    </SheetClose.Provider>,
     document.body
   );
 }
@@ -160,9 +251,11 @@ function Opt({ selected, title, sub, right, onPick }: { selected: boolean; title
   );
 }
 
-function DrillSheet({ labels, label, recent, lastSix, onLabel, onUseSetup, onClose, opener }: { labels: string[]; label: string | null; recent: Setup[]; lastSix: Record<string, Six>; onLabel: (l: string) => void; onUseSetup: (s: Setup) => void; onClose: () => void; opener: HTMLElement | null }) {
+function DrillSheet({ labels, label, recent: recentNow, lastSix, onLabel, onUseSetup, onClose, opener }: { labels: string[]; label: string | null; recent: Setup[]; lastSix: Record<string, Six>; onLabel: (l: string) => void; onUseSetup: (s: Setup) => void; onClose: () => void; opener: HTMLElement | null }) {
+  // The recent setups are read once when the sheet opens, so the list does not shuffle under a finger as choices are made.
+  const [recent] = useState(recentNow);
   const [own, setOwn] = useState("");
-  const use = () => { const t = own.trim(); if (t) onLabel(t); };
+  const use = () => { const t = own.trim(); if (t) { onLabel(t); setOwn(""); } };
   const current = label === null ? null : label.trim();
   const all = [...new Set([...(current && !labels.includes(current) ? [current] : []), ...labels])];
   return (
@@ -196,10 +289,10 @@ function DrillSheet({ labels, label, recent, lastSix, onLabel, onUseSetup, onClo
 function GoalSheet({ goal, onGoal, onClose, opener }: { goal: Goal | null; onGoal: (g: Goal | null) => void; onClose: () => void; opener: HTMLElement | null }) {
   const kinds = GOAL_KINDS.map((k) => k.kind) as GoalKind[];
   return (
-    <Sheet title="Set a goal?" onClose={onClose} opener={opener} footer={goal ? <Button size="lg" block onClick={onClose}>Done</Button> : undefined}>
+    <Sheet title="Set a goal?" onClose={onClose} opener={opener}>
       <p className="-mt-1 mb-2.5 text-sm text-foreground-dim">The set ends and saves itself when you reach it.</p>
       <Options label="Goal">
-        <Opt selected={!goal} title="No goal" sub="I will end the set myself" onPick={() => { onGoal(null); onClose(); }} />
+        <Opt selected={!goal} title="No goal" sub="I will end the set myself" onPick={() => onGoal(null)} />
         {kinds.map((kind) => (
           <Opt key={kind} selected={goal?.kind === kind} title={goalSpec(kind).label} sub={GOAL_HELP[kind]} onPick={() => { if (goal?.kind !== kind) onGoal({ kind, target: goalSpec(kind).choices[1] }); }} />
         ))}

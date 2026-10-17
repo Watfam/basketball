@@ -56,7 +56,7 @@ For each test: pass, or what happened and a screenshot. For test 1 step 5 and te
 
 ## Test 9: The new Shoot setup (5 min)
 1. Open Shoot. You should see one card ("Go again" and your last drill), three rows, and Start right below them, without scrolling.
-2. Tap each row: the drill, how to count, the goal. Choose something in each. Does each sheet close by itself (the goal one has Done), and does the card change to match?
+2. Tap each row: the drill, how to count, the goal. Choose something in each. The sheet should stay open and the card behind it should change. Then swipe the sheet down: does it follow your finger smoothly, slide away when you let go past about a third of the way (or flick it), and spring back if you let go early? Also try Done and tapping the dim area.
 3. Tap Start. The camera (or the tap counter) should open for the drill and goal you chose.
 4. Name your own drill: does the keyboard cover the field or the Use button?
 5. Sign in as (or switch to) a profile that has never shot: you should see "What are you shooting?" with the drills as buttons.

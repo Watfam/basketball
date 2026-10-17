@@ -33,6 +33,16 @@ async function axe(p, label) {
   console.log(`   axe ${label}: ${r.length ? r.map((v) => `${v.id}(${v.impact},${v.n})`).join(", ") : "no violations"}`); for (const v of r.filter((x) => x.impact === "serious" || x.impact === "critical")) console.log("      ", v.s);
   return !r.some((x) => ["serious", "critical"].includes(x.impact));
 }
+const gone = async (p, ms = 700) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (!(await p.$("[role=dialog]"))) return true; await wait(40); } return false; };
+const cardText = (p) => p.evaluate(() => document.querySelector("[aria-label='What Start will do']")?.innerText.replace(/\s+/g, " ") ?? "");
+const dlgTop = (p) => p.evaluate(() => Math.round(document.querySelector("[role=dialog]").getBoundingClientRect().top));
+// A finger: down at (x, y), drag down by dy in steps over ms, and optionally hold it there (hold) or let go.
+async function swipe(p, y, dy, { steps = 12, ms = 360, hold = false, x = 195 } = {}) {
+  await p.touchscreen.touchStart(x, y);
+  for (let i = 1; i <= steps; i++) { await p.touchscreen.touchMove(x, y + (dy * i) / steps); await wait(ms / steps); }
+  if (!hold) await p.touchscreen.touchEnd();
+}
+const swipeCloses = async (p) => { const t = await dlgTop(p); await swipe(p, t + 20, 220); return gone(p); };
 const startRect = (p) => p.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => /start shooting/i.test(x.innerText)); const r = b.getBoundingClientRect(); return { top: Math.round(r.top), bottom: Math.round(r.bottom), h: Math.round(r.height) }; });
 const draft = (p) => p.evaluate((P) => JSON.parse(localStorage.getItem(`hl:shots:${P}:draft`) ?? "null"), P);
 const RECENT = JSON.stringify([{ label: "Random", goal: null }, { label: "Free throws", goal: { kind: "shots", target: 25 } }, { label: "Mid-range", goal: { kind: "makes", target: 10 } }]);
@@ -57,17 +67,22 @@ const sm1 = await small(p); ok(sm1.length === 0, "every row in the sheet is at l
 ok(await axe(p, "drill sheet open"), "no serious accessibility violations with the sheet open");
 await p.screenshot({ path: "s-drill.png" });
 ok(await click(p, /^Free throws/, "[role=dialog] [role=radiogroup]"), "tap 'Free throws'"); await wait(400);
-ok((await dialog(p)) === null, "the sheet closes by itself: no Done button to hunt for");
-t = await text(p); ok(/Your setup Free throws Camera · no goal · last 3 sets 66\.7%/.test(t), "the card now reads 'Your setup · Free throws', with the last sets of free throws");
-ok(/What you are shooting Free throws ›/.test(t), "the row shows the new drill");
+ok((await dialog(p)) !== null, "choosing does NOT close the sheet: pick, look, change your mind");
+ok(await p.evaluate(() => [...document.querySelectorAll("[role=radio]")].filter((x) => x.getAttribute("aria-checked") === "true").map((x) => x.innerText.replace(/\s+/g, " ")).join("|").startsWith("Free throws")), "the tick moves to Free throws");
+ok(/Your setup Free throws Camera · no goal · last 3 sets 66\.7%/.test(await cardText(p)), "and the card behind the sheet already reads 'Your setup · Free throws', with the last sets of free throws");
+ok(await swipeCloses(p), "pulling the sheet down closes it"); 
+t = await text(p); ok(/What you are shooting Free throws ›/.test(t), "the row shows the new drill");
 // recent setup applies drill and goal together
 await click(p, /What you are shooting/); await wait(300); await click(p, /^Mid-range\s+Make 10/, "[role=dialog]"); await wait(400);
-t = await text(p); ok(/Mid-range/.test(t) && /Make 10/.test(t), "a recent setup applies the drill and its goal together");
+ok(/Mid-range/.test(await cardText(p)) && /Make 10/.test(await cardText(p)), "a recent setup applies the drill and its goal together (sheet still open)");
+ok(await click(p, /^Done/, "[role=dialog]") && await gone(p), "Done closes it");
 // counting sheet
 await click(p, /How to count/); await wait(300); d = await dialog(p);
 ok(/How do you want to count\?/.test(d) && /Camera Phone on a stand counts/.test(d) && /Tap counter Tap make or miss yourself/.test(d), "the counting sheet: two rows, each with a plain sentence");
 ok(await click(p, /^Tap counter/, "[role=dialog]"), "tap 'Tap counter'"); await wait(400);
-t = await text(p); ok(/How to count Tap counter ›/.test(t) && /Tap counter · Make 10/.test(t), "counting changes on the card and the row, and the sheet closed");
+ok((await dialog(p)) !== null && /Tap counter · Make 10/.test(await cardText(p)), "counting changes on the card and the sheet stays open");
+ok(await swipeCloses(p), "swipe it away");
+t = await text(p); ok(/How to count Tap counter ›/.test(t), "the row shows Tap counter");
 ok(await p.evaluate(() => localStorage.getItem("hl:shots:count")) === "tap", "and it is remembered for next time");
 // goal sheet
 await click(p, /^Goal/); await wait(300); d = await dialog(p);
@@ -75,21 +90,54 @@ ok(/Set a goal\?/.test(d) && /No goal I will end the set myself/.test(d) && /Sho
 ok(await click(p, /^Shots/, "[role=dialog]"), "tap 'Shots'"); await wait(300);
 d = await dialog(p); ok(/25 50 100/.test(d) && /50 shots/.test(d) && /Done/.test(d), "an amount appears (25, 50, 100, and the stepper), with Done");
 await click(p, /More/, "[role=dialog]"); await wait(150); d = await dialog(p); ok(/55 shots/.test(d), "the + button adds five");
+await wait(300);
 ok(await p.evaluate(() => { const r = document.querySelector("[role=dialog]").getBoundingClientRect(); const at = document.elementFromPoint(100, innerHeight - 6); return Math.round(r.bottom) === innerHeight && !!at.closest("[role=dialog]"); }), "the sheet reaches the bottom of the screen and covers the tab bar (it once stopped 24 px short and showed the tab bar through)");
 ok(await axe(p, "goal sheet open"), "no serious accessibility violations (goal sheet)");
 await p.screenshot({ path: "s-goal.png" });
-await p.keyboard.press("Escape"); await wait(400);
-ok((await dialog(p)) === null, "Escape closes the sheet");
+await p.keyboard.press("Escape");
+ok(await gone(p), "Escape closes the sheet");
 ok(await p.evaluate(() => document.activeElement?.innerText?.includes("Goal")), "focus goes back to the row that opened it");
 t = await text(p); ok(/Tap counter · 55 shots/.test(t), "the goal is on the card (55 shots), and it is remembered");
 await p.screenshot({ path: "s-changed.png" });
 // a streak note
 await click(p, /^Goal/); await wait(300); await click(p, /^In a row/, "[role=dialog]"); await wait(200); ok(/Stops at 100 shots/.test(await dialog(p)), "'in a row' says it stops at 100 shots"); await click(p, /No goal/, "[role=dialog]"); await wait(300);
-ok((await dialog(p)) === null && /no goal/.test(await text(p)), "'No goal' closes the sheet and the card says so");
+ok((await dialog(p)) !== null && /no goal/.test(await cardText(p)), "'No goal' updates the card and leaves the sheet open");
+await click(p, /^Done/, "[role=dialog]"); ok(await gone(p), "Done closes the goal sheet");
 // a name of your own
 await click(p, /What you are shooting/); await wait(300);
 await p.type("input[aria-label='Name your own drill']", "Corner threes"); await p.keyboard.press("Enter"); await wait(400);
-t = await text(p); ok(/Your setup Corner threes/.test(t), "naming your own drill works and uses it");
+ok(/Your setup Corner threes/.test(await cardText(p)) && (await dialog(p)) !== null, "naming your own drill uses it (sheet open, the name is now in the list)");
+await p.keyboard.press("Escape"); await gone(p);
+// ---- the swipe, in detail ----
+await click(p, /What you are shooting/); await wait(500);
+let top0 = await dlgTop(p);
+await swipe(p, top0 + 20, 160, { hold: true }); await wait(60);
+let top1 = await dlgTop(p);
+ok(Math.abs(top1 - top0 - 152) <= 6, `the sheet follows the finger while it is held down (moved ${top1 - top0}px for a ${160}px pull)`);
+ok(await p.evaluate(() => { const b = document.querySelector("[role=dialog]").previousElementSibling; return +getComputedStyle(b).opacity < 0.9; }), "the dim behind it lightens as it is pulled down");
+await p.touchscreen.touchMove(195, top0 + 20 + 30); await wait(60); await p.touchscreen.touchEnd(); await wait(500);
+ok((await dialog(p)) !== null && Math.abs((await dlgTop(p)) - top0) <= 2, "a short pull that is let go springs back to where it was");
+// A real flick is fast; the browser driver's touch calls are too slow to make one, so this one is made in the page (three moves, 5 ms apart).
+await p.evaluate((y) => new Promise((done) => {
+  const el = document.querySelector("[role=dialog]"); const mk = (type, yy) => { const t = new Touch({ identifier: 7, target: el, clientX: 195, clientY: yy }); return new TouchEvent(type, { bubbles: true, cancelable: true, touches: type === "touchend" ? [] : [t], targetTouches: type === "touchend" ? [] : [t], changedTouches: [t] }); };
+  el.dispatchEvent(mk("touchstart", y)); [y + 25, y + 50, y + 75].forEach((yy, i) => setTimeout(() => el.dispatchEvent(mk("touchmove", yy)), 5 * (i + 1))); setTimeout(() => { el.dispatchEvent(mk("touchend", y + 75)); done(); }, 25);
+}), top0 + 20);
+ok(await gone(p), "a quick flick closes it even over a short distance");
+await click(p, /What you are shooting/); await wait(500);
+await swipe(p, 560, 220); ok(await gone(p), "pulling from the middle of the list (scrolled to the top) closes it too");
+await click(p, /What you are shooting/); await wait(500);
+await p.evaluate(() => { document.querySelector("[role=dialog]").scrollTop = 120; }); await wait(100);
+await swipe(p, 500, 200, { hold: true }); await wait(60);
+ok((await dlgTop(p)) === top0 || Math.abs((await dlgTop(p)) - top0) <= 2, "with the list scrolled down, pulling down scrolls the list instead of closing the sheet"); await p.touchscreen.touchEnd(); await wait(300);
+ok((await dialog(p)) !== null, "and the sheet is still open");
+await swipe(p, 500, -200); await wait(300); ok((await dialog(p)) !== null, "pulling up never closes it");
+await p.evaluate(() => { document.querySelector("[role=dialog]").scrollTop = 0; });
+await p.mouse.click(195, 60); ok(await gone(p), "a tap on the dimmed area outside closes it");
+ok(await p.evaluate(() => document.activeElement?.innerText?.includes("What you are shooting")), "focus goes back to the row that opened it");
+// reduced motion
+await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+await click(p, /How to count/); await wait(150); const t0r = Date.now(); await click(p, /^Done/, "[role=dialog]"); ok(await gone(p, 200) && Date.now() - t0r < 250, "with 'reduce motion' on, it closes without the slide");
+await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "no-preference" }]);
 // start
 await click(p, /^Start shooting/, "section[aria-label='New session']"); await wait(1200);
 const dr = await draft(p);
