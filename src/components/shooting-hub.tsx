@@ -14,14 +14,11 @@ import {
   type ZoneKey,
 } from "@/lib/basketball/shooting";
 import {
-  GOAL_KINDS,
   clampGoal,
   describeGoal,
-  goalSpec,
   goalState,
   parseGoal,
   type Goal,
-  type GoalKind,
 } from "@/lib/basketball/goals";
 import { primeAlerts, blipShot } from "@/lib/alerts";
 import { haptic } from "@/lib/haptics";
@@ -41,7 +38,8 @@ import { SoundCheck } from "@/components/sound-controls";
 import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
-import { Input } from "@/components/ui/field";
+import { ShootSetup } from "@/components/shoot-setup";
+import { effectiveLabel } from "@/lib/basketball/shoot-setup";
 import { clockStart, draftGoal, draftKey, effectiveGoal, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
 import { drillSetLabel, sameDrill, workoutReturnPath, type DrillContext } from "@/lib/basketball/drill-context";
 import { attachDrillResult, retryPendingDrill, type DrillOutcome } from "@/lib/drill-attach";
@@ -151,7 +149,8 @@ export function ShootingHub({
   // The last call, shown big for a moment: the shooter is 15 feet away.
   const [lastCall, setLastCall] = useState<{ made: boolean; flagged: boolean; at: number } | null>(null);
 
-  const [labelInput, setLabelInput] = useState("");
+  // The drill the player picked this visit; until then the card shows the one used last.
+  const [picked, setPicked] = useState<string | null>(null);
   const [syncState, setSyncState] = useState<SyncState>("saved");
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -902,191 +901,27 @@ export function ShootingHub({
           </button>
         </section>
       )}
-      <section className="panel-lit rounded-3xl border border-line bg-surface p-6">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">New session</p>
-        {recent.length > 0 && (
-          <div className="mt-3">
-            <Eyebrow className="mb-1.5">
-              Go again · one tap starts
-            </Eyebrow>
-            <div className="flex flex-wrap gap-1.5">
-              {recent.map((r) => (
-                <button
-                  key={setupKey(r)}
-                  type="button"
-                  onClick={() => start(r.label, r.goal)}
-                  className="rounded-full bg-accent/10 px-3 py-1.5 text-xs font-bold text-accent ring-1 ring-accent/40"
-                >
-                  {[r.label || "Shooting", r.goal ? describeGoal(r.goal) : null].filter(Boolean).join(" · ")}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <h2 className="font-display mt-4 text-3xl uppercase leading-none tracking-wide text-foreground">
-          What are you shooting?
-        </h2>
-
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {labels.map((l) => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => {
-                haptic("tap");
-                setLabelInput((prev) => (prev === l ? "" : l));
-              }}
-              aria-pressed={labelInput === l}
-              className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
-                labelInput === l
-                  ? "border-accent bg-accent/10 text-accent"
-                  : "border-line text-foreground-dim"
-              }`}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
-
-        <Input
-          value={labelInput}
-          onChange={(e) => setLabelInput(e.target.value)}
-          placeholder="Or name your own"
-          maxLength={60}
-          className="mt-3"
-        />
-
-        {(() => {
-          const name = labelInput.trim();
-          const six = name ? lastSix[name] : lastSix["*"];
-          if (!six) return null;
-          return (
-            <p className="mt-2.5 text-xs font-semibold text-foreground-dim">
-              Last {six.sessions === 1 ? "set" : `${six.sessions} sets`}
-              {name ? ` of ${name}` : ""}:{" "}
-              <span className="font-extrabold text-accent">{formatPercentage(six.pct)}</span>
-            </p>
-          );
-        })()}
-
-        {cameraAllowed && (
-        <div className="mt-5">
-          <Eyebrow className="mb-1.5">
-            How to count
-          </Eyebrow>
-          <div className="grid grid-cols-2 gap-2">
-            {(
-              [
-                { id: "tap", title: "Tap counter", sub: "Tap make or miss yourself" },
-                { id: "camera", title: "Camera", sub: "Phone on a stand counts; you check the unsure ones" },
-              ] as const
-            ).map((opt) => {
-              const selected = opt.id === "camera" ? countWithCamera : !countWithCamera;
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => {
-                    haptic("tap");
-                    setCountRaw(opt.id);
-                  }}
-                  className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
-                    selected ? "border-accent bg-accent/10" : "border-line"
-                  }`}
-                >
-                  <p className={`text-xs font-extrabold uppercase tracking-wide ${selected ? "text-accent" : "text-foreground-dim"}`}>
-                    {opt.title}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-foreground-dim">{opt.sub}</p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        )}
-
-        <div className="mt-5">
-          <Eyebrow className="mb-1.5">
-            Goal · the set ends and saves itself
-          </Eyebrow>
-          <div className="grid grid-cols-5 gap-1 rounded-xl bg-raised p-1">
-            {([null, ...GOAL_KINDS.map((k) => k.kind)] as (GoalKind | null)[]).map((kind) => {
-              const active = (goal?.kind ?? null) === kind;
-              return (
-                <button
-                  key={kind ?? "none"}
-                  type="button"
-                  onClick={() => {
-                    haptic("tap");
-                    if (!kind) setGoal(null);
-                    else if (goal?.kind !== kind) setGoal({ kind, target: goalSpec(kind).choices[1] });
-                  }}
-                  aria-pressed={active}
-                  className={`rounded-lg px-1 py-2 text-[11px] font-extrabold uppercase tracking-wide transition-colors ${
-                    active ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"
-                  }`}
-                >
-                  {kind ? goalSpec(kind).label : "None"}
-                </button>
-              );
-            })}
-          </div>
-
-          {goal && (
-            <div className="mt-2.5 flex items-center gap-1.5">
-              {goalSpec(goal.kind).choices.map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => {
-                    haptic("tap");
-                    setGoal({ kind: goal.kind, target: n });
-                  }}
-                  aria-pressed={goal.target === n}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-bold tabular-nums transition-colors ${
-                    goal.target === n ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"
-                  }`}
-                >
-                  {n}
-                </button>
-              ))}
-              <div className="ml-auto flex items-center gap-1">
-                {[-1, 1].map((sign) => (
-                  <button
-                    key={sign}
-                    type="button"
-                    aria-label={sign < 0 ? "Fewer" : "More"}
-                    onClick={() => {
-                      haptic("tap");
-                      setGoal({ kind: goal.kind, target: goal.target + sign * goalSpec(goal.kind).step });
-                    }}
-                    className="h-8 w-8 rounded-full border border-line text-sm font-extrabold text-foreground-dim"
-                  >
-                    {sign < 0 ? "−" : "+"}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          <p className="mt-2 text-xs font-bold text-foreground">
-            {goal ? describeGoal(goal) : "No goal: end the set yourself"}
-            {goal?.kind === "streak" && (
-              <span className="font-normal text-foreground-mute"> · stops at 100 shots if it doesn&rsquo;t come</span>
-            )}
-          </p>
-        </div>
-
-        <Button size="lg" block onClick={() => start(labelInput)} className="mt-4">
-          Start shooting
-        </Button>
-        <p className="mt-2.5 text-center text-[11px] text-foreground-mute">
-          Keeping the same name each time is what makes your progress line up.
-        </p>
+      <ShootSetup
+        labels={labels}
+        label={effectiveLabel(picked, recent)}
+        hasPicked={picked !== null}
+        recent={recent}
+        lastSix={lastSix}
+        goal={goal}
+        cameraAllowed={cameraAllowed}
+        countWithCamera={countWithCamera}
+        onLabel={setPicked}
+        onUseSetup={(setup) => {
+          setPicked(setup.label);
+          setGoal(setup.goal);
+        }}
+        onGoal={setGoal}
+        onCount={(camera) => setCountRaw(camera ? "camera" : "tap")}
+        onStart={() => start(effectiveLabel(picked, recent) ?? "")}
+      >
         <SoundCheck className="mt-3 flex flex-col items-center" />
         <TrackingHistoryEntry playerId={playerId} />
-      </section>
+      </ShootSetup>
 
       {children}
     </div>

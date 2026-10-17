@@ -19,6 +19,7 @@ export function SoundCheck({ className }: { className?: string }) {
       <Button
         variant="secondary"
         size="sm"
+        className="min-h-11"
         onClick={() => {
           primeAlerts();
           haptic("tap");

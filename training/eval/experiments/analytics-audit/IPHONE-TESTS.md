@@ -53,3 +53,11 @@ For each test: pass, or what happened and a screenshot. For test 1 step 5 and te
 7. Open "How are these counted?". Does it make sense to a child?
 8. How fast does Today appear after opening the app, and after switching tabs? Tell me if you wait more than two seconds.
 9. Read "Am I getting better?" and the focus card out loud. Anything that sounds like proof you got better when it is only more shooting?
+
+## Test 9: The new Shoot setup (5 min)
+1. Open Shoot. You should see one card ("Go again" and your last drill), three rows, and Start right below them, without scrolling.
+2. Tap each row: the drill, how to count, the goal. Choose something in each. Does each sheet close by itself (the goal one has Done), and does the card change to match?
+3. Tap Start. The camera (or the tap counter) should open for the drill and goal you chose.
+4. Name your own drill: does the keyboard cover the field or the Use button?
+5. Sign in as (or switch to) a profile that has never shot: you should see "What are you shooting?" with the drills as buttons.
+6. Anything that makes you hesitate or tap the wrong thing?

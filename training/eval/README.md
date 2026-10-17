@@ -162,3 +162,7 @@ method with the same signature as the baselines.
 ## Today redesign (after the rim aiming work)
 
 `experiments/home/REPORT.md` and `home-e2e.mjs`: the player home rebuilt in place (welcome, the one thing to do, three shooting numbers with a range, "Am I getting better?" from benchmarks only, eight weekly bars, one focus, recent work), with drill-downs that carry the date range into Shoot and Progress. One source for "shots" across Today, Shoot and Me.
+
+## Shoot setup, start first
+
+`experiments/shoot-setup/REPORT.md` and `shoot-setup-e2e.mjs`: the Shoot tab's setup is one card (what Start will do), three rows that open pick-one sheets, and Start right under them; a new player sees the drills as wrapped buttons first.
