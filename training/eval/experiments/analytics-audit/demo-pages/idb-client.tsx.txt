@@ -1,0 +1,31 @@
+"use client";
+import { useEffect, useState } from "react";
+import { ShotHistory } from "@/components/shot-history";
+import { idbHistory } from "@/lib/review/history-store";
+import type { HistorySession, HistoryShot } from "@/lib/review/history-types";
+
+type Sample = { sessions: { startedAt: string; framing: HistorySession["framing"]; shots: Omit<HistoryShot, "v" | "id" | "sessionKey" | "playerId" | "savedAt" | "bytes">[] }[] };
+const PLAYER = "p14-demo-player";
+// Seeds this browser's real IndexedDB with the replay sample as a player's own saved history, then opens the app's own shot history on it.
+export function IdbDemo({ data }: { data: Sample }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    void (async () => {
+      const q = new URLSearchParams(location.search);
+      if (q.get("keep")) { setReady(true); return; }
+      await idbHistory.deleteAll();
+      if (q.get("empty")) { setReady(true); return; }
+      await idbHistory.writeMeta({ schema: 1, createdAt: Date.now(), app: "hardwood-lab" });
+      let i = 0;
+      const list = q.get("dup") ? [...data.sessions, { ...data.sessions[0], startedAt: new Date(Date.parse(data.sessions[0].startedAt) + 3600_000).toISOString() }] : data.sessions;
+      for (const s of list) {
+        const key = `${PLAYER}:k${i++}`;
+        const shots = s.shots.map((x) => ({ ...x, v: 1, id: `${key}#${x.seq}`, sessionKey: key, playerId: PLAYER, savedAt: 0, bytes: 10 }) as HistoryShot);
+        await idbHistory.saveSession({ v: 1, sessionKey: key, playerId: PLAYER, sessionId: null, label: null, startedAt: s.startedAt, savedAt: Date.now(), shots: shots.length, withTracking: shots.filter((x) => x.tracked).length, framing: s.framing, bytes: 10 }, shots);
+      }
+      setReady(true);
+    })();
+  }, [data]);
+  if (!ready) return <p className="p-4 text-sm">Seeding…</p>;
+  return <div className="theme-dark min-h-screen bg-background text-foreground"><ShotHistory playerId={PLAYER} onClose={() => {}} /></div>;
+}

@@ -125,3 +125,16 @@ test("after the last sighting the ball is held and marked 'ended' (the camera st
   assert.equal(after.ended, true); assert.equal(after.inGap, false); assert.equal(after.seenNow, false);
   assert.deepEqual(after.shown, end.shown);
 });
+
+test("a side is never stated as a fact about the shooter unless the phone was said to be straight behind", () => {
+  const mk = (cross: number, made: boolean) => shot({ made, detectedMade: made, points: path(cross) });
+  const shots = [...[0, 3, -4, 6, 2, -2].map((c) => mk(c, true)), ...[-60, -50, -70, -45, -55, -62, -48, 20, -58, 8].map((c) => mk(c, false))];
+  const unsure = summarizePatterns(shots).side!;
+  assert.equal(unsure.strong, true); assert.match(unsure.text, /in the picture/); assert.match(unsure.caveat!, /not straight behind you/); assert.match(unsure.caveat!, /short or long/);
+  const behind = summarizePatterns(shots, "behind").side!;
+  assert.equal(behind.strong, true); assert.match(behind.caveat!, /little off-centre/);
+  const side = summarizePatterns(shots, "side").side!;
+  assert.equal(side.strong, false); assert.equal(side.lean, "none"); assert.match(side.text, /cannot be read as a lean in your shooting/); assert.equal(side.left > side.right, true, "the counts are still shown");
+  const balanced = summarizePatterns([-50, 50, -40, 45, -55, 60, -42, 48, -47, 52].map((c) => mk(c, false)), "unsure").side!;
+  assert.equal(balanced.caveat, null, "nothing to caveat when no side is claimed");
+});

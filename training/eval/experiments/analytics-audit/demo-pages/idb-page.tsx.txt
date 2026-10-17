@@ -1,0 +1,8 @@
+import fs from "node:fs";
+import { IdbDemo } from "./client";
+
+const SAMPLE = "/Users/WatfordFamily/Desktop/basketball-app/training/work/phone-replay/hardwood-lab-replay-sample.json";
+export default function Page() {
+  const d = JSON.parse(fs.readFileSync(SAMPLE, "utf8"));
+  return <IdbDemo data={d} />;
+}

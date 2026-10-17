@@ -4,9 +4,9 @@ import { VolumeChart } from "@/components/charts/volume-chart";
 import { EmptyState } from "@/components/empty-state";
 import { BenchmarkCards, KpiTile } from "@/components/progress/benchmark-cards";
 import { ResultExplorer } from "@/components/progress/result-explorer";
-import { InsightCard, NextCard } from "@/components/progress/insight-cards";
+import { InsightCard, LatestCard, NextCard } from "@/components/progress/insight-cards";
 import { ShootingView } from "@/components/progress/shooting-view";
-import { buildInsights, nextAction, type InsightLink, type LessonLite } from "@/lib/basketball/insights";
+import { buildInsights, latestResult, nextAction, type InsightLink, type LessonLite } from "@/lib/basketball/insights";
 import { Card } from "@/components/ui/card";
 import { PROGRESS_ROW_LIMIT } from "@/lib/basketball/progress-limits";
 import { RANGE_CHOICES, rangeParams, type ProgressRange } from "@/lib/basketball/progress-range";
@@ -44,6 +44,7 @@ export function ProgressView({ playerId, playerName, range, view, selected, cate
   const ranCount = reports.filter((r) => r.groups.some((g) => g.current && g.comparable.length > 0)).length;
   const nextWeek = nextPlannedWeek(everReports);
   const insights = buildInsights(rows, inRange);
+  const latest = latestResult(rows, now, inRange);
   const next = nextAction({ rows, now, benchmarkWorkoutHref: hasBenchmarkWorkout ? `/players/${playerId}/workouts` : null, lessonFor });
   const linkHref = (l: InsightLink) => (l === null ? null : l.view === "benchmarks" ? q({ view: "benchmarks", benchmark: l.benchmark }) : q({ view: "shooting", ...(l.category ? { category: l.category } : {}), ...(l.drill ? { drill: l.drill } : {}) }));
 
@@ -66,6 +67,7 @@ export function ProgressView({ playerId, playerName, range, view, selected, cate
 
         {view === "overview" ? (
           <>
+            {latest && <LatestCard latest={latest} drillHref={q({ view: "shooting", ...(latest.row.metrics.category ? { category: latest.row.metrics.category } : {}), drill: encodeURIComponent(`${latest.row.drillName}|${latest.row.metrics.variant ?? ""}`) })} shotsHref={`/players/${playerId}/shooting/${latest.row.metrics.tracking.shot_session_id}?from=${encodeURIComponent(q({}))}`} />}
             <section aria-label="What your results say">
               <SectionHeading title="What your results say" caption={range.label} />
               {insights.length === 0 ? (
@@ -146,7 +148,7 @@ function RangeBar({ range, view, benchmark, category, drill, base, keep }: { ran
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Date range">
         {RANGE_CHOICES.map((c) => (
           <Link key={c.key} href={href({ range: c.key })} scroll={false} aria-current={range.key === c.key ? "true" : undefined}
-            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${range.key === c.key ? "border-accent bg-accent/10 text-accent" : "border-line bg-surface text-foreground-dim"}`}>{c.label}</Link>
+            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${range.key === c.key ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{c.label}</Link>
         ))}
       </div>
       <details className="mt-1.5" open={range.key === "custom"}>
@@ -222,7 +224,7 @@ function BenchmarkDetail({ reports, selected, playerId, q, hasWorkout, meaning, 
       <nav aria-label="Benchmarks" className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {reports.map((r) => (
           <Link key={r.protocol.key} href={q({ view: "benchmarks", benchmark: r.protocol.key })} scroll={false} aria-current={r.protocol.key === p.key ? "true" : undefined}
-            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${r.protocol.key === p.key ? "border-accent bg-accent/10 text-accent" : "border-line bg-surface text-foreground-dim"}`}>{r.protocol.title.replace(" Benchmark", "")}</Link>
+            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${r.protocol.key === p.key ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{r.protocol.title.replace(" Benchmark", "")}</Link>
         ))}
       </nav>
 

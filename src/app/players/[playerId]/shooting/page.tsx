@@ -146,7 +146,7 @@ export default async function ShootingPage({
                   scroll={false}
                   aria-current={d === selected ? "true" : undefined}
                   className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
-                    d === selected ? "border-accent bg-accent/10 text-accent" : "border-line bg-surface text-foreground-dim"
+                    d === selected ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"
                   }`}
                 >
                   {d}

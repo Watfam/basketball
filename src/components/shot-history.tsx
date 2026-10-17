@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { analyseHistory, type Statement } from "@/lib/review/consistency";
-import { compareShots, deleteSessionHistory, framingGroups, loadHistory, type LoadedHistory } from "@/lib/review/history-core";
+import { compareShots, deleteSessionHistory, framingGroups, loadHistory, setSessionSetup, type LoadedHistory } from "@/lib/review/history-core";
 import { idbHistory } from "@/lib/review/history-store";
 import type { HistoryShot } from "@/lib/review/history-types";
 import { debugEnabled, record as recordDiag } from "@/lib/review/diagnostics";
@@ -78,7 +78,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
   const groups = useMemo(() => (h ? setupGroups(framingGroups(h.sessions), h.shots) : []), [h]);
   const group = groups[Math.min(scope, Math.max(0, groups.length - 1))];
   const chosen = picked.map((id) => byId.get(id)).filter((x): x is HistoryShot => !!x);
-  const verdicts = chosen.slice(1).map((x) => ({ x, v: compareShots({ shot: chosen[0], framing: sessionOf.get(chosen[0].sessionKey)?.framing ?? null }, { shot: x, framing: sessionOf.get(x.sessionKey)?.framing ?? null }) }));
+  const verdicts = chosen.slice(1).map((x) => ({ x, v: compareShots({ shot: chosen[0], framing: sessionOf.get(chosen[0].sessionKey)?.framing ?? null, setup: sessionOf.get(chosen[0].sessionKey)?.setup }, { shot: x, framing: sessionOf.get(x.sessionKey)?.framing ?? null, setup: sessionOf.get(x.sessionKey)?.setup }) }));
   const allComparable = verdicts.length > 0 && verdicts.every((x) => x.v.comparable);
   const watched = watching ? byId.get(watching) ?? null : null;
 
@@ -114,8 +114,8 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
             <p className="text-[11px] text-foreground-mute">{sample ? "Real paths from existing recordings, kept apart from any player. Not your own sets." : "Beta. Kept on this phone only."}</p>
           </div>
           <div className="flex gap-1">
-            {!sample && <Button variant="ghost" size="sm" onClick={() => setSettings((v) => !v)} aria-expanded={settings}>Settings</Button>}
-            <Button variant="ghost" size="sm" onClick={onClose}>Done</Button>
+            {!sample && <Button variant="ghost" size="sm" className="min-h-11" onClick={() => setSettings((v) => !v)} aria-expanded={settings}>Settings</Button>}
+            <Button variant="ghost" size="sm" className="min-h-11" onClick={onClose}>Done</Button>
           </div>
         </div>
 
@@ -134,6 +134,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
             sessions={h!.sessions}
             shots={h!.shots}
             initial={{ sessionKey: focused?.sessionKey }}
+            onSetup={sample ? undefined : (keys, setup) => { void setSessionSetup(idbHistory, keys, setup).then(() => load()); }}
             advanced={
               <details className="rounded-2xl border border-line bg-surface px-3 py-1">
                 <summary className="flex min-h-12 cursor-pointer items-center text-sm font-extrabold text-foreground-dim">Advanced: every path, measurements, statistics, saved sets</summary>
@@ -144,7 +145,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
               <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Your sets</p>
               <div className="flex gap-1" role="group" aria-label="Show">
                 {(["all", "make", "miss"] as const).map((f) => (
-                  <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)} className={`min-h-8 rounded-md px-2 text-[11px] font-extrabold uppercase ${filter === f ? "bg-surface text-accent shadow-sm ring-1 ring-line-strong" : "bg-raised text-foreground-dim"}`}>{f === "all" ? "All" : f === "make" ? "Makes" : "Misses"}</button>
+                  <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)} className={`min-h-11 rounded-md px-2 text-[11px] font-extrabold uppercase ${filter === f ? "bg-surface text-accent shadow-sm ring-1 ring-line-strong" : "bg-raised text-foreground-dim"}`}>{f === "all" ? "All" : f === "make" ? "Makes" : "Misses"}</button>
                 ))}
               </div>
             </div>
@@ -156,11 +157,11 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
                 return (
                   <li key={x.sessionKey} className="py-2">
                     <div className="flex items-center justify-between gap-2 text-[12px]">
-                      <button type="button" onClick={() => setOpen(open === x.sessionKey ? null : x.sessionKey)} aria-expanded={open === x.sessionKey} className="min-w-0 flex-1 text-left">
+                      <button type="button" onClick={() => setOpen(open === x.sessionKey ? null : x.sessionKey)} aria-expanded={open === x.sessionKey} className="min-h-11 min-w-0 flex-1 text-left">
                         <span className="font-semibold text-foreground">{date(x.startedAt)}{x.label ? ` · ${x.label}` : ""}</span>
                         <span className="block text-[11px] text-foreground-mute">{coverageSentence(all.length, x.withTracking, clear)}</span>
                       </button>
-                      <Button variant="ghost" size="sm" onClick={() => void delSession(x.sessionKey)}>Delete</Button>
+                      <Button variant="ghost" size="sm" className="min-h-11" onClick={() => void delSession(x.sessionKey)}>Delete</Button>
                     </div>
                     {open === x.sessionKey && (
                       <>
@@ -168,7 +169,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
                         <ul className="mt-1 flex flex-wrap gap-1.5">
                           {mine.map((y) => (
                             <li key={y.id}>
-                              <button type="button" aria-pressed={watching === y.id} onClick={() => setWatching(watching === y.id ? null : y.id)} title={CONFIDENCE[y.quality.level].label} className={`flex min-h-9 items-center gap-1 rounded-md px-2 text-[11px] font-extrabold ${watching === y.id ? "bg-accent text-on-accent" : "bg-raised text-foreground-dim"}`}>
+                              <button type="button" aria-pressed={watching === y.id} onClick={() => setWatching(watching === y.id ? null : y.id)} title={CONFIDENCE[y.quality.level].label} className={`flex min-h-11 items-center gap-1 rounded-md px-2 text-[11px] font-extrabold ${watching === y.id ? "bg-accent text-on-accent" : "bg-raised text-foreground-dim"}`}>
                                 <span className={`inline-block h-1.5 w-1.5 rounded-full ${DOT[y.quality.level]}`} />{y.seq} {y.made ? "make" : "miss"}
                               </button>
                             </li>
@@ -185,14 +186,14 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
         )}
 
         {watched && <HistoryShotViewer key={watched.id} shot={watched} when={date(sessionOf.get(watched.sessionKey)?.startedAt ?? "")} onClose={() => setWatching(null)} />}
-        {watched && !picked.includes(watched.id) && picked.length < MAX_PICK && <Button variant="secondary" size="sm" onClick={() => { toggle(watched.id); setMode("pick"); }}>Add this shot to a comparison</Button>}
+        {watched && !picked.includes(watched.id) && picked.length < MAX_PICK && <Button variant="secondary" size="sm" className="min-h-11" onClick={() => { toggle(watched.id); setMode("pick"); }}>Add this shot to a comparison</Button>}
 
         {hasData && group && (
           <section aria-label="Compare shots" className="rounded-2xl border border-line bg-surface p-3">
             <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Compare shots</p>
             <div className="mt-2 grid grid-cols-2 gap-1 rounded-xl bg-raised p-1">
               {([["outcome", "Makes vs misses"], ["pick", `Picked shots (${picked.length})`]] as const).map(([k, t]) => (
-                <button key={k} type="button" aria-pressed={mode === k} onClick={() => setMode(k)} className={`min-h-9 rounded-lg text-xs font-extrabold ${mode === k ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"}`}>{t}</button>
+                <button key={k} type="button" aria-pressed={mode === k} onClick={() => setMode(k)} className={`min-h-11 rounded-lg text-xs font-extrabold ${mode === k ? "bg-surface text-accent shadow-sm" : "text-foreground-dim"}`}>{t}</button>
               ))}
             </div>
 
@@ -200,7 +201,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
               <>
                 {groups.length > 1 && (
                   <label className="mt-2 block text-[12px] text-foreground-dim">Camera setup
-                    <select value={Math.min(scope, groups.length - 1)} onChange={(e) => setScope(+e.target.value)} className="mt-1 block w-full rounded-lg border border-line bg-surface p-2 text-base text-foreground">
+                    <select value={Math.min(scope, groups.length - 1)} onChange={(e) => setScope(+e.target.value)} className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface p-2 text-base text-foreground">
                       {groups.map((g, i) => <option key={i} value={i}>Setup {i + 1}: {g.sessions.length} set{g.sessions.length === 1 ? "" : "s"}, {g.shots.length} shots ({date(g.sessions[0].startedAt)}{g.sessions.length > 1 ? ` to ${date(g.sessions[g.sessions.length - 1].startedAt)}` : ""})</option>)}
                     </select>
                   </label>
@@ -275,7 +276,7 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
                   {g.statements.filter((x) => x.status === "supported").map((x) => <StatementView key={x.id} s={x} />)}
                   {g.statements.filter((x) => x.status === "supported").length === 0 && <li className="text-foreground-mute">Nothing stands out yet. It takes more shots with a clear path, across more sets, before the app will say anything.</li>}
                 </ul>
-                <details className="mt-1"><summary className="cursor-pointer text-[11px] text-foreground-mute">What was not reported, and why</summary>
+                <details className="mt-1"><summary className="flex min-h-11 cursor-pointer items-center text-[11px] text-foreground-mute">What was not reported, and why</summary>
                   <ul className="mt-1 space-y-0.5 text-[11px] text-foreground-mute">{g.statements.filter((x) => x.status === "abstained").map((x) => <li key={x.id}>{LABEL[x.id]}: {plainStatement(String(x.detail ?? x.reason ?? ""))}</li>)}</ul>
                 </details>
               </div>
@@ -300,7 +301,7 @@ function StatementView({ s }: { s: Statement }) {
     <li className="rounded-lg bg-raised p-2">
       <p className="text-foreground">{plainStatement(s.claim_observation ?? "")}</p>
       <p className="mt-1 text-[11px] text-foreground-mute">{plainStatement(s.interpretation_limit)}</p>
-      <details className="mt-1 text-[11px] text-foreground-mute"><summary className="cursor-pointer">How sure is this?</summary>
+      <details className="mt-1 text-[11px] text-foreground-mute"><summary className="flex min-h-11 cursor-pointer items-center">How sure is this?</summary>
         <p className="mt-1">Based on {Object.entries(s.n).map(([k, v]) => `${v} ${k}`).join(", ")}; the camera could measure {Math.round(s.measurement_quality.availability * 100)}% of the shots.{u.ci95 ? ` Likely range: ${u.ci95.lo} to ${u.ci95.hi}.` : ""}{u.p_adjusted !== null ? ` Chance of seeing this by luck (adjusted): ${u.p_adjusted}.` : ""}</p>
         <p className="mt-1">Compared with: {s.comparison_baseline}</p>
         <p className="mt-1">Caution: {plainStatement(s.caution)}</p>

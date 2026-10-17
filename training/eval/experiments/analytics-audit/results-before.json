@@ -1,0 +1,430 @@
+{
+ "trials": 3000,
+ "seed": 20261017,
+ "assumptions": {
+  "dayToDaySdPoints": [
+   0,
+   3,
+   5
+  ],
+  "note": "no real day-to-day data exists yet; these are stated assumptions"
+ },
+ "s1": [
+  {
+   "sd": 0,
+   "p": 0.4,
+   "falseUp": 2,
+   "falseDown": 2.2,
+   "either": 4.2
+  },
+  {
+   "sd": 0,
+   "p": 0.5,
+   "falseUp": 2.4,
+   "falseDown": 2.8,
+   "either": 5.2
+  },
+  {
+   "sd": 0,
+   "p": 0.6,
+   "falseUp": 2.5,
+   "falseDown": 2.4,
+   "either": 4.9
+  },
+  {
+   "sd": 0,
+   "p": 0.7,
+   "falseUp": 2.4,
+   "falseDown": 2.3,
+   "either": 4.8
+  },
+  {
+   "sd": 3,
+   "p": 0.4,
+   "falseUp": 2.9,
+   "falseDown": 2.9,
+   "either": 5.7
+  },
+  {
+   "sd": 3,
+   "p": 0.5,
+   "falseUp": 3.7,
+   "falseDown": 3,
+   "either": 6.7
+  },
+  {
+   "sd": 3,
+   "p": 0.6,
+   "falseUp": 2.9,
+   "falseDown": 2.8,
+   "either": 5.7
+  },
+  {
+   "sd": 3,
+   "p": 0.7,
+   "falseUp": 2.6,
+   "falseDown": 3,
+   "either": 5.7
+  },
+  {
+   "sd": 5,
+   "p": 0.4,
+   "falseUp": 4.4,
+   "falseDown": 4.2,
+   "either": 8.6
+  },
+  {
+   "sd": 5,
+   "p": 0.5,
+   "falseUp": 4.6,
+   "falseDown": 4.2,
+   "either": 8.8
+  },
+  {
+   "sd": 5,
+   "p": 0.6,
+   "falseUp": 4.2,
+   "falseDown": 4.6,
+   "either": 8.8
+  },
+  {
+   "sd": 5,
+   "p": 0.7,
+   "falseUp": 4.6,
+   "falseDown": 4.6,
+   "either": 9.2
+  }
+ ],
+ "screen": [
+  {
+   "sd": 0,
+   "withDrills": true,
+   "benchmarkClearAfterWeek3": 13.6,
+   "benchmarkClearAfterWeek6": 19.3,
+   "drillClear": 9.1,
+   "anyClearOnScreen": 27.1,
+   "anyClearDecline": 11.6,
+   "firstVsLatestClear": 6
+  },
+  {
+   "sd": 3,
+   "withDrills": true,
+   "benchmarkClearAfterWeek3": 18.7,
+   "benchmarkClearAfterWeek6": 24.8,
+   "drillClear": 10.7,
+   "anyClearOnScreen": 33,
+   "anyClearDecline": 13.8,
+   "firstVsLatestClear": 8.1
+  },
+  {
+   "sd": 5,
+   "withDrills": true,
+   "benchmarkClearAfterWeek3": 24.7,
+   "benchmarkClearAfterWeek6": 32.4,
+   "drillClear": 12.2,
+   "anyClearOnScreen": 40.9,
+   "anyClearDecline": 17.9,
+   "firstVsLatestClear": 10
+  }
+ ],
+ "s5": [
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 8,
+   "strongLeanShown": 0.9,
+   "leanLeft": 0.5,
+   "leanRight": 0.4
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 12,
+   "strongLeanShown": 3.4,
+   "leanLeft": 2.1,
+   "leanRight": 1.4
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 20,
+   "strongLeanShown": 5.6,
+   "leanLeft": 2.6,
+   "leanRight": 3
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 40,
+   "strongLeanShown": 5.1,
+   "leanLeft": 2.9,
+   "leanRight": 2.2
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 8,
+   "strongLeanShown": 1.1,
+   "leanLeft": 0.5,
+   "leanRight": 0.6
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 12,
+   "strongLeanShown": 3.6,
+   "leanLeft": 1.9,
+   "leanRight": 1.7
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 20,
+   "strongLeanShown": 4.5,
+   "leanLeft": 2.1,
+   "leanRight": 2.4
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 40,
+   "strongLeanShown": 5.5,
+   "leanLeft": 2.7,
+   "leanRight": 2.8
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 8,
+   "strongLeanShown": 1,
+   "leanLeft": 0.5,
+   "leanRight": 0.5
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 12,
+   "strongLeanShown": 4.3,
+   "leanLeft": 2.3,
+   "leanRight": 2
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 20,
+   "strongLeanShown": 5.1,
+   "leanLeft": 2.5,
+   "leanRight": 2.6
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 40,
+   "strongLeanShown": 4.9,
+   "leanLeft": 2.2,
+   "leanRight": 2.7
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 8,
+   "strongLeanShown": 1.1,
+   "leanLeft": 0.5,
+   "leanRight": 0.7
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 12,
+   "strongLeanShown": 3.9,
+   "leanLeft": 1.9,
+   "leanRight": 2
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 20,
+   "strongLeanShown": 5.2,
+   "leanLeft": 2.6,
+   "leanRight": 2.7
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 40,
+   "strongLeanShown": 5.4,
+   "leanLeft": 2.6,
+   "leanRight": 2.8
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 8,
+   "strongLeanShown": 1.7,
+   "leanLeft": 1.3,
+   "leanRight": 0.4
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 12,
+   "strongLeanShown": 6.6,
+   "leanLeft": 5.8,
+   "leanRight": 0.7
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 20,
+   "strongLeanShown": 9.7,
+   "leanLeft": 9.2,
+   "leanRight": 0.5
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 40,
+   "strongLeanShown": 13.6,
+   "leanLeft": 13.2,
+   "leanRight": 0.4
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 8,
+   "strongLeanShown": 3.2,
+   "leanLeft": 3.1,
+   "leanRight": 0.2
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 12,
+   "strongLeanShown": 12.5,
+   "leanLeft": 12.3,
+   "leanRight": 0.2
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 20,
+   "strongLeanShown": 20.9,
+   "leanLeft": 20.9,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 40,
+   "strongLeanShown": 38.8,
+   "leanLeft": 38.7,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 8,
+   "strongLeanShown": 1.7,
+   "leanLeft": 0.9,
+   "leanRight": 0.9
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 12,
+   "strongLeanShown": 4,
+   "leanLeft": 2,
+   "leanRight": 2
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 20,
+   "strongLeanShown": 5.6,
+   "leanLeft": 2.6,
+   "leanRight": 3
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 40,
+   "strongLeanShown": 4.7,
+   "leanLeft": 2.3,
+   "leanRight": 2.4
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 8,
+   "strongLeanShown": 2.7,
+   "leanLeft": 2.6,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 12,
+   "strongLeanShown": 10.9,
+   "leanLeft": 10.6,
+   "leanRight": 0.3
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 20,
+   "strongLeanShown": 18.8,
+   "leanLeft": 18.6,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 40,
+   "strongLeanShown": 31.5,
+   "leanLeft": 31.4,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 8,
+   "strongLeanShown": 9.2,
+   "leanLeft": 9.2,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 12,
+   "strongLeanShown": 31.8,
+   "leanLeft": 31.8,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 20,
+   "strongLeanShown": 54.4,
+   "leanLeft": 54.4,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 40,
+   "strongLeanShown": 83.9,
+   "leanLeft": 83.9,
+   "leanRight": 0
+  }
+ ],
+ "nextStep": {
+  "ranYesterday": {
+   "label": "Run the Free Throw Benchmark",
+   "why": "Another full run of your free throw benchmark, the same way, is what shows whether it moved (1 so far)."
+  },
+  "incompleteRunOnly": {
+   "label": "Run the Free Throw Benchmark",
+   "why": "You have not run your free throw benchmark yet. It is the starting point everything else is compared with."
+  }
+ }
+}

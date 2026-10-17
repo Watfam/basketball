@@ -57,7 +57,7 @@ export function ResultExplorer({ results: all, playerId, label, fromHref }: { re
         </p>
         <p className="mt-1 text-xs text-foreground-dim">Plausible range for this result: {pct(r.ci.lo * 100)} to {pct(r.ci.hi * 100)} (95%).</p>
         <ul className="mt-2 flex flex-wrap gap-1.5">
-          <li className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${r.comparable ? "bg-accent/10 text-accent" : "bg-[var(--line)] text-foreground-dim"}`}>{r.comparable ? "Full benchmark, comparable" : "Left out of comparisons"}</li>
+          <li className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${r.comparable ? "bg-accent/10 text-accent-hover" : "bg-[var(--line)] text-foreground-dim"}`}>{r.comparable ? "Full benchmark, comparable" : "Left out of comparisons"}</li>
           {r.flags.map((f) => <li key={f.text} className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${f.excludes ? "border-foreground-mute text-foreground" : "border-line text-foreground-dim"}`}>{f.text}</li>)}
         </ul>
         <div className="mt-3 flex flex-wrap gap-x-5 text-[11px] font-extrabold uppercase tracking-[0.12em]">

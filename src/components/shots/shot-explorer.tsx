@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { compareShots, framingGroups } from "@/lib/review/history-core";
-import type { HistorySession, HistoryShot } from "@/lib/review/history-types";
+import { compareShots, framingGroups, phonePosition } from "@/lib/review/history-core";
+import type { CameraSetup, HistorySession, HistoryShot } from "@/lib/review/history-types";
 import { setupGroups } from "@/lib/review/history-view";
 import { CONFIDENCE, plainReasons, shotSummary } from "@/lib/review/plain";
 import { COMPARE_CAUTION, hasUsablePath, observedDifferences, sceneOf, sightingTimes, stepTime, summarizePatterns, syncPoint, type Scene } from "@/lib/review/shot-scene";
@@ -22,21 +22,26 @@ function cachedScene(shot: HistoryShot): Scene {
 const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 const colorOf = (made: boolean) => (made ? MAKE_COLOR : MISS_COLOR);
 const DOT = { tracked: "bg-accent", partial: "bg-foreground-dim", unreliable: "bg-foreground-mute", none: "bg-line-strong" } as const;
-const btn = "min-h-12 rounded-xl border border-line bg-raised px-3 text-sm font-extrabold text-foreground active:scale-[0.98] disabled:opacity-40";
+const btnBase = "min-h-12 rounded-xl border px-3 text-sm font-extrabold active:scale-[0.98] disabled:opacity-40";
+const btn = `${btnBase} border-line bg-raised text-foreground`;
+// Not built from `btn`: two background utilities on one element are won by whichever the stylesheet lists last, which left dark text on a dark button.
+const btnPrimary = `${btnBase} border-accent bg-accent text-on-accent`;
 
 /**
  * Looking at saved shots, as three simple things: watch one shot, compare two, or see where a group of shots went. Each answers one question.
  * It shows what the camera saw, in the camera's own picture, and never says why a shot went in or missed. Everything else the app can work out
  * about these shots (every path at once, the measurements, the statistics) is behind "Advanced", passed in as `advanced`.
  */
-export function ShotExplorer({ sessions, shots, advanced, initial }: { sessions: HistorySession[]; shots: HistoryShot[]; advanced?: React.ReactNode; initial?: { sessionKey?: string; shotId?: string } }) {
+export function ShotExplorer({ sessions, shots, advanced, initial, onSetup }: { sessions: HistorySession[]; shots: HistoryShot[]; advanced?: React.ReactNode; initial?: { sessionKey?: string; shotId?: string }; /** Saves the player's answer about the phone for these sets. Left out where nothing can be saved (the replay sample). */ onSetup?: (sessionKeys: string[], setup: CameraSetup) => void }) {
   const groups = useMemo(() => setupGroups(framingGroups(sessions), shots), [sessions, shots]);
   const [mode, setMode] = useState<Mode>("watch");
   const startGroup = Math.max(0, groups.findIndex((g) => g.sessions.some((s) => s.sessionKey === initial?.sessionKey)));
   const [gi, setGi] = useState(startGroup);
   const group = groups[Math.min(gi, groups.length - 1)];
   const [setKey, setSetKey] = useState<string | null>(initial?.sessionKey ?? null);
-  const inScope = useMemo(() => (group ? group.shots.filter((s) => !setKey || s.sessionKey === setKey) : []), [group, setKey]);
+  // A set whose phone answer changed can move to another group; then "all sets" is shown rather than an empty list.
+  const activeKey = group && setKey && group.sessions.some((s) => s.sessionKey === setKey) ? setKey : null;
+  const inScope = useMemo(() => (group ? group.shots.filter((s) => !activeKey || s.sessionKey === activeKey) : []), [group, activeKey]);
   const sceneFor = cachedScene;
   const bySession = useMemo(() => new Map(sessions.map((s) => [s.sessionKey, s])), [sessions]);
 
@@ -70,13 +75,13 @@ export function ShotExplorer({ sessions, shots, advanced, initial }: { sessions:
 
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Which set">
         {[{ key: null as string | null, label: `All ${group.shots.length} shots` }, ...group.sessions.map((s) => ({ key: s.sessionKey as string | null, label: `${date(s.startedAt)}${s.label ? ` · ${s.label}` : ""}` }))].map((o) => (
-          <button key={String(o.key)} type="button" aria-pressed={setKey === o.key} onClick={() => { setSetKey(o.key); setWatchId(null); setCmp({ a: null, b: null }); }} className={`min-h-11 shrink-0 rounded-full border px-3.5 text-xs font-bold ${setKey === o.key ? "border-accent bg-accent/10 text-accent" : "border-line bg-surface text-foreground-dim"}`}>{o.label}</button>
+          <button key={String(o.key)} type="button" aria-pressed={activeKey === o.key} onClick={() => { setSetKey(o.key); setWatchId(null); setCmp({ a: null, b: null }); }} className={`min-h-11 shrink-0 rounded-full border px-3.5 text-xs font-bold ${activeKey === o.key ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{o.label}</button>
         ))}
       </div>
 
       {mode === "watch" && (watchShot ? <Watch key={watchShot.id} shot={watchShot} all={inScope} scene={sceneFor(watchShot)} sessions={bySession} onPick={setWatchId} /> : <Empty />)}
       {mode === "compare" && <Compare key={`${cmpA?.id}-${cmpB?.id}`} a={cmpA} b={cmpB} all={inScope} sceneFor={sceneFor} sessions={bySession} onPick={setCmp} />}
-      {mode === "patterns" && <Patterns shots={inScope} onWatch={watch} onCompare={compare} />}
+      {mode === "patterns" && <Patterns shots={inScope} sessions={activeKey ? group.sessions.filter((x) => x.sessionKey === activeKey) : group.sessions} onWatch={watch} onCompare={compare} onSetup={onSetup} />}
 
       {advanced}
     </div>
@@ -122,7 +127,7 @@ function Controls({ pb, times, onStep, onShot }: { pb: ReturnType<typeof usePlay
       <div className="grid grid-cols-5 gap-1.5">
         <button type="button" className={btn} onClick={() => onShot?.(-1)} disabled={!onShot} aria-label="Previous shot">‹ Shot</button>
         <button type="button" className={btn} onClick={() => onStep(-1)} aria-label="Back one sighting">◂</button>
-        <button type="button" className={`${btn} border-accent bg-accent text-on-accent`} onClick={() => { haptic("tap"); pb.play(); }} aria-label={pb.playing ? "Pause" : "Play"}>{pb.playing ? "Pause" : "Play"}</button>
+        <button type="button" className={btnPrimary} onClick={() => { haptic("tap"); pb.play(); }} aria-label={pb.playing ? "Pause" : "Play"}>{pb.playing ? "Pause" : "Play"}</button>
         <button type="button" className={btn} onClick={() => onStep(1)} aria-label="Forward one sighting">▸</button>
         <button type="button" className={btn} onClick={() => onShot?.(1)} disabled={!onShot} aria-label="Next shot">Shot ›</button>
       </div>
@@ -199,7 +204,7 @@ function Compare({ a, b, all, sceneFor, sessions, onPick }: { a: HistoryShot | n
       </section>
     );
   }
-  const verdict = compareShots({ shot: a, framing: sessions.get(a.sessionKey)?.framing ?? null }, { shot: b, framing: sessions.get(b.sessionKey)?.framing ?? null });
+  const verdict = compareShots({ shot: a, framing: sessions.get(a.sessionKey)?.framing ?? null, setup: sessions.get(a.sessionKey)?.setup }, { shot: b, framing: sessions.get(b.sessionKey)?.framing ?? null, setup: sessions.get(b.sessionKey)?.setup });
   const colorA = a.made === b.made ? MAKE_COLOR : colorOf(a.made), colorB = a.made === b.made ? THIRD_COLOR : colorOf(b.made);
   const at = (s: Scene, local: number) => local + (s === sa ? sync.aT : sync.bT);
   const la: Layer = { scene: sa, color: colorA, t: at(sa, pb.t), tag: "a" }, lb: Layer = { scene: sb, color: colorB, t: at(sb, pb.t), tag: "b" };
@@ -240,8 +245,37 @@ function Compare({ a, b, all, sceneFor, sessions, onPick }: { a: HistoryShot | n
   );
 }
 
-function Patterns({ shots, onWatch, onCompare }: { shots: HistoryShot[]; onWatch: (id: string) => void; onCompare: (a: string, b: string) => void }) {
-  const p = useMemo(() => summarizePatterns(shots), [shots]);
+const POSITIONS = [["behind", "Straight behind me"], ["side", "Off to one side"], ["unsure", "Not sure"]] as const;
+const MOVES = [["no", "No"], ["yes", "Yes"], ["unsure", "Not sure"]] as const;
+
+/** Two optional questions about the phone. The answer is the player's own, kept on this phone with the sets, and it only decides which sets are compared and how a side is worded. */
+function PhoneAsk({ sessions, onSetup }: { sessions: HistorySession[]; onSetup: (sessionKeys: string[], setup: CameraSetup) => void }) {
+  const first = sessions[0]?.setup ?? null;
+  const same = sessions.every((s) => s.setup?.position === first?.position && s.setup?.moved === first?.moved);
+  const now: CameraSetup = same && first ? first : { v: 1, position: "unsure", moved: "unsure" };
+  const keys = sessions.map((s) => s.sessionKey);
+  const row = (legend: string, opts: readonly (readonly [string, string])[], value: string | null, set: (v: string) => void) => (
+    <fieldset className="mt-2"><legend className="text-[12px] font-bold text-foreground">{legend}</legend>
+      <div className="mt-1 flex flex-wrap gap-1.5">
+        {opts.map(([v, t]) => <button key={v} type="button" aria-pressed={value === v} onClick={() => set(v)} className={`min-h-11 rounded-full border px-3.5 text-xs font-bold ${value === v ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{t}</button>)}
+      </div>
+    </fieldset>
+  );
+  return (
+    <details className="rounded-xl border border-line bg-surface px-3">
+      <summary className="flex min-h-11 cursor-pointer items-center text-[12px] font-bold text-foreground-dim">Where was the phone? (optional){first ? " · answered" : ""}</summary>
+      <div className="pb-3">
+        <p className="text-[11px] text-foreground-mute">Your answer stays on this phone. It does not change counting. It only decides which sets are lined up together and how carefully a side is worded.</p>
+        {row("Where was the phone for these sets?", POSITIONS, same && first ? first.position : null, (v) => onSetup(keys, { ...now, position: v as CameraSetup["position"] }))}
+        {row("Did the phone move or get bumped?", MOVES, same && first ? first.moved : null, (v) => onSetup(keys, { ...now, moved: v as CameraSetup["moved"] }))}
+      </div>
+    </details>
+  );
+}
+
+function Patterns({ shots, sessions, onWatch, onCompare, onSetup }: { shots: HistoryShot[]; sessions: HistorySession[]; onWatch: (id: string) => void; onCompare: (a: string, b: string) => void; onSetup?: (sessionKeys: string[], setup: CameraSetup) => void }) {
+  const position = phonePosition(sessions);
+  const p = useMemo(() => summarizePatterns(shots, position), [shots, position]);
   if (p.coverage.shots === 0) return <Empty />;
   const W = 340, mid = W / 2, scale = 22;
   const many = p.arrivals.length > 24;
@@ -264,7 +298,7 @@ function Patterns({ shots, onWatch, onCompare }: { shots: HistoryShot[]; onWatch
         const n = h.makes.length + h.misses.length, mh = h.makes.length * unit, xh = h.misses.length * unit;
         const pick = [...h.misses, ...h.makes].sort((x, y) => y.seq - x.seq)[0];
         return (
-          <g key={i} role={n ? "button" : undefined} tabIndex={n ? 0 : undefined} aria-label={n ? `${binLabel(i)}: ${h.makes.length} make${h.makes.length === 1 ? "" : "s"}, ${h.misses.length} miss${h.misses.length === 1 ? "" : "es"}. Watch one` : undefined} onClick={() => pick && onWatch(pick.id)} onKeyDown={(e) => { if (pick && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onWatch(pick.id); } }} className={n ? "cursor-pointer outline-none" : ""}>
+          <g key={i} role={n ? "button" : undefined} tabIndex={n ? 0 : undefined} aria-label={n ? `${binLabel(i)}: ${n} shot${n === 1 ? "" : "s"}, ${h.makes.length} make${h.makes.length === 1 ? "" : "s"} and ${h.misses.length} miss${h.misses.length === 1 ? "" : "es"}. Watch one` : undefined} onClick={() => pick && onWatch(pick.id)} onKeyDown={(e) => { if (pick && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onWatch(pick.id); } }} className={n ? "cursor-pointer outline-none" : ""}>
             <rect x={i * binW} y={0} width={binW} height={HH - 6} fill="transparent" />
             {mh > 0 && <rect x={i * binW + 2} y={base - mh} width={binW - 4} height={mh} rx={2} fill={MAKE_COLOR} />}
             {xh > 0 && <rect x={i * binW + 2} y={base - mh - xh} width={binW - 4} height={xh} rx={2} fill="none" stroke={MISS_COLOR} strokeWidth={2} />}
@@ -294,7 +328,13 @@ function Patterns({ shots, onWatch, onCompare }: { shots: HistoryShot[]; onWatch
         <>
           {svg}
           <p className="text-[12px] text-foreground-dim"><b style={{ color: MAKE_COLOR }}>●</b> {p.makes} make{p.makes === 1 ? "" : "s"} · <b style={{ color: MISS_COLOR }}>○</b> {p.misses} miss{p.misses === 1 ? "" : "es"}. {many ? "Tap a bar to watch the latest shot in it. " : "Tap a dot to watch that shot. "}Left and right are as the camera picture shows them.</p>
-          {p.side && <p className={`rounded-xl px-3 py-2 text-[13px] ${p.side.strong ? "bg-accent/10 text-foreground" : "bg-raised text-foreground-dim"}`}>{p.side.text}</p>}
+          {p.side && (
+            <div className={`rounded-xl px-3 py-2 text-[13px] ${p.side.strong ? "bg-accent/10 text-foreground" : "bg-raised text-foreground-dim"}`}>
+              <p>{p.side.text}</p>
+              {p.side.caveat && <p className="mt-1 text-[12px] text-foreground-dim">{p.side.caveat}</p>}
+            </div>
+          )}
+          {onSetup && <PhoneAsk sessions={sessions} onSetup={onSetup} />}
           {!p.side && p.misses > 0 && <p className="text-[12px] text-foreground-mute">With {p.misses} miss{p.misses === 1 ? "" : "es"} placed there is not enough to say which side they tend to go. It takes at least 8.</p>}
           {(p.typicalMake || p.typicalMiss) && (
             <div className="grid grid-cols-2 gap-2">

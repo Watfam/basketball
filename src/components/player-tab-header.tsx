@@ -18,7 +18,7 @@ export function PlayerTabHeader({ playerId, name }: { playerId: string; name: st
         <Link
           href="/"
           aria-label={`Not ${name}? Switch profile`}
-          className="-my-2.5 inline-flex shrink-0 items-center py-2.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
+          className="-my-2.5 inline-flex min-h-11 shrink-0 items-center py-2.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
         >
           Switch
         </Link>

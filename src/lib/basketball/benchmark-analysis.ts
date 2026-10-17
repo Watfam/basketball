@@ -53,6 +53,8 @@ export type Comparison = {
   diff: number;
   range: { lo: number; hi: number };
   verdict: Verdict;
+  /** Not clear at the strict level, but the usual 95% range for the change stays on one side of zero: worth running again to check, never called improvement. */
+  leans: "up" | "down" | null;
   /** Roughly the smallest change in points that would stand out at these sizes. */
   minDetectable: number;
   text: string;
@@ -74,22 +76,29 @@ export type Group = {
 
 export type BenchmarkReport = { protocol: BenchmarkProtocol; groups: Group[]; resultCount: number };
 
+/**
+ * How far a change must be from zero before it is called "clear". A screen shows several comparisons at once (up to three benchmarks, and the player
+ * may look again after every run), so each one is held to a stricter range than a single 95% test would be; see
+ * training/eval/experiments/analytics-audit (with nothing changed, the old 95% rule showed at least one false "clear" on 27% of screens).
+ */
+export const CLEAR_Z = 2.33;
+export const CLEAR_LEVEL = 98;
 const MIN_ATTEMPTS = 10;
 const MIN_FOR_CONSISTENCY = 4;
 const pts = (x: number) => Math.round(x * 100);
 
 /** Newcombe's hybrid-score interval (method 10) for p2 - p1 from the two Wilson intervals. */
-export function newcombe(k1: number, n1: number, k2: number, n2: number): { diff: number; lo: number; hi: number } {
+export function newcombe(k1: number, n1: number, k2: number, n2: number, z = 1.96): { diff: number; lo: number; hi: number } {
   const p1 = n1 ? k1 / n1 : 0, p2 = n2 ? k2 / n2 : 0;
-  const a = wilson(k1, n1), b = wilson(k2, n2);
+  const a = wilson(k1, n1, z), b = wilson(k2, n2, z);
   const d = p2 - p1;
   return { diff: d, lo: d - Math.sqrt((p2 - b.lo) ** 2 + (a.hi - p1) ** 2), hi: d + Math.sqrt((b.hi - p2) ** 2 + (p1 - a.lo) ** 2) };
 }
 
 /** Roughly how big a change (in points) has to be before two results of these sizes could tell it from luck. */
-export function minDetectable(n1: number, n2: number, pooled: number): number {
+export function minDetectable(n1: number, n2: number, pooled: number, z = 1.96): number {
   const p = Math.min(0.7, Math.max(0.3, pooled));
-  return pts(1.96 * Math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2)));
+  return pts(z * Math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2)));
 }
 
 function toResult(row: BenchmarkRow, p: BenchmarkProtocol | null): BenchmarkResult {
@@ -127,9 +136,9 @@ export function compareTwo(a: BenchmarkResult, b: BenchmarkResult, opts: { timed
 function compare(p: BenchmarkProtocol, list: BenchmarkResult[]): Comparison | null {
   if (list.length < 2) return null;
   const a = list[0], b = list[list.length - 1];
-  const n = newcombe(a.makes, a.attempts, b.makes, b.attempts);
+  const n = newcombe(a.makes, a.attempts, b.makes, b.attempts, CLEAR_Z);
   const diff = pts(n.diff), lo = pts(n.lo), hi = pts(n.hi);
-  const md = minDetectable(a.attempts, b.attempts, (a.makes + b.makes) / (a.attempts + b.attempts));
+  const md = minDetectable(a.attempts, b.attempts, (a.makes + b.makes) / (a.attempts + b.attempts), CLEAR_Z);
   const caveats = [
     "Being more rested, a different ball or hoop, or a different mood can move a result of this size.",
     "A practice result: it does not show how the same shots go in a game.",
@@ -141,15 +150,17 @@ function compare(p: BenchmarkProtocol, list: BenchmarkResult[]): Comparison | nu
     text = `Too few shots in one of the two tests (${a.attempts} and ${b.attempts}) to say anything about a change.`;
   } else if (n.lo > 0) {
     verdict = "clear_improvement";
-    text = `${pts(a.makes / a.attempts)}% to ${pts(b.makes / b.attempts)}%: up ${diff} points. With ${a.attempts} and ${b.attempts} shots the plausible range for the change is ${lo} to ${hi} points and stays above zero, so this is more than shot-to-shot luck would usually give.`;
+    text = `${pts(a.makes / a.attempts)}% to ${pts(b.makes / b.attempts)}%: up ${diff} points. With ${a.attempts} and ${b.attempts} shots the plausible range for the change (a strict ${CLEAR_LEVEL}% range) is ${lo} to ${hi} points and stays above zero, so this is more than shot-to-shot luck would usually give.`;
   } else if (n.hi < 0) {
     verdict = "clear_decline";
-    text = `${pts(a.makes / a.attempts)}% to ${pts(b.makes / b.attempts)}%: down ${Math.abs(diff)} points. With ${a.attempts} and ${b.attempts} shots the plausible range for the change is ${lo} to ${hi} points and stays below zero.`;
+    text = `${pts(a.makes / a.attempts)}% to ${pts(b.makes / b.attempts)}%: down ${Math.abs(diff)} points. With ${a.attempts} and ${b.attempts} shots the plausible range for the change (a strict ${CLEAR_LEVEL}% range) is ${lo} to ${hi} points and stays below zero.`;
   } else {
     verdict = "no_clear_change";
-    text = `${pts(a.makes / a.attempts)}% to ${pts(b.makes / b.attempts)}% (${diff >= 0 ? "+" : ""}${diff} points). That is not a clear change: with ${a.attempts} and ${b.attempts} shots the plausible range is ${lo} to ${hi} points and includes zero. At these sizes only a change of roughly ${md} points or more would stand out.`;
+    text = `${pts(a.makes / a.attempts)}% to ${pts(b.makes / b.attempts)}% (${diff >= 0 ? "+" : ""}${diff} points). That is not a clear change: with ${a.attempts} and ${b.attempts} shots the plausible range (${CLEAR_LEVEL}%) is ${lo} to ${hi} points and includes zero. At these sizes only a change of roughly ${md} points or more would stand out.`;
   }
-  return { baseline: a, latest: b, diff, range: { lo, hi }, verdict, minDetectable: md, text, caveats };
+  const loose = newcombe(a.makes, a.attempts, b.makes, b.attempts);
+  const leans = verdict === "no_clear_change" ? (loose.lo > 0 ? "up" : loose.hi < 0 ? "down" : null) : null;
+  return { baseline: a, latest: b, diff, range: { lo, hi }, verdict, leans, minDetectable: md, text, caveats };
 }
 
 function consistency(list: BenchmarkResult[]): Group["consistency"] {

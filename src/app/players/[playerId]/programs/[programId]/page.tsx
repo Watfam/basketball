@@ -125,7 +125,7 @@ export default async function ProgramDetailPage({
         </section>
 
         {isEnrolledHere ? (
-          <p className="rounded-xl border border-accent bg-accent/10 px-4 py-3 text-center text-xs font-extrabold uppercase tracking-wider text-accent">
+          <p className="rounded-xl border border-accent bg-accent/10 px-4 py-3 text-center text-xs font-extrabold uppercase tracking-wider text-accent-hover">
             You&rsquo;re on this program
           </p>
         ) : (

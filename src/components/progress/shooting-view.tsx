@@ -41,7 +41,7 @@ export function ShootingView({ rows, playerId, q, category, drill, lessonFor, he
               <Card className="p-4" aria-label="First against latest">
                 <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">First against latest · same drill and variant</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-foreground">{cmp.text}</p>
-                <ul className="mt-2 list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-foreground-mute"><li>Different runs of a drill can be different amounts of work. {VOLUME_CAVEAT}</li><li>{NOT_A_GAME_CLAIM}</li></ul>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-foreground-mute"><li>A drill is not a controlled test: rest, volume and the spot can differ from day to day, so a gap is not proof you improved. A benchmark is the controlled test.</li><li>Different runs of a drill can be different amounts of work. {VOLUME_CAVEAT}</li><li>{NOT_A_GAME_CLAIM}</li></ul>
               </Card>
             ) : <p className="text-xs text-foreground-mute">A comparison needs two results of at least 5 attempts each.</p>}
           </>
@@ -72,7 +72,7 @@ export function ShootingView({ rows, playerId, q, category, drill, lessonFor, he
                 <Link key={k} href={q({ view: "shooting", category: cat, drill: encodeURIComponent(k) })} className={`flex min-h-16 items-center justify-between gap-3 px-4 py-3 hover:bg-raised ${i ? "border-t border-line" : ""}`}>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground">{name}{variant ? ` · ${variant}` : ""}</p>
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">{res.length} result{res.length === 1 ? "" : "s"} · latest {last.makes} of {last.attempts}{cmp ? ` · ${cmp.verdict === "clear_improvement" ? "clearly higher" : cmp.verdict === "clear_decline" ? "clearly lower" : "no clear change"}` : ""}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">{res.length} result{res.length === 1 ? "" : "s"} · latest {last.makes} of {last.attempts}{cmp ? ` · ${cmp.verdict === "clear_improvement" ? "up on its first" : cmp.verdict === "clear_decline" ? "down on its first" : "no clear change from its first"}` : ""}</p>
                   </div>
                   <p className="font-display text-xl leading-none text-accent">{pct(last.pct)}</p>
                 </Link>

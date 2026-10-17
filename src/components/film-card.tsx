@@ -243,7 +243,7 @@ export function FilmCard({
                 {(film.skill_tags ?? []).map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent"
+                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent-hover"
                   >
                     {SKILL_LABELS[tag] ?? tag}
                   </span>

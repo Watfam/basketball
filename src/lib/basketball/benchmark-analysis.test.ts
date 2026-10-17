@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeBenchmarks, minDetectable, newcombe, volumeSummary, weekLabel, whatThisShows, type BenchmarkRow } from "./benchmark-analysis.ts";
+import { analyzeBenchmarks, compareTwo, minDetectable, newcombe, volumeSummary, weekLabel, whatThisShows, type BenchmarkResult, type BenchmarkRow } from "./benchmark-analysis.ts";
 import { buildTrackedMetrics, type BenchmarkBlock, type ShotRow } from "./drill-tracking.ts";
 
 const shots = (makes: number, attempts: number, o: { taps?: boolean; flip?: number; hand?: number } = {}): ShotRow[] =>
@@ -150,4 +150,14 @@ test("a large history (3000 results) is analysed quickly and correctly", () => {
   assert.equal(rep.reduce((a, r) => a + r.resultCount, 0), 3000);
   assert.ok(find(rep, "catch_and_shoot").groups.every((g) => g.results.length === 500));
   assert.ok(ms < 500, `${ms} ms`);
+});
+
+test("'clear' is held to the strict level: 15 of 30 then 23 of 30 only leans up, 8 of 30 then 20 of 30 is clear", () => {
+  const r = (makes: number, attempts: number) => ({ makes, attempts, pct: (100 * makes) / attempts }) as unknown as BenchmarkResult;
+  const lean = compareTwo(r(15, 30), r(23, 30))!;
+  assert.equal(lean.verdict, "no_clear_change"); assert.equal(lean.leans, "up"); assert.match(lean.text, /includes zero/);
+  const clear = compareTwo(r(8, 30), r(20, 30))!;
+  assert.equal(clear.verdict, "clear_improvement"); assert.equal(clear.leans, null); assert.match(clear.text, /strict 98% range/);
+  assert.equal(compareTwo(r(15, 30), r(16, 30))!.leans, null);
+  assert.ok(clear.minDetectable >= 28 && clear.minDetectable <= 34, `about 31 points at 30 shots each, got ${clear.minDetectable}`);
 });

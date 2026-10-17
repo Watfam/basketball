@@ -133,14 +133,14 @@ export function TrackingHistoryControls({ playerId, onChanged, dataControls = tr
       {dataControls && <div className="mt-3 border-t border-line pt-3">
         <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Your data</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => void exportNow()} disabled={busy || !stats || stats.sessions === 0}>Export to a file</Button>
-          <Button variant="secondary" size="sm" onClick={() => picker.current?.click()} disabled={busy || (stats ? !stats.writable : false)}>Import a file…</Button>
-          <Button variant="danger" size="sm" onClick={() => void wipe()} disabled={busy || !stats || (stats.sessions === 0 && stats.shots === 0 && stats.damaged === 0 && stats.newer === 0)}>Delete everything</Button>
+          <Button variant="secondary" size="sm" className="min-h-11" onClick={() => void exportNow()} disabled={busy || !stats || stats.sessions === 0}>Export to a file</Button>
+          <Button variant="secondary" size="sm" className="min-h-11" onClick={() => picker.current?.click()} disabled={busy || (stats ? !stats.writable : false)}>Import a file…</Button>
+          <Button variant="danger" size="sm" className="min-h-11" onClick={() => void wipe()} disabled={busy || !stats || (stats.sessions === 0 && stats.shots === 0 && stats.damaged === 0 && stats.newer === 0)}>Delete everything</Button>
           <input ref={picker} type="file" accept=".json,application/json" className="hidden" onChange={(e) => void choose(e.target.files?.[0])} aria-label="Choose a shot-paths file to import" />
         </div>
         <p className="mt-2 text-foreground-mute">The file holds shot paths only and goes where you put it; the app never sends it anywhere. To delete one set, use Delete on that set in the list. Deleting a set in the app also deletes its paths here, but not a file you already exported. Your saved sessions and shot counts are never touched by anything on this card.</p>
         <details className="mt-2">
-          <summary className="cursor-pointer font-bold text-foreground-mute">Export options</summary>
+          <summary className="flex min-h-11 cursor-pointer items-center font-bold text-foreground-mute">Export options</summary>
           <label className="mt-1 flex items-center gap-2"><input type="checkbox" checked={labels} onChange={(e) => setLabels(e.target.checked)} /> Include the names I gave my sets</label>
         </details>
         {plan && !plan.ok && <p role="alert" className="mt-2 font-semibold text-foreground">{plan.message}</p>}
@@ -157,8 +157,8 @@ export function TrackingHistoryControls({ playerId, onChanged, dataControls = tr
             </ul>
             <label className="mt-2 flex items-center gap-2"><input type="checkbox" checked={replace} onChange={(e) => void replan(e.target.checked)} /> Replace sets that are already here</label>
             <div className="mt-2 flex gap-2">
-              <Button size="sm" onClick={() => void doImport()} disabled={busy || importable === 0}>Import {importable} set{importable === 1 ? "" : "s"}</Button>
-              <Button variant="secondary" size="sm" onClick={() => { setPlan(null); setFile(null); }} disabled={busy}>Cancel</Button>
+              <Button size="sm" className="min-h-11" onClick={() => void doImport()} disabled={busy || importable === 0}>Import {importable} set{importable === 1 ? "" : "s"}</Button>
+              <Button variant="secondary" size="sm" className="min-h-11" onClick={() => { setPlan(null); setFile(null); }} disabled={busy}>Cancel</Button>
             </div>
           </div>
         )}

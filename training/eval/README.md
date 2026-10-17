@@ -150,3 +150,7 @@ method with the same signature as the baselines.
 ## Phase 13 (shot review redesign, side-view study, coaching insights)
 
 `experiments/shot-review/REPORT.md`: Watch a shot / Compare two / Where they went replace the cluttered overlay (old analytics kept under Advanced), the insights engine and Progress Shooting drill-down with safe return links, tests and rendering measurements, what stays experimental. `experiments/side-view/` (PREREGISTRATION.md, study.mjs, REPORT.md): what a single rear camera can and cannot recover; decision is the camera's own view, no per-shot estimated side view. Production counting files unchanged; frozen baseline reproduces.
+
+## Phase 14 (validation and release readiness)
+
+`experiments/analytics-audit/REPORT.md`: audit of every player-facing statement (pre-registered, simulated with the app's own rules: false "Clear" on a screen fell from 27% to 6% with no variation), the optional phone-placement question, the live-data integrity query (`supabase/checks/p14_integrity.sql`, tested on a real Postgres by `db-validation/check-p14.mjs`), mobile and accessibility results, release readiness, and `IPHONE-TESTS.md` (the remaining device tests). Production counting files unchanged.

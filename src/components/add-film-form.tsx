@@ -133,7 +133,7 @@ export function AddFilmForm({
                   }
                   className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide transition-colors ${
                     on
-                      ? "border-accent bg-accent/15 text-accent"
+                      ? "border-accent bg-accent/15 text-accent-hover"
                       : "border-line text-foreground-dim"
                   }`}
                 >

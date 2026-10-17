@@ -1,4 +1,4 @@
-import type { HistoryShot } from "./history-types.ts";
+import type { CameraSetup, HistoryShot } from "./history-types.ts";
 import { BREAK_MS } from "./history-view.ts";
 
 /**
@@ -133,7 +133,7 @@ export type PatternSummary = {
   /** Typical examples: the make and the miss closest to that group's middle arrival. */
   typicalMake: ArrivalDot | null;
   typicalMiss: ArrivalDot | null;
-  side: { left: number; right: number; centre: number; lean: "left" | "right" | "none"; text: string; strong: boolean } | null;
+  side: { left: number; right: number; centre: number; lean: "left" | "right" | "none"; text: string; strong: boolean; /** Why the side may come from the phone's place rather than the shot. Null when the phone was said to be straight behind. */ caveat: string | null } | null;
   coverage: { shots: number; withPath: number; seenComingDown: number };
 };
 
@@ -146,7 +146,9 @@ export const MIN_MISSES_FOR_SIDE = 8;
  * make and a typical miss, and which side the misses were seen on. The side is reported only from enough misses and only as "leaning" when the share
  * on one side is clearly more than half. It does not rank makes by distance: a miss being farther from the middle is what a miss is.
  */
-export function summarizePatterns(shots: HistoryShot[]): PatternSummary {
+const OFF_AXIS = "From a phone that is not straight behind you, a shot that is a little short or long also looks like a miss to one side.";
+
+export function summarizePatterns(shots: HistoryShot[], position: CameraSetup["position"] = "unsure"): PatternSummary {
   const scenes = shots.map(sceneOf);
   const withPath = scenes.filter((s) => s.sightings.length >= 2).length;
   const arrivals: ArrivalDot[] = scenes.filter((s) => s.usable && s.crossing).map((s) => ({ id: s.id, seq: s.seq, made: s.made, xBw: s.crossing!.xBw }));
@@ -158,10 +160,11 @@ export function summarizePatterns(shots: HistoryShot[]): PatternSummary {
     const sided = left + right;
     let lean: "left" | "right" | "none" = "none", strong = false;
     if (sided >= MIN_MISSES_FOR_SIDE) { const w = wilson(Math.max(left, right), sided); if (w.lo > 0.5) { lean = left > right ? "left" : "right"; strong = true; } }
-    side = {
-      left, right, centre, lean, strong,
-      text: strong ? `Most of your misses (${Math.max(left, right)} of ${sided} that went to a side) were seen coming down to the ${lean} of the rim's centre, as the picture shows it.` : `Your misses were seen on both sides of the rim's centre (${left} left, ${right} right), so there is no clear side.`,
-    };
+    const picture = `Most of your misses (${Math.max(left, right)} of ${sided} that went to a side) were seen coming down to the ${lean} of the rim's centre in the picture.`;
+    const none = `Your misses were seen on both sides of the rim's centre (${left} left, ${right} right), so there is no clear side.`;
+    // From an off-axis phone the side of a miss is partly a short/long miss seen at an angle (training/eval/experiments/analytics-audit): not a fact about the shot.
+    if (position === "side") side = { left, right, centre, lean: "none", strong: false, text: `Your phone was off to one side, so the side your misses fell on cannot be read as a lean in your shooting (${left} left, ${right} right in the picture).`, caveat: OFF_AXIS };
+    else side = { left, right, centre, lean, strong, text: strong ? picture : none, caveat: strong ? (position === "behind" ? "A phone that is a little off-centre can add a small lean." : `${OFF_AXIS} Say where the phone was, or film from straight behind you, to read it as your shot.`) : null };
   }
   return { usable: arrivals.length, arrivals, makes: arrivals.length - misses.length, misses: misses.length, typicalMake: typical(true), typicalMiss: typical(false), side, coverage: { shots: shots.length, withPath, seenComingDown: arrivals.length } };
 }

@@ -1,0 +1,498 @@
+{
+ "trials": 3000,
+ "seed": 20261017,
+ "assumptions": {
+  "dayToDaySdPoints": [
+   0,
+   3,
+   5
+  ],
+  "note": "no real day-to-day data exists yet; these are stated assumptions"
+ },
+ "s1": [
+  {
+   "sd": 0,
+   "p": 0.4,
+   "falseUp": 1.1,
+   "falseDown": 1,
+   "either": 2.1
+  },
+  {
+   "sd": 0,
+   "p": 0.5,
+   "falseUp": 1.4,
+   "falseDown": 1.5,
+   "either": 2.9
+  },
+  {
+   "sd": 0,
+   "p": 0.6,
+   "falseUp": 1.3,
+   "falseDown": 1.2,
+   "either": 2.6
+  },
+  {
+   "sd": 0,
+   "p": 0.7,
+   "falseUp": 0.9,
+   "falseDown": 0.6,
+   "either": 1.5
+  },
+  {
+   "sd": 3,
+   "p": 0.4,
+   "falseUp": 1.4,
+   "falseDown": 1.5,
+   "either": 3
+  },
+  {
+   "sd": 3,
+   "p": 0.5,
+   "falseUp": 2.3,
+   "falseDown": 2,
+   "either": 4.2
+  },
+  {
+   "sd": 3,
+   "p": 0.6,
+   "falseUp": 1.5,
+   "falseDown": 1.6,
+   "either": 3.1
+  },
+  {
+   "sd": 3,
+   "p": 0.7,
+   "falseUp": 1.1,
+   "falseDown": 1.2,
+   "either": 2.4
+  },
+  {
+   "sd": 5,
+   "p": 0.4,
+   "falseUp": 2.6,
+   "falseDown": 2.6,
+   "either": 5.2
+  },
+  {
+   "sd": 5,
+   "p": 0.5,
+   "falseUp": 2.5,
+   "falseDown": 2.7,
+   "either": 5.2
+  },
+  {
+   "sd": 5,
+   "p": 0.6,
+   "falseUp": 2.2,
+   "falseDown": 3.2,
+   "either": 5.4
+  },
+  {
+   "sd": 5,
+   "p": 0.7,
+   "falseUp": 2.5,
+   "falseDown": 2.7,
+   "either": 5.2
+  }
+ ],
+ "screen": [
+  {
+   "sd": 0,
+   "withDrills": true,
+   "benchmarkClearAfterWeek3": 6.3,
+   "benchmarkClearAfterWeek6": 6.4,
+   "drillClear": 0,
+   "anyClearOnScreen": 6.4,
+   "anyClearDecline": 3.2,
+   "firstVsLatestClear": 6.4
+  },
+  {
+   "sd": 3,
+   "withDrills": true,
+   "benchmarkClearAfterWeek3": 9.1,
+   "benchmarkClearAfterWeek6": 9.7,
+   "drillClear": 0,
+   "anyClearOnScreen": 9.7,
+   "anyClearDecline": 4.5,
+   "firstVsLatestClear": 9.7
+  },
+  {
+   "sd": 5,
+   "withDrills": true,
+   "benchmarkClearAfterWeek3": 13.3,
+   "benchmarkClearAfterWeek6": 14.1,
+   "drillClear": 0,
+   "anyClearOnScreen": 14.1,
+   "anyClearDecline": 7.5,
+   "firstVsLatestClear": 14.1
+  }
+ ],
+ "s6": [
+  {
+   "sd": 0,
+   "from": 0.5,
+   "to": 0.6,
+   "calledClear": 7
+  },
+  {
+   "sd": 0,
+   "from": 0.5,
+   "to": 0.65,
+   "calledClear": 13.7
+  },
+  {
+   "sd": 0,
+   "from": 0.5,
+   "to": 0.7,
+   "calledClear": 25.9
+  },
+  {
+   "sd": 0,
+   "from": 0.5,
+   "to": 0.8,
+   "calledClear": 57.3
+  },
+  {
+   "sd": 5,
+   "from": 0.5,
+   "to": 0.6,
+   "calledClear": 10.6
+  },
+  {
+   "sd": 5,
+   "from": 0.5,
+   "to": 0.65,
+   "calledClear": 18.2
+  },
+  {
+   "sd": 5,
+   "from": 0.5,
+   "to": 0.7,
+   "calledClear": 28.5
+  },
+  {
+   "sd": 5,
+   "from": 0.5,
+   "to": 0.8,
+   "calledClear": 55.9
+  }
+ ],
+ "s5": [
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 8,
+   "strongLeanShown": 1.4,
+   "leanLeft": 0.6,
+   "leanRight": 0.8
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 12,
+   "strongLeanShown": 3.9,
+   "leanLeft": 1.9,
+   "leanRight": 2
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 20,
+   "strongLeanShown": 4.9,
+   "leanLeft": 2.5,
+   "leanRight": 2.4
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0,
+   "misses": 40,
+   "strongLeanShown": 5.7,
+   "leanLeft": 2.6,
+   "leanRight": 3.1
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 8,
+   "strongLeanShown": 1.2,
+   "leanLeft": 0.6,
+   "leanRight": 0.7
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 12,
+   "strongLeanShown": 4.7,
+   "leanLeft": 2.8,
+   "leanRight": 1.8
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 20,
+   "strongLeanShown": 5,
+   "leanLeft": 2.6,
+   "leanRight": 2.5
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.15,
+   "misses": 40,
+   "strongLeanShown": 4.9,
+   "leanLeft": 2.3,
+   "leanRight": 2.6
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 8,
+   "strongLeanShown": 1.1,
+   "leanLeft": 0.4,
+   "leanRight": 0.7
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 12,
+   "strongLeanShown": 4.2,
+   "leanLeft": 2.4,
+   "leanRight": 1.8
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 20,
+   "strongLeanShown": 4.8,
+   "leanLeft": 2.1,
+   "leanRight": 2.7
+  },
+  {
+   "cameraAngleDeg": 0,
+   "meanShortM": 0.3,
+   "misses": 40,
+   "strongLeanShown": 5.9,
+   "leanLeft": 3.1,
+   "leanRight": 2.8
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 8,
+   "strongLeanShown": 1.8,
+   "leanLeft": 0.9,
+   "leanRight": 0.9
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 12,
+   "strongLeanShown": 4.4,
+   "leanLeft": 2.5,
+   "leanRight": 1.9
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 20,
+   "strongLeanShown": 4.8,
+   "leanLeft": 2.5,
+   "leanRight": 2.3
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0,
+   "misses": 40,
+   "strongLeanShown": 5.9,
+   "leanLeft": 2.5,
+   "leanRight": 3.4
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 8,
+   "strongLeanShown": 1.9,
+   "leanLeft": 1.7,
+   "leanRight": 0.2
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 12,
+   "strongLeanShown": 5.9,
+   "leanLeft": 5.1,
+   "leanRight": 0.8
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 20,
+   "strongLeanShown": 9.7,
+   "leanLeft": 9.2,
+   "leanRight": 0.5
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.15,
+   "misses": 40,
+   "strongLeanShown": 14.2,
+   "leanLeft": 13.7,
+   "leanRight": 0.5
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 8,
+   "strongLeanShown": 3.4,
+   "leanLeft": 3.3,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 12,
+   "strongLeanShown": 12.9,
+   "leanLeft": 12.8,
+   "leanRight": 0.2
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 20,
+   "strongLeanShown": 21.8,
+   "leanLeft": 21.7,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 15,
+   "meanShortM": 0.3,
+   "misses": 40,
+   "strongLeanShown": 39.3,
+   "leanLeft": 39.3,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 8,
+   "strongLeanShown": 1.7,
+   "leanLeft": 0.8,
+   "leanRight": 0.9
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 12,
+   "strongLeanShown": 4.1,
+   "leanLeft": 2.1,
+   "leanRight": 2
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 20,
+   "strongLeanShown": 4.1,
+   "leanLeft": 2.2,
+   "leanRight": 1.9
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0,
+   "misses": 40,
+   "strongLeanShown": 4.8,
+   "leanLeft": 2.4,
+   "leanRight": 2.4
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 8,
+   "strongLeanShown": 3.6,
+   "leanLeft": 3.5,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 12,
+   "strongLeanShown": 11.2,
+   "leanLeft": 11,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 20,
+   "strongLeanShown": 18.1,
+   "leanLeft": 18.1,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.15,
+   "misses": 40,
+   "strongLeanShown": 30.8,
+   "leanLeft": 30.8,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 8,
+   "strongLeanShown": 9.1,
+   "leanLeft": 9,
+   "leanRight": 0.1
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 12,
+   "strongLeanShown": 30.8,
+   "leanLeft": 30.7,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 20,
+   "strongLeanShown": 52.9,
+   "leanLeft": 52.9,
+   "leanRight": 0
+  },
+  {
+   "cameraAngleDeg": 30,
+   "meanShortM": 0.3,
+   "misses": 40,
+   "strongLeanShown": 82.8,
+   "leanLeft": 82.8,
+   "leanRight": 0
+  }
+ ],
+ "s5Behind": [
+  {
+   "misses": 8,
+   "strongLeanShown": 1.3
+  },
+  {
+   "misses": 12,
+   "strongLeanShown": 4.8
+  },
+  {
+   "misses": 20,
+   "strongLeanShown": 6
+  },
+  {
+   "misses": 40,
+   "strongLeanShown": 6.1
+  }
+ ],
+ "nextStep": {
+  "ranYesterday": {
+   "label": "Keep going with your plan",
+   "why": "Your benchmarks are up to date. A new one is most useful about two weeks after the last (your free throw benchmark was 1 day ago), so a re-test now would mostly measure that day."
+  },
+  "incompleteRunOnly": {
+   "label": "Run the Catch-and-Shoot Benchmark",
+   "why": "You have not run your catch-and-shoot benchmark yet. It is the starting point everything else is compared with."
+  }
+ }
+}

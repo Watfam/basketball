@@ -2,7 +2,7 @@ import { buildTrail } from "./trail.ts";
 import { fingerprint } from "./fingerprint.ts";
 import { assessTrail } from "./quality.ts";
 import type { ReviewRecord } from "./types.ts";
-import { HISTORY_LIMITS, HISTORY_SCHEMA, type HistoryFraming, type HistoryMeta, type HistoryPoint, type HistorySession, type HistoryShot } from "./history-types.ts";
+import { HISTORY_LIMITS, HISTORY_SCHEMA, type CameraSetup, type HistoryFraming, type HistoryMeta, type HistoryPoint, type HistorySession, type HistoryShot } from "./history-types.ts";
 
 /**
  * The logic of saved tracking history, independent of where it is stored (a HistoryBackend), so it can be tested without a browser.
@@ -62,7 +62,15 @@ export function parseSession(raw: unknown): Parsed<HistorySession> {
   if (r.v > HISTORY_SCHEMA) return { ok: false, reason: "newer" };
   if (r.v !== HISTORY_SCHEMA || typeof r.sessionKey !== "string" || typeof r.playerId !== "string" || typeof r.startedAt !== "string" || !num(r.shots) || !num(r.savedAt)) return { ok: false, reason: "damaged" };
   if (!plain(r)) return { ok: false, reason: "damaged" };
-  return { ok: true, value: r as HistorySession };
+  const value = r as HistorySession;
+  // An unreadable setup answer is dropped, never a reason to lose the session.
+  if (value.setup !== undefined && value.setup !== null && !validSetup(value.setup)) return { ok: true, value: { ...value, setup: null } };
+  return { ok: true, value };
+}
+
+export function validSetup(x: unknown): x is CameraSetup {
+  const s = x as Partial<CameraSetup> | null;
+  return !!s && typeof s === "object" && s.v === 1 && (s.position === "behind" || s.position === "side" || s.position === "unsure") && (s.moved === "no" || s.moved === "yes" || s.moved === "unsure");
 }
 
 const r1 = (v: number) => Math.round(v * 10) / 10;
@@ -190,11 +198,27 @@ export function compareFraming(a: HistoryFraming | null, b: HistoryFraming | nul
   return { comparable: reasons.length === 0, reasons };
 }
 
+/** Can two sets be compared given how the phone was placed? Silence (no answer) never blocks anything; a stated difference or a stated move does. */
+export function compareSetup(a: CameraSetup | null | undefined, b: CameraSetup | null | undefined): { comparable: boolean; reasons: string[] } {
+  const reasons: string[] = [];
+  if (a?.moved === "yes" || b?.moved === "yes") reasons.push("The phone moved during one of these sets, so its picture was not the same all the way through.");
+  if (a && b && a.position !== "unsure" && b.position !== "unsure" && a.position !== b.position) reasons.push("The phone was placed differently for these sets (straight behind you for one, off to one side for the other).");
+  return { comparable: reasons.length === 0, reasons };
+}
+
+/** What is known about the phone's place for a group of sets: "behind" only if every set said so, "side" if any said off to one side, else unsure. */
+export function phonePosition(sessions: { setup?: CameraSetup | null }[]): CameraSetup["position"] {
+  if (sessions.length > 0 && sessions.every((s) => s.setup?.position === "behind")) return "behind";
+  if (sessions.some((s) => s.setup?.position === "side")) return "side";
+  return "unsure";
+}
+
 export type ComparisonVerdict = { comparable: boolean; reasons: string[] };
 /** Can two shots be meaningfully compared? Every reason it cannot is listed. */
-export function compareShots(a: { shot: HistoryShot; framing: HistoryFraming | null }, b: { shot: HistoryShot; framing: HistoryFraming | null }): ComparisonVerdict {
+export function compareShots(a: { shot: HistoryShot; framing: HistoryFraming | null; setup?: CameraSetup | null }, b: { shot: HistoryShot; framing: HistoryFraming | null; setup?: CameraSetup | null }): ComparisonVerdict {
   const reasons: string[] = [];
-  if (a.shot.sessionKey !== b.shot.sessionKey) reasons.push(...compareFraming(a.framing, b.framing).reasons);
+  if (a.shot.sessionKey !== b.shot.sessionKey) reasons.push(...compareFraming(a.framing, b.framing).reasons, ...compareSetup(a.setup, b.setup).reasons);
+  else if (a.setup?.moved === "yes") reasons.push(...compareSetup(a.setup, b.setup).reasons);
   for (const [name, s] of [["First", a.shot], ["Second", b.shot]] as const) {
     if (!s.tracked || !s.fingerprint) reasons.push(`${name} shot has no tracking data kept.`);
     else {
@@ -208,7 +232,7 @@ export function compareShots(a: { shot: HistoryShot; framing: HistoryFraming | n
 /** Group sessions by framing: a session joins the first group whose first session it can be compared with. */
 export function framingGroups(sessions: HistorySession[]): HistorySession[][] {
   const groups: HistorySession[][] = [];
-  for (const s of sessions) { const g = groups.find((x) => compareFraming(x[0].framing, s.framing).comparable); if (g) g.push(s); else groups.push([s]); }
+  for (const s of sessions) { const g = groups.find((x) => compareFraming(x[0].framing, s.framing).comparable && compareSetup(x[0].setup, s.setup).comparable); if (g) g.push(s); else groups.push([s]); }
   return groups;
 }
 
@@ -234,6 +258,16 @@ async function readSessions(backend: HistoryBackend): Promise<HistorySession[]> 
   const out: HistorySession[] = [];
   for (const raw of await backend.listSessionsRaw()) { const p = parseSession(raw); if (p.ok) out.push(p.value); }
   return out;
+}
+
+/** Record how the phone was placed for some saved sets (the player's own answer). Touches only the named sessions' records, never their shots. */
+export async function setSessionSetup(backend: HistoryBackend, sessionKeys: string[], setup: CameraSetup | null): Promise<{ updated: number }> {
+  const open = await openHistoryReadOnlyCheck(backend);
+  if (!open.writable || (setup !== null && !validSetup(setup))) return { updated: 0 };
+  const want = new Set(sessionKeys);
+  let updated = 0;
+  for (const s of await readSessions(backend)) if (want.has(s.sessionKey) && !s.deletedAt) { await backend.saveSession({ ...s, setup }, []); updated += 1; }
+  return { updated };
 }
 
 /** Hide the history of a deleted saved session. Safe to repeat; only the matching session is touched. */

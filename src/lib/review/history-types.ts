@@ -61,6 +61,19 @@ export type HistoryShot = {
   bytes: number;
 };
 
+/**
+ * An optional, player-stated description of how the phone was placed (never measured, never required, never used for counting). It is a plain
+ * answer to "was the phone straight behind you?", not a calibration: it does not give the camera's 3D position. Its only job is to stop two sets
+ * that were filmed differently from being compared as if they were not.
+ */
+export type CameraSetup = {
+  v: 1;
+  /** behind: straight behind the shooter, facing the hoop. side: off to one side. unsure: the player does not know. */
+  position: "behind" | "side" | "unsure";
+  /** Whether the phone moved or was bumped during the set. */
+  moved: "no" | "yes" | "unsure";
+};
+
 export type HistorySession = {
   v: typeof HISTORY_SCHEMA;
   sessionKey: string;
@@ -73,6 +86,8 @@ export type HistorySession = {
   shots: number;
   withTracking: number;
   framing: HistoryFraming | null;
+  /** Player-stated phone placement, when given. Absent on older sessions and on sessions where nobody answered. */
+  setup?: CameraSetup | null;
   bytes: number;
   /** Set when the saved session was deleted in the app: the history is hidden everywhere at once and removed for good after the undo window (history-core UNDO_WINDOW_MS). */
   deletedAt?: number | null;

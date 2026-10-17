@@ -21,7 +21,9 @@ const ago = (d: number) => new Date(today().getTime() - d * 864e5).toISOString()
 function scenario(s: string): ProgressRow[] {
   if (s === "empty") return [];
   if (s === "sparse") return [ft(17, 30, 1, ago(10))];
-  if (s === "next") return [ft(17, 30, 1, ago(40)), ft(19, 30, 3, ago(20)), clock(6, 12, 1, ago(40)), clock(7, 13, 3, ago(20)), cs(18, 1, ago(10), "partner")];
+  if (s === "next") return [ft(17, 30, 1, ago(40)), ft(19, 30, 3, ago(20)), clock(6, 12, 1, ago(40)), clock(7, 13, 3, ago(20)), cs(18, 1, ago(16), "partner")];
+  if (s === "wait") return [ft(17, 30, 1, ago(9)), ft(19, 30, 3, ago(2)), cs(18, 1, ago(5), "partner"), clock(6, 12, 1, ago(9)), clock(7, 13, 3, ago(2))];
+  if (s === "partial") return [ft(12, 20, 1, ago(3)), cs(18, 1, ago(30), "partner"), clock(6, 12, 1, ago(30))];
   if (s === "mixed") return [
     ft(17, 30, 1, ago(40), {}, { flip: 2, hand: 1 }), ft(19, 30, 3, ago(26), { redo: 1 }), ft(20, 22, 4, ago(20)), ft(22, 30, 6, ago(5), {}, { taps: true }), ft(29, 30, null, ago(12), { protocol: "free_throw@v2" } as never),
     cs(18, 1, ago(40), "partner"), cs(16, 3, ago(26), "self"), cs(21, 6, ago(5), "partner"), cs(14, null, ago(2), null),

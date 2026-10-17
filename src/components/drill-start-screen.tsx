@@ -93,7 +93,7 @@ function BenchmarkCard({ bm, picked, onPick }: { bm: BenchmarkProtocol; picked: 
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {q.options.map((o) => (
               <button key={o.value} type="button" aria-pressed={picked[q.key] === o.value} onClick={() => onPick(q.key, o.value)}
-                className={`min-h-11 rounded-full border px-3.5 py-2 text-xs font-bold ${picked[q.key] === o.value ? "border-accent bg-accent/10 text-accent" : "border-line text-foreground-dim"}`}>
+                className={`min-h-11 rounded-full border px-3.5 py-2 text-xs font-bold ${picked[q.key] === o.value ? "border-accent bg-accent/10 text-accent-hover" : "border-line text-foreground-dim"}`}>
                 {o.label}
               </button>
             ))}
