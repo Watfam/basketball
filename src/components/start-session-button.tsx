@@ -11,12 +11,15 @@ export function StartSessionButton({
   playerId,
   workoutId,
   fullWidth = false,
+  label,
 }: {
   playerId: string;
   workoutId: string;
   // The featured/hero placement gets a full-bleed primary button; inline
   // cards keep the compact one.
   fullWidth?: boolean;
+  /** The button's words, when the placement has its own (Today says "Start Today's Workout"). */
+  label?: string;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +40,7 @@ export function StartSessionButton({
   return (
     <div className={fullWidth ? "w-full" : undefined}>
       <Button size={fullWidth ? "lg" : "sm"} block={fullWidth} onClick={handleStart} disabled={pending}>
-        {pending ? "Starting…" : fullWidth ? "Start Session" : "Start Workout"}
+        {pending ? "Starting…" : label ?? (fullWidth ? "Start Session" : "Start Workout")}
       </Button>
       {error && <FormError className="mt-1">{error}</FormError>}
     </div>

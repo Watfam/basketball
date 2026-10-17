@@ -14,10 +14,11 @@ import { WEEKLY_DAYS_TARGET, thisWeek } from "@/lib/basketball/activity";
 import { computeStreakWeeks, dailyActivity, isAssessmentStale, lastAssessedLabel, weeklyVolume } from "@/lib/basketball/progress";
 import { computeOverall, type Ratings } from "@/lib/basketball/rating";
 import { playerLevel, type ComputedPlayerType, type SkillLevel } from "@/lib/basketball/assessment";
-import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
+import { formatPercentage, seasonStart } from "@/lib/basketball/shooting";
+import { shotTotals, shotWindowStart, type ShotSet } from "@/lib/basketball/home";
 import { loadProgressRows } from "@/lib/basketball/progress-server";
 import { daysAgo } from "@/lib/basketball/progress-range";
-import { analyzeBenchmarks, volumeSummary } from "@/lib/basketball/benchmark-analysis";
+import { analyzeBenchmarks } from "@/lib/basketball/benchmark-analysis";
 import { BENCHMARKS } from "@/lib/basketball/benchmarks";
 
 const EMPTY_RATINGS: Ratings = { ball_handling: 0, shooting: 0, defense: 0, athleticism: 0 };
@@ -53,11 +54,12 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
         .maybeSingle(),
       hoops
         .from("shot_sessions")
-        .select("label, started_at, makes, attempts")
+        .select("id, label, started_at, makes, attempts, source")
         .eq("player_id", playerId)
         .not("ended_at", "is", null)
         .is("deleted_at", null)
-        .gte("started_at", seasonStart().toISOString())
+        .gt("attempts", 0)
+        .gte("started_at", shotWindowStart(new Date()).toISOString())
         .limit(1000),
       loadActivity(supabase, playerId),
       loadProgressRows(supabase, playerId),
@@ -79,11 +81,12 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
   const dates = activity.activities.map((a) => a.at);
   const streakWeeks = computeStreakWeeks(dates);
   const week = thisWeek(activity.activities);
-  const season = totalSessions(seasonRows ?? []);
+  const sets = (seasonRows ?? []) as unknown as ShotSet[];
+  const season = shotTotals(sets, seasonStart());
+  const shotsFourWeeks = shotTotals(sets, daysAgo(28)).taken;
   const milestones = buildMilestones(dates.length, streakWeeks);
   const fourWeeksAgo = daysAgo(28);
   const recentWorkouts = activity.activities.filter((a) => a.kind === "workout" && a.at >= fourWeeksAgo).length;
-  const recentVolume = volumeSummary(progress.rows, { from: fourWeeksAgo });
   const benchmarksRun = analyzeBenchmarks(progress.rows).filter((r) => r.groups.some((g) => g.current && g.comparable.length > 0)).length;
 
   return (
@@ -100,7 +103,7 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
           measured={measured}
           streakWeeks={streakWeeks}
           totalSessions={dates.length}
-          seasonPct={season.attempts > 0 ? formatPercentage(season.pct) : null}
+          seasonPct={season.taken > 0 ? formatPercentage(season.pct) : null}
         />
 
         <section aria-label="Progress">
@@ -108,7 +111,7 @@ export default async function MePage({ params }: { params: Promise<{ playerId: s
           <div className="grid grid-cols-3 gap-2.5">
             {[
               { label: "Workouts", value: String(recentWorkouts), sub: "finished", href: `/players/${playerId}/progress?range=4w` },
-              { label: "Shots tracked", value: String(recentVolume.attempts), sub: "effort, not skill", href: `/players/${playerId}/progress?view=shooting&range=4w` },
+              { label: "Shots taken", value: String(shotsFourWeeks), sub: "effort, not skill", href: `/players/${playerId}/shooting?range=4w` },
               { label: "Benchmarks", value: `${benchmarksRun} of ${BENCHMARKS.length}`, sub: "run so far", href: `/players/${playerId}/progress?view=benchmarks&range=all` },
             ].map((t) => (
               <Link key={t.label} href={t.href} className="flex min-h-24 flex-col justify-between rounded-2xl border border-line bg-surface p-3 transition-colors hover:border-line-strong">

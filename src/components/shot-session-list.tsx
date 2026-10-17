@@ -34,11 +34,14 @@ export function ShotSessionList({
   playerId,
   sessions,
   justDeleted,
+  fromHref,
 }: {
   playerId: string;
   sessions: ShotSessionListItem[];
   /** A session deleted from its own page, to offer Undo for here. */
   justDeleted?: string;
+  /** Where this list is (with its date range and drill), so the set's page can bring the player back to the same place. */
+  fromHref?: string;
 }) {
   const router = useRouter();
   const [managing, setManaging] = useState(false);
@@ -161,7 +164,7 @@ export function ShotSessionList({
             ) : (
               <Link
                 key={s.id}
-                href={`/players/${playerId}/shooting/${s.id}`}
+                href={`/players/${playerId}/shooting/${s.id}${fromHref ? `?from=${encodeURIComponent(fromHref)}` : ""}`}
                 className={`flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised ${border}`}
               >
                 {row}

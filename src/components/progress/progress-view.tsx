@@ -87,7 +87,7 @@ export function ProgressView({ playerId, playerName, range, view, selected, cate
 
             <section aria-label="At a glance" className="grid grid-cols-2 gap-3">
               <KpiTile label="Workouts" value={String(workoutDates.length)} sub={`finished · ${range.label.toLowerCase()}`} note="Effort, not skill" href={`/players/${playerId}/sessions`} />
-              <KpiTile label="Shots tracked" value={String(volume.attempts)} sub={`in ${volume.trackedDrills} tracked drill${volume.trackedDrills === 1 ? "" : "s"}`} note="Effort, not skill. Untracked drills are not counted" href={q({ view: "shooting" })} />
+              <KpiTile label="Drill shots" value={String(volume.attempts)} sub={`in ${volume.trackedDrills} tracked drill${volume.trackedDrills === 1 ? "" : "s"}`} note="Effort, not skill. Only tracked drills: Today and Shoot count every shot" href={q({ view: "shooting" })} />
               <KpiTile label="Benchmarks" value={`${ranCount} of ${BENCHMARKS.length}`} sub={ranCount === 0 ? "none run in this range" : clear > 0 ? `${clear} clearly higher` : "no clear change yet"} note="Same test, same way" href={q({ view: "benchmarks" })} />
               <KpiTile label="Next up" value={!hasBenchmarkWorkout ? "Train" : nextWeek === "done" ? "Done" : `Week ${nextWeek}`} sub={!hasBenchmarkWorkout ? "pick today's workout" : nextWeek === "done" ? "all planned benchmarks run" : "suggested benchmark week"} href={hasBenchmarkWorkout ? `/players/${playerId}/workouts` : `/players/${playerId}`} />
             </section>
@@ -112,7 +112,7 @@ export function ProgressView({ playerId, playerName, range, view, selected, cate
         ) : view === "shooting" ? (
           <ShootingView rows={rows.filter((x) => (!range.from || new Date(x.at) >= range.from) && (!range.to || new Date(x.at) <= range.to))} playerId={playerId} q={q} category={category} drill={drill} lessonFor={lessonFor} hereHref={q({ view: "shooting", ...(category ? { category } : {}), ...(drill ? { drill } : {}) })} />
         ) : (
-          <BenchmarkDetail reports={reports} selected={selected} playerId={playerId} q={q} hasWorkout={hasBenchmarkWorkout} meaning={meaning} volume={volume} truncated={truncated} />
+          <BenchmarkDetail lessonFor={lessonFor} reports={reports} selected={selected} playerId={playerId} q={q} hasWorkout={hasBenchmarkWorkout} meaning={meaning} volume={volume} truncated={truncated} />
         )}
       </main>
     </div>
@@ -216,7 +216,7 @@ function LinkRows({ playerId }: { playerId: string }) {
   );
 }
 
-function BenchmarkDetail({ reports, selected, playerId, q, hasWorkout, meaning, volume, truncated }: { reports: BenchmarkReport[]; selected?: string; playerId: string; q: (e: Record<string, string>) => string; hasWorkout: boolean; meaning: ReturnType<typeof whatThisShows>; volume: ReturnType<typeof volumeSummary>; truncated: boolean }) {
+function BenchmarkDetail({ reports, selected, playerId, q, hasWorkout, meaning, volume, truncated, lessonFor }: { lessonFor: (drillName: string) => LessonLite | null; reports: BenchmarkReport[]; selected?: string; playerId: string; q: (e: Record<string, string>) => string; hasWorkout: boolean; meaning: ReturnType<typeof whatThisShows>; volume: ReturnType<typeof volumeSummary>; truncated: boolean }) {
   const pick = reports.find((r) => r.protocol.key === selected) ?? reports.find((r) => r.resultCount > 0) ?? reports[0];
   const p = pick.protocol;
   return (
@@ -239,6 +239,16 @@ function BenchmarkDetail({ reports, selected, playerId, q, hasWorkout, meaning, 
           <p className="pb-2 text-[11px] leading-relaxed text-foreground-mute">{p.reads}</p>
         </details>
       </Card>
+
+      {(() => {
+        const l = lessonFor(p.drillName);
+        return l ? (
+          <Card className="p-4" aria-label="Lesson for this test">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Lesson for this test</p>
+            <p className="mt-1 text-sm text-foreground-dim"><b className="text-foreground">{l.title}</b>{l.watched ? " (watched)" : ""}. <Link href={l.href} className="inline-flex min-h-11 items-center font-extrabold text-accent-hover">Open it in the Film Room ›</Link></p>
+          </Card>
+        ) : null;
+      })()}
 
       {pick.groups.length === 0 ? (
         <EmptyState eyebrow="No results in this range" title={`${p.title} not run yet`} subtitle="Run it the same way each time and the results line up here, with how much they can be trusted."

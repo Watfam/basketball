@@ -158,3 +158,7 @@ method with the same signature as the baselines.
 ## Rim aiming and re-aim (after Phase 14)
 
 `experiments/camera-aim/REPORT.md` and `aim-e2e.mjs`: a Start button that explains itself, one box for ring and touch, a "Counting here" ring after Start, and pause-and-re-aim in the menu. Camera screen and hook changed on purpose; `verify-production-unchanged.mjs` now also checks that nothing that counts a shot was removed from them.
+
+## Today redesign (after the rim aiming work)
+
+`experiments/home/REPORT.md` and `home-e2e.mjs`: the player home rebuilt in place (welcome, the one thing to do, three shooting numbers with a range, "Am I getting better?" from benchmarks only, eight weekly bars, one focus, recent work), with drill-downs that carry the date range into Shoot and Progress. One source for "shots" across Today, Shoot and Me.

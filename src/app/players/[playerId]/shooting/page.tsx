@@ -13,6 +13,8 @@ import { isId } from "@/lib/basketball/drill-context";
 import { loadDrillStart } from "@/lib/basketball/drill-start-server";
 import { loadKindsOfShot } from "@/lib/basketball/drill-kinds-server";
 import { KindsOfShot } from "@/components/kinds-of-shot";
+import { RANGE_CHOICES } from "@/lib/basketball/progress-range";
+import { resolveShootRange, shootHref } from "@/lib/basketball/shoot-range";
 
 type SessionRow = {
   id: string;
@@ -39,33 +41,39 @@ export default async function ShootingPage({
 }: {
   params: Promise<{ playerId: string }>;
   /** label= is the old name for drill=, kept so saved links still work. */
-  searchParams: Promise<{ drill?: string; label?: string; deleted?: string; workout?: string; entry?: string }>;
+  searchParams: Promise<{ drill?: string; label?: string; deleted?: string; workout?: string; entry?: string; range?: string; from?: string; to?: string }>;
 }) {
   const { playerId } = await params;
-  const { drill: drillParam, label: labelParam, deleted, workout, entry } = await searchParams;
+  const sp = await searchParams;
+  const { drill: drillParam, label: labelParam, deleted, workout, entry } = sp;
+  const season = seasonStart();
+  // The date range comes from Today and Progress (range= or from=&to=); with none given this page shows the season, as it always has.
+  const rng = resolveShootRange(sp, season);
+  const rangeSel = rng.sel;
   const supabase = await createClient();
 
   // Sessions deleted more than 10 days ago go for good. Done here rather
   // than on a schedule, at no cost; a failure only delays it to next time.
   void supabase.schema("hoops").rpc("purge_deleted_shot_sessions").then(() => {}, () => {});
 
-  const season = seasonStart();
   // The season's sessions carry everything this page shows. Session rows
   // hold their own totals, so even a busy season is one small query (the
   // API caps a response at 1000 rows, far above any real season). The goal
   // columns arrive with migration 0021; until it has run, ask without them.
-  const loadSeason = (withGoal: boolean) =>
-    supabase
+  // Read back as far as the season, or as far as the chosen range reaches if that is earlier (or all of it).
+  const readFrom = rng.readFrom;
+  const loadSeason = (withGoal: boolean) => {
+    let q = supabase
       .schema("hoops")
       .from("shot_sessions")
       .select(`id, label, started_at, makes, attempts${withGoal ? ", goal_kind, goal_target, goal_reached" : ""}`)
       .eq("player_id", playerId)
       .not("ended_at", "is", null)
       .is("deleted_at", null)
-      .gt("attempts", 0)
-      .gte("started_at", season.toISOString())
-      .order("started_at", { ascending: false })
-      .limit(1000);
+      .gt("attempts", 0);
+    if (readFrom) q = q.gte("started_at", readFrom.toISOString());
+    return q.order("started_at", { ascending: false }).limit(1000);
+  };
 
   const [{ data: { user } }, { data: player }, firstTry] = await Promise.all([
     supabase.auth.getUser(),
@@ -82,7 +90,9 @@ export default async function ShootingPage({
   const drillStart = isId(workout) && isId(entry) ? await loadDrillStart(supabase, { playerId, workoutSessionId: workout, workoutDrillId: entry }) : null;
   const kinds = await loadKindsOfShot(supabase, playerId);
 
-  const sessions = (sessionRows ?? []) as unknown as SessionRow[];
+  const allRows = (sessionRows ?? []) as unknown as SessionRow[];
+  const sessions = allRows.filter((s) => rng.inRange(s.started_at));
+  const seasonRows = allRows.filter((s) => new Date(s.started_at) >= season);
   const labelOf = (s: { label: string | null }) => s.label?.trim() || UNLABELED;
 
   // Each player's own set names are the drills, most used first.
@@ -95,15 +105,15 @@ export default async function ShootingPage({
 
   const totals = totalSessions(shown);
   const averages: Record<string, { pct: number; sessions: number }> = {};
-  for (const d of drills) {
-    const t = totalSessions(sessions.filter((s) => labelOf(s) === d));
+  for (const d of new Set(seasonRows.map(labelOf))) {
+    const t = totalSessions(seasonRows.filter((s) => labelOf(s) === d));
     if (t.pct !== null) averages[d === UNLABELED ? "" : d] = { pct: t.pct, sessions: t.sessions };
   }
 
   // "Last six" for the setup card: the newest six sets of each drill, and of everything.
   const lastSix: Record<string, { pct: number; sessions: number }> = {};
-  for (const d of [ALL, ...drills]) {
-    const six = (d === ALL ? sessions : sessions.filter((s) => labelOf(s) === d)).slice(0, 6);
+  for (const d of [ALL, ...new Set(seasonRows.map(labelOf))]) {
+    const six = (d === ALL ? seasonRows : seasonRows.filter((s) => labelOf(s) === d)).slice(0, 6);
     const t = totalSessions(six);
     if (t.pct !== null) lastSix[d === ALL ? "*" : d === UNLABELED ? "" : d] = { pct: t.pct, sessions: t.sessions };
   }
@@ -113,8 +123,24 @@ export default async function ShootingPage({
   const line = selected === ALL ? [] : shown.slice(0, 20).reverse();
   const values = line.map((s) => percentage(s.makes, s.attempts) ?? 0);
   const change = values.length > 1 ? Math.round((values[values.length - 1] - values[0]) * 10) / 10 : null;
-  const drillHref = (d: string) =>
-    d === ALL ? `/players/${playerId}/shooting` : `/players/${playerId}/shooting?drill=${encodeURIComponent(d)}`;
+  // Links keep the date range, so moving between drills never forgets what was being looked at.
+  const hrefWith = (extra: Record<string, string>, base: Record<string, string> = rng.keep) => shootHref(playerId, extra, base);
+  const drillHref = (d: string) => (d === ALL ? hrefWith({}) : hrefWith({ drill: d }));
+  const rangeLabel = rng.label;
+
+  const rangeChips = (
+    <div>
+      <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">How far back</p>
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Date range">
+        <Link href={hrefWith(selected !== ALL ? { drill: selected } : {}, {})} scroll={false} aria-current={!rangeSel ? "true" : undefined} className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${!rangeSel ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>Season</Link>
+        {RANGE_CHOICES.filter((c) => c.key !== "season").map((c) => (
+          <Link key={c.key} href={hrefWith({ range: c.key, ...(selected !== ALL ? { drill: selected } : {}) }, {})} scroll={false} aria-current={rangeSel?.key === c.key ? "true" : undefined}
+            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${rangeSel?.key === c.key ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{c.label}</Link>
+        ))}
+        {rangeSel?.key === "custom" && <span aria-current="true" className="flex min-h-11 shrink-0 items-center rounded-full border border-accent bg-accent/10 px-4 text-xs font-bold text-accent-hover">{rangeSel.label}</span>}
+      </div>
+    </div>
+  );
 
   const history = (
     <div className="space-y-5">
@@ -124,6 +150,11 @@ export default async function ShootingPage({
           title="Saved sessions aren't available yet"
           subtitle="You can still shoot and count. Sessions are kept on this phone until they can be saved."
         />
+      ) : sessions.length === 0 && rangeSel ? (
+        <>
+          {rangeChips}
+          <EmptyState eyebrow="Nothing in this range" title="No sets in these dates" subtitle="Try a longer range above. Your other sets are still saved." />
+        </>
       ) : sessions.length === 0 ? (
         <>
           <EmptyState
@@ -136,6 +167,7 @@ export default async function ShootingPage({
         </>
       ) : (
         <>
+          {rangeChips}
           <div>
             <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Drill</p>
             <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -157,8 +189,7 @@ export default async function ShootingPage({
 
           <Card className="p-4">
             <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
-              {selected === ALL ? "All shooting" : selected} · this season, since{" "}
-              {season.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+              {selected === ALL ? "All shooting" : selected} · {rangeLabel}
             </p>
             <div className="mt-1 flex items-end gap-3">
               <p className="font-display text-4xl leading-none text-foreground">{formatPercentage(totals.pct)}</p>
@@ -166,6 +197,9 @@ export default async function ShootingPage({
                 {totals.makes} of {totals.attempts} · {totals.sessions} {totals.sessions === 1 ? "session" : "sessions"}
               </p>
             </div>
+            <p className="mt-2 text-sm text-foreground-dim">
+              You made {totals.makes} out of {totals.attempts} {totals.attempts === 1 ? "shot" : "shots"}. More shots is more work, not better shooting.
+            </p>
             {totals.best && (
               <p className="mt-1.5 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
                 Best session {totals.best.makes}/{totals.best.attempts} ({formatPercentage(totals.best.pct)}) ·{" "}
@@ -235,6 +269,7 @@ export default async function ShootingPage({
           <ShotSessionList
             playerId={playerId}
             justDeleted={deleted}
+            fromHref={hrefWith(selected !== ALL ? { drill: selected } : {})}
             sessions={shown.slice(0, 15).map((s) => ({
               id: s.id,
               label: labelOf(s),

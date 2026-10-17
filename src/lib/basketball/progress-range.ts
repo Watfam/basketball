@@ -1,8 +1,9 @@
 /** The date range every progress screen is looking at. Pure, so it is the same on the server and in tests. */
-export type RangeKey = "4w" | "12w" | "season" | "all" | "custom";
+export type RangeKey = "7d" | "4w" | "12w" | "season" | "all" | "custom";
 export type ProgressRange = { key: RangeKey; from: Date | null; to: Date | null; label: string };
 
 export const RANGE_CHOICES: { key: Exclude<RangeKey, "custom">; label: string }[] = [
+  { key: "7d", label: "7 days" },
   { key: "4w", label: "4 weeks" },
   { key: "12w", label: "12 weeks" },
   { key: "season", label: "Season" },
@@ -34,6 +35,7 @@ export function parseRange(sp: { range?: string | null; from?: string | null; to
     }
   }
   switch (sp.range) {
+    case "7d": return { key: "7d", from: new Date(now.getTime() - 7 * DAY), to: null, label: "Last 7 days" };
     case "4w": return { key: "4w", from: new Date(now.getTime() - 28 * DAY), to: null, label: "Last 4 weeks" };
     case "season": return { key: "season", from: seasonStartOf(now), to: null, label: "This season" };
     case "all": return { key: "all", from: null, to: null, label: "All time" };

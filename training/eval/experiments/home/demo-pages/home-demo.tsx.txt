@@ -1,0 +1,80 @@
+import { PlayerTabHeader } from "@/components/player-tab-header";
+import { HomeView } from "@/components/home/home-view";
+import { ProgramPanel } from "@/components/program-panel";
+import { ButtonLink } from "@/components/ui/button";
+import { thisWeek, toActivities } from "@/lib/basketball/activity";
+import { computeProgramProgress, type ProgramDay } from "@/lib/basketball/program";
+import { buildTrackedMetrics, type BenchmarkBlock, type ShotRow } from "@/lib/basketball/drill-tracking";
+import { greeting, homeRange, improvementAnswer, lookBack, pickFocus, recentItems, shotTotals, standings, weeklyShots, type ShotSet } from "@/lib/basketball/home";
+import { linkedShotSessionIds } from "@/lib/basketball/drill-tracking";
+import { nextAction } from "@/lib/basketball/insights";
+import { seasonStart } from "@/lib/basketball/shooting";
+import type { ProgressRow } from "@/lib/basketball/progress-rows";
+
+// Temporary: Today with test data, to look at it, tap it and time it. /lab/p16-home?s=new|sparse|plan|rich|dip|large&range=7d|4w|season
+const P = "11111111-1111-4111-8111-111111111111";
+type Sp = { s?: string; range?: string };
+const now = new Date();
+const ago = (d: number, h = 0) => new Date(now.getTime() - d * 864e5 - h * 36e5).toISOString();
+let n = 0;
+const set = (makes: number, attempts: number, d: number, label: string | null = "Free throws", source = "camera"): ShotSet => ({ id: `set${++n}`, label, started_at: ago(d), makes, attempts, source });
+const shots = (makes: number, a: number): ShotRow[] => Array.from({ length: a }, (_, i) => ({ made: i < makes, source: "camera", detected_made: i < makes, added_by_hand: false }));
+function bm(drill: string, variant: string, makes: number, attempts: number, week: number, d: number, block: Partial<BenchmarkBlock> & { protocol: string }): ProgressRow {
+  n += 1;
+  return { logId: `l${n}`, workoutSessionId: `ws${n}`, at: ago(d), week, day: 4, drillName: drill, status: "completed", metrics: buildTrackedMetrics({ drill: { name: drill }, variant, goal: null, shots: shots(makes, attempts), shotSessionId: `ss${n}`, benchmark: { conditions: null, conditions_complete: true, clock_complete: null, redo: 0, ...block } }) };
+}
+const ft = (m: number, w: number, d: number) => bm("Free Throw Reset", "Benchmark v1", m, 30, w, d, { protocol: "free_throw@v1" });
+
+function scenario(s: string): { sets: ShotSet[]; rows: ProgressRow[]; workouts: { id: string; workout_id: string | null; completed_at: string | null }[]; trained: number[]; streak: number } {
+  if (s === "new") return { sets: [], rows: [], workouts: [], trained: [], streak: 0 };
+  if (s === "sparse") return { sets: [set(4, 6, 1, "Free throws", "manual")], rows: [], workouts: [], trained: [1], streak: 1 };
+  if (s === "large") {
+    const sets: ShotSet[] = [];
+    for (let i = 0; i < 900; i++) sets.push(set(8 + (i % 7), 15 + (i % 11), (i * 0.12) % 300, i % 3 ? "Free throws" : "Spot-ups", i % 5 ? "camera" : "manual"));
+    const rows: ProgressRow[] = [];
+    for (let i = 0; i < 300; i++) rows.push(ft(14 + (i % 9), (i % 6) + 1, 200 - i * 0.6));
+    return { sets, rows, workouts: Array.from({ length: 200 }, (_, i) => ({ id: `wk${i}`, workout_id: "wid", completed_at: ago(i * 1.4) })), trained: [0, 1, 3], streak: 12 };
+  }
+  const base: ShotSet[] = [set(14, 20, 0, "Free throws", "manual"), set(20, 30, 1, "Spot-ups"), set(26, 40, 3), set(31, 50, 5, "Free throws"), set(24, 40, 9), set(30, 50, 14), set(22, 40, 20), set(26, 50, 26), set(20, 40, 33), set(22, 45, 41)];
+  const workouts = [{ id: "wk1", workout_id: "wid", completed_at: ago(1) }, { id: "wk2", workout_id: "wid", completed_at: ago(4) }, { id: "wk3", workout_id: "wid", completed_at: ago(11) }];
+  if (s === "dip") return { sets: base, rows: [ft(26, 1, 40), ft(10, 3, 12)], workouts, trained: [1, 2], streak: 3 };
+  if (s === "rich") return { sets: base, rows: [ft(9, 1, 40), ft(26, 3, 12)], workouts, trained: [1, 2], streak: 3 };
+  return { sets: base, rows: [ft(18, 1, 20)], workouts, trained: [1], streak: 2 }; // plan
+}
+
+export default async function Demo({ searchParams }: { searchParams: Promise<Sp> }) {
+  const sp = await searchParams;
+  const s = sp.s ?? "plan";
+  const d = scenario(s);
+  const range = homeRange(sp.range, now);
+  const week = thisWeek(toActivities({ workout: d.trained.map((x) => ago(x)) }), now);
+  const lessonFor = (name: string) => (name === "Free Throw Reset" ? { title: "Free Throw Routine", watched: false, url: null, href: `/players/${P}/film?lesson=l1` } : name === "Catch-and-Shoot off the Pin-Down" ? { title: "Playing Without the Ball", watched: false, url: null, href: `/players/${P}/film?lesson=l2` } : null);
+  const stand = standings(d.rows);
+  const focus = pickFocus({ list: stand, next: nextAction({ rows: d.rows, now, benchmarkWorkoutHref: `/players/${P}/workouts`, lessonFor }), nextFilm: { id: "f1", title: "Creating Separation Off the Bounce" }, playerId: P, lessonFor });
+  const days: ProgramDay[] = [1, 2, 3, 4].map((k) => ({ id: `d${k}`, week_number: 1, day_number: k, workout_id: "wid", volume_step: 0, is_deload: false, note: null }));
+  const progress = computeProgramProgress(days, s === "new" ? [] : ["d1"]);
+  const hero = s === "new"
+    ? <section aria-label="Next up" className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]"><p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-accent">Next up</p><h2 className="mt-1.5 font-display text-3xl uppercase leading-[0.95] text-foreground">Get some shots up</h2><p className="mt-2 text-sm text-foreground-dim">Pick a spot, count your makes, and watch your numbers move.</p><ButtonLink href={`/players/${P}/shooting`} size="lg" block className="mt-4">Start Shooting</ButtonLink></section>
+    : <ProgramPanel playerId={P} programId="prog" programName="Six-Week Shot Builder" weekCount={6} daysPerWeek={3} progress={progress} nextWorkoutName="Shot Builder: Game Speed" />;
+  const everActive = d.sets.length > 0 || d.workouts.length > 0;
+  return (
+    <div className="flex flex-1 flex-col">
+      <PlayerTabHeader playerId={P} name="Jake Watford" />
+      <HomeView
+        playerId={P}
+        basePath={`/lab/p16-home?s=${s}`}
+        welcome={greeting({ name: "Jake Watford", now, week, streakWeeks: d.streak, everActive })}
+        week={week}
+        hero={hero}
+        range={range}
+        totals={shotTotals(d.sets, range.from)}
+        season={shotTotals(d.sets, seasonStart(now))}
+        weeks={weeklyShots(d.sets, now)}
+        lookBack={lookBack(d.sets, now)}
+        answer={improvementAnswer(stand)}
+        focus={focus}
+        recent={recentItems({ playerId: P, now, fromHref: `/players/${P}?range=${range.key}`, workouts: d.workouts.slice(0, 8), workoutNames: new Map([["wid", "Shot Builder: Game Speed"]]), sets: d.sets, linkedSetIds: linkedShotSessionIds(d.rows), tracked: d.rows })}
+      />
+    </div>
+  );
+}

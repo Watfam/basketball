@@ -42,3 +42,14 @@ For each test: pass, or what happened and a screenshot. For test 1 step 5 and te
 4. Shoot a few. Three dots menu, "Pause and re-aim the camera". The score should say how many shots are kept. Move the phone to another spot, touch the rim, press Resume counting. Shoot a few more. Do both groups of shots count?
 5. Turn the phone from upright to sideways while aiming, then tap the rim, then Start.
 6. End the set. In Progress the set should appear as one set.
+
+## Test 8: Today (10 min, signed in, no camera needed)
+1. Open the app. Within about 10 seconds, can a player say: what to do today, how many shots, how many made, the percent, whether they are getting better, and what to practise next? Hand it to a child and time them. Write down which they could not find.
+2. The big button should say "Start Today's Workout" (or "Continue Training" if one is unfinished). Press it only if you want to start the workout.
+3. Compare the three numbers with the Shoot tab (Season) and Me (Progress tiles). Same shots, same percent?
+4. Tap 7 days, 4 weeks, Season. Do the numbers change and does the sentence match?
+5. Tap Shots taken, then a set, then Back, Back. You should land on Today with the same range. Tap Shooting %, then a kind of shot, a drill, a result, Back each time.
+6. Tap a weekly bar: it should show that week's sets on the Shoot tab.
+7. Open "How are these counted?". Does it make sense to a child?
+8. How fast does Today appear after opening the app, and after switching tabs? Tell me if you wait more than two seconds.
+9. Read "Am I getting better?" and the focus card out loud. Anything that sounds like proof you got better when it is only more shooting?

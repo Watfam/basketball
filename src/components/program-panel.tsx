@@ -147,7 +147,7 @@ export function ProgramPanel({
             )}
 
             <Button size="lg" block onClick={start} disabled={pending} className="mt-4">
-              {pending ? "Starting…" : "Start Today's Session"}
+              {pending ? "Starting…" : "Start Today's Workout"}
             </Button>
 
             {error && <FormError className="mt-2">{error}</FormError>}

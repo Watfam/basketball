@@ -48,7 +48,7 @@ export function FeaturedWorkout({
       <div className="relative px-5 pt-5">
         <div className="flex items-center gap-2">
           <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
-            Today&rsquo;s Session
+            Today&rsquo;s Workout
           </span>
           {lastCompleted ? (
             <span className="text-[11px] font-bold uppercase tracking-wider text-foreground-mute">
@@ -132,7 +132,7 @@ export function FeaturedWorkout({
       </div>
 
       <div className="relative mt-4 px-5 pb-5">
-        <StartSessionButton playerId={playerId} workoutId={workout.id} fullWidth />
+        <StartSessionButton playerId={playerId} workoutId={workout.id} fullWidth label="Start Today's Workout" />
       </div>
     </div>
   );

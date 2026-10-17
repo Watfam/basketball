@@ -9,16 +9,23 @@ import { PlayerTabHeader } from "@/components/player-tab-header";
 import { ResumeShotSet } from "@/components/resume-shot-set";
 import { EmptyState } from "@/components/empty-state";
 import { ButtonLink } from "@/components/ui/button";
-import { Card, CardLink } from "@/components/ui/card";
-import { formatPercentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
+import { Card } from "@/components/ui/card";
+import { HomeView } from "@/components/home/home-view";
 import { computeProgramProgress, type ProgramDay, type ProgramProgress } from "@/lib/basketball/program";
 import { rankWorkouts, explainMatch, lastCompletedLabel, type PlayerType } from "@/lib/basketball/workout-matching";
 import { rankFilm } from "@/lib/basketball/film";
 import { computeStreakWeeks, daysSinceAssessment, isAssessmentStale } from "@/lib/basketball/progress";
 import { loadActivity } from "@/lib/basketball/activity-server";
-import { WEEKLY_DAYS_TARGET, thisWeek, type WeekSummary } from "@/lib/basketball/activity";
+import { thisWeek } from "@/lib/basketball/activity";
 import { pickNextUp } from "@/lib/basketball/next-up";
 import { playerLevel, WEAKNESS_THRESHOLD, type ComputedPlayerType } from "@/lib/basketball/assessment";
+import { loadProgressRows } from "@/lib/basketball/progress-server";
+import { linkedShotSessionIds } from "@/lib/basketball/drill-tracking";
+import { nextAction, type LessonLite } from "@/lib/basketball/insights";
+import { BENCHMARKS, BENCHMARK_WORKOUT_NAME } from "@/lib/basketball/benchmarks";
+import { lessonsForDrill, type Lesson } from "@/lib/basketball/drill-film";
+import { greeting, homeRange, improvementAnswer, lookBack, pickFocus, recentItems, shotTotals, shotWindowStart, standings, weeklyShots, type ShotSet } from "@/lib/basketball/home";
+import { seasonStart } from "@/lib/basketball/shooting";
 
 /**
  * Today: what to do now, and how the week is going. One card says what's
@@ -30,11 +37,14 @@ export default async function TodayPage({
   searchParams,
 }: {
   params: Promise<{ playerId: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; range?: string }>;
 }) {
   const { playerId } = await params;
+  const sp = await searchParams;
   // Old links to the Me tab inside this page.
-  if ((await searchParams).tab === "profile") redirect(`/players/${playerId}/me`);
+  if (sp.tab === "profile") redirect(`/players/${playerId}/me`);
+  const now = new Date();
+  const range = homeRange(sp.range, now);
 
   const supabase = await createClient();
   const hoops = supabase.schema("hoops");
@@ -48,8 +58,10 @@ export default async function TodayPage({
     { data: enrollment },
     { data: filmRows },
     { data: filmViewRows },
-    { data: seasonShotRows },
+    { data: shotRows },
     activity,
+    progress,
+    { data: benchDrills },
   ] = await Promise.all([
     supabase.auth.getUser(),
     hoops.from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
@@ -80,17 +92,22 @@ export default async function TodayPage({
       .eq("player_id", playerId)
       .eq("status", "active")
       .maybeSingle(),
-    hoops.from("film_resources").select("id, title, kind, skill_tags, position_tags, sort_order"),
+    hoops.from("film_resources").select("id, title, kind, skill_tags, position_tags, sort_order, drill_id"),
     hoops.from("film_views").select("film_resource_id").eq("player_id", playerId),
+    // Every finished, kept set since the season began (and at least eight weeks back): the three numbers, the weekly bars and the recent list.
     hoops
       .from("shot_sessions")
-      .select("label, started_at, makes, attempts")
+      .select("id, label, started_at, makes, attempts, source")
       .eq("player_id", playerId)
       .not("ended_at", "is", null)
       .is("deleted_at", null)
-      .gte("started_at", seasonStart().toISOString())
+      .gt("attempts", 0)
+      .gte("started_at", shotWindowStart(now).toISOString())
+      .order("started_at", { ascending: false })
       .limit(1000),
     loadActivity(supabase, playerId),
+    loadProgressRows(supabase, playerId),
+    hoops.from("drills").select("id, name").in("name", BENCHMARKS.map((b) => b.drillName)),
   ]);
 
   if (!user) redirect("/login");
@@ -161,158 +178,127 @@ export default async function TodayPage({
     hasWorkout: Boolean(featured),
   });
 
-  // --- Quick starts ------------------------------------------------------
-  const season = totalSessions(seasonShotRows ?? []);
+  // --- The shooting numbers, the answer, the focus and the recent list ---------------------------------
+  const sets: ShotSet[] = (shotRows ?? []) as unknown as ShotSet[];
+  const totals = shotTotals(sets, range.from);
+  const season = shotTotals(sets, seasonStart(now));
   const watched = new Set((filmViewRows ?? []).map((v) => v.film_resource_id));
   const nextFilm = rankFilm(playerType, (filmRows ?? []) as Parameters<typeof rankFilm>[1], watched, WEAKNESS_THRESHOLD)[0] ?? null;
 
-  const week = thisWeek(activity.activities);
-  const streakWeeks = computeStreakWeeks(activity.activities.map((a) => a.at));
+  // The Film Room lesson for each benchmark drill: the lesson the Film Room itself links to that drill (nothing is made up).
+  const lessonRows: Lesson[] = ((filmRows ?? []) as { id: string; title: string; skill_tags: string[] | null; sort_order: number | null; drill_id: string | null }[]).map((r) => ({ id: r.id, title: r.title, url: null, watch_for: null, skill_tags: r.skill_tags, drill_id: r.drill_id, sort_order: r.sort_order }));
+  const lessons = new Map<string, LessonLite>();
+  for (const d of (benchDrills ?? []) as { id: string; name: string }[]) {
+    const found = lessonsForDrill(d, lessonRows);
+    if (found) lessons.set(d.name, { title: found.primary.title, watched: watched.has(found.primary.id), url: null, href: `/players/${playerId}/film?lesson=${found.primary.id}` });
+  }
+  const lessonFor = (drillName: string) => lessons.get(drillName) ?? null;
+  const hasBenchmarkWorkout = (workouts ?? []).some((w) => w.name === BENCHMARK_WORKOUT_NAME);
+  const stand = standings(progress.rows);
+  const focus = pickFocus({
+    list: stand,
+    next: nextAction({ rows: progress.rows, now, benchmarkWorkoutHref: hasBenchmarkWorkout ? `/players/${playerId}/workouts` : null, lessonFor }),
+    nextFilm: nextFilm ? { id: nextFilm.id, title: nextFilm.title } : null,
+    playerId,
+    lessonFor,
+  });
+  const recent = recentItems({
+    playerId, now, fromHref: `/players/${playerId}?range=${range.key}`,
+    workouts: activity.completedWorkouts.slice(0, 8),
+    workoutNames: new Map((workouts ?? []).map((w) => [w.id as string, w.name as string])),
+    sets,
+    linkedSetIds: linkedShotSessionIds(progress.rows),
+    tracked: progress.rows,
+  });
+
+  const weekSummary = thisWeek(activity.activities, now);
+  const streakWeeks = computeStreakWeeks(activity.activities.map((a) => a.at), now);
+
+  const hero = (
+    <>
+      <ResumeShotSet playerId={playerId} />
+      <section aria-label="Next up" className="animate-rise space-y-2">
+        {next.kind === "resume" && (
+          <NextCard
+            eyebrow="Pick up where you left off"
+            title={next.name}
+            body={unfinished[0]?.startedAt ? `Started ${shortDate(unfinished[0].startedAt)}. Your logged drills are saved.` : undefined}
+            action={{ href: `/players/${playerId}/sessions/${next.sessionId}`, label: "Continue Training" }}
+          />
+        )}
+        {next.kind === "combine" && <CombinePrompt playerId={playerId} hasEverDone={next.everDone} />}
+        {next.kind === "program" && activeProgram && programProgress && (
+          <ProgramPanel
+            playerId={playerId}
+            programId={activeProgram.id}
+            programName={activeProgram.name}
+            weekCount={activeProgram.week_count}
+            daysPerWeek={activeProgram.days_per_week}
+            progress={programProgress}
+            nextWorkoutName={programWorkoutName}
+          />
+        )}
+        {next.kind === "workout" && featured && (
+          <FeaturedWorkout
+            workout={featured}
+            playerId={playerId}
+            reason={explainMatch(playerType, featured, { playerLevel: level, lastCompletedIso: lastDone[featured.id] })}
+            lastCompleted={lastCompletedLabel(lastDone[featured.id])}
+          />
+        )}
+        {next.kind === "shoot" && (
+          <NextCard
+            eyebrow="Next up"
+            title="Get some shots up"
+            body="Pick a spot, count your makes, and watch your numbers move."
+            action={{ href: `/players/${playerId}/shooting`, label: "Start Shooting" }}
+          />
+        )}
+
+        {unfinished.length > (next.kind === "resume" ? 1 : 0) && (
+          <Card className="divide-y divide-line overflow-hidden">
+            {unfinished.slice(next.kind === "resume" ? 1 : 0).map((s) => (
+              <Link
+                key={s.id}
+                href={`/players/${playerId}/sessions/${s.id}`}
+                className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-raised"
+              >
+                <span className="min-w-0 truncate text-sm font-semibold text-foreground">Unfinished: {s.name}</span>
+                <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-accent-hover">Continue →</span>
+              </Link>
+            ))}
+          </Card>
+        )}
+        {!featured && next.kind !== "program" && (workouts ?? []).length === 0 && (
+          <EmptyState eyebrow="No workouts yet" title="Workouts aren't loaded" subtitle="The workouts aren't loaded yet. Ask your coach to set them up." />
+        )}
+      </section>
+    </>
+  );
 
   return (
     <div className="flex flex-1 flex-col">
       <PlayerTabHeader playerId={playerId} name={player.display_name} />
-
-      <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
-        <ResumeShotSet playerId={playerId} />
-
-        <WeekStrip week={week} streakWeeks={streakWeeks} />
-
-        <section aria-label="Next up" className="animate-rise space-y-2">
-          {next.kind === "resume" && (
-            <NextCard
-              eyebrow="Pick up where you left off"
-              title={next.name}
-              body={unfinished[0]?.startedAt ? `Started ${shortDate(unfinished[0].startedAt)}. Your logged drills are saved.` : undefined}
-              action={{ href: `/players/${playerId}/sessions/${next.sessionId}`, label: "Resume" }}
-            />
-          )}
-          {next.kind === "combine" && <CombinePrompt playerId={playerId} hasEverDone={next.everDone} />}
-          {next.kind === "program" && activeProgram && programProgress && (
-            <ProgramPanel
-              playerId={playerId}
-              programId={activeProgram.id}
-              programName={activeProgram.name}
-              weekCount={activeProgram.week_count}
-              daysPerWeek={activeProgram.days_per_week}
-              progress={programProgress}
-              nextWorkoutName={programWorkoutName}
-            />
-          )}
-          {next.kind === "workout" && featured && (
-            <FeaturedWorkout
-              workout={featured}
-              playerId={playerId}
-              reason={explainMatch(playerType, featured, { playerLevel: level, lastCompletedIso: lastDone[featured.id] })}
-              lastCompleted={lastCompletedLabel(lastDone[featured.id])}
-            />
-          )}
-          {next.kind === "shoot" && (
-            <NextCard
-              eyebrow="Next up"
-              title="Get some shots up"
-              body="Pick a spot, count your makes, and watch your season number move."
-              action={{ href: `/players/${playerId}/shooting`, label: "Shoot" }}
-            />
-          )}
-
-          {unfinished.length > (next.kind === "resume" ? 1 : 0) && (
-            <Card className="divide-y divide-line overflow-hidden">
-              {unfinished.slice(next.kind === "resume" ? 1 : 0).map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/players/${playerId}/sessions/${s.id}`}
-                  className="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-raised"
-                >
-                  <span className="min-w-0 truncate text-sm font-semibold text-foreground">
-                    Unfinished: {s.name}
-                  </span>
-                  <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-accent">Resume →</span>
-                </Link>
-              ))}
-            </Card>
-          )}
-        </section>
-
-        <section aria-label="Quick start" className="grid grid-cols-2 gap-3">
-          {next.kind === "shoot" ? (
-            <QuickTile
-              href={`/players/${playerId}/workouts`}
-              eyebrow="Train"
-              value="Workouts"
-              sub={featured ? featured.name : "The library"}
-            />
-          ) : (
-            <QuickTile
-              href={`/players/${playerId}/shooting`}
-              eyebrow="Shoot"
-              value={season.attempts > 0 ? formatPercentage(season.pct) : "Shoot"}
-              sub={season.attempts > 0 ? `Season · ${season.makes} of ${season.attempts}` : "Count makes and misses"}
-            />
-          )}
-          <QuickTile
-            href={nextFilm ? `/players/${playerId}/film?lesson=${nextFilm.id}` : `/players/${playerId}/film`}
-            eyebrow="Film"
-            value={nextFilm ? "Next lesson" : "Film room"}
-            sub={nextFilm?.title ?? "Study the game"}
-          />
-        </section>
-
-        {!featured && next.kind !== "program" && (workouts ?? []).length === 0 && (
-          <EmptyState
-            eyebrow="No workouts yet"
-            title="Workouts aren't loaded"
-            subtitle="The workouts aren't loaded yet. Ask your coach to set them up."
-          />
-        )}
-      </main>
+      <HomeView
+        playerId={playerId}
+        welcome={greeting({ name: player.display_name, now, week: weekSummary, streakWeeks, everActive: activity.activities.length > 0 || sets.length > 0 })}
+        week={weekSummary}
+        hero={hero}
+        range={range}
+        totals={totals}
+        season={season}
+        weeks={weeklyShots(sets, now)}
+        lookBack={lookBack(sets, now)}
+        answer={improvementAnswer(stand)}
+        focus={focus}
+        recent={recent}
+      />
     </div>
   );
 }
 
 function shortDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-const DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
-const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-/** This week at a glance: which days had work, against a 3-day target. */
-function WeekStrip({ week, streakWeeks }: { week: WeekSummary; streakWeeks: number }) {
-  const hit = week.activeDays >= WEEKLY_DAYS_TARGET;
-  return (
-    <Card className="px-4 py-3.5">
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">
-          This week ·{" "}
-          <span className="text-foreground">
-            {week.activeDays} of {WEEKLY_DAYS_TARGET} days
-          </span>
-        </p>
-        <p className={`text-xs font-bold ${hit ? "text-[var(--data-positive)]" : "text-foreground-dim"}`}>
-          {hit ? "Target hit" : streakWeeks > 0 ? `${streakWeeks}-week streak` : "Start a streak"}
-        </p>
-      </div>
-      <ol className="mt-3 grid grid-cols-7 gap-1.5" aria-label={`${week.activeDays} days trained this week`}>
-        {week.days.map((active, i) => (
-          <li key={i} className="flex justify-center">
-            <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-extrabold ${
-                active
-                  ? "bg-accent text-on-accent"
-                  : i === week.today
-                    ? "border-2 border-accent text-accent"
-                    : "bg-raised text-foreground-mute"
-              }`}
-              aria-label={`${DAY_NAMES[i]}${active ? ", trained" : ""}${i === week.today ? ", today" : ""}`}
-            >
-              {DAY_LETTERS[i]}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </Card>
-  );
 }
 
 /** A dark next-up card for the cases without a component of their own. */
@@ -339,17 +325,5 @@ function NextCard({
         </ButtonLink>
       </div>
     </section>
-  );
-}
-
-function QuickTile({ href, eyebrow, value, sub }: { href: string; eyebrow: string; value: string; sub: string }) {
-  return (
-    <CardLink href={href} className="flex min-h-28 flex-col justify-between p-4">
-      <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">{eyebrow}</p>
-      <div className="min-w-0">
-        <p className="font-display text-2xl uppercase leading-none text-foreground">{value}</p>
-        <p className="mt-1 line-clamp-2 text-xs font-semibold text-foreground-dim">{sub}</p>
-      </div>
-    </CardLink>
   );
 }
