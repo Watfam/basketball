@@ -23,6 +23,8 @@ Files: `PREREGISTRATION.md` (criteria written before any simulation), `simulate.
 
 **Found while reading the code, not a database fault:** deleting a shot set (Shooting history) marks it deleted, but a workout result that used that set keeps its numbers and still counts in Progress. Its "Every shot" link then opens a "not found" page. Row 11 counts how many such results exist in your data. Not fixed: it needs a change to a signed-in server page I cannot exercise.
 
+**Live result (you ran it, 2026-10-17): all 20 rows ok or info.** Migration 0023 is applied: the unique partial index exists and is valid (row 1), no workout entry has two log rows (row 2), and the benchmark workout, its three entries and its weeks 1, 3 and 6 are in place (rows 17 to 19). Your database has 10 log rows, **none of them tracked results and none benchmark results** (rows 4 and 5). So the checks on tracked and benchmark links (rows 9 to 16) passed on no data: they say nothing yet about camera-tracked results. They need to be run again after test 4 in `IPHONE-TESTS.md`. Row 20: 1 of the 3 benchmark drills (Catch-and-Shoot) has a Film Room lesson linked directly; Free Throw Reset and Beat the Clock Finisher show a related lesson or none, as designed.
+
 ## 2. Analytics correctness audit
 
 Method: read every rule that makes a player-facing statement, then simulate what each says when **nothing has changed**, using the app's own functions (3,000 trials, seeded). Day-to-day variation (SD 0, 3, 5 points) is an assumption I varied; no real data about it exists yet.
