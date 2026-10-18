@@ -8,6 +8,7 @@ import { type SkillLevel } from "@/lib/basketball/assessment";
 import { hasRealWork } from "@/lib/basketball/session-logs";
 import { revalidatePlayerSessionViews } from "./revalidate";
 import { saveDrillLogOnce } from "./drill-tracking";
+import { dropTemporaryIfUnused } from "@/lib/basketball/custom-workouts-store";
 
 /**
  * Starts a workout session — creates the hoops.workout_sessions row the
@@ -105,8 +106,10 @@ export async function completeWorkoutSession(sessionId: string) {
   const { data: logs, error: logsError } = await supabase.schema("hoops").from("session_logs").select("metrics").eq("session_id", sessionId);
   if (logsError) return { error: logsError.message };
   if (!hasRealWork(logs ?? [])) {
+    const { data: row } = await supabase.schema("hoops").from("workout_sessions").select("workout_id").eq("id", sessionId).maybeSingle();
     const { error } = await supabase.schema("hoops").from("workout_sessions").delete().eq("id", sessionId);
     if (error) return { error: error.message };
+    await dropTemporaryIfUnused(supabase.schema("hoops"), row?.workout_id as string | null | undefined);
     revalidatePlayerSessionViews();
     return { error: null, discarded: true };
   }
@@ -147,6 +150,7 @@ export async function discardWorkoutSession(sessionId: string) {
   // Skipped drills are not work: a session of only those is discarded like an empty one.
   if (hasRealWork(logs ?? [])) return { error: null, kept: true };
 
+  const { data: row } = await supabase.schema("hoops").from("workout_sessions").select("workout_id").eq("id", sessionId).maybeSingle();
   const { error } = await supabase
     .schema("hoops")
     .from("workout_sessions")
@@ -154,6 +158,7 @@ export async function discardWorkoutSession(sessionId: string) {
     .eq("id", sessionId);
 
   if (error) return { error: error.message };
+  await dropTemporaryIfUnused(supabase.schema("hoops"), row?.workout_id as string | null | undefined);
 
   revalidatePlayerSessionViews();
   return { error: null, kept: false };

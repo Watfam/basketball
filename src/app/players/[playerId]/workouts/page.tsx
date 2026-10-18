@@ -4,7 +4,7 @@ import { rankWorkouts, explainMatch, type PlayerType } from "@/lib/basketball/wo
 import { rankPrograms, explainProgram } from "@/lib/basketball/program";
 import { rankFilm } from "@/lib/basketball/film";
 import type { Workout } from "@/components/workout-card";
-import { isCustomWorkout, workoutMinutes } from "@/lib/basketball/workout-minutes";
+import { isCustomWorkout, isTemporaryWorkout, workoutMinutes } from "@/lib/basketball/workout-minutes";
 import type { DrillEntry } from "@/lib/basketball/prescription";
 import type { OfferedProgram } from "@/components/program-offer";
 import { TrainHomeView } from "@/components/train/train-home-view";
@@ -85,7 +85,7 @@ export default async function TrainPage({ params, searchParams }: { params: Prom
   const watched = new Set((filmViews ?? []).map((v) => v.film_resource_id));
   const nextFilm = rankFilm(playerType, (filmRows ?? []) as Parameters<typeof rankFilm>[1], watched, WEAKNESS_THRESHOLD)[0] ?? null;
 
-  const mine = (workouts ?? []).filter((w) => isCustomWorkout(w)) as unknown as Workout[];
+  const mine = (workouts ?? []).filter((w) => isCustomWorkout(w) && !isTemporaryWorkout(w)) as unknown as Workout[];
   const minutesOf = (w: Workout) => workoutMinutes({ estimated_minutes: w.estimated_minutes, workout_drills: w.workout_drills as unknown as DrillEntry[] }, level);
   const next = ranked[0] ?? null;
   const nextWhy = next ? explainMatch(playerType, next, { playerLevel: level, lastCompletedIso: lastDone[next.id] }) : null;

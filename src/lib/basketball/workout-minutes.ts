@@ -16,3 +16,6 @@ export function workoutMinutes(w: { estimated_minutes: number | null; workout_dr
 
 /** A workout a family built for itself carries this mark in its tags (its owner is also set, which is what keeps it private). */
 export const isCustomWorkout = (w: { player_type_tags: unknown }) => Boolean((w.player_type_tags as { custom?: boolean } | null)?.custom);
+
+/** A built workout run without saving, and not kept (yet): it is not listed under Your workouts. */
+export const isTemporaryWorkout = (w: { player_type_tags: unknown }) => Boolean((w.player_type_tags as { temporary?: boolean } | null)?.temporary);

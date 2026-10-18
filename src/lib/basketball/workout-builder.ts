@@ -141,7 +141,7 @@ export function defaultName(minutes: number, skills: string[], labels: Record<st
   return `My ${minutes} minute ${what} workout`.replace(/\s+/g, " ").trim();
 }
 
-export type SaveInput = { id?: string | null; name: string; skills: string[]; entries: { id?: string | null; drillId: string; sets: number | null; reps: number | null; seconds: number | null; block: string }[] };
+export type SaveInput = { id?: string | null; temporary?: boolean; name: string; skills: string[]; entries: { id?: string | null; drillId: string; sets: number | null; reps: number | null; seconds: number | null; block: string }[] };
 
 /** What the server accepts: a name, one to fifteen entries, sane numbers. Returns the cleaned input or the first problem. */
 export function cleanSave(input: SaveInput, knownSkills: string[]): { ok: true; value: SaveInput } | { ok: false; error: string } {

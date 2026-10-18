@@ -57,9 +57,11 @@ export async function saveWorkout(hoops: HoopsDb, userId: string, input: SaveInp
     return { error: null, workoutId: v.id };
   }
 
+  // A workout run without saving it first is "temporary": it is a real row (a session needs one) but is not listed under Your workouts
+  // until the player keeps it, and it is removed again if the session is thrown away.
   const { data: created, error } = await hoops
     .from("workouts")
-    .insert({ name: v.name, description: "Built by you.", focus_areas: v.skills, estimated_minutes: minutes, player_type_tags: { custom: true }, owner_household_id: household.id })
+    .insert({ name: v.name, description: "Built by you.", focus_areas: v.skills, estimated_minutes: minutes, player_type_tags: input.temporary ? { custom: true, temporary: true } : { custom: true }, owner_household_id: household.id })
     .select("id")
     .single();
   if (error || !created) return { error: friendly(error?.message ?? "The workout could not be saved.") };
@@ -78,4 +80,24 @@ export async function deleteWorkout(hoops: HoopsDb, workoutId: string): Promise<
   if (error) return { error: friendly(error.message) };
   if (!gone || gone.length === 0) return { error: "That workout is not one of yours, or it is already gone." };
   return { error: null };
+}
+
+/** Keeps a workout that was run without saving: it joins Your workouts. */
+export async function keepWorkout(hoops: HoopsDb, workoutId: string): Promise<{ error: string | null }> {
+  if (!workoutId) return { error: "Missing workout." };
+  const { data: kept, error } = await hoops.from("workouts").update({ player_type_tags: { custom: true } }).eq("id", workoutId).not("owner_household_id", "is", null).select("id");
+  if (error) return { error: friendly(error.message) };
+  if (!kept || kept.length === 0) return { error: "That workout is not one of yours, or it is already gone." };
+  return { error: null };
+}
+
+/** When a session is thrown away: a temporary workout nobody has run is removed with it. A saved workout, or one with any session left, stays. */
+export async function dropTemporaryIfUnused(hoops: HoopsDb, workoutId: string | null | undefined): Promise<void> {
+  if (!workoutId) return;
+  const { data: w } = await hoops.from("workouts").select("id, player_type_tags, owner_household_id").eq("id", workoutId).maybeSingle();
+  const tags = (w?.player_type_tags ?? {}) as { temporary?: boolean };
+  if (!w || !w.owner_household_id || !tags.temporary) return;
+  const { data: left } = await hoops.from("workout_sessions").select("id").eq("workout_id", workoutId).limit(1);
+  if ((left ?? []).length > 0) return;
+  await hoops.from("workouts").delete().eq("id", workoutId);
 }

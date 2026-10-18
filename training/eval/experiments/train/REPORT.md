@@ -7,6 +7,12 @@ What was built (all of it passes the checks below; none of it has been tried on 
 * **Film Room library**: search plus Skill, Kind and Who (one pro or trainer) filters; with nothing chosen it is the old browse view, with a filter it is one list in the player's order. Study sessions stays a tab. The door from Train opens the Library tab.
 * **Workout builder** (`/players/[id]/workouts/build`): length (15 to 60) and skills draft a session that fits (drills nearest the player's level, in turn across the skills; more sets if the library is short); change sets, reps or seconds, swap, remove, move, add from a searchable list; save, save and start, edit, delete. Times are estimates (3 s a rep, 20 s rest a set, 30 s to set up).
 
+## Run it without saving, keep it afterwards
+
+New workouts have two buttons: **Save** and **Start now**. Start now runs the workout without putting it under Your workouts. Underneath it is a real workout row marked temporary (a session needs one), hidden from the lists and from Today. When the workout is finished, the finished screen asks "Worth keeping?" with **Save this workout**; the same card shows when the session is opened again from history, as long as it has not been kept. If the session is thrown away with nothing done, the temporary workout goes with it. A workout that was never kept stays hidden after a finished session. Editing a saved workout still has Save changes and Save and start. Tested in `db-builder.mjs` (temporary, keep, other family refused, cleanup only when unused) and `keep-e2e.mjs`.
+
+Start now needs migration 0027 too (the workout row is owned by the family), so before it is applied both buttons say so plainly.
+
 ## Needs one thing from you: migration 0027
 
 Saving a workout needs `supabase/migrations/0027_custom_workouts.sql` applied in the Supabase SQL editor. It adds `workouts.owner_household_id` and replaces the two blanket read policies with ones that keep the library public and make a family's own workouts private to it. It changes no existing row. After running it, `supabase/checks/0027_after.sql` (read only) shows the column and the policies. Undo: `supabase/rollback/0027_remove_custom_workouts.sql` (refuses while any family-built workout exists).

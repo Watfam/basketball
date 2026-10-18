@@ -4,7 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { deleteWorkout, saveWorkout } from "@/lib/basketball/custom-workouts-store";
+import { deleteWorkout, keepWorkout, saveWorkout } from "@/lib/basketball/custom-workouts-store";
 import type { SaveInput } from "@/lib/basketball/workout-builder";
 
 function refresh() {
@@ -27,6 +27,15 @@ export async function deleteCustomWorkout(workoutId: string): Promise<{ error: s
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
   const res = await deleteWorkout(supabase.schema("hoops"), workoutId);
+  if (!res.error) refresh();
+  return res;
+}
+
+export async function keepCustomWorkout(workoutId: string): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+  const res = await keepWorkout(supabase.schema("hoops"), workoutId);
   if (!res.error) refresh();
   return res;
 }

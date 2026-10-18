@@ -94,11 +94,11 @@ export function WorkoutBuilder({ playerId, level, drills, suggestedSkills, initi
 
   const opens = (o: Open) => (e: React.MouseEvent<HTMLElement>) => { haptic("tap"); setOpener(e.currentTarget); setOpen(o); };
 
-  const save = (thenStart: boolean) => {
+  const save = (thenStart: boolean, temporary = false) => {
     setError(null);
     haptic("tap");
     startTransition(async () => {
-      const res = await saveCustomWorkout({ id: initial?.id ?? null, name, skills, entries: entries.map((e) => ({ id: e.entryId ?? null, drillId: e.drillId, sets: e.sets, reps: e.reps, seconds: e.seconds, block: e.block })) });
+      const res = await saveCustomWorkout({ id: initial?.id ?? null, temporary, name, skills, entries: entries.map((e) => ({ id: e.entryId ?? null, drillId: e.drillId, sets: e.sets, reps: e.reps, seconds: e.seconds, block: e.block })) });
       if (res.error || !res.workoutId) { setError(res.error ?? "The workout could not be saved."); return; }
       if (thenStart) {
         const s = await startWorkoutSession(playerId, res.workoutId);
@@ -213,9 +213,10 @@ export function WorkoutBuilder({ playerId, level, drills, suggestedSkills, initi
       <div className="fixed inset-x-0 z-20 border-t border-line bg-background/95 px-4 py-3 backdrop-blur" style={{ bottom: navH }}>
         <div className="mx-auto w-full max-w-lg space-y-2">
           {error && <FormError>{error}</FormError>}
+          {!initial && <p className="text-center text-[11px] text-foreground-mute">Start now runs it without saving. You can save it afterwards if it was worth it.</p>}
           <div className="grid grid-cols-2 gap-2">
             <Button variant="secondary" size="lg" disabled={pending || entries.length === 0 || !name.trim()} onClick={() => save(false)}>{pending ? "Saving…" : initial ? "Save changes" : "Save"}</Button>
-            <Button size="lg" disabled={pending || entries.length === 0 || !name.trim()} onClick={() => save(true)}>Save and start</Button>
+            <Button size="lg" disabled={pending || entries.length === 0 || !name.trim()} onClick={() => (initial ? save(true) : save(true, true))}>{initial ? "Save and start" : "Start now"}</Button>
           </div>
         </div>
       </div>

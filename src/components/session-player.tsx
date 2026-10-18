@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   completeWorkoutSession,
+  keepCustomWorkout,
   discardWorkoutSession,
   logDrillProgress,
 } from "@/app/actions";
@@ -92,6 +93,8 @@ type Props = {
   // the plan working rather than something being wrong.
   isDeload?: boolean;
   alreadyCompleted: boolean;
+  // A workout built and run without saving: the finished screen offers to keep it.
+  keepWorkoutId?: string | null;
   // workout_drills entry ids already logged in a previous visit to this
   // session — lets a player leave mid-workout and pick back up later
   // instead of losing progress or redoing what they already did.
@@ -129,6 +132,7 @@ export function SessionPlayer({
   programLabel = null,
   isDeload = false,
   alreadyCompleted,
+  keepWorkoutId = null,
   initialLoggedEntryIds,
   initialSkippedEntryIds = [],
   entryExtras = {},
@@ -324,6 +328,7 @@ export function SessionPlayer({
         workoutName={workoutName}
         loggedCount={doneCount}
         totalCount={drills.length}
+        keepWorkoutId={keepWorkoutId}
         onDone={() => router.push(`/players/${playerId}`)}
       />
     );
@@ -897,14 +902,19 @@ function SessionComplete({
   workoutName,
   loggedCount,
   totalCount,
+  keepWorkoutId,
   onDone,
 }: {
   workoutName: string;
   loggedCount: number;
   totalCount: number;
+  keepWorkoutId: string | null;
   onDone: () => void;
 }) {
   const fullyDone = loggedCount >= totalCount;
+  const [kept, setKept] = useState(false);
+  const [keepError, setKeepError] = useState<string | null>(null);
+  const [keeping, startKeep] = useTransition();
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center">
       <motion.div
@@ -939,6 +949,38 @@ function SessionComplete({
           </p>
         </div>
       </motion.div>
+
+      {keepWorkoutId && (
+        <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} aria-label="Keep this workout" className="mt-4 w-full rounded-2xl border border-line bg-surface p-4">
+          {kept ? (
+            <p role="status" className="text-sm text-foreground">Saved. It is under <b>Your workouts</b> on Train, ready to run again.</p>
+          ) : (
+            <>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent">Worth keeping?</p>
+              <p className="mt-1 text-sm text-foreground-dim">You built this one and ran it without saving. Keep it to run it again, or leave it and it goes away.</p>
+              <Button
+                variant="secondary"
+                size="md"
+                block
+                className="mt-3"
+                disabled={keeping}
+                onClick={() => {
+                  haptic("tap");
+                  setKeepError(null);
+                  startKeep(async () => {
+                    const res = await keepCustomWorkout(keepWorkoutId);
+                    if (res.error) setKeepError(res.error);
+                    else setKept(true);
+                  });
+                }}
+              >
+                {keeping ? "Saving…" : "Save this workout"}
+              </Button>
+              {keepError && <FormError className="mt-2">{keepError}</FormError>}
+            </>
+          )}
+        </motion.section>
+      )}
 
       <motion.button
         initial={{ opacity: 0, y: 8 }}

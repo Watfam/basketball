@@ -17,7 +17,7 @@ for (const f of walk(path.join(ROOT, "src/lib"))) {
   const js = ts.transpileModule(fs.readFileSync(f, "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace(/from "(\.[^"]*)\.ts"/g, 'from "$1.mjs"').replace(/from "(\.[^".]*)"/g, 'from "$1.mjs"').replaceAll("import.meta.dirname", JSON.stringify(path.dirname(f)));
   fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, js);
 }
-const { saveWorkout, deleteWorkout, NOT_READY } = await import(path.join(OUT, "src/lib/basketball/custom-workouts-store.mjs"));
+const { saveWorkout, deleteWorkout, keepWorkout, dropTemporaryIfUnused, NOT_READY } = await import(path.join(OUT, "src/lib/basketball/custom-workouts-store.mjs"));
 
 let fails = 0; const ok = (c, m, d = "") => { console.log(`${c ? "PASS" : "FAIL"}  ${m}${d ? "  [" + d + "]" : ""}`); if (!c) fails++; };
 const uuid = () => crypto.randomUUID();
@@ -82,6 +82,35 @@ ok(!!(await saveWorkout(A, w.ua, { name: "", skills: [], entries: [e(w.drills[0]
 ok(!!(await saveWorkout(A, w.ua, { name: "x", skills: [], entries: [] })).error, "at least one drill is required");
 ok(/no longer in the library/.test((await saveWorkout(A, w.ua, { name: "x", skills: [], entries: [e(uuid())] })).error ?? ""), "a drill that is not in the library is refused, and nothing is left behind");
 ok((await w.db.admin.query("select count(*)::int n from hoops.workouts where name='x'")).rows[0].n === 0, "no half-saved workout remains");
+
+// run without saving, keep afterwards
+const tags = async (id) => (await w.db.admin.query("select player_type_tags t from hoops.workouts where id=$1", [id])).rows[0]?.t;
+r = await saveWorkout(A, w.ua, { temporary: true, name: "Try it", skills: ["shooting"], entries: [e(w.drills[0]), e(w.drills[1])] });
+ok(!r.error && r.workoutId, "a workout can be saved as temporary (to run without saving first)", r.error ?? "");
+const tid = r.workoutId;
+let tg = await tags(tid); ok(tg.custom === true && tg.temporary === true, "it is marked temporary and custom");
+const tsess = await A.from("workout_sessions").insert({ player_id: w.pa, workout_id: tid, status: "in_progress" }).select("id").single();
+ok(!tsess.error, "and can be started like any other");
+ok((await keepWorkout(B, tid)).error !== null, "another family cannot keep it");
+ok((await tags(tid)).temporary === true, "which changes nothing");
+await dropTemporaryIfUnused(A, tid);
+ok((await tags(tid)) !== undefined, "a temporary workout with a session is not removed");
+const kept = await keepWorkout(A, tid);
+ok(!kept.error, "the owner can keep it afterwards", kept.error ?? "");
+tg = await tags(tid); ok(tg.custom === true && tg.temporary === undefined, "it is no longer temporary");
+ok((await keepWorkout(A, libId)).error !== null, "a library workout cannot be 'kept'");
+// throwing the session away removes an unused temporary workout, never a saved one
+r = await saveWorkout(A, w.ua, { temporary: true, name: "Throwaway", skills: [], entries: [e(w.drills[0])] });
+const gid = r.workoutId;
+const gs = await A.from("workout_sessions").insert({ player_id: w.pa, workout_id: gid, status: "in_progress" }).select("id").single();
+await A.from("workout_sessions").delete().eq("id", gs.data.id);
+await dropTemporaryIfUnused(A, gid);
+ok((await tags(gid)) === undefined, "throwing the session away removes the temporary workout with it");
+await dropTemporaryIfUnused(A, tid);
+ok((await tags(tid)) !== undefined, "but a kept workout is never removed this way");
+await dropTemporaryIfUnused(A, libId);
+ok((await w.db.admin.query("select 1 from hoops.workouts where id=$1", [libId])).rows.length === 1, "nor a library workout");
+await dropTemporaryIfUnused(A, null);
 
 // delete
 const del = await deleteWorkout(A, wid);

@@ -1,0 +1,5 @@
+"use client";
+import { SessionPlayer } from "@/components/session-player";
+export default function Page() {
+  return <div className="theme-dark bg-background p-4"><SessionPlayer playerId="demo" sessionId="s" workoutName="My 30 minute shooting workout" drills={[]} level="intermediate" volumeStep={0} alreadyCompleted keepWorkoutId="w1" initialLoggedEntryIds={[]} /></div>;
+}
