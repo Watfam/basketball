@@ -122,6 +122,11 @@ export function ShootingHub({
 
   const [raw] = useLocalDraft(key);
   const draft = useMemo(() => parseDraft(raw), [raw]);
+  // A set left open with nothing counted (the player went back before shooting) is not worth resuming: Shoot opens on the choices instead.
+  useEffect(() => {
+    const d = parseDraft(readDraft(key));
+    if (d && d.shots.length === 0 && !d.sessionId && !d.clockStartedAt) writeDraft(key, null);
+  }, [key]);
   const [soundRaw, setSoundRaw] = useLocalDraft(SOUND_KEY);
   const sound = soundRaw === "on";
   // Remembered between sessions: the same set size is the usual habit.

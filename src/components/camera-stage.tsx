@@ -216,13 +216,13 @@ function RimCheck({ camera }: { camera: Camera }) {
 
 function SetupCard({ error, start }: { error: string | null; start: Camera["start"] }) {
   return (
-    <div className="absolute inset-0 z-10 grid place-items-center overflow-y-auto bg-background/85 p-4 landscape:pb-28 landscape:pt-12">
-      <section className="w-full max-w-sm rounded-2xl border border-line bg-surface p-4">
+    <div className="absolute inset-0 z-10 grid place-items-center overflow-y-auto bg-background/85 p-3 landscape:p-4 landscape:pb-28 landscape:pt-12">
+      <section className="w-full max-w-sm rounded-2xl border border-line bg-surface p-3 landscape:p-4">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-accent">Set up the camera</p>
         <ol className="mt-2 space-y-1 text-sm text-foreground">
           <li>1. Phone on a stand or fence, sideways, behind the shooter.</li>
-          <li>2. The hoop in the top half of the picture, sky or wall above the rim.</li>
-          <li>3. The whole net in view, and the phone out of the sun.</li>
+          <li className="hidden landscape:list-item">2. The hoop in the top half of the picture, sky or wall above the rim.</li>
+          <li className="hidden landscape:list-item">3. The whole net in view, and the phone out of the sun.</li>
         </ol>
         {error && <p className="mt-3 text-xs font-semibold text-danger">{error}</p>}
         <Button
