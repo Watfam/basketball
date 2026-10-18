@@ -13,13 +13,13 @@ const LOUPE_LIFT = 110;
 type Aim = { x: number; y: number };
 
 /**
- * The box the camera picture is drawn in, in the canvas's own pixels, read from the video element itself. The ring, the magnifier and the touch
- * all use this one box, so where the ring is drawn and where a touch lands cannot disagree with what is on the screen, whatever the browser does
- * to the layout when the phone turns.
+ * The box the camera picture is drawn in, in the canvas's own pixels. The video and this canvas are both stretched over the same parent, so
+ * the box is the canvas's own size. Only its size is read from the rect, never its position: after an iPhone is turned sideways in an installed
+ * app, rects of fixed elements can be reported about a status bar (60 px) off from where they are drawn.
  */
-function pictureBox(canvas: HTMLCanvasElement, video: HTMLVideoElement) {
-  const c = canvas.getBoundingClientRect(), v = video.getBoundingClientRect();
-  return { x: v.left - c.left, y: v.top - c.top, w: v.width, h: v.height };
+function pictureBox(canvas: HTMLCanvasElement) {
+  const r = canvas.getBoundingClientRect();
+  return { x: 0, y: 0, w: r.width, h: r.height };
 }
 
 /**
@@ -71,7 +71,7 @@ export function AimCanvas({
       if (!ctx || !video?.videoWidth) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
-      const box = pictureBox(canvas, video);
+      const box = pictureBox(canvas);
       const cr = containedRect(box.w, box.h, video.videoWidth, video.videoHeight);
       const r = { x: box.x + cr.x, y: box.y + cr.y, w: cr.w, h: cr.h };
       const aim = getAim();
@@ -158,14 +158,27 @@ export function AimCanvas({
     if (!active) touch.current = null;
   }, [active]);
 
+  /**
+   * Where a touch is on the canvas, in the canvas's own pixels. The browser's offset within the element it hit is used when it has one: on an
+   * iPhone turned sideways after the page opened upright, clientY can be one status bar (about 60 px) off while the element hit is still right.
+   */
+  const place = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const { offsetX, offsetY } = e.nativeEvent;
+    const byRect = { x: e.clientX - r.left, y: e.clientY - r.top };
+    // The offset is whole pixels, the rect is exact: the rect is used while the two agree.
+    if (e.target === e.currentTarget && Number.isFinite(offsetX) && Number.isFinite(offsetY) && (Math.abs(byRect.x - offsetX) > 3 || Math.abs(byRect.y - offsetY) > 3)) return { x: offsetX, y: offsetY };
+    return byRect;
+  };
+
   const move = (e: React.PointerEvent<HTMLCanvasElement>, commit: boolean) => {
     const video = videoRef.current;
     const t = touch.current;
     if (!video?.videoWidth || !t) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    t.x = e.clientX - r.left;
-    t.y = e.clientY - r.top;
-    const box = pictureBox(e.currentTarget, video);
+    const p = place(e);
+    t.x = p.x;
+    t.y = p.y;
+    const box = pictureBox(e.currentTarget);
     const f = pictureFraction(t.x - box.x, t.y - box.y, { w: box.w, h: box.h }, { w: video.videoWidth, h: video.videoHeight });
     if (f) onAim(f.x, f.y, commit);
   };
@@ -177,8 +190,12 @@ export function AimCanvas({
       className={`absolute inset-0 z-10 h-full w-full touch-none ${active ? "" : "pointer-events-none"}`}
       onPointerDown={(e) => {
         if (!active) return;
+        // The bar's place relative to the canvas, compared with the touch's place on the canvas: both read the same way, so a browser that is
+        // off about where the page is cannot make a press on Start look like a touch on the picture.
         const bar = shieldRef?.current?.getBoundingClientRect();
-        if (bar && e.clientX >= bar.left && e.clientX <= bar.right && e.clientY >= bar.top && e.clientY <= bar.bottom) return;
+        const c = e.currentTarget.getBoundingClientRect();
+        const at = place(e);
+        if (bar && at.x >= bar.left - c.left && at.x <= bar.right - c.left && at.y >= bar.top - c.top && at.y <= bar.bottom - c.top) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         touch.current = { id: e.pointerId, x: 0, y: 0 };
         haptic("tap");

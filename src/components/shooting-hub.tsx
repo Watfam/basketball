@@ -122,11 +122,10 @@ export function ShootingHub({
 
   const [raw] = useLocalDraft(key);
   const draft = useMemo(() => parseDraft(raw), [raw]);
-  // A set left open with nothing counted (the player went back before shooting) is not worth resuming: Shoot opens on the choices instead.
-  useEffect(() => {
-    const d = parseDraft(readDraft(key));
-    if (d && d.shots.length === 0 && !d.sessionId && !d.clockStartedAt) writeDraft(key, null);
-  }, [key]);
+  // Arriving on Shoot (the tab, not "Pick it up" from Today or a drill) with a set left open: the choices show first, with a button to resume it.
+  const [held, setHeld] = useState(
+    () => typeof window !== "undefined" && parseDraft(readDraft(key)) !== null && !new URLSearchParams(window.location.search).has("resume") && !new URLSearchParams(window.location.search).has("workout")
+  );
   const [soundRaw, setSoundRaw] = useLocalDraft(SOUND_KEY);
   const sound = soundRaw === "on";
   // Remembered between sessions: the same set size is the usual habit.
@@ -361,6 +360,11 @@ export function ShootingHub({
   }, [playerId]);
 
   function start(label: string, chosen: Goal | null = goal, context?: DrillContext, useCamera: boolean = countWithCamera) {
+    if (held && draft) {
+      if (draft.shots.length > 0 && !window.confirm(`Throw away the open set (${draft.shots.length} shots) and start a new one?`)) return;
+      dropOpenSet();
+    }
+    setHeld(false);
     // Remembered as a one-tap start for next time, newest first. A drill's own setup is not: it is reached from the workout.
     const setup: Setup = { label: label.trim(), goal: chosen };
     if (!context && (setup.label || setup.goal)) {
@@ -567,6 +571,15 @@ export function ShootingHub({
   }
 
   /** A different set is open: finish with it first, or throw it away on purpose. */
+  /** Drops the open set (and its saved copy, if any) without asking: callers have asked already. */
+  function dropOpenSet() {
+    camera.stop();
+    void clearReplays();
+    const sessionId = draft?.sessionId;
+    writeDraft(key, null);
+    if (sessionId) void deleteShotSession(sessionId, playerId);
+  }
+
   function replaceOpenSet(context: DrillContext) {
     if (draft && draft.shots.length > 0 && !window.confirm(`Throw away these ${draft.shots.length} shots?`)) return;
     camera.stop();
@@ -675,7 +688,7 @@ export function ShootingHub({
   }
 
   // ---- A camera set that has ended: review it before it is saved --------
-  if (draft && reviewing) {
+  if (draft && !held && reviewing) {
     return (
       <ShotReview
         shots={draft.shots}
@@ -692,7 +705,7 @@ export function ShootingHub({
   }
 
   // ---- In a session: the counter ---------------------------------------
-  if (draft) {
+  if (draft && !held) {
     const sum = summarize(draft.shots);
     const syncText =
       syncState === "offline"
@@ -883,6 +896,19 @@ export function ShootingHub({
 
   return (
     <div className="space-y-6">
+      {draft && held && (
+        <section aria-label="A set is open" className="rounded-3xl border border-accent bg-accent/5 p-4">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-accent-hover">{draft.mode === "camera" && draft.reviewing ? "Waiting for your review" : "A set is still open"}</p>
+          <p className="mt-1 text-[15px] font-bold text-foreground">
+            {draft.label || "Shooting"} · {draft.shots.length === 0 ? "nothing counted yet" : `${draft.shots.filter((x) => x.made).length} of ${draft.shots.length}`}
+          </p>
+          <p className="mt-0.5 text-xs text-foreground-dim">Kept on this phone. Carry on where you stopped, or start something new below.</p>
+          <div className="mt-3 flex gap-2">
+            <Button size="md" className="flex-1" onClick={() => { haptic("tap"); setHeld(false); }}>{draft.mode === "camera" && draft.reviewing ? "Review and save" : "Resume this set"}</Button>
+            <Button size="md" variant="secondary" className="flex-1" onClick={() => { if (draft.shots.length > 0 && !window.confirm(`Throw away these ${draft.shots.length} shots?`)) return; haptic("tap"); dropOpenSet(); }}>Throw it away</Button>
+          </div>
+        </section>
+      )}
       {drill && isProblem(drill) && (
         <section className="rounded-3xl border border-line bg-surface p-5" role="status">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">This drill can&rsquo;t be tracked</p>

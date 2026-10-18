@@ -26,7 +26,7 @@ export function ResumeShotSet({ playerId }: { playerId: string }) {
         <p className="mt-2 text-sm leading-relaxed text-foreground-dim">
           {review ? "Check the camera's calls, then save it." : "It is kept on this phone. Pick it up to carry on or save it."}
         </p>
-        <ButtonLink href={`/players/${playerId}/shooting`} size="lg" block className="mt-4">
+        <ButtonLink href={`/players/${playerId}/shooting?resume=1`} size="lg" block className="mt-4">
           {review ? "Review and save" : "Pick it up"}
         </ButtonLink>
       </div>

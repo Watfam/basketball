@@ -69,3 +69,8 @@ For each test: pass, or what happened and a screenshot. For test 1 step 5 and te
 
 ## Test 7 addendum: the touch check (if a tap still lands in the wrong place)
 In the camera aiming screen, press and hold the grey "Aim at the rim" tag at the top left for about a second. A black box appears with numbers, and a red dot shows where the phone says your finger is. Touch the Start button and take a screenshot (the dot is part of the page, so it shows). Tell me whether the red dot is on your finger or somewhere else, and send the screenshot.
+
+## Test 11: Resume, and aiming after turning the phone (5 min)
+1. Start a set, shoot a few, leave the app (or go to another tab) without ending it. Open Shoot from the bottom bar: you should see the choices with a card "A set is still open" (its score, "Resume this set", "Throw it away"). Resume goes back into the counter. Pressing Start on a new set instead asks before throwing the open one away.
+2. Today shows "Pick it up" for an open set with shots: that button goes straight back in, no card.
+3. Open the camera upright, turn the phone sideways, touch the picture: the ring should be under your finger, and Start should start counting. (This was the bug: it was off by about 60 px when the phone was turned after the page opened.)
