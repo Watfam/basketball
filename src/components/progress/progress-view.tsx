@@ -8,6 +8,7 @@ import { InsightCard, LatestCard, NextCard } from "@/components/progress/insight
 import { ShootingView } from "@/components/progress/shooting-view";
 import { buildInsights, latestResult, nextAction, type InsightLink, type LessonLite } from "@/lib/basketball/insights";
 import { Card } from "@/components/ui/card";
+import { Options, PickLink, SheetPicker } from "@/components/ui/sheet";
 import { PROGRESS_ROW_LIMIT } from "@/lib/basketball/progress-limits";
 import { RANGE_CHOICES, rangeParams, type ProgressRange } from "@/lib/basketball/progress-range";
 import { analyzeBenchmarks, volumeSummary, whatThisShows, type BenchmarkReport } from "@/lib/basketball/benchmark-analysis";
@@ -144,27 +145,24 @@ function RangeBar({ range, view, benchmark, category, drill, base, keep }: { ran
   const href = (p: Record<string, string>) => `${base}?${new URLSearchParams({ ...keep, ...p, view, ...(benchmark ? { benchmark } : {}), ...(category ? { category } : {}), ...(drill ? { drill } : {}) }).toString()}`;
   const iso = (d: Date | null) => (d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "");
   return (
-    <div>
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Date range">
-        {RANGE_CHOICES.map((c) => (
-          <Link key={c.key} href={href({ range: c.key })} scroll={false} aria-current={range.key === c.key ? "true" : undefined}
-            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${range.key === c.key ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{c.label}</Link>
-        ))}
-      </div>
-      <details className="mt-1.5" open={range.key === "custom"}>
-        <summary className="flex min-h-11 cursor-pointer items-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-foreground-dim">{range.key === "custom" ? range.label : "Pick dates"}</summary>
-        <form action={base} method="get" className="flex flex-wrap items-end gap-2 pb-2">
-          {Object.entries(keep).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
-          <input type="hidden" name="view" value={view} />
-          {benchmark && <input type="hidden" name="benchmark" value={benchmark} />}
-          {category && <input type="hidden" name="category" value={category} />}
-          {drill && <input type="hidden" name="drill" value={drill} />}
+    <SheetPicker label="How far back" value={range.label} title="How far back">
+      <Options label="Date range">
+        {RANGE_CHOICES.map((c) => <PickLink key={c.key} href={href({ range: c.key })} selected={range.key === c.key} title={c.label} />)}
+      </Options>
+      <form action={base} method="get" className="mt-4 border-t border-line pt-3">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Or pick dates</p>
+        {Object.entries(keep).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
+        <input type="hidden" name="view" value={view} />
+        {benchmark && <input type="hidden" name="benchmark" value={benchmark} />}
+        {category && <input type="hidden" name="category" value={category} />}
+        {drill && <input type="hidden" name="drill" value={drill} />}
+        <div className="mt-2 flex flex-wrap items-end gap-2">
           <label className="text-[11px] font-bold text-foreground-mute">From<input type="date" name="from" defaultValue={iso(range.key === "custom" ? range.from : null)} className="mt-1 block min-h-11 rounded-lg border border-line bg-surface px-3 text-sm text-foreground" /></label>
           <label className="text-[11px] font-bold text-foreground-mute">To<input type="date" name="to" defaultValue={iso(range.key === "custom" && range.to ? new Date(range.to.getTime() - 86399000) : null)} className="mt-1 block min-h-11 rounded-lg border border-line bg-surface px-3 text-sm text-foreground" /></label>
           <button type="submit" className="min-h-11 rounded-lg bg-accent px-4 text-xs font-extrabold uppercase tracking-wide text-on-accent">Show</button>
-        </form>
-      </details>
-    </div>
+        </div>
+      </form>
+    </SheetPicker>
   );
 }
 

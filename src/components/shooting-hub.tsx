@@ -37,7 +37,7 @@ import { ShotReview } from "@/components/shot-review";
 import { SoundCheck } from "@/components/sound-controls";
 import { liveCall, type ShotCall } from "@/lib/vision/shotRules";
 import { Button } from "@/components/ui/button";
-import { Eyebrow } from "@/components/ui/card";
+import { Options, Opt, SheetPicker } from "@/components/ui/sheet";
 import { ShootSetup } from "@/components/shoot-setup";
 import { effectiveLabel } from "@/lib/basketball/shoot-setup";
 import { clockStart, draftGoal, draftKey, effectiveGoal, parseDraft, type Draft } from "@/lib/basketball/shot-draft";
@@ -805,26 +805,12 @@ export function ShootingHub({
           </div>
 
           <div className="mt-5">
-            <Eyebrow className="mb-1.5">
-              Spot (optional — stays until you change it)
-            </Eyebrow>
-            <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {ZONES.map((z) => (
-                <button
-                  key={z.key}
-                  type="button"
-                  onClick={() => chooseZone(z.key)}
-                  aria-pressed={draft.zone === z.key}
-                  className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors ${
-                    draft.zone === z.key
-                      ? "border-accent bg-accent text-on-accent"
-                      : "border-line bg-raised text-foreground-dim"
-                  }`}
-                >
-                  {z.label}
-                </button>
-              ))}
-            </div>
+            <SheetPicker label="Spot" value={ZONES.find((z) => z.key === draft.zone)?.label ?? "Any spot"} title="Spot" done>
+              <Options label="Spot">
+                <Opt selected={draft.zone === null} title="Any spot" sub="Stays until you change it" onPick={() => { if (draft.zone) chooseZone(draft.zone); }} />
+                {ZONES.map((z) => <Opt key={z.key} selected={draft.zone === z.key} title={z.label} onPick={() => { if (draft.zone !== z.key) chooseZone(z.key); }} />)}
+              </Options>
+            </SheetPicker>
           </div>
 
           <div className="mt-auto pt-6">

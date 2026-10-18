@@ -61,3 +61,11 @@ For each test: pass, or what happened and a screenshot. For test 1 step 5 and te
 4. Name your own drill: does the keyboard cover the field or the Use button?
 5. Sign in as (or switch to) a profile that has never shot: you should see "What are you shooting?" with the drills as buttons.
 6. Anything that makes you hesitate or tap the wrong thing?
+
+## Test 10: Pickers that open like Shoot setup (5 min, signed in)
+1. Progress: "How far back" is now one row. Tap it: the five ranges plus "Or pick dates". Choosing a range closes the sheet and the page changes. Swipe it down to close without choosing.
+2. Shoot, Sessions: the same "How far back" row, and a "Drill" row (all your drills in one list, no sideways scrolling).
+3. Tap-counting a set (camera off): the Spot row. Choosing a spot keeps the sheet open with a tick; Done or a swipe closes it, and the row shows your spot.
+
+## Test 7 addendum: the touch check (if a tap still lands in the wrong place)
+In the camera aiming screen, press and hold the grey "Aim at the rim" tag at the top left for about a second. A black box appears with numbers, and a red dot shows where the phone says your finger is. Touch the Start button and take a screenshot (the dot is part of the page, so it shows). Tell me whether the red dot is on your finger or somewhere else, and send the screenshot.

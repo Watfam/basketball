@@ -8,6 +8,7 @@ import { TrendChart } from "@/components/charts/trend-chart";
 import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
 import { describeSavedGoal } from "@/lib/basketball/goals";
 import { Card } from "@/components/ui/card";
+import { Options, PickLink, SheetPicker } from "@/components/ui/sheet";
 import { PlayerTabHeader } from "@/components/player-tab-header";
 import { isId } from "@/lib/basketball/drill-context";
 import { loadDrillStart } from "@/lib/basketball/drill-start-server";
@@ -129,17 +130,15 @@ export default async function ShootingPage({
   const rangeLabel = rng.label;
 
   const rangeChips = (
-    <div>
-      <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">How far back</p>
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Date range">
-        <Link href={hrefWith(selected !== ALL ? { drill: selected } : {}, {})} scroll={false} aria-current={!rangeSel ? "true" : undefined} className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${!rangeSel ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>Season</Link>
+    <SheetPicker label="How far back" value={rangeSel ? rangeSel.label : "Season"} title="How far back">
+      <Options label="Date range">
+        <PickLink href={hrefWith(selected !== ALL ? { drill: selected } : {}, {})} selected={!rangeSel} title="Season" />
         {RANGE_CHOICES.filter((c) => c.key !== "season").map((c) => (
-          <Link key={c.key} href={hrefWith({ range: c.key, ...(selected !== ALL ? { drill: selected } : {}) }, {})} scroll={false} aria-current={rangeSel?.key === c.key ? "true" : undefined}
-            className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold ${rangeSel?.key === c.key ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>{c.label}</Link>
+          <PickLink key={c.key} href={hrefWith({ range: c.key, ...(selected !== ALL ? { drill: selected } : {}) }, {})} selected={rangeSel?.key === c.key} title={c.label} />
         ))}
-        {rangeSel?.key === "custom" && <span aria-current="true" className="flex min-h-11 shrink-0 items-center rounded-full border border-accent bg-accent/10 px-4 text-xs font-bold text-accent-hover">{rangeSel.label}</span>}
-      </div>
-    </div>
+        {rangeSel?.key === "custom" && <PickLink href={hrefWith(selected !== ALL ? { drill: selected } : {})} selected title={rangeSel.label} />}
+      </Options>
+    </SheetPicker>
   );
 
   const history = (
@@ -168,24 +167,11 @@ export default async function ShootingPage({
       ) : (
         <>
           {rangeChips}
-          <div>
-            <p className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Drill</p>
-            <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {[ALL, ...drills].map((d) => (
-                <Link
-                  key={d}
-                  href={drillHref(d)}
-                  scroll={false}
-                  aria-current={d === selected ? "true" : undefined}
-                  className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
-                    d === selected ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"
-                  }`}
-                >
-                  {d}
-                </Link>
-              ))}
-            </div>
-          </div>
+          <SheetPicker label="Drill" value={selected === ALL ? "All shooting" : selected} title="Drill">
+            <Options label="Drill">
+              {[ALL, ...drills].map((d) => <PickLink key={d} href={drillHref(d)} selected={d === selected} title={d === ALL ? "All shooting" : d} />)}
+            </Options>
+          </SheetPicker>
 
           <Card className="p-4">
             <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
