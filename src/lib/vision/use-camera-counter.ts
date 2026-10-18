@@ -125,6 +125,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
   /** Counting is paused so the player can move the phone and aim again; the picture and the model stay open and the shots so far are kept. */
   const [reaiming, setReaiming] = useState(false);
   const speedRef = useRef<Promise<void> | null>(null);
+  const slowRef = useRef(false);
 
   const aimRef = useRef<Aim>({ ...DEFAULT_RIM, scale: 1 });
   const refRef = useRef<HoopRef | null>(null);
@@ -168,6 +169,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
   /** Times a few frames of picture grab and model on this phone, while the player aims. */
   const checkSpeed = useCallback(async (run: number) => {
     setSpeed({ kind: "checking" });
+    slowRef.current = false;
     try {
       const detector = await detectorRef.current;
       const video = videoRef.current;
@@ -186,6 +188,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
         if (run !== runRef.current) return;
       }
       const v = speedVerdict(times);
+      slowRef.current = v.kind === "slow";
       if (run === runRef.current) setSpeed(v.kind === "slow" ? { kind: "slow", fps: v.fps } : { kind: "ok" });
     } catch {
       // The model failing to load is reported when counting starts; the check just passes.
@@ -387,15 +390,25 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
   const getAim = useCallback(() => aimRef.current, []);
 
   /** Aimed: count. Waits for the model if it's still loading. */
-  const startCounting = useCallback(async () => {
+  const startCounting = useCallback(async (anyway = false) => {
     const run = runRef.current;
     const video = videoRef.current;
-    if (!video?.videoWidth || !detectorRef.current) return;
+    if (!video?.videoWidth || !detectorRef.current) {
+      setError("The camera picture isn't ready. Close the camera and open it again.");
+      setPhase("error");
+      teardown();
+      return;
+    }
     setAutoIn(null);
     setReaiming(false);
     setPhase("counting");
-    // A speed check still running shares the model; let it finish.
+    // A speed check still running shares the model; let it finish. Start is never refused while it runs: a phone that turns out slow goes back to the warning.
     await speedRef.current?.catch(() => {});
+    if (run !== runRef.current) return;
+    if (slowRef.current && !anyway) {
+      setPhase("aiming");
+      return;
+    }
     let detector: Detector;
     try {
       setLoadingStep("Loading the ball model");

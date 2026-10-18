@@ -240,7 +240,7 @@ function AimPanel({ camera, panelRef, bug, onDiscard, onUseTaps, onEnd, ending }
   const slow = speed.kind === "slow";
   const ready = phase === "aiming";
   // A button that does nothing looks broken. Tapping Start before it can start says why, instead of being swallowed.
-  const blocked = !ready || !aimed || speed.kind === "checking";
+  const blocked = !ready || !aimed;
   const [nudge, setNudge] = useState<string | null>(null);
   useEffect(() => {
     if (!nudge) return;
@@ -308,11 +308,11 @@ function AimPanel({ camera, panelRef, bug, onDiscard, onUseTaps, onEnd, ending }
           onClick={() => {
             if (blocked) {
               haptic("tap");
-              setNudge(!ready ? "The camera is still opening." : !aimed ? "Touch the picture on the front of the rim first, then press Start." : "One moment: checking this phone is fast enough.");
+              setNudge(!ready ? "The camera is still opening." : "Touch the picture on the front of the rim first, then press Start.");
               return;
             }
             primeAlerts();
-            void camera.startCounting();
+            void camera.startCounting(slow);
           }}
           className={`${slow ? "order-2 landscape:order-none" : "order-1 col-span-2 landscape:order-none landscape:min-w-44"} ${blocked ? "opacity-50" : ""}`}
         >
