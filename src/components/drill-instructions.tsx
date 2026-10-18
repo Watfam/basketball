@@ -4,7 +4,7 @@ import { useState } from "react";
 import { haptic } from "@/lib/haptics";
 import { Button, buttonClass } from "@/components/ui/button";
 
-type Drill = {
+export type DrillNotes = {
   name: string;
   description: string | null;
   video_url: string | null;
@@ -23,7 +23,7 @@ type Drill = {
  * Renders nothing at all when a drill has no coaching content: a button
  * that opens an empty sheet is worse than no button.
  */
-export function DrillInstructions({ drill }: { drill: Drill }) {
+export function DrillInstructions({ drill }: { drill: DrillNotes }) {
   const [open, setOpen] = useState(false);
 
   const cues = drill.cues ?? [];

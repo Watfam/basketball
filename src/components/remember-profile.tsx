@@ -13,7 +13,7 @@ export function rememberProfile(p: Profile) {
 /** Set while the coach is looking at a player's pages from the coach home. */
 const COACH_VIEW_KEY = "hl:viewingAsCoach";
 
-function coachIsViewing(): boolean {
+export function coachIsViewing(): boolean {
   try {
     if (new URLSearchParams(window.location.search).get("from") === "coach") {
       sessionStorage.setItem(COACH_VIEW_KEY, "1");

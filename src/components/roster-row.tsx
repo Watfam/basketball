@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { removeRosterPlayer, updateRosterPlayer } from "@/app/actions";
+import { linkRosterPlayer, removeRosterPlayer, updateRosterPlayer } from "@/app/actions";
 import { rosterDisplayName, rosterPosition, isLinkedMember, type RosterMember } from "@/lib/basketball/team";
 import { PRIMARY_POSITIONS } from "@/lib/basketball/taxonomy";
 import { haptic } from "@/lib/haptics";
@@ -13,12 +13,25 @@ const POSITION_LABELS: Record<string, string> = Object.fromEntries(
   PRIMARY_POSITIONS.map((p) => [p.value, p.label])
 );
 
-export function RosterRow({ member, teamId }: { member: RosterMember; teamId: string }) {
+export function RosterRow({
+  member,
+  teamId,
+  canEdit = true,
+  linkable = [],
+}: {
+  member: RosterMember;
+  teamId: string;
+  /** Owner or coach: Edit and Remove are shown. */
+  canEdit?: boolean;
+  /** Family players not on the roster yet: a name-only spot can be linked to one. */
+  linkable?: { id: string; display_name: string }[];
+}) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [jersey, setJersey] = useState(member.jersey_number ?? "");
   const [position, setPosition] = useState(rosterPosition(member) ?? "");
+  const [linkTo, setLinkTo] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -38,6 +51,14 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
       if (result?.error) {
         setError(result.error);
         return;
+      }
+      // Linking makes the spot that player's: their name, position and stats.
+      if (!linked && linkTo) {
+        const linkedResult = await linkRosterPlayer(member.id, teamId, linkTo);
+        if (linkedResult?.error) {
+          setError(linkedResult.error);
+          return;
+        }
       }
       setEditing(false);
       router.refresh();
@@ -94,6 +115,16 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
             </Select>
           )}
         </div>
+        {!linked && linkable.length > 0 && (
+          <Select value={linkTo} onChange={(e) => setLinkTo(e.target.value)} className="mt-2">
+            <option value="">Not linked to a family player</option>
+            {linkable.map((p) => (
+              <option key={p.id} value={p.id}>
+                This is {p.display_name}
+              </option>
+            ))}
+          </Select>
+        )}
         {error && <FormError className="mt-1.5">{error}</FormError>}
         <div className="mt-2.5 flex gap-2">
           <Button variant="secondary" size="sm" onClick={save} disabled={pending}>
@@ -121,14 +152,16 @@ export function RosterRow({ member, teamId }: { member: RosterMember; teamId: st
           </p>
         </div>
       </div>
-      <div className="-mr-2 flex shrink-0">
-        <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
-          Edit
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
-          Remove
-        </Button>
-      </div>
+      {canEdit && (
+        <div className="-mr-2 flex shrink-0">
+          <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
+            Edit
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
+            Remove
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

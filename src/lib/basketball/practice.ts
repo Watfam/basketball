@@ -35,7 +35,41 @@ export type PracticeBlock = {
   // Shooting in 3:00. Optional and free-standing from minutes: a goal
   // without a time limit is still a real goal (makes out of 10 attempts).
   goal?: PracticeGoal;
+  /**
+   * Stable across edits, so renaming a drill can carry its history with
+   * it (renamedDrills). Blocks saved before keys existed are keyed by
+   * their position when first edited: blockKey.
+   */
+  key?: string;
 };
+
+/** A block's key; old blocks without one are keyed by where they sat. */
+export function blockKey(block: PracticeBlock, index: number): string {
+  return block.key ?? `b${index}`;
+}
+
+/** Every block keyed: old ones by position (see blockKey), new ones fresh. */
+export function withKeys(blocks: PracticeBlock[], fresh: () => string, byPosition = false): PracticeBlock[] {
+  return blocks.map((b, i) => (b.key ? b : { ...b, key: byPosition ? blockKey(b, i) : fresh() }));
+}
+
+/**
+ * Drills whose name changed between the saved plan and the edit, matched
+ * by key. Group headers and blanks are not drills.
+ */
+export function renamedDrills(before: PracticeBlock[], after: PracticeBlock[]): { from: string; to: string }[] {
+  const old = new Map<string, string>();
+  before.forEach((b, i) => {
+    if (!b.isSection && b.label.trim()) old.set(blockKey(b, i), b.label.trim());
+  });
+  const out: { from: string; to: string }[] = [];
+  for (const b of after) {
+    const from = b.key ? old.get(b.key) : undefined;
+    const to = b.label.trim();
+    if (from && to && !b.isSection && from !== to && !out.some((r) => r.from === from)) out.push({ from, to });
+  }
+  return out;
+}
 
 export function totalMinutes(blocks: PracticeBlock[]): number {
   return blocks.reduce((sum, b) => sum + (b.isSection ? 0 : b.minutes ?? 0), 0);
@@ -59,6 +93,7 @@ export function cleanBlocks(blocks: PracticeBlock[]): PracticeBlock[] {
       ...(b.minutes ? { minutes: b.minutes } : {}),
       ...(b.notes?.trim() ? { notes: b.notes.trim() } : {}),
       ...(b.drillId ? { drillId: b.drillId } : {}),
+      ...(b.key ? { key: b.key } : {}),
       ...(b.isSection ? { isSection: true } : {}),
       ...(b.goal?.target ? { goal: { target: b.goal.target, ...(b.goal.unit?.trim() ? { unit: b.goal.unit.trim() } : {}) } } : {}),
     }));
@@ -251,6 +286,8 @@ export type RunnableStep = {
   notes?: string;
   groupName: string | null;
   goal?: PracticeGoal;
+  /** The library drill this step matched, for its coaching notes. */
+  drillId?: string;
 };
 
 /**
@@ -271,6 +308,7 @@ export function toRunnableSteps(blocks: PracticeBlock[]): RunnableStep[] {
         notes: block.notes,
         groupName: acc.groupName,
         goal: block.goal,
+        ...(block.drillId ? { drillId: block.drillId } : {}),
       };
       return { groupName: acc.groupName, steps: [...acc.steps, step] };
     },

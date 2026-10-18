@@ -29,7 +29,7 @@ export default async function PracticeHistoryPage({
   const supabase = await createClient();
 
   // Independent of each other — parallel instead of sequential.
-  const [{ data: { user } }, { data: team }, { data: labelRows }] = await Promise.all([
+  const [{ data: { user } }, { data: team }, { data: labelRows }, { data: logged }] = await Promise.all([
     supabase.auth.getUser(),
     supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
     supabase
@@ -38,6 +38,14 @@ export default async function PracticeHistoryPage({
       .select("label, created_at")
       .eq("team_id", teamId)
       .order("created_at", { ascending: false }),
+    // Every logged practice, newest first: each opens to view or fix its scores.
+    supabase
+      .schema("hoops")
+      .from("practice_sessions")
+      .select("id, plan_title, run_date, notes")
+      .eq("team_id", teamId)
+      .order("run_date", { ascending: false })
+      .limit(30),
   ]);
 
   if (!user) redirect("/login");
@@ -73,7 +81,7 @@ export default async function PracticeHistoryPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}/practice`, label: "Practice Plans" }} />
+      <PageHeader back={{ href: "/coach", label: "Coach" }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
@@ -157,6 +165,29 @@ export default async function PracticeHistoryPage({
               )}
             </Card>
           </>
+        )}
+
+        {(logged ?? []).length > 0 && (
+          <section className="space-y-2.5">
+            <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Logged practices</h2>
+            <Card className="divide-y divide-line overflow-hidden">
+              {(logged ?? []).map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/teams/${teamId}/practice/sessions/${s.id}`}
+                  className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-raised"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">{s.plan_title ?? "Practice"}</p>
+                    {s.notes && <p className="truncate text-xs text-foreground-mute">{s.notes}</p>}
+                  </div>
+                  <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
+                    {s.run_date ? formatDate(s.run_date) : ""} ›
+                  </span>
+                </Link>
+              ))}
+            </Card>
+          </section>
         )}
       </main>
     </div>

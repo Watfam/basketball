@@ -128,7 +128,7 @@ export default async function TeamPage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: "/coach", label: "Coach home" }}>
+      <PageHeader back={{ href: "/coach", label: "Coach" }}>
         <HeaderLink href="/lab">Camera lab</HeaderLink>
         {isOwner && <HeaderLink href={`/teams/${teamId}/edit`}>Edit</HeaderLink>}
       </PageHeader>
@@ -207,7 +207,13 @@ export default async function TeamPage({
           ) : (
             <Card className="divide-y divide-line px-3">
               {roster.map((member) => (
-                <RosterRow key={member.id} member={member} teamId={teamId} />
+                <RosterRow
+                  key={member.id}
+                  member={member}
+                  teamId={teamId}
+                  canEdit={isOwner}
+                  linkable={(ownPlayers ?? []).filter((p) => !linkedPlayerIds.has(p.id))}
+                />
               ))}
             </Card>
           )}

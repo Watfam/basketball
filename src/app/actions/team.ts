@@ -94,6 +94,7 @@ export async function deleteTeam(teamId: string) {
   if (error) return { error: error.message };
 
   revalidatePath("/");
+  revalidatePath("/coach");
   return { error: null };
 }
 

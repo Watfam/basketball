@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ScoutingNoteForm } from "@/components/scouting-note-form";
+import { canCoachTeam } from "@/lib/basketball/team-access";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default async function NewScoutingNotePage({
@@ -18,6 +19,8 @@ export default async function NewScoutingNotePage({
   ]);
 
   if (!user) redirect("/login");
+  // Only the team's coaches write notes; anyone else is sent back to read them.
+  if (!(await canCoachTeam(supabase, teamId, user.id))) redirect(`/teams/${teamId}/scouting`);
   if (!team) notFound();
 
   return (
