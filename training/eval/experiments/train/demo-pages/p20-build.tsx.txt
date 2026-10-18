@@ -1,0 +1,12 @@
+import { WorkoutBuilder } from "@/components/workout-builder";
+import type { BuilderDrill } from "@/lib/basketball/workout-builder";
+const d = (id: string, name: string, skill: string[], difficulty: string, sets: number | null, reps: number | null, seconds: number | null): BuilderDrill => ({ id, name, description: `About ${name}.`, skill_tags: skill, difficulty, sets, reps, seconds });
+const drills: BuilderDrill[] = [
+  d("s1", "Form shooting, close range", ["shooting"], "beginner", 3, 10, null), d("s2", "Catch and shoot, five spots", ["shooting"], "intermediate", 5, 5, null), d("s3", "Free throws", ["shooting"], "beginner", 2, 10, null),
+  d("s4", "Pull-up off one dribble", ["shooting", "ball_handling"], "advanced", 4, 6, null), d("s5", "Spot shooting", ["shooting"], "intermediate", 3, 8, null),
+  d("h1", "Two-ball dribbling", ["ball_handling"], "intermediate", 3, null, 30), d("h2", "Cone weave", ["ball_handling"], "intermediate", 4, 4, null), d("h3", "Stationary pound dribble", ["ball_handling"], "beginner", 3, null, 30),
+  d("s6", "Mikan shooting", ["shooting"], "beginner", 3, 8, null), d("s7", "Elbow jumpers", ["shooting"], "intermediate", 3, 8, null), d("s8", "Corner threes", ["shooting"], "intermediate", 4, 5, null),
+  d("h4", "Crossover series", ["ball_handling"], "intermediate", 3, 10, null), d("h5", "Figure eights", ["ball_handling"], "beginner", 3, null, 30), d("h6", "Hesitation drives", ["ball_handling"], "advanced", 3, 6, null),
+  d("d1", "Closeout and slide", ["defense"], "intermediate", 3, 6, null), d("a1", "Jump rope", ["athleticism"], "beginner", 3, null, 45),
+];
+export default function Page() { return <WorkoutBuilder playerId="demo" level="intermediate" drills={drills} suggestedSkills={["shooting", "ball_handling"]} initial={null} />; }

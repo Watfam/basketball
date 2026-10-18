@@ -1,0 +1,17 @@
+import { TrainHomeView } from "@/components/train/train-home-view";
+export default async function Page({ searchParams }: { searchParams: Promise<{ s?: string }> }) {
+  const sp = await searchParams;
+  return (
+    <TrainHomeView
+      playerId="demo" playerName="Demo Player" workoutsError={false}
+      next={{ id: "w1", name: "Handle Fundamentals", skills: ["ball_handling"], why: "Rounds out your game", minutes: 25 }}
+      workoutCount={18} filmTotal={42} filmStudied={5}
+      nextFilm={{ id: "f1", title: "Footwork into the shot" }}
+      activeProgram={null}
+      programs={[{ id: "p1", name: "Shot Builder", description: "Four weeks of shooting", week_count: 4, days_per_week: 3, focus_areas: ["shooting"], level: "intermediate" } as never]}
+      programReasons={{ p1: "Your shooting is the lowest rating" }}
+      mine={sp.s === "mine" ? [{ id: "m1", name: "My 20 minute handle", skills: ["ball_handling"], minutes: 20, drills: 4 }] : []}
+      saved={sp.s === "mine" ? "m1" : null}
+    />
+  );
+}

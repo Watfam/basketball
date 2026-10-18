@@ -43,10 +43,18 @@ function whereOf(params, vals, alias = "t") {
     if (op === "eq") { vals.push(val); conds.push(`${lhs}::text = $${vals.length}`); }
     else if (op === "in") { const list = splitTop(val.replace(/^\(|\)$/g, "")).map((x) => x.replace(/^"|"$/g, "")); vals.push(list); conds.push(`${lhs}::text = any($${vals.length}::text[])`); }
     else if (op === "is" && val === "null") conds.push(`${lhs} is null`);
+    else if (op === "not" && val === "is.null") conds.push(`${lhs} is not null`);
     else throw new Error(`shim: unsupported filter ${key}=${raw}`);
   }
   return conds.length ? " where " + conds.join(" and ") : "";
 }
+
+/** A JSON value as a query parameter: an array going into an array column (text[]) stays an array, any other object or array goes in as JSON. */
+async function colTypes(c, table) {
+  const r = await c.query("select column_name, udt_name from information_schema.columns where table_schema = 'hoops' and table_name = $1", [table]);
+  return Object.fromEntries(r.rows.map((x) => [x.column_name, x.udt_name]));
+}
+const param = (types, k, v) => (v !== null && typeof v === "object" ? (Array.isArray(v) && String(types[k] ?? "").startsWith("_") ? v : JSON.stringify(v)) : v ?? null);
 
 const json = (status, body, headers = {}) => new Response(body === undefined ? null : JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8", ...headers } });
 
@@ -72,11 +80,13 @@ export function makeFetch({ connect, userId, log }) {
         } else if (method === "POST") {
           const body = JSON.parse(init.body); const list = Array.isArray(body) ? body : [body];
           const cols = [...new Set(list.flatMap(Object.keys))];
-          const tuples = list.map((r) => `(${cols.map((k) => { vals.push(r[k] !== null && typeof r[k] === "object" ? JSON.stringify(r[k]) : r[k] ?? null); return `$${vals.length}`; }).join(",")})`).join(",");
+          const types = await colTypes(c, table);
+          const tuples = list.map((r) => `(${cols.map((k) => { vals.push(param(types, k, r[k])); return `$${vals.length}`; }).join(",")})`).join(",");
           sql = `with t as (insert into hoops.${q(table)} (${cols.map(q).join(",")}) values ${tuples} returning *) select to_jsonb(q) as j from (select ${await selectList(c, table, select)} from t) q`;
         } else if (method === "PATCH") {
           const body = JSON.parse(init.body); const keys = Object.keys(body);
-          const set = keys.map((k) => { vals.push(body[k] !== null && typeof body[k] === "object" ? JSON.stringify(body[k]) : body[k]); return `${q(k)} = $${vals.length}`; }).join(", ");
+          const types = await colTypes(c, table);
+          const set = keys.map((k) => { vals.push(param(types, k, body[k])); return `${q(k)} = $${vals.length}`; }).join(", ");
           const w = whereOf(params, vals, "");
           sql = `with t as (update hoops.${q(table)} set ${set}${w} returning *) select to_jsonb(q) as j from (select ${await selectList(c, table, select)} from t) q`;
         } else if (method === "DELETE") {

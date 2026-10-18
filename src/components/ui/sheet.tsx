@@ -151,32 +151,55 @@ export function Opt({ selected, title, sub, right, onPick }: { selected: boolean
 
 
 /** One choice that goes to another address (a date range, a drill filter). Choosing it closes the sheet, because the page behind changes. Same look as `Opt`. */
-export function PickLink({ href, selected, title, sub }: { href: string; selected: boolean; title: string; sub?: string }) {
+export function PickLink({ href, selected, title, sub, right, disabled = false }: { href: string; selected: boolean; title: string; sub?: string; right?: string; disabled?: boolean }) {
   const close = useSheetClose();
-  return (
-    <Link href={href} scroll={false} aria-current={selected ? "true" : undefined} onClick={() => { haptic("tap"); close(); }}
-      className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left ${selected ? "border-accent bg-accent/10" : "border-line bg-surface hover:border-line-strong"}`}>
+  const body = (
+    <>
       <span className="min-w-0">
         <span className={`block text-[15px] font-bold ${selected ? "text-accent-hover" : "text-foreground"}`}>{title}</span>
         {sub && <span className={`block text-xs ${selected ? "text-accent-hover" : "text-foreground-dim"}`}>{sub}</span>}
       </span>
-      {selected && <span aria-hidden className="shrink-0 text-base font-extrabold text-accent-hover">✓</span>}
+      <span className="flex shrink-0 items-center gap-2">
+        {right && <span className="text-xs font-bold tabular-nums text-foreground-dim">{right}</span>}
+        {selected && <span aria-hidden className="text-base font-extrabold text-accent-hover">✓</span>}
+      </span>
+    </>
+  );
+  const base = "flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left";
+  if (disabled) return <div aria-disabled="true" className={`${base} border-line bg-surface opacity-45`}>{body}</div>;
+  return (
+    <Link href={href} scroll={false} aria-current={selected ? "true" : undefined} onClick={() => { haptic("tap"); close(); }}
+      className={`${base} ${selected ? "border-accent bg-accent/10" : "border-line bg-surface hover:border-line-strong"}`}>
+      {body}
     </Link>
   );
 }
 
 /** A row that says what is chosen and opens a sheet to change it: no sideways scrolling lists of chips, and every choice is on one screen. */
-export function SheetPicker({ label, value, title, children, done = false }: { label: string; value: string; title: string; children: ReactNode; done?: boolean }) {
+export function SheetPicker({ label, value, title, children, done = false, chip = false, active = false }: { label: string; value: string; title: string; children: ReactNode; done?: boolean; chip?: boolean; active?: boolean }) {
   const [open, setOpen] = useState(false);
   const [opener, setOpener] = useState<HTMLElement | null>(null);
   return (
     <>
-      <button type="button" aria-haspopup="dialog" onClick={(e) => { haptic("tap"); setOpener(e.currentTarget); setOpen(true); }}
-        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-2 text-left hover:border-line-strong">
-        <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">{label}</span>
-        <span className="flex min-w-0 items-center gap-1.5 text-sm font-bold text-foreground"><span className="truncate">{value}</span><span aria-hidden className="text-foreground-mute">›</span></span>
-      </button>
+      {chip ? (
+        <button type="button" aria-haspopup="dialog" aria-label={`${label}: ${value}`} onClick={(e) => { haptic("tap"); setOpener(e.currentTarget); setOpen(true); }}
+          className={`flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full border px-2.5 text-xs font-bold ${active ? "border-accent bg-accent/10 text-accent-hover" : "border-line bg-surface text-foreground-dim"}`}>
+          <span className="truncate">{value}</span><span aria-hidden className="shrink-0">▾</span>
+        </button>
+      ) : (
+        <button type="button" aria-haspopup="dialog" onClick={(e) => { haptic("tap"); setOpener(e.currentTarget); setOpen(true); }}
+          className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-2 text-left hover:border-line-strong">
+          <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">{label}</span>
+          <span className="flex min-w-0 items-center gap-1.5 text-sm font-bold text-foreground"><span className="truncate">{value}</span><span aria-hidden className="text-foreground-mute">›</span></span>
+        </button>
+      )}
       {open && <Sheet title={title} onClose={() => setOpen(false)} opener={opener} done={done}>{children}</Sheet>}
     </>
   );
+}
+
+/** A choice that applies at once and closes the sheet (a filter: the list behind changes as soon as it is picked). Same look as `Opt`. */
+export function PickOpt({ selected, title, sub, right, onPick }: { selected: boolean; title: string; sub?: string; right?: string; onPick: () => void }) {
+  const close = useSheetClose();
+  return <Opt selected={selected} title={title} sub={sub} right={right} onPick={() => { onPick(); close(); }} />;
 }

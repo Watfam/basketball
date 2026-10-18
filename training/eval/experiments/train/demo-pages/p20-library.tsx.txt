@@ -1,0 +1,20 @@
+import { WorkoutLibraryView } from "@/components/train/workout-library-view";
+import { parseWorkoutFilters } from "@/lib/basketball/train-library";
+import type { Workout } from "@/components/workout-card";
+
+const D = (id: string, name: string, difficulty: string) => ({ id: `wd-${id}`, drill_id: id, sort_order: 0, block: null, variant_label: null, levels: null, level_targets: null, target_sets: 3, target_reps: 10, target_duration_seconds: null, drills: { id, name, description: null, video_url: null, source_trainer: null, difficulty } });
+const W = (id: string, name: string, focus: string[], minutes: number | null, diffs: string[]): Workout => ({ id, name, description: "A demo workout.", focus_areas: focus, estimated_minutes: minutes, player_type_tags: null, workout_drills: diffs.map((d, i) => D(`${id}-${i}`, `${name} drill ${i + 1}`, d)) } as unknown as Workout);
+const ranked = [
+  W("a", "Form Shooting Foundations", ["shooting"], 20, ["beginner"]),
+  W("b", "Free Throw Routine", ["shooting"], 15, ["beginner"]),
+  W("c", "Catch and Shoot Series", ["shooting"], 30, ["beginner", "intermediate"]),
+  W("d", "Off the Dribble Pull-ups", ["shooting", "ball_handling"], 35, ["advanced"]),
+  W("e", "Handle Fundamentals", ["ball_handling"], 25, ["beginner", "intermediate"]),
+  W("f", "Two-ball Handle", ["ball_handling"], null, ["intermediate"]),
+  W("g", "Closeout and Slide", ["defense"], 20, ["intermediate"]),
+  W("h", "Jump Training", ["athleticism"], 40, ["advanced"]),
+];
+export default async function Page({ searchParams }: { searchParams: Promise<{ skill?: string; time?: string; level?: string; none?: string }> }) {
+  const sp = await searchParams;
+  return <WorkoutLibraryView playerId="demo" ranked={sp.none ? [] : ranked} filters={parseWorkoutFilters(sp)} level="intermediate" lastDone={{ a: "2026-10-10T00:00:00Z" }} error={false} basePath="/lab/p20-library" />;
+}

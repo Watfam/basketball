@@ -86,3 +86,12 @@ Open a set with many shots, scroll the row of shots sideways, pick one: the row 
 1. Open the camera upright, turn the phone sideways, and aim near the top, the middle and low on the picture. The ring should be under your finger. Then press the grey "Aim at the rim" tag for a second (it should open the touch check) and press Start (it should start counting).
 2. The phone can be left with the page scrolled up by 59 (the touch check shows "scroll -59"): the screen is then drawn 59 higher than it answers touches. The app now puts the page back to 0 whenever it moves, and works out where a touch is from the finger's position, not from where the page says the picture is.
 3. If it is still off: hold TWO fingers on the picture for a second to open the touch check (the tag may not be reachable), tap a few places and screenshot it. The red dot is the browser's idea of your finger: tell me whether it is under your finger.
+
+## Test 14: Train, the libraries and the builder (10 min)
+Before this test: the builder can show its screens without the database update, but saving needs migration 0027 applied (see the report). Until then Save says so and loses nothing.
+1. Train: "Next up" on top, then two doors with counts (Workouts, Film room), then "Build your own". Can you tell how much there is without scrolling a long page?
+2. Workouts door: tap Skill, Any time, Any level. Choose something; the sheet closes and the line says "Showing N of M". Do the numbers in the sheets make sense (they count what each choice would show)? Clear returns to everything. Tap a workout row: it opens in place with Start.
+3. Film room door: it opens on the Library tab. Type a pro's or trainer's name, then try Skill, Kind and Who. Clear returns to the sections. Study sessions is still its own tab.
+4. Build your own: pick 15, 30, 45 and 60 minutes and different skills; the draft should fit the time ("28 of 30 min"). Tap a drill: change sets and reps, swap it, remove it. Move drills with the arrows. Add a drill from the list (search it). Rename the workout.
+5. Save: you go back to Train with "Saved ..." and the workout under Your workouts. Start it from there, then Edit it and change something. Save and start goes straight into the workout.
+6. Delete a built workout (Edit, then Delete this workout): sessions you already did with it stay in history.

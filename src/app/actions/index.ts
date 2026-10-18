@@ -3,6 +3,7 @@
  */
 export * from "./household";
 export * from "./workouts";
+export * from "./custom-workouts";
 export * from "./assessment";
 export * from "./team";
 export * from "./practice";

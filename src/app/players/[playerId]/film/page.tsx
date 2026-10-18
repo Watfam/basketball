@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { FilmCard, type FilmView } from "@/components/film-card";
 import { FilmRoomTabs } from "@/components/film-room-tabs";
+import { FilmLibrary, type LibrarySection } from "@/components/film-library";
+import type { FilmLite } from "@/lib/basketball/film-filter";
 import { AddFilmForm } from "@/components/add-film-form";
 import { EmptyState } from "@/components/empty-state";
 import { ProgressRing } from "@/components/charts/progress-ring";
@@ -221,63 +223,50 @@ export default async function FilmRoomPage({
     </div>
   );
 
+  const filmLite: FilmLite[] = film.map((f) => ({
+    id: f.id,
+    title: f.title,
+    kind: f.kind,
+    skill_tags: f.skill_tags ?? [],
+    pro_player_name: f.pro_player_name ?? null,
+    trainer_id: f.trainer_id,
+    trainer_name: f.trainer_id ? trainersById.get(f.trainer_id)?.name ?? null : null,
+    duration_seconds: f.duration_seconds,
+  }));
+  const cards: Record<string, React.ReactNode> = {};
+  for (const f of film) cards[f.id] = card(f);
+  const sections: LibrarySection[] = [
+    ...(proFilm.length > 0
+      ? [{
+          key: "pro",
+          title: "Pro Film",
+          caption: "Steal something specific",
+          note: matchedPros.length > 0 ? (
+            <p className="mb-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-4 py-2.5 text-xs leading-relaxed text-foreground-dim">
+              Built like you: <span className="font-bold text-[var(--data-cyan)]">{matchedPros.join(", ")}</span>. Start there.
+            </p>
+          ) : undefined,
+          blocks: proFilm.map((g) => ({ heading: g.player, badge: g.matchesPosition ? "Your position" : undefined, ids: g.items.map((f) => f.id) })),
+        }]
+      : []),
+    ...byKind.map(({ kind, items }) => ({ key: kind.value, title: kind.label, caption: kind.blurb, blocks: [{ ids: items.map((f) => f.id) }] })),
+    ...(untyped.length > 0 ? [{ key: "yours", title: "Your Film", blocks: [{ ids: untyped.map((f) => f.id) }] }] : []),
+  ];
+
   const libraryTab = (
-    <div className="space-y-5">
-      {deepLinked && (
+    <FilmLibrary
+      films={filmLite}
+      cards={cards}
+      sections={sections}
+      rankedIds={ranked.map((f) => f.id)}
+      top={deepLinked ? (
         <section>
           <SectionHeading title="Opened" />
           {card(deepLinked, true)}
         </section>
-      )}
-
-      {player.household_id && (
-        <AddFilmForm householdId={player.household_id} playerId={playerId} />
-      )}
-
-      {proFilm.length > 0 && (
-        <section>
-          <SectionHeading title="Pro Film" caption="Steal something specific" />
-          {matchedPros.length > 0 && (
-            <p className="mb-3 rounded-xl border border-[var(--data-cyan)]/30 bg-[var(--data-cyan)]/5 px-4 py-2.5 text-xs leading-relaxed text-foreground-dim">
-              Built like you:{" "}
-              <span className="font-bold text-[var(--data-cyan)]">{matchedPros.join(", ")}</span>.
-              Start there.
-            </p>
-          )}
-          <div className="space-y-4">
-            {proFilm.map((group) => (
-              <div key={group.player}>
-                <div className="mb-2 flex items-baseline justify-between gap-3">
-                  <p className="font-display text-lg uppercase leading-none tracking-wide text-foreground">
-                    {group.player}
-                  </p>
-                  {group.matchesPosition && (
-                    <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--data-cyan)]">
-                      Your position
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2.5">{group.items.map((f) => card(f))}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {byKind.map(({ kind, items }) => (
-        <section key={kind.value}>
-          <SectionHeading title={kind.label} caption={kind.blurb} />
-          <div className="space-y-2.5">{items.map((f) => card(f))}</div>
-        </section>
-      ))}
-
-      {untyped.length > 0 && (
-        <section>
-          <SectionHeading title="Your Film" />
-          <div className="space-y-2.5">{untyped.map((f) => card(f))}</div>
-        </section>
-      )}
-    </div>
+      ) : undefined}
+      browseTop={player.household_id ? <AddFilmForm householdId={player.household_id} playerId={playerId} /> : undefined}
+    />
   );
 
   const trainersTab = (

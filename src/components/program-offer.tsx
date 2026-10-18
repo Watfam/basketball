@@ -106,7 +106,7 @@ export function ProgramOffer({
             </Button>
             {/* Six weeks is a real commitment — there should be a way to
                 read the whole thing before agreeing to it. */}
-            <ButtonLink href={`/players/${playerId}/programs/${program.id}`} variant="ghost" size="sm" block>
+            <ButtonLink href={`/players/${playerId}/programs/${program.id}`} variant="ghost" size="sm" block className="min-h-11">
               See what&rsquo;s inside →
             </ButtonLink>
             {error && <FormError className="mt-2">{error}</FormError>}

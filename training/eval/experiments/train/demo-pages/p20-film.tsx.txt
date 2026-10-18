@@ -1,0 +1,18 @@
+import { FilmLibrary, type LibrarySection } from "@/components/film-library";
+import type { FilmLite } from "@/lib/basketball/film-filter";
+const films: FilmLite[] = [
+  { id: "1", title: "Off-ball movement", kind: "pro_study", skill_tags: ["shooting"], pro_player_name: "Stephen Curry", trainer_id: null, trainer_name: null, duration_seconds: 360 },
+  { id: "2", title: "Footwork into the shot", kind: "technique", skill_tags: ["shooting"], pro_player_name: null, trainer_id: "t1", trainer_name: "Reid Ouse", duration_seconds: 300 },
+  { id: "3", title: "Two-ball handle", kind: "technique", skill_tags: ["ball_handling"], pro_player_name: null, trainer_id: "t2", trainer_name: "Micah Lancaster", duration_seconds: 420 },
+  { id: "4", title: "Reading the screen", kind: "iq", skill_tags: ["ball_handling", "defense"], pro_player_name: "Chris Paul", trainer_id: null, trainer_name: null, duration_seconds: 540 },
+  { id: "5", title: "Pace and pocket passes", kind: "pro_study", skill_tags: ["ball_handling"], pro_player_name: "Trae Young", trainer_id: null, trainer_name: null, duration_seconds: 480 },
+];
+const cards = Object.fromEntries(films.map((f) => [f.id, <div key={f.id} data-card={f.id} className="rounded-2xl border border-line bg-surface p-4"><b>{f.title}</b></div>]));
+const sections: LibrarySection[] = [
+  { key: "pro", title: "Pro Film", caption: "Steal something specific", blocks: [{ heading: "Stephen Curry", badge: "Your position", ids: ["1"] }, { heading: "Trae Young", ids: ["5"] }] },
+  { key: "technique", title: "Technique", caption: "How the movement is actually executed", blocks: [{ ids: ["2", "3"] }] },
+  { key: "iq", title: "Game IQ", blocks: [{ ids: ["4"] }] },
+];
+export default function Page() {
+  return <main className="mx-auto max-w-lg space-y-4 p-4"><FilmLibrary films={films} cards={cards} sections={sections} rankedIds={["4", "1", "2", "3", "5"]} browseTop={<div data-add>Add your own film</div>} /></main>;
+}
