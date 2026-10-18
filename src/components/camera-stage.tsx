@@ -88,7 +88,7 @@ export function CameraStage(props: StageProps) {
           {showSetup && <SetupCard error={camera.error} start={camera.start} />}
           {lastCall && <CallFlash call={lastCall} />}
           <TopBar {...props} aiming={aiming} menuOpen={menu} setMenu={setMenu} onDiag={() => setDiag((d) => !d)} />
-          {diag && <TouchDiag onClose={() => setDiag(false)} />}
+          {diag && <TouchDiag />}
         </div>
       </div>
 

@@ -74,3 +74,7 @@ In the camera aiming screen, press and hold the grey "Aim at the rim" tag at the
 1. Start a set, shoot a few, leave the app (or go to another tab) without ending it. Open Shoot from the bottom bar: you should see the choices with a card "A set is still open" (its score, "Resume this set", "Throw it away"). Resume goes back into the counter. Pressing Start on a new set instead asks before throwing the open one away.
 2. Today shows "Pick it up" for an open set with shots: that button goes straight back in, no card.
 3. Open the camera upright, turn the phone sideways, touch the picture: the ring should be under your finger, and Start should start counting. (This was the bug: it was off by about 60 px when the phone was turned after the page opened.)
+
+## Test 12: Aiming at the top of the picture after turning the phone
+1. Open the camera upright, turn the phone sideways, and aim: touch the picture and slide. The ring should follow the finger. If the phone's touch position is off (as after turning), the ring moves by how far you slide instead of jumping to the touch, so you can always slide it to the very top. Try aiming at the top edge of the picture.
+2. If anything is still off: hold the grey tag, then tap the top, middle and bottom of the picture and screenshot the box (it now lists each tap's numbers in a row).
