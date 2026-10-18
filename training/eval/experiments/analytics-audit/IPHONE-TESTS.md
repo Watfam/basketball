@@ -81,3 +81,8 @@ In the camera aiming screen, press and hold the grey "Aim at the rim" tag at the
 
 ## Test 13: Picking shots in Watch a shot / Compare
 Open a set with many shots, scroll the row of shots sideways, pick one: the row should stay where you scrolled it, with the picked shot in view. "Shot ›" / "‹ Shot" should keep the new shot in view too.
+
+## Test 12 (replaces the earlier version): aiming after turning the phone
+1. Open the camera upright, turn the phone sideways, and aim near the top, the middle and low on the picture. The ring should be under your finger. Then press the grey "Aim at the rim" tag for a second (it should open the touch check) and press Start (it should start counting).
+2. The phone can be left with the page scrolled up by 59 (the touch check shows "scroll -59"): the screen is then drawn 59 higher than it answers touches. The app now puts the page back to 0 whenever it moves, and works out where a touch is from the finger's position, not from where the page says the picture is.
+3. If it is still off: hold TWO fingers on the picture for a second to open the touch check (the tag may not be reachable), tap a few places and screenshot it. The red dot is the browser's idea of your finger: tell me whether it is under your finger.

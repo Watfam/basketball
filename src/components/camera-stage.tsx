@@ -56,6 +56,30 @@ export function CameraStage(props: StageProps) {
   const [diag, setDiag] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const aiming = phase === "aiming" || phase === "starting";
+  // An iPhone turned sideways in an installed app can be left with the page scrolled up by a status bar (-59), after which the screen is drawn
+  // that far from where it answers touches (the tag, Start). Nothing here needs the page to scroll, so it is put back whenever it moves.
+  useEffect(() => {
+    const html = document.documentElement, body = document.body;
+    const before = [html.style.overscrollBehavior, body.style.overscrollBehavior];
+    html.style.overscrollBehavior = "none";
+    body.style.overscrollBehavior = "none";
+    const level = () => {
+      const vv = window.visualViewport;
+      if (window.scrollY !== 0 || window.scrollX !== 0 || (vv && (vv.offsetTop !== 0 || vv.offsetLeft !== 0))) window.scrollTo(0, 0);
+    };
+    level();
+    const id = setInterval(level, 300);
+    const events: [EventTarget | undefined, string][] = [[window, "scroll"], [window, "resize"], [window, "orientationchange"], [window.visualViewport ?? undefined, "scroll"], [window.visualViewport ?? undefined, "resize"]];
+    events.forEach(([t, n]) => t?.addEventListener(n, level));
+    window.addEventListener("pointerdown", level, true);
+    return () => {
+      clearInterval(id);
+      events.forEach(([t, n]) => t?.removeEventListener(n, level));
+      window.removeEventListener("pointerdown", level, true);
+      html.style.overscrollBehavior = before[0];
+      body.style.overscrollBehavior = before[1];
+    };
+  }, []);
   const showSetup = phase === "idle" || phase === "error";
 
   return (
@@ -76,6 +100,7 @@ export function CameraStage(props: StageProps) {
               onAim={camera.aimAt}
               active={phase === "aiming"}
               shieldRef={panelRef}
+              onSecret={() => setDiag((d) => !d)}
               tone={camera.find.kind === "strong" || camera.find.kind === "fair" ? "found" : "hand"}
             />
           )}

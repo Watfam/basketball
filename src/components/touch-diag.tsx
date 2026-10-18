@@ -57,7 +57,7 @@ export function TouchDiag() {
     <>
       {last && <span aria-hidden="true" className="pointer-events-none fixed z-[70] h-4 w-4 rounded-full border-2 border-white bg-red-500" style={{ left: last.client[0] - 8, top: last.client[1] - 8 }} />}
       <div className="pointer-events-none absolute left-2 top-12 z-[70] w-[min(30rem,70%)] rounded-xl bg-black/80 p-2 font-mono text-[10px] leading-snug text-white">
-        <p className="font-sans text-xs font-extrabold">Touch check: tap the top, middle and bottom of the picture. Hold the tag again to close.</p>
+        <p className="font-sans text-xs font-extrabold">Touch check: tap the top, middle and bottom of the picture. To close, hold two fingers on the picture.</p>
         <p>build {process.env.NEXT_PUBLIC_BUILD} · window {window.innerWidth}x{window.innerHeight} · {standalone ? "app" : "tab"} · scroll {r0(window.scrollY)} · visual top {vv ? r0(vv.offsetTop) : "n/a"}</p>
         <p>picture top {rect(canvas)} · bar {rect(panel)}</p>
         <p>y: finger (screen) | client | offset | page | by rect | used | rect top</p>

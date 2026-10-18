@@ -35,6 +35,7 @@ export function AimCanvas({
   active,
   tone,
   shieldRef,
+  onSecret,
 }: {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   getAim: () => Aim;
@@ -46,7 +47,16 @@ export function AimCanvas({
   tone: "hand" | "found";
   /** The control bar over the picture. A touch that lands on it is a button press, never a rim touch. */
   shieldRef?: React.RefObject<HTMLElement | null>;
+  /** Two fingers held on the picture for a moment: opens the touch check, for a phone where the status tag cannot be reached. */
+  onSecret?: () => void;
 }) {
+  const fingers = useRef(new Set<number>());
+  const secret = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const settle = (id: number) => {
+    fingers.current.delete(id);
+    if (secret.current) clearTimeout(secret.current);
+    secret.current = null;
+  };
   const canvasRef = useRef<HTMLCanvasElement>(null);
     const touch = useRef<{ id: number; x: number; y: number } | null>(null);
 
@@ -159,17 +169,23 @@ export function AimCanvas({
   }, [active]);
 
   /**
-   * Where a touch is on the canvas, in the canvas's own pixels: the browser's offset within the element the touch hit. On an iPhone turned
-   * sideways after the page opened, clientY (and the canvas's own rect) come and go about a status bar (59 px) off while the offset, the page
-   * position and the screen position stay on the finger (read off the phone with the touch check), so the offset is used and the rect is the fallback.
+   * Where a touch is on the canvas, in the canvas's own pixels. The touch's client position is the finger. The canvas's place is where the page
+   * laid it out inside the control screen (a sum of offsets from that fixed screen, which is drawn at the corner of the display), not its
+   * getBoundingClientRect: on an iPhone turned sideways after the page opened, rects and everything else on the screen are reported about a
+   * status bar (59 px) lower than they are drawn, so a rect-based touch lands above the finger (read off the phone with the touch check).
    */
   const place = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const { offsetX, offsetY } = e.nativeEvent;
-    const r = e.currentTarget.getBoundingClientRect();
-    const byRect = { x: e.clientX - r.left, y: e.clientY - r.top };
-    const used = e.target === e.currentTarget && Number.isFinite(offsetX) && Number.isFinite(offsetY) ? { x: offsetX, y: offsetY } : byRect;
+    let el: HTMLElement | null = e.currentTarget;
+    let ox = 0, oy = 0;
+    while (el && getComputedStyle(el).position !== "fixed") {
+      ox += el.offsetLeft;
+      oy += el.offsetTop;
+      el = el.offsetParent as HTMLElement | null;
+    }
+    const used = { x: e.clientX - ox, y: e.clientY - oy };
     // For the touch check (hold the status tag): what each way of reading this touch gave.
-    (window as unknown as { __aimRead?: unknown }).__aimRead = { byRect: byRect.y, offset: offsetY, used: used.y, rectTop: r.top, h: r.height };
+    const r = e.currentTarget.getBoundingClientRect();
+    (window as unknown as { __aimRead?: unknown }).__aimRead = { byRect: e.clientY - r.top, offset: e.nativeEvent.offsetY, used: used.y, rectTop: r.top, h: r.height };
     return used;
   };
 
@@ -191,6 +207,11 @@ export function AimCanvas({
       aria-label="The picture. Touch and slide to the front of the rim, then lift."
       className={`absolute inset-0 z-10 h-full w-full touch-none ${active ? "" : "pointer-events-none"}`}
       onPointerDown={(e) => {
+        fingers.current.add(e.pointerId);
+        if (fingers.current.size === 2 && onSecret) {
+          if (secret.current) clearTimeout(secret.current);
+          secret.current = setTimeout(() => { if (fingers.current.size === 2) onSecret(); }, 800);
+        }
         if (!active) return;
         // A touch that reaches the picture over the control bar (which sits over its bottom edge sideways) is never a rim touch. The bar's
         // height is read as a size, not a position: positions are what drift on an iPhone turned sideways.
@@ -205,12 +226,14 @@ export function AimCanvas({
         if (touch.current?.id === e.pointerId) move(e, false);
       }}
       onPointerUp={(e) => {
+        settle(e.pointerId);
         if (touch.current?.id !== e.pointerId) return;
         move(e, true);
         touch.current = null;
         haptic("tap");
       }}
-      onPointerCancel={() => {
+      onPointerCancel={(e) => {
+        settle(e.pointerId);
         touch.current = null;
       }}
       onLostPointerCapture={() => {
