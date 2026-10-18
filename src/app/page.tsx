@@ -31,9 +31,9 @@ export default async function Home() {
   }
 
   // Independent of each other: both just need user.id.
-  const [{ data: household }, { data: teams }] = await Promise.all([
-    // A user owns at most one household in this model (see supabase/schema.sql).
-    supabase.schema("hoops").from("households").select("id, name").eq("owner_id", user.id).maybeSingle(),
+  const [{ data: households, error: householdError }, { data: teams }] = await Promise.all([
+    // The schema intends one household per login, but nothing enforces it, so more than one is read, not treated as none.
+    supabase.schema("hoops").from("households").select("id, name").eq("owner_id", user.id).order("created_at", { ascending: true }),
     // A coach who hasn't set up a family still gets to their teams.
     supabase
       .schema("hoops")
@@ -42,13 +42,16 @@ export default async function Home() {
       .eq("owner_id", user.id)
       .order("created_at", { ascending: true }),
   ]);
+  const household = households?.[0] ?? null;
+  // A failed read is not "no family": offering to create one then would make a second.
+  const familyUnavailable = Boolean(householdError);
 
-  const { data: players } = household
+  const { data: players } = households?.length
     ? await supabase
         .schema("hoops")
         .from("players")
         .select("id, display_name, player_type")
-        .eq("household_id", household.id)
+        .in("household_id", households.map((h) => h.id))
         .order("created_at", { ascending: true })
     : { data: null };
 
@@ -95,7 +98,14 @@ export default async function Home() {
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-6 px-4 py-5 sm:py-8">
         <EndCoachView />
-        {!household && <SetupFamilyForm />}
+        {familyUnavailable && (
+          <section role="alert" className={`${cardClass} p-4`}>
+            <p className="text-sm font-bold text-foreground">Your family didn&rsquo;t load just now.</p>
+            <p className="mt-1 text-xs text-foreground-dim">Nothing is lost. Check the connection and open the app again.</p>
+            <ButtonLink href="/" size="md" block className="mt-3">Try again</ButtonLink>
+          </section>
+        )}
+        {!household && !familyUnavailable && teamCount === 0 && <SetupFamilyForm />}
 
         <div>
           <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">
@@ -172,6 +182,18 @@ export default async function Home() {
             </span>
           </CardLink>
         </div>
+
+        {!household && !familyUnavailable && teamCount > 0 && (
+          <details className={`group ${cardClass}`}>
+            <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
+              Add a family
+              <span className="text-base transition-transform group-open:rotate-90" aria-hidden>
+                ›
+              </span>
+            </summary>
+            <div className="border-t border-line p-4"><SetupFamilyForm /></div>
+          </details>
+        )}
 
         {household && (
           <details className={`group ${cardClass}`}>

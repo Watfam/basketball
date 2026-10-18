@@ -33,6 +33,10 @@ export async function createHouseholdWithFirstPlayer(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
 
+  // One family per login: a second tap, a second tab or a failed read must not make another.
+  const { count: existing } = await supabase.schema("hoops").from("households").select("id", { count: "exact", head: true }).eq("owner_id", user.id);
+  if (existing && existing > 0) return { error: "This login already has a family. Go back and open it from the list." };
+
   const { data: household, error: householdError } = await supabase
     .schema("hoops")
     .from("households")

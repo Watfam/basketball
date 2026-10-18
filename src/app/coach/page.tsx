@@ -29,8 +29,8 @@ export default async function CoachHomePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: household }, { data: teams }, { data: lastRun }] = await Promise.all([
-    supabase.schema("hoops").from("households").select("id").eq("owner_id", user.id).maybeSingle(),
+  const [{ data: households }, { data: teams }, { data: lastRun }] = await Promise.all([
+    supabase.schema("hoops").from("households").select("id").eq("owner_id", user.id).order("created_at", { ascending: true }),
     supabase
       .schema("hoops")
       .from("teams")
@@ -46,12 +46,12 @@ export default async function CoachHomePage() {
       .maybeSingle(),
   ]);
 
-  const { data: players } = household
+  const { data: players } = households?.length
     ? await supabase
         .schema("hoops")
         .from("players")
         .select("id, display_name")
-        .eq("household_id", household.id)
+        .in("household_id", households.map((h) => h.id))
         .order("created_at", { ascending: true })
     : { data: null };
 
