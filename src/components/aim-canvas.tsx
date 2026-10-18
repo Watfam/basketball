@@ -48,8 +48,7 @@ export function AimCanvas({
   shieldRef?: React.RefObject<HTMLElement | null>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  /** `rel` is set when the browser's idea of where the finger is cannot be trusted: the ring then moves by how far the finger moves, from where it was. */
-  const touch = useRef<{ id: number; x: number; y: number; rel: { sx: number; sy: number; bx: number; by: number } | null } | null>(null);
+    const touch = useRef<{ id: number; x: number; y: number } | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -160,20 +159,18 @@ export function AimCanvas({
   }, [active]);
 
   /**
-   * Where a touch is on the canvas, in the canvas's own pixels. The browser's offset within the element it hit is used when it has one: on an
-   * iPhone turned sideways after the page opened upright, clientY can be one status bar (about 60 px) off while the element hit is still right.
+   * Where a touch is on the canvas, in the canvas's own pixels: the browser's offset within the element the touch hit. On an iPhone turned
+   * sideways after the page opened, clientY (and the canvas's own rect) come and go about a status bar (59 px) off while the offset, the page
+   * position and the screen position stay on the finger (read off the phone with the touch check), so the offset is used and the rect is the fallback.
    */
   const place = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
     const { offsetX, offsetY } = e.nativeEvent;
+    const r = e.currentTarget.getBoundingClientRect();
     const byRect = { x: e.clientX - r.left, y: e.clientY - r.top };
-    // The offset is whole pixels, the rect is exact: the rect is used while the two agree.
-    const useOffset = e.target === e.currentTarget && Number.isFinite(offsetX) && Number.isFinite(offsetY) && (Math.abs(byRect.x - offsetX) > 3 || Math.abs(byRect.y - offsetY) > 3);
-    const used = useOffset ? { x: offsetX, y: offsetY } : byRect;
-    const skewed = useOffset;
+    const used = e.target === e.currentTarget && Number.isFinite(offsetX) && Number.isFinite(offsetY) ? { x: offsetX, y: offsetY } : byRect;
     // For the touch check (hold the status tag): what each way of reading this touch gave.
     (window as unknown as { __aimRead?: unknown }).__aimRead = { byRect: byRect.y, offset: offsetY, used: used.y, rectTop: r.top, h: r.height };
-    return { ...used, skewed };
+    return used;
   };
 
   const move = (e: React.PointerEvent<HTMLCanvasElement>, commit: boolean) => {
@@ -181,21 +178,10 @@ export function AimCanvas({
     const t = touch.current;
     if (!video?.videoWidth || !t) return;
     const box = pictureBox(e.currentTarget);
-    const size = { w: video.videoWidth, h: video.videoHeight };
-    if (t.rel) {
-      // Absolute position is not trusted: the ring follows the finger's movement, kept on the picture.
-      const r = containedRect(box.w, box.h, size.w, size.h);
-      const x = Math.min(box.x + r.x + r.w, Math.max(box.x + r.x, t.rel.bx + (e.clientX - t.rel.sx)));
-      const y = Math.min(box.y + r.y + r.h, Math.max(box.y + r.y, t.rel.by + (e.clientY - t.rel.sy)));
-      t.x = x;
-      t.y = y;
-      onAim((x - box.x - r.x) / r.w, (y - box.y - r.y) / r.h, commit);
-      return;
-    }
     const p = place(e);
     t.x = p.x;
     t.y = p.y;
-    const f = pictureFraction(t.x - box.x, t.y - box.y, { w: box.w, h: box.h }, size);
+    const f = pictureFraction(t.x - box.x, t.y - box.y, { w: box.w, h: box.h }, { w: video.videoWidth, h: video.videoHeight });
     if (f) onAim(f.x, f.y, commit);
   };
 
@@ -206,24 +192,12 @@ export function AimCanvas({
       className={`absolute inset-0 z-10 h-full w-full touch-none ${active ? "" : "pointer-events-none"}`}
       onPointerDown={(e) => {
         if (!active) return;
-        // The bar's place relative to the canvas, compared with the touch's place on the canvas: both read the same way, so a browser that is
-        // off about where the page is cannot make a press on Start look like a touch on the picture.
-        const bar = shieldRef?.current?.getBoundingClientRect();
-        const c = e.currentTarget.getBoundingClientRect();
-        const at = place(e);
-        if (bar && at.x >= bar.left - c.left && at.x <= bar.right - c.left && at.y >= bar.top - c.top && at.y <= bar.bottom - c.top) return;
+        // A touch that reaches the picture over the control bar (which sits over its bottom edge sideways) is never a rim touch. The bar's
+        // height is read as a size, not a position: positions are what drift on an iPhone turned sideways.
+        const bar = shieldRef?.current;
+        if (bar && getComputedStyle(bar).position === "absolute" && place(e).y >= e.currentTarget.clientHeight - bar.offsetHeight) return;
         e.currentTarget.setPointerCapture(e.pointerId);
-        // Two readings of the touch that disagree, or one that falls above or below the whole picture (which fills the screen's height), mean
-        // the browser is off about where the finger is (an iPhone turned sideways after the page opened): then only the finger's movement is used.
-        const box = pictureBox(e.currentTarget);
-        const video = videoRef.current;
-        let rel: { sx: number; sy: number; bx: number; by: number } | null = null;
-        if (video?.videoWidth && (at.skewed || at.y < 0 || at.y > box.h)) {
-          const r = containedRect(box.w, box.h, video.videoWidth, video.videoHeight);
-          const a = getAim();
-          rel = { sx: e.clientX, sy: e.clientY, bx: box.x + r.x + a.x * r.w, by: box.y + r.y + a.y * r.h };
-        }
-        touch.current = { id: e.pointerId, x: 0, y: 0, rel };
+        touch.current = { id: e.pointerId, x: 0, y: 0 };
         haptic("tap");
         move(e, false);
       }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { compareShots, framingGroups, phonePosition } from "@/lib/review/history-core";
 import type { CameraSetup, HistorySession, HistoryShot } from "@/lib/review/history-types";
 import { setupGroups } from "@/lib/review/history-view";
@@ -92,8 +92,24 @@ const Empty = () => <p className="rounded-2xl border border-dashed border-line b
 
 /** More shots than this are not all drawn as chips at once on a phone: the newest are, the selected one is always there, and the rest are one tap away. */
 const CHIPS_AT_MOST = 40;
+/** Where each chip row was scrolled to. Picking a shot rebuilds the screen below it (it is keyed by the shot), and a row that began again at the left would lose the player's place. */
+const chipScroll = new Map<string, number>();
 function Chips({ all, selected, onPick, label }: { all: HistoryShot[]; selected: string[]; onPick: (id: string) => void; label: string }) {
   const [showAll, setShowAll] = useState(false);
+  const list = useRef<HTMLUListElement>(null);
+  useLayoutEffect(() => {
+    if (list.current) list.current.scrollLeft = chipScroll.get(label) ?? 0;
+  }, [label]);
+  // The chosen shot is kept in view (it may have been chosen with Shot ›, or be new to this row), without moving the row otherwise.
+  const chosen = selected.join(",");
+  useLayoutEffect(() => {
+    const ul = list.current;
+    const on = ul?.querySelector<HTMLElement>("[aria-pressed=true]")?.closest("li");
+    if (!ul || !on) return;
+    const left = on.offsetLeft - ul.offsetLeft, right = left + on.offsetWidth;
+    if (left < ul.scrollLeft + 8 || right > ul.scrollLeft + ul.clientWidth - 8) ul.scrollLeft = Math.max(0, left - (ul.clientWidth - on.offsetWidth) / 2);
+    chipScroll.set(label, ul.scrollLeft);
+  }, [chosen, label]);
   const shown = useMemo(() => {
     if (showAll || all.length <= CHIPS_AT_MOST) return all;
     const newest = all.slice(-CHIPS_AT_MOST), ids = new Set(newest.map((x) => x.id));
@@ -101,7 +117,7 @@ function Chips({ all, selected, onPick, label }: { all: HistoryShot[]; selected:
   }, [all, showAll, selected]);
   return (
     <>
-      <ul className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={label}>
+      <ul ref={list} onScroll={(e) => chipScroll.set(label, e.currentTarget.scrollLeft)} className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={label}>
         {shown.map((s) => {
           const on = selected.includes(s.id);
           return (

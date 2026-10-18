@@ -78,3 +78,6 @@ In the camera aiming screen, press and hold the grey "Aim at the rim" tag at the
 ## Test 12: Aiming at the top of the picture after turning the phone
 1. Open the camera upright, turn the phone sideways, and aim: touch the picture and slide. The ring should follow the finger. If the phone's touch position is off (as after turning), the ring moves by how far you slide instead of jumping to the touch, so you can always slide it to the very top. Try aiming at the top edge of the picture.
 2. If anything is still off: hold the grey tag, then tap the top, middle and bottom of the picture and screenshot the box (it now lists each tap's numbers in a row).
+
+## Test 13: Picking shots in Watch a shot / Compare
+Open a set with many shots, scroll the row of shots sideways, pick one: the row should stay where you scrolled it, with the picked shot in view. "Shot ›" / "‹ Shot" should keep the new shot in view too.
