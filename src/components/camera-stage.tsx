@@ -10,6 +10,7 @@ import { haptic } from "@/lib/haptics";
 import { primeAlerts } from "@/lib/alerts";
 import { containedRect } from "@/lib/vision/contain";
 import { AimCanvas } from "@/components/aim-canvas";
+import { TouchDiag } from "@/components/touch-diag";
 import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 
@@ -52,6 +53,7 @@ export function CameraStage(props: StageProps) {
   const { phase, videoRef } = camera;
   const bug = scoreBug(shots, goal, elapsedMs);
   const [menu, setMenu] = useState(false);
+  const [diag, setDiag] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const aiming = phase === "aiming" || phase === "starting";
   const showSetup = phase === "idle" || phase === "error";
@@ -85,7 +87,8 @@ export function CameraStage(props: StageProps) {
           {phase === "counting" && <RimCheck camera={camera} />}
           {showSetup && <SetupCard error={camera.error} start={camera.start} />}
           {lastCall && <CallFlash call={lastCall} />}
-          <TopBar {...props} aiming={aiming} menuOpen={menu} setMenu={setMenu} />
+          <TopBar {...props} aiming={aiming} menuOpen={menu} setMenu={setMenu} onDiag={() => setDiag((d) => !d)} />
+          {diag && <TouchDiag onClose={() => setDiag(false)} />}
         </div>
       </div>
 
@@ -106,12 +109,18 @@ export function CameraStage(props: StageProps) {
 
 /* ---- The picture's overlays -------------------------------------------- */
 
-function TopBar({ camera, sound, syncText, syncOffline, setMenu, menuOpen, aiming }: StageProps & { aiming: boolean; menuOpen: boolean; setMenu: (v: boolean) => void }) {
+function TopBar({ camera, sound, syncText, syncOffline, setMenu, menuOpen, aiming, onDiag }: StageProps & { aiming: boolean; menuOpen: boolean; setMenu: (v: boolean) => void; onDiag: () => void }) {
   const status = cameraStatus(camera);
+  const hold = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearHold = () => { if (hold.current) clearTimeout(hold.current); hold.current = null; };
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-2 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] landscape:pt-[max(0.5rem,env(safe-area-inset-top))]">
       <span
         role="status"
+        onPointerDown={() => { clearHold(); hold.current = setTimeout(onDiag, 900); }}
+        onPointerUp={clearHold}
+        onPointerCancel={clearHold}
+        onPointerLeave={clearHold}
         className={`pointer-events-auto min-w-0 truncate rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide ${
           status.warn ? "bg-danger text-on-accent" : "bg-background/70 text-foreground-dim"
         }`}
@@ -256,7 +265,7 @@ function AimPanel({ camera, panelRef, bug, onDiscard, onUseTaps, onEnd, ending }
   else message = aimed ? "Slide to move the ring onto the front of the rim, then lift. Ready when it is." : "Touch the picture and slide to the front of the rim, then lift.";
 
   return (
-    <div ref={panelRef} className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-x-0 landscape:bottom-0 landscape:z-30 landscape:flex-row landscape:items-center landscape:gap-4 landscape:bg-background/85 landscape:pl-[max(0.75rem,env(safe-area-inset-left))] landscape:pr-[max(0.75rem,env(safe-area-inset-right))] landscape:backdrop-blur">
+    <div ref={panelRef} data-aim-panel className="flex flex-col gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] landscape:absolute landscape:inset-x-0 landscape:bottom-0 landscape:z-30 landscape:flex-row landscape:items-center landscape:gap-4 landscape:bg-background/85 landscape:pl-[max(0.75rem,env(safe-area-inset-left))] landscape:pr-[max(0.75rem,env(safe-area-inset-right))] landscape:backdrop-blur">
       <div className="min-w-0 flex-1">
         <p role="status" className="text-sm font-semibold text-foreground">
           {message}
