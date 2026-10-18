@@ -282,6 +282,7 @@ export default async function ShootingPage({
           suggestedLabels={drills.filter((l) => l !== UNLABELED)}
           averages={averages}
           lastSix={lastSix}
+          labelCounts={Object.fromEntries([...counts].filter(([l]) => l !== UNLABELED))}
           drill={drillStart}
         >
           {history}

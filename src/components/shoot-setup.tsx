@@ -21,7 +21,7 @@ type Which = "drill" | "count" | "goal";
  */
 export function ShootSetup({
   labels, label, hasPicked, recent, lastSix, goal, cameraAllowed, countWithCamera,
-  onLabel, onUseSetup, onGoal, onCount, onStart, children,
+  onLabel, onUseSetup, onGoal, onCount, onStart, removable = [], labelCounts = {}, onRemoveLabel, children,
 }: {
   labels: string[];
   /** The drill on the card, or null when there is none yet (a new player). */
@@ -38,6 +38,10 @@ export function ShootSetup({
   onGoal: (goal: Goal | null) => void;
   onCount: (camera: boolean) => void;
   onStart: () => void;
+  /** Names the player gave a drill (not the built-in ones), which can be taken off the list, with how many saved sets carry each. */
+  removable?: string[];
+  labelCounts?: Record<string, number>;
+  onRemoveLabel?: (label: string) => Promise<string | null>;
   /** Quiet things under Start (the sound check, the tracking history entry). */
   children?: ReactNode;
 }) {
@@ -97,7 +101,7 @@ export function ShootSetup({
         {children}
       </section>
 
-      {open === "drill" && <DrillSheet labels={labels} label={label} recent={otherRecent(recent, label ?? "", goal)} lastSix={lastSix} onLabel={onLabel} onUseSetup={onUseSetup} onClose={close} opener={opener} />}
+      {open === "drill" && <DrillSheet labels={labels} label={label} recent={otherRecent(recent, label ?? "", goal)} lastSix={lastSix} onLabel={onLabel} onUseSetup={onUseSetup} removable={removable} labelCounts={labelCounts} onRemoveLabel={onRemoveLabel} onClose={close} opener={opener} />}
       {open === "count" && (
         <Sheet title="How do you want to count?" onClose={close} opener={opener}>
           <Options>
@@ -111,20 +115,49 @@ export function ShootSetup({
   );
 }
 
-function DrillSheet({ labels, label, recent: recentNow, lastSix, onLabel, onUseSetup, onClose, opener }: { labels: string[]; label: string | null; recent: Setup[]; lastSix: Record<string, Six>; onLabel: (l: string) => void; onUseSetup: (s: Setup) => void; onClose: () => void; opener: HTMLElement | null }) {
+function DrillSheet({ labels, label, recent: recentNow, lastSix, onLabel, onUseSetup, removable, labelCounts, onRemoveLabel, onClose, opener }: { labels: string[]; label: string | null; recent: Setup[]; lastSix: Record<string, Six>; onLabel: (l: string) => void; onUseSetup: (s: Setup) => void; removable: string[]; labelCounts: Record<string, number>; onRemoveLabel?: (label: string) => Promise<string | null>; onClose: () => void; opener: HTMLElement | null }) {
   // The recent setups are read once when the sheet opens, so the list does not shuffle under a finger as choices are made.
   const [recent] = useState(recentNow);
   const [own, setOwn] = useState("");
+  const [asking, setAsking] = useState<string | null>(null);
+  const [gone, setGone] = useState<string[]>([]);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
   const use = () => { const t = own.trim(); if (t) { onLabel(t); setOwn(""); } };
   const current = label === null ? null : label.trim();
-  const all = [...new Set([...(current && !labels.includes(current) ? [current] : []), ...labels])];
+  const all = [...new Set([...(current && !labels.includes(current) ? [current] : []), ...labels])].filter((l) => !gone.includes(l));
+  const canRemove = (l: string) => Boolean(onRemoveLabel) && removable.includes(l);
+
+  if (asking !== null) {
+    const n = labelCounts[asking] ?? 0;
+    return (
+      <Sheet title="Remove this name?" onClose={onClose} opener={opener} done={false}>
+        <p className="text-sm leading-relaxed text-foreground">
+          Take <b>{asking}</b> off your list{n > 0 ? `. Your ${n} saved ${n === 1 ? "set" : "sets"} named ${asking} will show as "No name"` : ""}. No shots are deleted.
+        </p>
+        {problem && <p role="alert" className="mt-2 text-sm font-semibold text-danger">{problem}</p>}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Button variant="danger" size="md" disabled={removing} onClick={async () => {
+            setRemoving(true); setProblem(null);
+            const err = await onRemoveLabel!(asking);
+            setRemoving(false);
+            if (err) { setProblem(err); return; }
+            setGone((g) => [...g, asking]);
+            setAsking(null);
+          }}>{removing ? "Removing…" : "Remove it"}</Button>
+          <Button variant="secondary" size="md" disabled={removing} onClick={() => { setAsking(null); setProblem(null); }}>Keep it</Button>
+        </div>
+      </Sheet>
+    );
+  }
+
   return (
     <Sheet title="What are you shooting?" onClose={onClose} opener={opener}>
       {recent.length > 0 && (
         <>
           <Eyebrow className="mb-1.5">Recent</Eyebrow>
           <div className="mb-4 space-y-1.5">
-            {recent.map((r) => (
+            {recent.filter((r) => !gone.includes(r.label.trim())).map((r) => (
               <button key={`${r.label}|${r.goal ? describeGoal(r.goal) : ""}`} type="button" onClick={() => { haptic("tap"); onUseSetup(r); }} className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 py-2.5 text-left hover:border-line-strong">
                 <span className="text-[15px] font-bold text-foreground">{drillName(r.label)}</span>
                 <span className="text-xs font-bold text-foreground-dim">{r.goal ? describeGoal(r.goal) : "No goal"}</span>
@@ -135,7 +168,14 @@ function DrillSheet({ labels, label, recent: recentNow, lastSix, onLabel, onUseS
       )}
       <Eyebrow className="mb-1.5">Drills</Eyebrow>
       <Options label="Drills">
-        {all.map((l) => <Opt key={l} selected={current === l} title={l} right={lastSix[l] ? formatPercentage(lastSix[l].pct) : undefined} onPick={() => onLabel(l)} />)}
+        {all.map((l) => (
+          <div key={l} className="flex items-stretch gap-1.5">
+            <div className="min-w-0 flex-1"><Opt selected={current === l} title={l} right={lastSix[l] ? formatPercentage(lastSix[l].pct) : undefined} onPick={() => onLabel(l)} /></div>
+            {canRemove(l) && (
+              <button type="button" aria-label={`Remove ${l} from the list`} onClick={() => { haptic("tap"); setAsking(l); }} className="grid min-h-12 w-12 shrink-0 place-items-center rounded-xl border border-line bg-surface text-lg text-foreground-mute hover:border-line-strong hover:text-danger">✕</button>
+            )}
+          </div>
+        ))}
         <Opt selected={current === ""} title="No name" sub="Just shooting" onPick={() => onLabel("")} />
       </Options>
       <form className="mt-4 flex gap-2" onSubmit={(e) => { e.preventDefault(); use(); }}>

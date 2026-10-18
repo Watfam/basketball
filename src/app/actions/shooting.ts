@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { clearLabel } from "@/lib/basketball/shot-label-store";
 
 export type ShotSyncInput = {
   playerId: string;
@@ -220,4 +221,20 @@ async function setShotSessionDeleted(sessionId: string, playerId: string, delete
   revalidatePath("/players/[playerId]", "page");
   revalidatePath("/players/[playerId]/me", "page");
   return { error: null };
+}
+
+/**
+ * Takes a drill name off the list: the player's saved sets with that name become sets with no name. No shot and no set is deleted, only
+ * the name. The list of names is built from the names on saved sets, so this is how a name leaves it.
+ */
+export async function removeShotLabel(playerId: string, label: string): Promise<{ error: string | null; changed: number }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in.", changed: 0 };
+  const res = await clearLabel(supabase.schema("hoops"), playerId, label);
+  if (!res.error) {
+    revalidatePath("/players/[playerId]/shooting", "page");
+    revalidatePath("/players/[playerId]", "page");
+  }
+  return res;
 }

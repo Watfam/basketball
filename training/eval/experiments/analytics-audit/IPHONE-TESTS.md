@@ -96,3 +96,6 @@ Before this test: the builder can show its screens without the database update, 
 5. Save: you go back to Train with "Saved ..." and the workout under Your workouts. Start it from there, then Edit it and change something. Save and start goes straight into the workout.
 6. Delete a built workout (Edit, then Delete this workout): sessions you already did with it stay in history.
 7. Build another workout and press Start now (not Save). Do a drill or two and finish: the finished screen should say "Worth keeping?" with Save this workout. Press it, then look under Your workouts on Train. Build one more, Start now, leave without doing anything: it should not show up anywhere.
+
+## Test 15: Take a drill name off the list
+Shoot, tap the drill row, and find a name you made yourself (like Random): it has a ✕ on the right (the built-in names do not). Tap it: it says how many saved sets carry that name and that they will show as "No name", and that no shots are deleted. Remove it: the name leaves the list (and the recent setups), and the History and drill filters show those sets as No name. Keep it leaves everything as it was.

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { syncShotSession, deleteShotSession } from "@/app/actions";
+import { syncShotSession, deleteShotSession, removeShotLabel } from "@/app/actions";
 import {
   ZONES,
   addShot,
@@ -102,6 +102,7 @@ export function ShootingHub({
   suggestedLabels,
   averages = {},
   lastSix = {},
+  labelCounts = {},
   drill = null,
   children,
 }: {
@@ -112,6 +113,8 @@ export function ShootingHub({
   averages?: Record<string, { pct: number; sessions: number }>;
   /** Make % over the newest six sets per label ("*": all of them), shown while picking. */
   lastSix?: Record<string, { pct: number; sessions: number }>;
+  /** Saved sets per drill name, shown when a name is taken off the list. */
+  labelCounts?: Record<string, number>;
   /** Set when this page was opened from a workout drill ("Track with Camera"): the drill, or why it cannot be tracked. */
   drill?: DrillStart | DrillStartProblem | null;
   /** The saved-session history, rendered on the server and shown while idle. */
@@ -571,6 +574,17 @@ export function ShootingHub({
   }
 
   /** A different set is open: finish with it first, or throw it away on purpose. */
+  /** Takes a drill name off the list (its saved sets become "No name" sets) and out of the recent setups on this phone. Returns a problem, or null. */
+  async function removeLabel(name: string): Promise<string | null> {
+    const res = await removeShotLabel(playerId, name);
+    if (res.error) return res.error;
+    const keep = recent.filter((x) => x.label.trim() !== name.trim());
+    if (keep.length !== recent.length) setRecentRaw(JSON.stringify(keep));
+    if ((effectiveLabel(picked, recent) ?? "").trim() === name.trim()) setPicked("");
+    router.refresh();
+    return null;
+  }
+
   /** Drops the open set (and its saved copy, if any) without asking: callers have asked already. */
   function dropOpenSet() {
     camera.stop();
@@ -934,6 +948,9 @@ export function ShootingHub({
         }}
         onGoal={setGoal}
         onCount={(camera) => setCountRaw(camera ? "camera" : "tap")}
+        removable={labels.filter((l) => !DEFAULT_LABELS.includes(l))}
+        labelCounts={labelCounts}
+        onRemoveLabel={removeLabel}
         onStart={() => start(effectiveLabel(picked, recent) ?? "")}
       >
         <SoundCheck className="mt-3 flex flex-col items-center" />
