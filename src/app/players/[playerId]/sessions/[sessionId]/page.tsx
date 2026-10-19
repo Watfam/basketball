@@ -4,7 +4,7 @@ import { SessionPlayer, type SessionDrill } from "@/components/session-player";
 import { isTemporaryWorkout } from "@/lib/basketball/workout-minutes";
 import { entriesForLevel } from "@/lib/basketball/prescription";
 import { playerLevel } from "@/lib/basketball/assessment";
-import { entryIdsForLogs, isSkippedLog } from "@/lib/basketball/session-logs";
+import { entryIdsForLogs } from "@/lib/basketball/session-logs";
 import { buildEntryExtras } from "@/lib/basketball/drill-session-view";
 import { parseTracked, type TrackedMetrics } from "@/lib/basketball/drill-tracking";
 import { loadLessonContext } from "@/lib/basketball/drill-film-server";
