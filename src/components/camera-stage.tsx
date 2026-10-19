@@ -10,6 +10,7 @@ import { haptic } from "@/lib/haptics";
 import { primeAlerts } from "@/lib/alerts";
 import { containedRect } from "@/lib/vision/contain";
 import { AimCanvas } from "@/components/aim-canvas";
+import { SoundLevelPicker } from "@/components/sound-controls";
 import { TouchDiag } from "@/components/touch-diag";
 import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
@@ -507,6 +508,7 @@ function Menu({ camera, goal, sound, onToggleSound, zone, onZone, onUndo, onDisc
           <span>Make / miss sound</span>
           <span className={sound ? "text-accent" : "text-foreground-mute"}>{sound ? "On" : "Off"}</span>
         </button>
+        {sound && <SoundLevelPicker />}
 
         {camera.phase === "counting" && (
           <div>

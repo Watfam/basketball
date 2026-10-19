@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { syncShotSession, deleteShotSession, removeShotLabel } from "@/app/actions";
+import { syncShotSession, deleteShotSession } from "@/app/actions";
+import { removeShotLabel } from "@/app/actions";
 import {
   ZONES,
   addShot,

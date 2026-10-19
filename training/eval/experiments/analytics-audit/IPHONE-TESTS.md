@@ -99,3 +99,8 @@ Before this test: the builder can show its screens without the database update, 
 
 ## Test 15: Take a drill name off the list
 Shoot, tap the drill row, and find a name you made yourself (like Random): it has a ✕ on the right (the built-in names do not). Tap it: it says how many saved sets carry that name and that they will show as "No name", and that no shots are deleted. Remove it: the name leaves the list (and the recent setups), and the History and drill filters show those sets as No name. Keep it leaves everything as it was.
+
+## Test 16: Louder sound outdoors
+1. Quit and reopen the app. On Shoot (under Start) or in the camera's three-dot menu, find "Sound level": Normal, Loud, Max. Loud is already chosen. Tap Max: you hear a make and a miss blip at that level.
+2. Turn the phone's own volume all the way up (the buttons on the side; the app cannot go past it) and take it outside, on the court. Press Sound check at Loud, then at Max. Can you hear the make (high) and the miss (lower) from where the shooter stands, and the three warning beeps? Tell me which level you needed and how far away you were.
+3. The miss tone is higher than before (it was 330 Hz, which a phone speaker barely plays): it should still sound clearly lower than a make.

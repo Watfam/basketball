@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 // A stand-in for the browser's audio: records what is played and lets a test put the audio clock in the state iOS puts it in after a call.
-const played: { type: string; at: number; frequency: number }[] = [];
+const played: { type: string; at: number; frequency: number; peak: number }[] = [];
+let lastPeak = 0;
 let resumes = 0;
 const instances: FakeContext[] = [];
 class FakeContext {
@@ -14,9 +15,10 @@ class FakeContext {
   destination = {};
   createBuffer() { return {}; }
   createBufferSource() { return { buffer: null, connect() {}, start() {} }; }
-  createGain() { return { gain: { setValueAtTime() {}, linearRampToValueAtTime() {} }, connect() {} }; }
+  createGain() { return { gain: { value: 1, setValueAtTime() {}, linearRampToValueAtTime(v: number) { if (v > 0) lastPeak = v; } }, connect() {} }; }
+  createDynamicsCompressor() { return { threshold: { value: 0 }, knee: { value: 0 }, ratio: { value: 0 }, attack: { value: 0 }, release: { value: 0 }, connect() {} }; }
   createOscillator() {
-    const o = { type: "", frequency: { value: 0 }, connect() {}, start: (at: number) => played.push({ type: o.type, at, frequency: o.frequency.value }), stop() {} };
+    const o = { type: "", frequency: { value: 0 }, connect() {}, start: (at: number) => played.push({ type: o.type, at, frequency: o.frequency.value, peak: lastPeak }), stop() {} };
     return o;
   }
   resume() { resumes += 1; this.state = "running"; return Promise.resolve(); }
@@ -24,7 +26,7 @@ class FakeContext {
 const session = { type: "auto" };
 const listeners: Record<string, () => void> = {};
 Object.assign(globalThis, {
-  window: { AudioContext: FakeContext },
+  window: { AudioContext: FakeContext, dispatchEvent() { return true; } },
   document: { visibilityState: "visible", addEventListener: (n: string, f: () => void) => (listeners[n] = f) },
 });
 Object.defineProperty(globalThis, "navigator", { value: { audioSession: session }, configurable: true });
@@ -40,7 +42,8 @@ test("a sound check plays a high blip, a low blip and three beeps, spaced apart,
   played.length = 0;
   const status = alerts.soundCheck();
   assert.equal(played.length, 5);
-  assert.deepEqual(played.map((p) => p.frequency), [1040, 330, 880, 880, 880]);
+  assert.deepEqual(played.map((p) => p.frequency), [1400, 620, 1500, 1500, 1500]);
+  assert.ok(played.every((p) => p.frequency >= 500), "every pitch is where a phone speaker is strong, not the 330 Hz that was lost outdoors");
   assert.ok(played[1].at - played[0].at >= 0.45 && played[2].at - played[1].at >= 0.45, "blips are apart from each other");
   assert.deepEqual(status, { state: "running", session: "playback" });
 });
@@ -57,4 +60,20 @@ test("audio the phone interrupted (a call, the lock screen) is started again bef
   ctx.state = "interrupted";
   listeners["visibilitychange"]();
   assert.equal(ctx.state, "running");
+});
+
+test("the sound level sets how loud: Loud by default, Normal as it used to be, Max the loudest the phone can be told", async () => {
+  const { writeDraft } = await import("./use-local-draft.ts");
+  const peakAt = (level: string | null) => {
+    writeDraft("hl:sound:level", level);
+    played.length = 0;
+    alerts.blipShot(true);
+    return { peak: played[0].peak, type: played[0].type };
+  };
+  assert.deepEqual(peakAt(null), { peak: 0.75, type: "square" }, "Loud when nothing was chosen");
+  assert.deepEqual(peakAt("normal"), { peak: 0.3, type: "sine" });
+  assert.deepEqual(peakAt("loud"), { peak: 0.75, type: "square" });
+  assert.deepEqual(peakAt("max"), { peak: 1, type: "square" });
+  assert.deepEqual(peakAt("nonsense"), { peak: 0.75, type: "square" }, "an unknown value is Loud");
+  writeDraft("hl:sound:level", null);
 });

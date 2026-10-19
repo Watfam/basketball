@@ -12,7 +12,12 @@
  * between "time's up" and the sound.
  */
 
+import { readDraft } from "@/lib/use-local-draft";
+import { SOUND_LEVEL_KEY, levelSettings, parseSoundLevel, type SoundLevel } from "@/lib/sound-level";
+
 let ctx: AudioContext | null = null;
+/** Everything goes through one level control and a limiter, so a loud sound is loud without a pile of beeps clipping. */
+let out: AudioNode | null = null;
 
 type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
 type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
@@ -61,6 +66,7 @@ export function primeAlerts() {
 
   try {
     ctx = new AudioCtor();
+    out = buildOutput(ctx, ctx.destination);
     // Coming back to the app after another app or the lock screen had the audio: start it again.
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") ensureRunning();
@@ -74,6 +80,50 @@ export function primeAlerts() {
     source.start(0);
   } catch {
     ctx = null;
+    out = null;
+  }
+}
+
+/** Master level into a limiter that only acts on the loudest peaks (just under full scale), then the speaker. */
+function buildOutput(c: BaseAudioContext, dest: AudioNode): AudioNode {
+  const master = c.createGain();
+  const limiter = c.createDynamicsCompressor();
+  limiter.threshold.value = -1;
+  limiter.knee.value = 0;
+  limiter.ratio.value = 20;
+  limiter.attack.value = 0.001;
+  limiter.release.value = 0.05;
+  master.connect(limiter);
+  limiter.connect(dest);
+  return master;
+}
+
+export function currentSoundLevel(): SoundLevel {
+  return parseSoundLevel(readDraft(SOUND_LEVEL_KEY));
+}
+
+export type BeepOptions = { frequency?: number; duration?: number; gap?: number; /** Loudness of this sound relative to the loudest (1). */ volume?: number; delay?: number };
+
+/** Schedules beeps on any audio context (the live one, or an offline one for measuring), at a sound level. */
+function schedule(c: BaseAudioContext, to: AudioNode, level: SoundLevel, times: number, { frequency = 880, duration = 0.14, gap = 0.2, volume = 1, delay = 0 }: BeepOptions) {
+  const { peak, wave } = levelSettings(level);
+  const loudness = peak * volume;
+  const start = c.currentTime + delay;
+  for (let i = 0; i < times; i += 1) {
+    const at = start + i * gap;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = wave;
+    osc.frequency.value = frequency;
+    // A tiny fade in and out: a bare edge clicks.
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(loudness, at + 0.008);
+    gain.gain.setValueAtTime(loudness, at + duration - 0.02);
+    gain.gain.linearRampToValueAtTime(0, at + duration);
+    osc.connect(gain);
+    gain.connect(to);
+    osc.start(at);
+    osc.stop(at + duration + 0.02);
   }
 }
 
@@ -82,43 +132,26 @@ export function primeAlerts() {
  * setTimeout, so the spacing stays exact even if the main thread is busy
  * rendering.
  */
-export function beep(
-  times = 1,
-  { frequency = 880, duration = 0.14, gap = 0.2, volume = 0.3, delay = 0 } = {}
-) {
-  if (!ctx) return;
+export function beep(times = 1, options: BeepOptions = {}) {
+  if (!ctx || !out) return;
   ensureRunning();
-
-  const start = ctx.currentTime + delay;
-  for (let i = 0; i < times; i += 1) {
-    const at = start + i * gap;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = "sine";
-    osc.frequency.value = frequency;
-
-    // A tiny fade in and out — a bare square edge on a sine wave clicks.
-    gain.gain.setValueAtTime(0, at);
-    gain.gain.linearRampToValueAtTime(volume, at + 0.012);
-    gain.gain.setValueAtTime(volume, at + duration - 0.03);
-    gain.gain.linearRampToValueAtTime(0, at + duration);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(at);
-    osc.stop(at + duration + 0.02);
-  }
+  schedule(ctx, out, currentSoundLevel(), times, options);
 }
+
+// Pitches sit where a phone speaker is strongest (well above 500 Hz): the old 330 Hz miss tone was nearly lost outdoors.
+const MAKE: BeepOptions = { frequency: 1400, duration: 0.1 };
+const MISS: BeepOptions = { frequency: 620, duration: 0.15 };
+const WARNING: BeepOptions = { frequency: 1500, duration: 0.11, gap: 0.17 };
+const DONE: BeepOptions = { frequency: 760, duration: 0.34, gap: 0.42 };
 
 /** Ten seconds left: three quick high beeps. */
 export function beepWarning() {
-  beep(3, { frequency: 880, duration: 0.1, gap: 0.16, volume: 0.25 });
+  beep(3, WARNING);
 }
 
-/** Time's up: two longer, lower beeps — clearly different from the warning. */
+/** Time's up: two longer, lower beeps, clearly different from the warning. */
 export function beepDone() {
-  beep(2, { frequency: 620, duration: 0.3, gap: 0.38, volume: 0.35 });
+  beep(2, DONE);
 }
 
 /**
@@ -127,11 +160,7 @@ export function beepDone() {
  * confirms a make, a low one a miss, so a tap can be trusted unseen.
  */
 export function blipShot(made: boolean) {
-  beep(1, {
-    frequency: made ? 1040 : 330,
-    duration: made ? 0.08 : 0.12,
-    volume: 0.2,
-  });
+  beep(1, made ? MAKE : MISS);
 }
 
 /** What the sound system is doing right now, for the sound check and for reports. */
@@ -148,8 +177,18 @@ export function audioStatus(): { state: string; session: string | null } {
  */
 export function soundCheck() {
   setMediaAudioSession();
-  beep(1, { frequency: 1040, duration: 0.08, volume: 0.3 });
-  beep(1, { frequency: 330, duration: 0.12, volume: 0.3, delay: 0.5 });
-  beep(3, { frequency: 880, duration: 0.1, gap: 0.16, volume: 0.3, delay: 1.0 });
+  beep(1, MAKE);
+  beep(1, { ...MISS, delay: 0.5 });
+  beep(3, { ...WARNING, delay: 1.0 });
   return audioStatus();
+}
+
+/** For tests in a browser: one sound rendered offline at a level, as samples, through the same output chain. */
+export async function renderForTest(level: SoundLevel, kind: "make" | "miss" | "warning" | "done"): Promise<Float32Array> {
+  const rate = 44100;
+  const c = new OfflineAudioContext(1, rate * 2, rate);
+  const to = buildOutput(c, c.destination);
+  const o = { make: MAKE, miss: MISS, warning: WARNING, done: DONE }[kind];
+  schedule(c, to, level, kind === "warning" ? 3 : kind === "done" ? 2 : 1, o);
+  return (await c.startRendering()).getChannelData(0);
 }

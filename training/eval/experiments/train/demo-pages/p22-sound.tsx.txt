@@ -1,0 +1,8 @@
+"use client";
+import { useEffect } from "react";
+import { renderForTest } from "@/lib/alerts";
+import { SoundCheck } from "@/components/sound-controls";
+export default function Page() {
+  useEffect(() => { (window as unknown as { __render: typeof renderForTest }).__render = renderForTest; }, []);
+  return <main className="p-4"><SoundCheck className="flex flex-col items-center" /></main>;
+}
