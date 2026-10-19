@@ -103,10 +103,10 @@ export function WorkoutBuilder({ playerId, level, drills, suggestedSkills, initi
       if (thenStart) {
         const s = await startWorkoutSession(playerId, res.workoutId);
         if (s?.error || !s?.sessionId) { setError(s?.error ?? "Saved, but it could not be started."); return; }
-        router.push(`/players/${playerId}/sessions/${s.sessionId}`);
+        router.replace(`/players/${playerId}/sessions/${s.sessionId}`);
         return;
       }
-      router.push(`/players/${playerId}/workouts?saved=${res.workoutId}`);
+      router.replace(`/players/${playerId}/workouts?saved=${res.workoutId}`);
     });
   };
 
@@ -115,7 +115,7 @@ export function WorkoutBuilder({ playerId, level, drills, suggestedSkills, initi
     startTransition(async () => {
       const res = await deleteCustomWorkout(initial.id);
       if (res.error) { setError(res.error); return; }
-      router.push(`/players/${playerId}/workouts`);
+      router.replace(`/players/${playerId}/workouts`);
     });
   };
 

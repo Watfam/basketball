@@ -123,7 +123,7 @@ export function HomeView(p: HomeViewProps) {
           </CardSection>
         )}
         <div className="flex flex-wrap gap-x-5">
-          <Link href={`${root}/sessions`} className="flex min-h-11 items-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent-hover">All workouts ›</Link>
+          <Link href={`${root}/sessions`} className="flex min-h-11 items-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent-hover">Workout history ›</Link>
           <Link href={shootingHref} className="flex min-h-11 items-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent-hover">All shooting ›</Link>
         </div>
       </section>

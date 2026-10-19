@@ -1,0 +1,26 @@
+import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
+import { Options, PickLink, SheetPicker } from "@/components/ui/sheet";
+
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ f?: string }> }) {
+  const { id } = await params;
+  const { f } = await searchParams;
+  return (
+    <div>
+      <PageHeader back={{ href: "/lab/p23-nav/a", label: "Home base" }} />
+      <main className="space-y-3 p-4">
+        <h1 data-page>{id}</h1>
+        <p data-filter>{f ?? "none"}</p>
+        {id === "a" && <Link href="/lab/p23-nav/b">to b</Link>}
+        {id === "b" && <><Link href="/lab/p23-nav/c">to c</Link><br /><Link href="/lab/p23-nav/lib">to lib</Link><br /><Link href="/lab/p21-done">to done</Link></>}
+        {id === "lib" && (
+          <SheetPicker chip label="Filter" title="Filter" value={`Filter ${f ?? "none"}`}>
+            <Options label="Filter">
+              {["one", "two", "three"].map((x) => <PickLink key={x} href={`/lab/p23-nav/lib?f=${x}`} selected={f === x} title={x} />)}
+            </Options>
+          </SheetPicker>
+        )}
+      </main>
+    </div>
+  );
+}

@@ -104,3 +104,11 @@ Shoot, tap the drill row, and find a name you made yourself (like Random): it ha
 1. Quit and reopen the app. On Shoot (under Start) or in the camera's three-dot menu, find "Sound level": Normal and Loud. Loud is already chosen. Tap one: you hear a make and a miss blip at that level.
 2. Turn the phone's own volume all the way up (the buttons on the side; the app cannot go past it) and take it outside, on the court. Press Sound check at Loud. Can you hear the make (high) and the miss (lower) from where the shooter stands, and the three warning beeps? Tell me how far away you were.
 3. The miss tone is higher than before (it was 330 Hz, which a phone speaker barely plays): it should still sound clearly lower than a make.
+
+## Test 17: Back goes where you came from
+Quit and reopen the app first. Then, each time, note where you land:
+1. Today, Start Today's Workout, then the back control (top left) or Exit: you should land on Today. From Train, Start workout, then Exit: you should land on Train. From History, open a finished workout, then Done: you should land on History (and a finished older workout should show its real count, not 0 of N).
+2. Train, Workouts, then Build your own workout: the back control at the top says "Workouts" and goes there. From Train directly to Build your own it says "Train". Save and start a built workout, then Exit: you land on Train, not back in the builder.
+3. Train, then the "Next lesson" line, then close the lesson: you land on Train. Train, Film room, then a lesson: closing keeps you in the Film Room.
+4. Pick filters on Workouts (skill, then time, then level), then press the back control once: you should leave the screen in one step.
+5. Today's link under Recent now says "Workout history" (it always opened the history list).

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useGoBack } from "@/lib/use-go-back";
 import {
   logFilmView,
   removeFilmView,
@@ -59,7 +60,13 @@ export function FilmCard({
   autoOpen?: boolean;
 }) {
   const router = useRouter();
-  const [open, setOpen] = useState(autoOpen);
+  const goBack = useGoBack(`/players/${playerId}/workouts`);
+  const [open, setOpenRaw] = useState(autoOpen);
+  // A lesson opened from a link (Train's "Next lesson") is not part of the Film Room's own screen: closing it goes back to where the link was.
+  const setOpen = (next: boolean) => {
+    setOpenRaw(next);
+    if (!next && autoOpen) goBack();
+  };
   const [takeaway, setTakeaway] = useState(view?.takeaway ?? "");
   const [linkDraft, setLinkDraft] = useState("");
   const [error, setError] = useState<string | null>(null);

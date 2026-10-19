@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cx } from "./cx";
+import { BackLink } from "./back-link";
+import { headerLinkClass } from "./header-link-class";
 
 /**
  * The sticky bar at the top of a screen: a way back on the left, the
@@ -22,7 +24,7 @@ export function PageHeader({
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
       <div className={cx("mx-auto flex w-full items-center justify-between gap-4", width === "md" ? "max-w-md" : "max-w-lg")}>
-        {back ? <HeaderLink href={back.href}>← {back.label}</HeaderLink> : <span />}
+        {back ? <BackLink href={back.href} label={back.label} /> : <span />}
         {children && <div className="flex items-center gap-4">{children}</div>}
       </div>
     </header>
@@ -38,14 +40,5 @@ export function HeaderLink({
   className,
   ...props
 }: { tone?: "dim" | "accent" } & ComponentProps<typeof Link>) {
-  return (
-    <Link
-      className={cx(
-        "-my-3 inline-flex items-center py-3 text-[11px] font-extrabold uppercase tracking-[0.14em] transition-colors",
-        tone === "accent" ? "text-accent hover:text-accent-hover" : "text-foreground-dim hover:text-foreground",
-        className
-      )}
-      {...props}
-    />
-  );
+  return <Link className={headerLinkClass(tone, className)} {...props} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   completeWorkoutSession,
@@ -19,6 +19,8 @@ import {
 import { isWatchableUrl } from "@/lib/basketball/film";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
+import { cameFrom } from "@/lib/use-go-back";
+import { originKey } from "@/lib/nav-stack";
 import { beepDone, beepWarning, primeAlerts } from "@/lib/alerts";
 import { useDrillSound } from "@/lib/use-drill-sound";
 import { DrillLesson } from "@/components/drill-lesson";
@@ -140,6 +142,20 @@ export function SessionPlayer({
   focusEntryId = null,
 }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  // Where the workout was started from (Train, Today, the history list), kept for the session, so leaving it goes back there and not always to Today.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(originKey(sessionId))) return;
+      const from = cameFrom(pathname);
+      if (from && !from.split("?")[0].endsWith("/shooting")) sessionStorage.setItem(originKey(sessionId), from);
+    } catch { /* private mode: leaving goes to Today */ }
+  }, [sessionId, pathname]);
+  function leave() {
+    let origin: string | null = null;
+    try { origin = sessionStorage.getItem(originKey(sessionId)); } catch { origin = null; }
+    router.replace(origin ?? `/players/${playerId}`);
+  }
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const initialCompleted = useMemo(() => {
@@ -258,7 +274,7 @@ export function SessionPlayer({
         return;
       }
       if (result?.discarded) {
-        router.push(`/players/${playerId}`);
+        leave();
         return;
       }
       haptic("success");
@@ -299,7 +315,7 @@ export function SessionPlayer({
     haptic("tap");
     startTransition(async () => {
       if (doneCount === 0 && !(pendingDrill(playerId)?.context.workoutSessionId === sessionId)) await discardWorkoutSession(sessionId);
-      router.push(`/players/${playerId}`);
+      leave();
     });
   }
 
@@ -329,7 +345,7 @@ export function SessionPlayer({
         loggedCount={doneCount}
         totalCount={drills.length}
         keepWorkoutId={keepWorkoutId}
-        onDone={() => router.push(`/players/${playerId}`)}
+        onDone={leave}
       />
     );
   }

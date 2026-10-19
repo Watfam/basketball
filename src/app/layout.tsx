@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ServiceWorker } from "@/components/service-worker";
+import { NavTracker } from "@/components/nav-tracker";
 
 // Self-hosted rather than next/font/google: Google's loader fetches from
 // fonts.googleapis.com at build time, which fails in network-restricted
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`h-full antialiased ${archivo.variable} ${bebas.variable}`}>
       <body className="min-h-full flex flex-col font-sans">
         {children}
+        <NavTracker />
         <ServiceWorker />
       </body>
     </html>

@@ -4,7 +4,7 @@ import { SessionPlayer, type SessionDrill } from "@/components/session-player";
 import { isTemporaryWorkout } from "@/lib/basketball/workout-minutes";
 import { entriesForLevel } from "@/lib/basketball/prescription";
 import { playerLevel } from "@/lib/basketball/assessment";
-import { isSkippedLog } from "@/lib/basketball/session-logs";
+import { entryIdsForLogs, isSkippedLog } from "@/lib/basketball/session-logs";
 import { buildEntryExtras } from "@/lib/basketball/drill-session-view";
 import { parseTracked, type TrackedMetrics } from "@/lib/basketball/drill-tracking";
 import { loadLessonContext } from "@/lib/basketball/drill-film-server";
@@ -48,7 +48,7 @@ export default async function SessionPage({
     // Entries already logged in a previous visit — lets the player resume
     // where they left off instead of redoing everything or losing progress
     // if they closed the app mid-workout.
-    supabase.schema("hoops").from("session_logs").select("workout_drill_id, metrics").eq("session_id", sessionId),
+    supabase.schema("hoops").from("session_logs").select("workout_drill_id, drill_id, metrics").eq("session_id", sessionId),
   ]);
 
   if (!user) redirect("/login");
@@ -99,6 +99,8 @@ export default async function SessionPage({
     if (t && log.workout_drill_id) trackedResults[log.workout_drill_id as string] = t;
   }
 
+  const logged = entryIdsForLogs((existingLogs ?? []) as { workout_drill_id: string | null; drill_id: string | null; metrics: unknown }[], drills);
+
   return (
     // The session screen goes fully dark while the app shell stays light:
     // this is the "lights down, you're training" moment, and it should feel
@@ -120,13 +122,8 @@ export default async function SessionPage({
         entryExtras={extras}
         trackedResults={trackedResults}
         focusEntryId={tracked && drills.some((d) => d.id === tracked) ? tracked : null}
-        initialLoggedEntryIds={(existingLogs ?? [])
-          .map((log) => log.workout_drill_id)
-          .filter((id): id is string => Boolean(id))}
-        initialSkippedEntryIds={(existingLogs ?? [])
-          .filter((log) => isSkippedLog(log.metrics))
-          .map((log) => log.workout_drill_id)
-          .filter((id): id is string => Boolean(id))}
+        initialLoggedEntryIds={logged.logged}
+        initialSkippedEntryIds={logged.skipped}
       />
     </div>
   );

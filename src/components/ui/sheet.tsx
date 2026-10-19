@@ -168,7 +168,7 @@ export function PickLink({ href, selected, title, sub, right, disabled = false }
   const base = "flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left";
   if (disabled) return <div aria-disabled="true" className={`${base} border-line bg-surface opacity-45`}>{body}</div>;
   return (
-    <Link href={href} scroll={false} aria-current={selected ? "true" : undefined} onClick={() => { haptic("tap"); close(); }}
+    <Link href={href} scroll={false} replace aria-current={selected ? "true" : undefined} onClick={() => { haptic("tap"); close(); }}
       className={`${base} ${selected ? "border-accent bg-accent/10" : "border-line bg-surface hover:border-line-strong"}`}>
       {body}
     </Link>
