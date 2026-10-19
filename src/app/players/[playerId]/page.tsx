@@ -23,6 +23,7 @@ import { loadProgressRows } from "@/lib/basketball/progress-server";
 import { linkedShotSessionIds } from "@/lib/basketball/drill-tracking";
 import { nextAction, type LessonLite } from "@/lib/basketball/insights";
 import { BENCHMARKS, BENCHMARK_WORKOUT_NAME } from "@/lib/basketball/benchmarks";
+import { benchmarkLines } from "@/lib/basketball/benchmark-summary";
 import { lessonsForDrill, type Lesson } from "@/lib/basketball/drill-film";
 import { greeting, homeRange, improvementAnswer, lookBack, pickFocus, recentItems, shotTotals, shotWindowStart, standings, weeklyShots, type ShotSet } from "@/lib/basketball/home";
 import { seasonStart } from "@/lib/basketball/shooting";
@@ -193,7 +194,8 @@ export default async function TodayPage({
     if (found) lessons.set(d.name, { title: found.primary.title, watched: watched.has(found.primary.id), url: null, href: `/players/${playerId}/film?lesson=${found.primary.id}` });
   }
   const lessonFor = (drillName: string) => lessons.get(drillName) ?? null;
-  const hasBenchmarkWorkout = (workouts ?? []).some((w) => w.name === BENCHMARK_WORKOUT_NAME);
+  const benchmarkWorkout = (workouts ?? []).find((w) => w.name === BENCHMARK_WORKOUT_NAME) ?? null;
+  const hasBenchmarkWorkout = Boolean(benchmarkWorkout);
   const stand = standings(progress.rows);
   const focus = pickFocus({
     list: stand,
@@ -292,6 +294,8 @@ export default async function TodayPage({
         answer={improvementAnswer(stand)}
         focus={focus}
         recent={recent}
+        benchmarks={benchmarkLines(progress.rows)}
+        benchmarkWorkoutId={benchmarkWorkout?.id ?? null}
       />
     </div>
   );

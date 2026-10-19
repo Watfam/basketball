@@ -5,6 +5,8 @@ import { Card, CardSection, Eyebrow } from "@/components/ui/card";
 import { WEEKLY_DAYS_TARGET, type WeekSummary } from "@/lib/basketball/activity";
 import { HOME_RANGES, countedBy, plainSentence, MIN_SHOTS_TO_READ, type Answer, type Focus, type LookBack, type RecentItem, type Totals, type WeekBar } from "@/lib/basketball/home";
 import { formatPercentage } from "@/lib/basketball/shooting";
+import { BenchmarksCard } from "@/components/benchmarks-card";
+import type { BenchmarkLine } from "@/lib/basketball/benchmark-summary";
 
 const DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -26,6 +28,9 @@ export type HomeViewProps = {
   answer: Answer;
   focus: Focus | null;
   recent: RecentItem[];
+  /** The three benchmark tests with the latest result of each, and the workout that runs them (null when it is not in the library). */
+  benchmarks: BenchmarkLine[];
+  benchmarkWorkoutId: string | null;
   /** Only for test pages that show this view somewhere else; the real page leaves these out. */
   basePath?: string;
 };
@@ -103,6 +108,14 @@ export function HomeView(p: HomeViewProps) {
       </section>
 
       {p.focus && <FocusCard focus={p.focus} />}
+
+      <section aria-label="Benchmarks" className="space-y-2.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Benchmarks</h2>
+          <Link href={`${root}/progress?view=benchmarks&range=all`} className="flex min-h-11 items-center text-[11px] font-extrabold uppercase tracking-[0.12em] text-accent-hover">All results ›</Link>
+        </div>
+        <BenchmarksCard playerId={p.playerId} lines={p.benchmarks} workoutId={p.benchmarkWorkoutId} intro={false} />
+      </section>
 
       <section aria-label="Recent" className="space-y-2.5">
         <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Recent</h2>
