@@ -1,0 +1,653 @@
+{
+ "generated": "2026-10-19T13:19:18.300Z",
+ "clips": {
+  "IMG_4839": {
+   "references": 28,
+   "written": 28,
+   "min_gap_frames": 98,
+   "gaps_under_90_frames": 0,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 1538,
+     "span": 156,
+     "arrivals": [
+      1564,
+      1689
+     ],
+     "gaps": [
+      125
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4840": {
+   "references": 32,
+   "written": 32,
+   "min_gap_frames": 83,
+   "gaps_under_90_frames": 1,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 638,
+     "span": 10,
+     "arrivals": [
+      632,
+      640
+     ],
+     "gaps": [
+      8
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 3869,
+     "span": 23,
+     "arrivals": [
+      3871,
+      3889
+     ],
+     "gaps": [
+      18
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4851": {
+   "references": 17,
+   "written": 18,
+   "min_gap_frames": 90,
+   "gaps_under_90_frames": 0,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 1273,
+     "span": 41,
+     "arrivals": [
+      1290,
+      1303
+     ],
+     "gaps": [
+      13
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2454,
+     "span": 30,
+     "arrivals": [
+      2457,
+      2476
+     ],
+     "gaps": [
+      19
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 3230,
+     "span": 6,
+     "arrivals": [
+      3233,
+      3262
+     ],
+     "gaps": [
+      29
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4866": {
+   "references": 19,
+   "written": 19,
+   "min_gap_frames": 94,
+   "gaps_under_90_frames": 0,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 174,
+     "span": 30,
+     "arrivals": [
+      177,
+      198
+     ],
+     "gaps": [
+      21
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 560,
+     "span": 36,
+     "arrivals": [
+      573,
+      589
+     ],
+     "gaps": [
+      16
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 754,
+     "span": 33,
+     "arrivals": [
+      768,
+      778
+     ],
+     "gaps": [
+      10
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 1704,
+     "span": 39,
+     "arrivals": [
+      1708,
+      1720
+     ],
+     "gaps": [
+      12
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2177,
+     "span": 18,
+     "arrivals": [
+      2181,
+      2192
+     ],
+     "gaps": [
+      11
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2803,
+     "span": 31,
+     "arrivals": [
+      2817,
+      2828
+     ],
+     "gaps": [
+      11
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 4130,
+     "span": 47,
+     "arrivals": [
+      4145,
+      4170
+     ],
+     "gaps": [
+      25
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4867": {
+   "references": 16,
+   "written": 16,
+   "min_gap_frames": 63,
+   "gaps_under_90_frames": 1,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 3346,
+     "span": 42,
+     "arrivals": [
+      3371,
+      3391
+     ],
+     "gaps": [
+      20
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 3504,
+     "span": 29,
+     "arrivals": [
+      3510,
+      3525
+     ],
+     "gaps": [
+      15
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4872": {
+   "references": 23,
+   "written": 23,
+   "min_gap_frames": 58,
+   "gaps_under_90_frames": 1,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 206,
+     "span": 26,
+     "arrivals": [
+      209,
+      228
+     ],
+     "gaps": [
+      19
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 371,
+     "span": 29,
+     "arrivals": [
+      361,
+      398
+     ],
+     "gaps": [
+      37
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2154,
+     "span": 32,
+     "arrivals": [
+      2168,
+      2181
+     ],
+     "gaps": [
+      13
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 3118,
+     "span": 14,
+     "arrivals": [
+      3120,
+      3135
+     ],
+     "gaps": [
+      15
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4873": {
+   "references": 22,
+   "written": 22,
+   "min_gap_frames": 77,
+   "gaps_under_90_frames": 2,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 0,
+     "span": 193,
+     "arrivals": [
+      167,
+      191
+     ],
+     "gaps": [
+      24
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 252,
+     "span": 583,
+     "arrivals": [
+      264,
+      380,
+      442,
+      523,
+      533,
+      774
+     ],
+     "gaps": [
+      116,
+      62,
+      81,
+      10,
+      241
+     ],
+     "references_in_call": 4
+    },
+    {
+     "first": 892,
+     "span": 1371,
+     "arrivals": [
+      1014,
+      1325,
+      1409,
+      1679,
+      1909,
+      2224
+     ],
+     "gaps": [
+      311,
+      84,
+      270,
+      230,
+      315
+     ],
+     "references_in_call": 7
+    },
+    {
+     "first": 2330,
+     "span": 15,
+     "arrivals": [
+      2338,
+      2348
+     ],
+     "gaps": [
+      10
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2487,
+     "span": 557,
+     "arrivals": [
+      2605,
+      2839,
+      2961
+     ],
+     "gaps": [
+      234,
+      122
+     ],
+     "references_in_call": 3
+    },
+    {
+     "first": 3111,
+     "span": 320,
+     "arrivals": [
+      3157,
+      3291,
+      3418
+     ],
+     "gaps": [
+      134,
+      127
+     ],
+     "references_in_call": 3
+    },
+    {
+     "first": 3627,
+     "span": 43,
+     "arrivals": [
+      3646,
+      3667
+     ],
+     "gaps": [
+      21
+     ],
+     "references_in_call": 1
+    }
+   ]
+  },
+  "IMG_4874": {
+   "references": 20,
+   "written": 20,
+   "min_gap_frames": 79,
+   "gaps_under_90_frames": 2,
+   "gaps_under_40_frames": 0,
+   "multi_arrival_calls": [
+    {
+     "first": 163,
+     "span": 10,
+     "arrivals": [
+      165,
+      184
+     ],
+     "gaps": [
+      19
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 1082,
+     "span": 25,
+     "arrivals": [
+      1086,
+      1103
+     ],
+     "gaps": [
+      17
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2512,
+     "span": 23,
+     "arrivals": [
+      2515,
+      2530
+     ],
+     "gaps": [
+      15
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 2715,
+     "span": 39,
+     "arrivals": [
+      2719,
+      2742
+     ],
+     "gaps": [
+      23
+     ],
+     "references_in_call": 1
+    },
+    {
+     "first": 4114,
+     "span": 49,
+     "arrivals": [
+      4153,
+      4167
+     ],
+     "gaps": [
+      14
+     ],
+     "references_in_call": 1
+    }
+   ]
+  }
+ },
+ "all_gaps_frames": [
+  58,
+  63,
+  77,
+  79,
+  83,
+  87,
+  88,
+  90,
+  91,
+  94,
+  95,
+  98,
+  104,
+  106,
+  109,
+  111,
+  112,
+  114,
+  114,
+  114,
+  115,
+  116,
+  117,
+  117,
+  119,
+  120,
+  120,
+  120,
+  121,
+  124,
+  126,
+  126,
+  127,
+  128,
+  135,
+  135,
+  136,
+  136,
+  137,
+  137,
+  138,
+  138,
+  139,
+  139,
+  140,
+  141,
+  143,
+  143,
+  144,
+  144,
+  144,
+  144,
+  145,
+  145,
+  145,
+  148,
+  149,
+  149,
+  150,
+  151,
+  153,
+  156,
+  158,
+  158,
+  158,
+  159,
+  164,
+  164,
+  165,
+  165,
+  169,
+  173,
+  173,
+  174,
+  174,
+  174,
+  175,
+  175,
+  175,
+  180,
+  180,
+  181,
+  182,
+  183,
+  183,
+  185,
+  186,
+  187,
+  190,
+  190,
+  192,
+  194,
+  194,
+  197,
+  199,
+  199,
+  199,
+  200,
+  202,
+  202,
+  203,
+  205,
+  205,
+  209,
+  209,
+  214,
+  215,
+  215,
+  215,
+  215,
+  216,
+  216,
+  217,
+  223,
+  223,
+  225,
+  227,
+  227,
+  228,
+  229,
+  231,
+  231,
+  232,
+  233,
+  236,
+  240,
+  241,
+  242,
+  245,
+  247,
+  250,
+  251,
+  254,
+  254,
+  255,
+  258,
+  259,
+  263,
+  267,
+  272,
+  273,
+  274,
+  275,
+  279,
+  279,
+  280,
+  285,
+  286,
+  286,
+  293,
+  299,
+  299,
+  300,
+  300,
+  300,
+  306,
+  309,
+  317,
+  329,
+  333,
+  338,
+  342,
+  348,
+  358,
+  365,
+  377,
+  378,
+  411,
+  424
+ ],
+ "summary": {
+  "gaps": 169,
+  "shortest_five": [
+   58,
+   63,
+   77,
+   79,
+   83
+  ],
+  "under_40": 0,
+  "under_60": 1,
+  "under_90": 7
+ }
+}

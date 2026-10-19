@@ -1,0 +1,521 @@
+{
+ "registered": "criteria.json",
+ "real": {
+  "30fps": {
+   "single_calls": 160,
+   "false_flags": [
+    {
+     "clip": "IMG_4839",
+     "first": 1538,
+     "attempts": [
+      {
+       "f0": 1532,
+       "f1": 1564
+      },
+      {
+       "f0": 1678,
+       "f1": 1689
+      }
+     ],
+     "links": [
+      {
+       "gap": 125,
+       "rms": 44.2708873039145,
+       "accel": -0.30898571805757347,
+       "followed": 62,
+       "continuous": false
+      }
+     ]
+    },
+    {
+     "clip": "IMG_4867",
+     "first": 3346,
+     "attempts": [
+      {
+       "f0": 3363,
+       "f1": 3371
+      },
+      {
+       "f0": 3379,
+       "f1": 3391
+      }
+     ],
+     "links": [
+      {
+       "gap": 20,
+       "rms": 5.373945972081109,
+       "accel": 0.7373502927278643,
+       "followed": 21,
+       "continuous": false
+      }
+     ]
+    },
+    {
+     "clip": "IMG_4872",
+     "first": 371,
+     "attempts": [
+      {
+       "f0": 353,
+       "f1": 361
+      },
+      {
+       "f0": 381,
+       "f1": 398
+      }
+     ],
+     "links": [
+      {
+       "gap": 37,
+       "rms": 16.413775596595332,
+       "accel": 0.9419906424064829,
+       "followed": 30,
+       "continuous": false
+      }
+     ]
+    }
+   ],
+   "merged_calls": [
+    {
+     "clip": "IMG_4873",
+     "first": 252,
+     "last": 835,
+     "references": 4,
+     "ref_times": [
+      252,
+      372,
+      509,
+      763
+     ],
+     "attempts_found": 2,
+     "flagged": true,
+     "attempt_arrivals": [
+      380,
+      774
+     ]
+    },
+    {
+     "clip": "IMG_4873",
+     "first": 892,
+     "last": 2263,
+     "references": 7,
+     "ref_times": [
+      988,
+      1230,
+      1307,
+      1398,
+      1677,
+      1904,
+      2221
+     ],
+     "attempts_found": 4,
+     "flagged": true,
+     "attempt_arrivals": [
+      1014,
+      1679,
+      1909,
+      2224
+     ]
+    },
+    {
+     "clip": "IMG_4873",
+     "first": 2487,
+     "last": 3044,
+     "references": 3,
+     "ref_times": [
+      2602,
+      2817,
+      2953
+     ],
+     "attempts_found": 3,
+     "flagged": true,
+     "attempt_arrivals": [
+      2605,
+      2839,
+      2961
+     ]
+    },
+    {
+     "clip": "IMG_4873",
+     "first": 3111,
+     "last": 3431,
+     "references": 3,
+     "ref_times": [
+      3143,
+      3284,
+      3412
+     ],
+     "attempts_found": 3,
+     "flagged": true,
+     "attempt_arrivals": [
+      3157,
+      3291,
+      3418
+     ]
+    }
+   ],
+   "flagged_total": 7
+  },
+  "15fps": {
+   "single_calls": 158,
+   "false_flags": [
+    {
+     "clip": "IMG_4867",
+     "first": 3346,
+     "attempts": [
+      {
+       "f0": 3364,
+       "f1": 3372
+      },
+      {
+       "f0": 3380,
+       "f1": 3392
+      }
+     ],
+     "links": [
+      {
+       "gap": 20,
+       "rms": 5.644966761674609,
+       "accel": 0.8612470862470833,
+       "followed": 11,
+       "continuous": false
+      }
+     ]
+    }
+   ],
+   "merged_calls": [
+    {
+     "clip": "IMG_4873",
+     "first": 252,
+     "last": 834,
+     "references": 4,
+     "ref_times": [
+      252,
+      372,
+      509,
+      763
+     ],
+     "attempts_found": 2,
+     "flagged": true,
+     "attempt_arrivals": [
+      380,
+      774
+     ]
+    },
+    {
+     "clip": "IMG_4873",
+     "first": 892,
+     "last": 2262,
+     "references": 7,
+     "ref_times": [
+      988,
+      1230,
+      1307,
+      1398,
+      1677,
+      1904,
+      2221
+     ],
+     "attempts_found": 4,
+     "flagged": true,
+     "attempt_arrivals": [
+      1014,
+      1680,
+      1910,
+      2224
+     ]
+    },
+    {
+     "clip": "IMG_4873",
+     "first": 2488,
+     "last": 3044,
+     "references": 3,
+     "ref_times": [
+      2602,
+      2817,
+      2953
+     ],
+     "attempts_found": 3,
+     "flagged": true,
+     "attempt_arrivals": [
+      2608,
+      2840,
+      2962
+     ]
+    },
+    {
+     "clip": "IMG_4873",
+     "first": 3112,
+     "last": 3308,
+     "references": 2,
+     "ref_times": [
+      3143,
+      3284
+     ],
+     "attempts_found": 2,
+     "flagged": true,
+     "attempt_arrivals": [
+      3158,
+      3292
+     ]
+    }
+   ],
+   "flagged_total": 5
+  }
+ },
+ "spliced": {
+  "pairs": 150,
+  "S1_30fps_gap10": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 99,
+   "system_two_attempts": 110,
+   "flagged_of_merged_rate": 0.712,
+   "system_rate": 0.733
+  },
+  "S1_30fps_gap15": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 99,
+   "system_two_attempts": 110,
+   "flagged_of_merged_rate": 0.712,
+   "system_rate": 0.733
+  },
+  "S1_30fps_gap20": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 100,
+   "system_two_attempts": 111,
+   "flagged_of_merged_rate": 0.719,
+   "system_rate": 0.74
+  },
+  "S1_30fps_gap25": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 101,
+   "system_two_attempts": 112,
+   "flagged_of_merged_rate": 0.727,
+   "system_rate": 0.747
+  },
+  "S1_30fps_gap30": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 101,
+   "system_two_attempts": 112,
+   "flagged_of_merged_rate": 0.727,
+   "system_rate": 0.747
+  },
+  "S1_30fps_gap40": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 101,
+   "system_two_attempts": 112,
+   "flagged_of_merged_rate": 0.727,
+   "system_rate": 0.747
+  },
+  "S1_30fps_gap60": {
+   "pairs": 150,
+   "shipped_one_call": 0,
+   "shipped_two_calls": 150,
+   "flagged_of_merged": 0,
+   "system_two_attempts": 150,
+   "flagged_of_merged_rate": null,
+   "system_rate": 1
+  },
+  "S1_15fps_gap10": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 93,
+   "system_two_attempts": 104,
+   "flagged_of_merged_rate": 0.669,
+   "system_rate": 0.693
+  },
+  "S1_15fps_gap15": {
+   "pairs": 150,
+   "shipped_one_call": 136,
+   "shipped_two_calls": 14,
+   "flagged_of_merged": 89,
+   "system_two_attempts": 103,
+   "flagged_of_merged_rate": 0.654,
+   "system_rate": 0.687
+  },
+  "S1_15fps_gap20": {
+   "pairs": 150,
+   "shipped_one_call": 137,
+   "shipped_two_calls": 13,
+   "flagged_of_merged": 92,
+   "system_two_attempts": 105,
+   "flagged_of_merged_rate": 0.672,
+   "system_rate": 0.7
+  },
+  "S1_15fps_gap25": {
+   "pairs": 150,
+   "shipped_one_call": 136,
+   "shipped_two_calls": 14,
+   "flagged_of_merged": 91,
+   "system_two_attempts": 105,
+   "flagged_of_merged_rate": 0.669,
+   "system_rate": 0.7
+  },
+  "S1_15fps_gap30": {
+   "pairs": 150,
+   "shipped_one_call": 136,
+   "shipped_two_calls": 14,
+   "flagged_of_merged": 93,
+   "system_two_attempts": 107,
+   "flagged_of_merged_rate": 0.684,
+   "system_rate": 0.713
+  },
+  "S1_15fps_gap40": {
+   "pairs": 150,
+   "shipped_one_call": 69,
+   "shipped_two_calls": 81,
+   "flagged_of_merged": 47,
+   "system_two_attempts": 128,
+   "flagged_of_merged_rate": 0.681,
+   "system_rate": 0.853
+  },
+  "S1_15fps_gap60": {
+   "pairs": 150,
+   "shipped_one_call": 3,
+   "shipped_two_calls": 147,
+   "flagged_of_merged": 0,
+   "system_two_attempts": 147,
+   "flagged_of_merged_rate": 0,
+   "system_rate": 0.98
+  },
+  "S2_30fps_gap10": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 90,
+   "system_two_attempts": 101,
+   "flagged_of_merged_rate": 0.647,
+   "system_rate": 0.673
+  },
+  "S2_30fps_gap15": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 108,
+   "system_two_attempts": 119,
+   "flagged_of_merged_rate": 0.777,
+   "system_rate": 0.793
+  },
+  "S2_30fps_gap20": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 114,
+   "system_two_attempts": 125,
+   "flagged_of_merged_rate": 0.82,
+   "system_rate": 0.833
+  },
+  "S2_30fps_gap25": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 117,
+   "system_two_attempts": 128,
+   "flagged_of_merged_rate": 0.842,
+   "system_rate": 0.853
+  },
+  "S2_30fps_gap30": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 120,
+   "system_two_attempts": 131,
+   "flagged_of_merged_rate": 0.863,
+   "system_rate": 0.873
+  },
+  "S2_30fps_gap40": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 119,
+   "system_two_attempts": 130,
+   "flagged_of_merged_rate": 0.856,
+   "system_rate": 0.867
+  },
+  "S2_30fps_gap60": {
+   "pairs": 150,
+   "shipped_one_call": 1,
+   "shipped_two_calls": 149,
+   "flagged_of_merged": 1,
+   "system_two_attempts": 150,
+   "flagged_of_merged_rate": 1,
+   "system_rate": 1
+  },
+  "S2_15fps_gap10": {
+   "pairs": 150,
+   "shipped_one_call": 139,
+   "shipped_two_calls": 11,
+   "flagged_of_merged": 90,
+   "system_two_attempts": 101,
+   "flagged_of_merged_rate": 0.647,
+   "system_rate": 0.673
+  },
+  "S2_15fps_gap15": {
+   "pairs": 150,
+   "shipped_one_call": 136,
+   "shipped_two_calls": 14,
+   "flagged_of_merged": 104,
+   "system_two_attempts": 118,
+   "flagged_of_merged_rate": 0.765,
+   "system_rate": 0.787
+  },
+  "S2_15fps_gap20": {
+   "pairs": 150,
+   "shipped_one_call": 137,
+   "shipped_two_calls": 13,
+   "flagged_of_merged": 110,
+   "system_two_attempts": 123,
+   "flagged_of_merged_rate": 0.803,
+   "system_rate": 0.82
+  },
+  "S2_15fps_gap25": {
+   "pairs": 150,
+   "shipped_one_call": 136,
+   "shipped_two_calls": 14,
+   "flagged_of_merged": 113,
+   "system_two_attempts": 127,
+   "flagged_of_merged_rate": 0.831,
+   "system_rate": 0.847
+  },
+  "S2_15fps_gap30": {
+   "pairs": 150,
+   "shipped_one_call": 136,
+   "shipped_two_calls": 14,
+   "flagged_of_merged": 116,
+   "system_two_attempts": 130,
+   "flagged_of_merged_rate": 0.853,
+   "system_rate": 0.867
+  },
+  "S2_15fps_gap40": {
+   "pairs": 150,
+   "shipped_one_call": 69,
+   "shipped_two_calls": 81,
+   "flagged_of_merged": 57,
+   "system_two_attempts": 138,
+   "flagged_of_merged_rate": 0.826,
+   "system_rate": 0.92
+  },
+  "S2_15fps_gap60": {
+   "pairs": 150,
+   "shipped_one_call": 4,
+   "shipped_two_calls": 146,
+   "flagged_of_merged": 1,
+   "system_two_attempts": 147,
+   "flagged_of_merged_rate": 0.25,
+   "system_rate": 0.98
+  }
+ },
+ "checks": {}
+}

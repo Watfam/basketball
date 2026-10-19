@@ -1,0 +1,15 @@
+{
+ "pairs": 150,
+ "merged": 139,
+ "first_plus_second_to_merged_v4": {
+  "make+make -> make": 45,
+  "make+miss -> miss": 2,
+  "miss+miss -> make": 2,
+  "miss+make -> miss": 18,
+  "make+miss -> make": 33,
+  "make+make -> miss": 3,
+  "miss+make -> make": 16,
+  "miss+miss -> miss": 20
+ },
+ "note": "S1 splice, 25-frame gap, 30 fps, shipped counter; synthetic pairs from real attempts"
+}

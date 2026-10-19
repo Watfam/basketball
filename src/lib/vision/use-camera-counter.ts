@@ -15,6 +15,7 @@ import { saveReplay } from "@/lib/vision/replay-store";
 import { sessionReviewEnabled } from "@/lib/review/flag";
 import { createReviewRecorder } from "@/lib/review/recorder";
 import { debugEnabled, record as recordDiag, persist as persistDiag } from "@/lib/review/diagnostics";
+import { createPipelineStats, freshPaceEnabled, instrumentDetector, persistReport, skipFrameWait, startProbes } from "@/lib/vision/pipeline-stats";
 import { saveReviewRecord } from "@/lib/review/review-store";
 
 /**
@@ -480,14 +481,27 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
     const recent: number[] = [];
     const diag = debugEnabled();
     let prevT0 = 0, diagFrames = 0;
+    // Throughput report (same debug switch): stage times, analysed rate, stalls. Null, and inert, when the switch is off.
+    const pstats = diag ? createPipelineStats() : null;
+    // Experimental pacing, off unless localStorage hl:loop-pace = "fresh".
+    const freshPace = freshPaceEnabled();
+    if (pstats) {
+      instrumentDetector(detector, pstats);
+      startProbes(video, pstats, () => run === runRef.current);
+    }
 
     while (run === runRef.current) {
       const t0 = performance.now();
       if (diag && prevT0) recordDiag("loop.interval_ms", t0 - prevT0);
       prevT0 = t0;
+      pstats?.begin(t0);
       const { crop } = core.window;
       ctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, MODEL_INPUT, MODEL_INPUT);
+      pstats?.drawn(t0);
+      const drawnAt = video.currentTime;
+      pstats?.mark("draw");
       const img = ctx.getImageData(0, 0, MODEL_INPUT, MODEL_INPUT);
+      pstats?.mark("readback");
       // One frame encoding at a time: if the phone falls behind, a frame is skipped, not queued.
       if (shotCtx && !encoding) {
         encoding = true;
@@ -506,6 +520,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
       [prev, cur] = [cur, prev];
       let balls: { x1: number; y1: number; x2: number; y2: number; score?: number }[] = [];
       const modelRan = gate.step(moved, t0);
+      pstats?.mark("motion");
       if (modelRan) {
         try {
           const d0 = diag ? performance.now() : 0;
@@ -520,11 +535,13 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
           return;
         }
       }
+      pstats?.mark("detect");
       if (run !== runRef.current) return;
       if (balls.length) lastBallAt = t0;
       reviewRec?.push(t0, modelRan, balls);
       const { calls, windowChanged } = core.push(t0, balls);
       for (const c of calls) if (c.counted) onShotRef.current(c, keepClip(c, true));
+      pstats?.mark("rules");
       if (windowChanged) {
         reviewRec?.reset();
         aimRef.current = { ...aimRef.current, scale: core.scale };
@@ -541,6 +558,11 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
         if (diagFrames % 150 === 0) persistDiag();
       }
 
+      if (pstats) {
+        const rimAt = core.window.rim;
+        pstats.end(modelRan, balls.some((b) => Math.abs((b.x1 + b.x2) / 2 - rimAt.x) < 90 && Math.abs((b.y1 + b.y2) / 2 - rimAt.y) < 90));
+        if (diagFrames % 30 === 1) persistReport(pstats);
+      }
       const now = performance.now();
       recent.push(now);
       while (recent.length && now - recent[0] > 5000) recent.shift();
@@ -559,6 +581,7 @@ export function useCameraCounter({ onShot }: { onShot: (call: ShotCall, replayId
 
       // Pace: whole camera frames until 1/15 s has passed.
       const due = t0 + 1000 / FPS;
+      if (skipFrameWait(freshPace, performance.now(), due, video.currentTime, drawnAt)) continue;
       do {
         await nextVideoFrame(video);
       } while (performance.now() < due - 6 && run === runRef.current);

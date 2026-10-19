@@ -2,6 +2,7 @@
 
 import { useRef, useState, useSyncExternalStore } from "react";
 import { SESSION_REVIEW_KEY } from "@/lib/review/flag";
+import { loadReport, formatReport, PACE_KEY, type PipelineReport } from "@/lib/vision/pipeline-stats";
 import { DEBUG_KEY, loadPersisted, loadPersistedFor, type DiagSummary } from "@/lib/review/diagnostics";
 import { LIVE_ONLY, judge, judgeBattery, judgeLoop, runPhoneTest, type BatterySet, type Check, type PhoneReport } from "@/lib/review/phonetest";
 import { judgeReplay, runReplayTest, type ReplayReport } from "@/lib/review/replaytest";
@@ -41,11 +42,13 @@ function copy(text: string, set: (v: boolean) => void) { void navigator.clipboar
 export function SessionReviewLab() {
   const review = useSyncExternalStore(subscribe, flag(SESSION_REVIEW_KEY), () => false);
   const debug = useSyncExternalStore(subscribe, flag(DEBUG_KEY), () => false);
+  const pace = useSyncExternalStore(subscribe, flag(PACE_KEY), () => false);
   const retain = useSyncExternalStore(subscribe, flag(HISTORY_RETAIN_KEY), () => false);
   const rimWarn = useSyncExternalStore(subscribe, flag(RIM_WARNING_KEY), () => false);
   const both = review && retain;
   const [live, setLive] = useState<{ at: string; summary: DiagSummary[] } | null>(() => (typeof window === "undefined" ? null : loadPersisted()));
   const [loopSets, setLoopSets] = useState(() => (typeof window === "undefined" ? { off: null, on: null } : { off: loadPersistedFor("off"), on: loadPersistedFor("on") }));
+  const [pipe, setPipe] = useState<PipelineReport | null>(() => (typeof window === "undefined" ? null : loadReport()));
   const [done, setDone] = useState<Record<string, string>>(() => (typeof window === "undefined" ? {} : readDone()));
   const [bat, setBat] = useState<{ off: Partial<BatterySet>; on: Partial<BatterySet> }>({ off: {}, on: {} });
   const [replay, setReplay] = useState<ReplayReport | null>(null);
@@ -173,6 +176,19 @@ export function SessionReviewLab() {
           <Button variant="secondary" size="sm" onClick={() => copy(liveText, (v) => setCopied(v ? "live" : null))}>{copied === "live" ? "Copied" : "Copy live-camera results"}</Button>
         </div>
         {live && live.summary.length > 0 && <ul className="mt-2 text-foreground-mute">{live.summary.map((s) => <li key={s.name}>{s.name}: {s.n} samples, median {s.medianMs.toFixed(3)} ms, 95th percentile {s.p95Ms.toFixed(3)} ms</li>)}</ul>}
+      </section>
+
+      <section aria-label="Camera throughput" className={sec}>
+        <p className={h}>Camera throughput (needs the live camera)</p>
+        <p className="mt-1">How many pictures per second the counter really looks at on this phone, where each pass spends its time, and whether anything stalls while a ball is at the rim. Turn on the timing switch above, count for a minute or two (shoot a few quick pairs), then come back here.</p>
+        <label className="mt-2 flex items-center gap-2"><input type="checkbox" checked={pace} onChange={(e) => setFlag(PACE_KEY, e.target.checked)} /> Fresh pacing (experimental): skip the idle wait when a look runs late. Off unless a first report shows under 15 fps.</label>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setPipe(loadReport())}>Refresh</Button>
+          <Button variant="secondary" size="sm" disabled={!pipe} onClick={() => pipe && copy(formatReport(pipe), (v) => setCopied(v ? "pipe" : null))}>{copied === "pipe" ? "Copied" : "Copy throughput report"}</Button>
+        </div>
+        {!pipe && <p className="mt-2 text-foreground-mute">{debug ? "Nothing recorded yet. Count with the camera for at least ten seconds." : "The timing switch is off, so nothing is recorded."}</p>}
+        {pipe && <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-[11px] text-foreground">{formatReport(pipe)}</pre>}
+        {pipe && <p className="mt-1 text-foreground-mute">Recorded {new Date(pipe.at).toLocaleTimeString()}. The counter was built for 15 analysed frames per second; well below that, quick shots can be missed.</p>}
       </section>
 
       <section aria-label="Speed check" className={sec}>

@@ -116,3 +116,17 @@ Quit and reopen the app first. Then, each time, note where you land:
 
 ## Test 18: One look across the app
 Open Shoot, then Shot history (under Start), then each tab (Watch a shot, Compare two, Where they went), then Me, then Progress. They should all be the same warm paper background with the same top bar (a back arrow on the left, a plain link on the right, then the big title). Dark panels appear only where there is a picture (the shot replay, the bar chart) and in live moments (the camera, a workout in progress, the big cards at the top of Today and Train). Tell me anything that still looks like it belongs to a different app.
+
+## Test 19: How fast does the camera really look? (5 min, outdoors if you can)
+This measures the phone itself. Nothing is uploaded.
+1. Lab page (Session review lab, the same one the other timing tests use): turn on the timing switch. Leave "Fresh pacing" (under Camera throughput) off for this first run.
+2. Open the shooting camera, aim it at the rim as usual, and count shots for 2 minutes. Take about 10 shots, and include a few quick ones (a miss and a fast putback or rebound shot if you can).
+3. Stop. Open the lab page, scroll to "Camera throughput", press Refresh, then Copy throughput report and paste it to me.
+What I read from it: analysed frames per second against the camera's frames per second (the counter wants about 15), the time between looks (median, 95th, 99th), where each look spends its time (idle wait, drawing, reading, motion, the model), how old the picture is when the answer arrives, stalls over 250 ms, and the same figures only while a ball was near the rim. If analysed fps is under about 12, speed is the first thing to fix.
+Second run (only if the first was under 15 fps): turn on "Fresh pacing" under Camera throughput, count for another 2 minutes the same way, and send the second report. It skips a wait that is only idle time; it should raise analysed fps a little and make the picture a few milliseconds older.
+
+## Test 20: A real miss and putback (the example that matters)
+1. Timing switch on (Test 19), session review on if you use it.
+2. Shoot a few sets where you deliberately miss and put it back right away (or have someone rebound and put it back). Note the order in a message afterwards: "set 3: miss then make, about 2 seconds apart", and so on. Do at least 5 pairs, with a mix of fast and slower follow-ups. Include a few plain rim bounces that you do not put back (the ball hits the rim and comes down again) so they can be told apart.
+3. In the history, check each pair: does it show one shot or two, and which outcome? Tell me which set was the pair and what it said.
+4. Press Copy throughput report right after, and paste both to me. This is the first real rapid-pair data, and the only way to say whether any rapid-shot rule works.

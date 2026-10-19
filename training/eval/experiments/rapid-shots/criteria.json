@@ -1,0 +1,33 @@
+{
+  "registered": "2026-10-19, before any candidate code was run",
+  "scope": "Nothing here changes what production counts. Experiment A produces an uncertainty flag (\"possibly two attempts\") and an attempt split used only for evaluation. Experiment C is a flag-gated pacing change, default off.",
+  "limits_stated_up_front": [
+    "The eight labelled clips contain no real putback: the closest two reference shots are 58 frames apart (IMG_4872). Production grouping has never been exercised on a true rapid pair and this work cannot validate it on one.",
+    "Rapid pairs are therefore SYNTHETIC: two real attempts from one clip, the second moved to start g frames after the first one's last rim sighting. This tests the state machine and the continuity rule. It is not putback validation.",
+    "No iPhone throughput exists. Desktop numbers are labelled desktop and never used as phone numbers."
+  ],
+  "experiment_A": {
+    "hypothesis": "A rim bounce is one ball in continuous ballistic flight between its first rim contact and its return (a single parabola explains the sightings, residual under 5 px, downward acceleration 0.3 to 1.6 px per frame squared at 30 fps). A second attempt starts after that flight is broken (the ball is not followed, or does not fit one parabola) and a new descent from at least 35 px above the rim arrives at least 12 frames later. Using that, a counted call can be marked 'possibly two attempts' without a cooldown and without ball identity.",
+    "change": "New pure module attempts.ts (src/lib/vision), not wired into counting. Input: the sightings of one counted call. Output: the attempts inside it and how sure it is. Wired nowhere in this experiment; the evaluation script calls it on the same calls the shipped counter makes.",
+    "criteria": {
+      "A1_no_production_change": "Shipped counter calls identical with and without the module (it is not in the path). Checked by running countClip twice and by verify-production-unchanged.",
+      "A2_false_flags_on_real_single_shots": "Of the real counted calls that cover exactly one reference shot (diagnostic matched, 160 at 30 fps and 158 at 15 fps), at most 2 at 30 fps and at most 3 at 15 fps may be flagged as possibly two attempts.",
+      "A3_spliced_pair_recall": "Spliced pairs (variant S1, first attempt cut at its last rim sighting): at gaps of 20, 25, 30 and 40 frames after that sighting, at least 90 percent of pairs flagged at 30 fps and at least 85 percent at 15 fps. Gaps 10 and 15 are reported but not graded.",
+      "A4_reproduces_production_failure": "At gaps under 40 frames the shipped counter must return ONE call for the pair (this confirms the splice reproduces the production merge; if it does not, the splice is wrong).",
+      "A5_reported_not_graded": ["S2 two-ball overlay (first attempt left intact)", "IMG_4873 merged calls: how many are split into attempts that match reference shots", "which attempt the shipped outcome belongs to"]
+    },
+    "integrate_if": "A2 and A3 and A4 all pass. Even then the module only feeds a review flag; it never changes a count or an outcome. A real putback on a phone is still required before it is called validated."
+  },
+  "experiment_C": {
+    "hypothesis": "When an inference finishes after the 66.7 ms budget, the loop still waits for one more camera frame before starting the next. A new frame is already available (the camera runs at 30 fps), so that wait is idle time. Skipping it when a newer frame exists raises the analysed rate by about half a camera-frame period per iteration, at the cost of the frame being on average half a camera-frame older when it is read.",
+    "change": "Flag hl:loop-pace = 'fresh' (default off). Added lines in use-camera-counter.ts only: after the inference, if the loop is late and video.currentTime has moved since the draw, go straight to the next iteration.",
+    "criteria": {
+      "C1_default_off": "With the flag off the loop is byte-identical in behaviour: no removed lines touching counting, verify-production-unchanged clean.",
+      "C2_model_of_gain": "A loop model fed with measured desktop timings (performance-app.json) predicts a gain in analysed fps of at least 5 percent when inference exceeds the budget and exactly 0 when it does not.",
+      "C3_accuracy_cost": "Frame age added: at most 17 ms mean, 33 ms max. At the counting level the same detections thinned to the rates the model predicts must score no worse than the 15 fps run on the frozen score and on the diagnostic (matched, missing, extra, outcome).",
+      "C4_not_graded_here": "Real phone gain. Only the iPhone throughput report can show it; the flag stays off until then."
+    },
+    "integrate_default_on_if": "Never from desktop numbers. Only after an iPhone report shows analysed fps below 15 with the flag off and a gain with it on."
+  },
+  "sampling_tradeoff": "fps-curve.mjs reports the shipped counter at 30, 15, 10, 7.5 and 6 analysed fps on the saved detections. Informational: it sizes how much accuracy an analysed-rate loss costs."
+}
