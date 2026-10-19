@@ -4,6 +4,9 @@ import { rankWorkouts, explainMatch, type PlayerType } from "@/lib/basketball/wo
 import { rankPrograms, explainProgram } from "@/lib/basketball/program";
 import { rankFilm } from "@/lib/basketball/film";
 import type { Workout } from "@/components/workout-card";
+import { BENCHMARK_WORKOUT_NAME } from "@/lib/basketball/benchmarks";
+import { analyzeBenchmarks } from "@/lib/basketball/benchmark-analysis";
+import { loadProgressRows } from "@/lib/basketball/progress-server";
 import { isCustomWorkout, isTemporaryWorkout, workoutMinutes } from "@/lib/basketball/workout-minutes";
 import type { DrillEntry } from "@/lib/basketball/prescription";
 import type { OfferedProgram } from "@/components/program-offer";
@@ -29,6 +32,7 @@ export default async function TrainPage({ params, searchParams }: { params: Prom
     { data: programs },
     { data: filmRows },
     { data: filmViews },
+    progress,
   ] = await Promise.all([
     supabase.auth.getUser(),
     hoops.from("players").select("id, display_name, player_type").eq("id", playerId).maybeSingle(),
@@ -53,6 +57,7 @@ export default async function TrainPage({ params, searchParams }: { params: Prom
     hoops.from("programs").select("id, name, description, focus_areas, player_type_tags, level, week_count, days_per_week"),
     hoops.from("film_resources").select("id, title, kind, skill_tags, position_tags, sort_order"),
     hoops.from("film_views").select("film_resource_id").eq("player_id", playerId),
+    loadProgressRows(supabase, playerId),
   ]);
 
   if (!user) redirect("/login");
@@ -90,6 +95,20 @@ export default async function TrainPage({ params, searchParams }: { params: Prom
   const next = ranked[0] ?? null;
   const nextWhy = next ? explainMatch(playerType, next, { playerLevel: level, lastCompletedIso: lastDone[next.id] }) : null;
 
+  // The benchmark tests: the same three every time, with the latest comparable result of each and the workout that runs them.
+  const benchmarkWorkout = (workouts ?? []).find((w) => w.name === BENCHMARK_WORKOUT_NAME) ?? null;
+  const benchmarks = analyzeBenchmarks(progress.rows).map((r) => {
+    const g = r.groups.find((x) => x.current && x.results.length > 0) ?? null;
+    const latest = g ? g.results[g.results.length - 1] : null;
+    return {
+      key: r.protocol.key,
+      title: r.protocol.title.replace(" Benchmark", ""),
+      detail: r.protocol.attempts ? `${r.protocol.attempts} shots` : `${r.protocol.clockSeconds} seconds`,
+      latest: latest ? { makes: latest.makes, attempts: latest.attempts, pct: latest.pct === null ? null : Math.round(latest.pct), at: latest.at } : null,
+      runs: g?.results.length ?? 0,
+    };
+  });
+
   return (
     <TrainHomeView
       playerId={playerId}
@@ -104,6 +123,8 @@ export default async function TrainPage({ params, searchParams }: { params: Prom
       programs={rankedPrograms as OfferedProgram[]}
       programReasons={programReasons}
       mine={mine.map((w) => ({ id: w.id, name: w.name, skills: w.focus_areas ?? [], minutes: minutesOf(w), drills: w.workout_drills.length }))}
+      benchmarks={benchmarks}
+      benchmarkWorkoutId={benchmarkWorkout?.id ?? null}
       saved={saved ?? null}
     />
   );

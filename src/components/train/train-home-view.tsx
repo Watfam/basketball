@@ -19,6 +19,8 @@ export type TrainHomeProps = {
   programs: OfferedProgram[];
   programReasons: Record<string, string>;
   mine: { id: string; name: string; skills: string[]; minutes: number | null; drills: number }[];
+  benchmarks: { key: string; title: string; detail: string; latest: { makes: number; attempts: number; pct: number | null; at: string } | null; runs: number }[];
+  benchmarkWorkoutId: string | null;
   saved: string | null;
 };
 
@@ -74,6 +76,40 @@ export function TrainHomeView(p: TrainHomeProps) {
             <span className="shrink-0 font-extrabold uppercase tracking-wide text-accent">Open →</span>
           </Link>
         )}
+
+        <section aria-label="Benchmarks">
+          <SectionHeading title="Benchmarks" caption="Same test every time" />
+          <div className="rounded-2xl border border-line bg-surface p-4">
+            <p className="text-xs text-foreground-dim">Three shooting tests, run the same way each time, so you can see if you are really improving.</p>
+            <ul className="mt-3 divide-y divide-line">
+              {p.benchmarks.map((b) => (
+                <li key={b.key}>
+                  <Link href={`/players/${playerId}/progress?view=benchmarks&benchmark=${b.key}&range=all`} className="flex min-h-12 items-center justify-between gap-3 py-2">
+                    <span className="min-w-0">
+                      <span className="block truncate text-[15px] font-bold text-foreground">{b.title}</span>
+                      <span className="block text-xs text-foreground-dim">{b.detail}</span>
+                    </span>
+                    <span className="shrink-0 text-right text-xs text-foreground-dim">
+                      {b.latest ? (
+                        <>
+                          <b className="block font-display text-lg leading-none text-foreground">{b.latest.makes}/{b.latest.attempts}{b.latest.pct === null ? "" : ` · ${b.latest.pct}%`}</b>
+                          <span>{b.runs} {b.runs === 1 ? "run" : "runs"} ›</span>
+                        </>
+                      ) : (
+                        <span className="font-bold uppercase tracking-wide">Not run yet ›</span>
+                      )}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {p.benchmarkWorkoutId && (
+              <div className="mt-3 border-t border-line pt-3">
+                <StartSessionButton playerId={playerId} workoutId={p.benchmarkWorkoutId} fullWidth label="Start the Benchmark Check" />
+              </div>
+            )}
+          </div>
+        </section>
 
         <Link href={`/players/${playerId}/workouts/build`} className="flex items-center gap-3 rounded-2xl border border-dashed border-accent bg-accent/5 p-4">
           <span aria-hidden className="text-2xl font-extrabold text-accent-hover">＋</span>
