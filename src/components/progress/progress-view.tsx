@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PlayerTabHeader } from "@/components/player-tab-header";
+import { PageHeader } from "@/components/ui/page-header";
 import { VolumeChart } from "@/components/charts/volume-chart";
 import { EmptyState } from "@/components/empty-state";
 import { BenchmarkCards, KpiTile } from "@/components/progress/benchmark-cards";
@@ -24,8 +24,8 @@ const MS_WEEK = 7 * 24 * 60 * 60 * 1000;
  * screens (shooting history, workout history, the Film Room) are where those links lead; nothing is repeated here. It receives data and draws it;
  * the page does the reading.
  */
-export function ProgressView({ playerId, playerName, range, view, selected, category, drill, rows, workoutAts, hasBenchmarkWorkout, truncated, now, lessonFor, basePath, keepQuery }: {
-  playerId: string; playerName: string; range: ProgressRange; view: "overview" | "shooting" | "benchmarks"; selected?: string; category?: string; drill?: string; rows: ProgressRow[];
+export function ProgressView({ playerId, range, view, selected, category, drill, rows, workoutAts, hasBenchmarkWorkout, truncated, now, lessonFor, basePath, keepQuery }: {
+  playerId: string; playerName?: string; range: ProgressRange; view: "overview" | "shooting" | "benchmarks"; selected?: string; category?: string; drill?: string; rows: ProgressRow[];
   workoutAts: Date[]; hasBenchmarkWorkout: boolean; truncated: boolean; now: Date; lessonFor: (drillName: string) => LessonLite | null;
   /** Only for test pages that show this view somewhere else; the real page leaves these out. */
   basePath?: string; keepQuery?: Record<string, string>;
@@ -51,12 +51,9 @@ export function ProgressView({ playerId, playerName, range, view, selected, cate
 
   return (
     <div className="flex flex-1 flex-col">
-      <PlayerTabHeader playerId={playerId} name={playerName} />
+      <PageHeader back={{ href: `/players/${playerId}/me`, label: "Me" }} />
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
-        <div>
-          <Link href={`/players/${playerId}/me`} className="-my-2 inline-flex min-h-11 items-center py-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">‹ Me</Link>
-          <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">Progress</h1>
-        </div>
+        <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">Progress</h1>
 
         <RangeBar range={range} view={view} benchmark={selected} category={category} drill={drill} base={base} keep={keep} />
         <nav aria-label="Progress sections" className="grid grid-cols-3 gap-1 rounded-xl bg-raised p-1">

@@ -12,6 +12,7 @@ import { outcomeLines, pathPieces, rowOf, setupGroups } from "@/lib/review/histo
 import { PathChart, type ChartLine } from "@/components/path-chart";
 import { HistoryShotViewer } from "@/components/history-shot-viewer";
 import { Button } from "@/components/ui/button";
+import { headerLinkClass } from "@/components/ui/header-link-class";
 import { TrackingHistoryControls } from "@/components/tracking-history-controls";
 import { ShotExplorer } from "@/components/shots/shot-explorer";
 
@@ -106,17 +107,20 @@ export function ShotHistory({ playerId, onClose, focusStartedAt, sample = false 
   const hasData = !!h && h.sessions.length > 0;
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Shot history" className="theme-dark fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground">
-      <div className="mx-auto w-full max-w-md space-y-3 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-extrabold uppercase tracking-wide">{sample ? "Shot history: replay sample" : "Shot history"}</p>
-            <p className="text-[11px] text-foreground-mute">{sample ? "Real paths from existing recordings, kept apart from any player. Not your own sets." : "Beta. Kept on this phone only."}</p>
-          </div>
-          <div className="flex gap-1">
-            {!sample && <Button variant="ghost" size="sm" className="min-h-11" onClick={() => setSettings((v) => !v)} aria-expanded={settings}>Settings</Button>}
-            <Button variant="ghost" size="sm" className="min-h-11" onClick={onClose}>Done</Button>
-          </div>
+    <div role="dialog" aria-modal="true" aria-label="Shot history" className="fixed inset-0 z-[70] overflow-y-auto bg-background text-foreground">
+      {/* The same top bar as every other screen: a way back on the left, the screen's own link on the right, then the title. */}
+      <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-4">
+          <button type="button" onClick={onClose} className={headerLinkClass("dim")}>← Back</button>
+          {!sample && (
+            <button type="button" onClick={() => setSettings((v) => !v)} aria-expanded={settings} className={headerLinkClass("dim")}>Settings</button>
+          )}
+        </div>
+      </header>
+      <div className="mx-auto w-full max-w-lg space-y-4 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5">
+        <div>
+          <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">{sample ? "Replay sample" : "Shot history"}</h1>
+          <p className="mt-1.5 text-xs text-foreground-dim">{sample ? "Real paths from existing recordings, kept apart from any player. Not your own sets." : "Beta. Kept on this phone only."}</p>
         </div>
 
         {!sample && (settings || (h && !hasData)) && <TrackingHistoryControls playerId={playerId} onChanged={() => { setPicked([]); setWatching(null); void load(); }} />}

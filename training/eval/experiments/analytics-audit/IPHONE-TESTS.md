@@ -113,3 +113,6 @@ Quit and reopen the app first. Then, each time, note where you land:
 4. Pick filters on Workouts (skill, then time, then level), then press the back control once: you should leave the screen in one step.
 5. Today's link under Recent now says "Workout history" (it always opened the history list).
 6. Train, Film room, Sessions tab, open a study session, tap the back control at the top left (it should take you to the Film Room), then the back control there (it should take you to Train, not back into the lesson). Finish a study session and tap Back to Film Room: then Back again should go to Train. You should never go round in a circle.
+
+## Test 18: One look across the app
+Open Shoot, then Shot history (under Start), then each tab (Watch a shot, Compare two, Where they went), then Me, then Progress. They should all be the same warm paper background with the same top bar (a back arrow on the left, a plain link on the right, then the big title). Dark panels appear only where there is a picture (the shot replay, the bar chart) and in live moments (the camera, a workout in progress, the big cards at the top of Today and Train). Tell me anything that still looks like it belongs to a different app.

@@ -6,6 +6,9 @@ import { BOARD_M, stateAt, type Scene } from "@/lib/review/shot-scene";
 export const MAKE_COLOR = "#4fd1ff";
 export const MISS_COLOR = "#ffb454";
 export const THIRD_COLOR = "#c79bff";
+/** The same three colours as text and graphics on the light page (the bright ones are for the dark picture and are too faint on cream). */
+const INK: Record<string, string> = { [MAKE_COLOR]: "#0b5a70", [MISS_COLOR]: "#8f3a06", [THIRD_COLOR]: "#5b21b6" };
+export const ink = (colour: string) => INK[colour] ?? colour;
 const W = 360, H = 300;
 
 export type Layer = { scene: Scene; color: string; t: number; tag: string };

@@ -103,7 +103,7 @@ export function ShootingView({ rows, playerId, q, category, drill, lessonFor, he
 }
 
 function Back({ href, label }: { href: string; label: string }) {
-  return <Link href={href} className="-my-2 inline-flex min-h-11 items-center py-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">‹ {label}</Link>;
+  return <Link href={href} className="-my-2 inline-flex min-h-11 items-center py-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">← {label}</Link>;
 }
 
 function DrillNext({ name, lesson, playerId }: { name: string; lesson: LessonLite | null; playerId: string }) {

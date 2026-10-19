@@ -6,7 +6,7 @@ import type { CameraSetup, HistorySession, HistoryShot } from "@/lib/review/hist
 import { setupGroups } from "@/lib/review/history-view";
 import { CONFIDENCE, plainReasons, shotSummary } from "@/lib/review/plain";
 import { COMPARE_CAUTION, hasUsablePath, observedDifferences, sceneOf, sightingTimes, stepTime, summarizePatterns, syncPoint, type Scene } from "@/lib/review/shot-scene";
-import { MAKE_COLOR, MISS_COLOR, THIRD_COLOR, ShotStage, type Layer } from "@/components/shots/shot-stage";
+import { MAKE_COLOR, MISS_COLOR, THIRD_COLOR, ShotStage, ink, type Layer } from "@/components/shots/shot-stage";
 import { usePlayback } from "@/components/shots/use-playback";
 import { haptic } from "@/lib/haptics";
 
@@ -123,9 +123,9 @@ function Chips({ all, selected, onPick, label }: { all: HistoryShot[]; selected:
           return (
             <li key={s.id} className="relative shrink-0">
               <button type="button" aria-pressed={on} aria-label={`Shot ${s.seq}, ${s.made ? "make" : "miss"}, ${CONFIDENCE[s.quality.level].label}`} onClick={() => { haptic("tap"); onPick(s.id); }}
-                className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border px-3 text-xs font-extrabold ${on ? "border-foreground bg-surface text-foreground" : "border-line text-foreground-dim"}`} style={{ borderColor: on ? colorOf(s.made) : undefined }}>
+                className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border px-3 text-xs font-extrabold ${on ? "border-foreground bg-surface text-foreground" : "border-line text-foreground-dim"}`} style={{ borderColor: on ? ink(colorOf(s.made)) : undefined }}>
                 <span className={`inline-block h-1.5 w-1.5 rounded-full ${DOT[s.quality.level]}`} aria-hidden />
-                <span style={{ color: colorOf(s.made) }} aria-hidden>{s.made ? "✓" : "✕"}</span>{s.seq}
+                <span style={{ color: ink(colorOf(s.made)) }} aria-hidden>{s.made ? "✓" : "✕"}</span>{s.seq}
                 {!hasUsablePath(s) && <span className="sr-only"> (no clear path)</span>}
               </button>
             </li>
@@ -169,7 +169,7 @@ function Watch({ shot, all, scene, sessions, onPick }: { shot: HistoryShot; all:
     <section aria-label="Watch this shot" className="space-y-2.5">
       <Chips all={all} selected={[shot.id]} onPick={onPick} label="Shots in this set" />
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full px-3 py-1 text-sm font-extrabold" style={{ background: `${color}22`, color }}>{shot.made ? "✓ Make" : "✕ Miss"}</span>
+        <span className="rounded-full px-3 py-1 text-sm font-extrabold" style={{ background: `${ink(color)}22`, color: ink(color) }}>{shot.made ? "✓ Make" : "✕ Miss"}</span>
         <span className="text-[12px] text-foreground-mute">{date(sessions.get(shot.sessionKey)?.startedAt ?? "")} · shot {shot.seq}</span>
         {scene.callChanged && <span className="text-[12px] font-bold text-foreground-dim">You changed the camera&rsquo;s call on this one.</span>}
       </div>
@@ -234,8 +234,8 @@ function Compare({ a, b, all, sceneFor, sessions, onPick }: { a: HistoryShot | n
       <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Shot B</p>
       <Chips all={all} selected={[b.id]} onPick={(id) => onPick({ a: a.id, b: id })} label="Choose shot B" />
       <div className="flex flex-wrap gap-2 text-sm font-extrabold">
-        <span className="rounded-full px-3 py-1" style={{ background: `${colorA}22`, color: colorA }}>A {tag(a)}</span>
-        <span className="rounded-full px-3 py-1" style={{ background: `${colorB}22`, color: colorB }}>B {tag(b)}</span>
+        <span className="rounded-full px-3 py-1" style={{ background: `${ink(colorA)}22`, color: ink(colorA) }}>A {tag(a)}</span>
+        <span className="rounded-full px-3 py-1" style={{ background: `${ink(colorB)}22`, color: ink(colorB) }}>B {tag(b)}</span>
         <button type="button" className="min-h-11 rounded-full border border-line px-3 text-xs text-foreground-dim" onClick={() => onPick({ a: b.id, b: a.id })}>Swap</button>
       </div>
       {!verdict.comparable && (
@@ -252,7 +252,7 @@ function Compare({ a, b, all, sceneFor, sessions, onPick }: { a: HistoryShot | n
       {verdict.comparable && (
         <div className="overflow-hidden rounded-2xl border border-line bg-surface">
           <table className="w-full text-left text-[12px]"><caption className="sr-only">What the camera saw in each shot</caption>
-            <thead><tr className="text-[11px] uppercase tracking-wide text-foreground-mute"><th className="p-2.5 font-bold">What the camera saw</th><th className="p-2.5 font-bold" style={{ color: colorA }}>A</th><th className="p-2.5 font-bold" style={{ color: colorB }}>B</th></tr></thead>
+            <thead><tr className="text-[11px] uppercase tracking-wide text-foreground-mute"><th className="p-2.5 font-bold">What the camera saw</th><th className="p-2.5 font-bold" style={{ color: ink(colorA) }}>A</th><th className="p-2.5 font-bold" style={{ color: ink(colorB) }}>B</th></tr></thead>
             <tbody>{diffs.map((d) => <tr key={d.label} className="border-t border-line align-top"><td className="p-2.5 text-foreground-mute">{d.label}</td><td className="p-2.5 font-semibold text-foreground">{d.a}</td><td className="p-2.5 font-semibold text-foreground">{d.b}</td></tr>)}</tbody></table>
         </div>
       )}
@@ -343,7 +343,7 @@ function Patterns({ shots, sessions, onWatch, onCompare, onSetup }: { shots: His
       ) : (
         <>
           {svg}
-          <p className="text-[12px] text-foreground-dim"><b style={{ color: MAKE_COLOR }}>●</b> {p.makes} make{p.makes === 1 ? "" : "s"} · <b style={{ color: MISS_COLOR }}>○</b> {p.misses} miss{p.misses === 1 ? "" : "es"}. {many ? "Tap a bar to watch the latest shot in it. " : "Tap a dot to watch that shot. "}Left and right are as the camera picture shows them.</p>
+          <p className="text-[12px] text-foreground-dim"><b style={{ color: ink(MAKE_COLOR) }}>●</b> {p.makes} make{p.makes === 1 ? "" : "s"} · <b style={{ color: ink(MISS_COLOR) }}>○</b> {p.misses} miss{p.misses === 1 ? "" : "es"}. {many ? "Tap a bar to watch the latest shot in it. " : "Tap a dot to watch that shot. "}Left and right are as the camera picture shows them.</p>
           {p.side && (
             <div className={`rounded-xl px-3 py-2 text-[13px] ${p.side.strong ? "bg-accent/10 text-foreground" : "bg-raised text-foreground-dim"}`}>
               <p>{p.side.text}</p>
