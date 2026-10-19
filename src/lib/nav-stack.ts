@@ -3,6 +3,8 @@
  * really on (the workout library, not always Train), and say its name. Pure, so the rules are tested.
  */
 export const NAV_KEY = "hl:nav";
+/** Fired after the record of screens changes, so a Back control shown before it changed reads it again. */
+export const NAV_EVENT = "hl:nav-changed";
 const MAX = 40;
 
 /** Adds a screen (its path and query). The same screen twice in a row is one. */
@@ -18,13 +20,22 @@ export function popScreen(stack: string[]): string[] {
 
 const pathOf = (url: string) => url.split("?")[0].replace(/\/$/, "") || "/";
 
-/** The screen before `current`, or null when there is none (the app was just opened here). */
+/** Is `url` a screen inside `current` (a lesson inside the Film Room, the library inside Train)? Back never goes deeper. */
+export const isInside = (url: string, current: string) => pathOf(url).startsWith(pathOf(current) + "/");
+
+/**
+ * The screen before `current`, or null when there is none to go back to: the app was just opened here, or the last screen was one level
+ * deeper than this one (it is a way in from here, so "back" from here is not to it: that is how a loop starts).
+ */
 export function screenBefore(stack: string[], current: string): string | null {
   for (let i = stack.length - 1; i >= 0; i -= 1) {
-    if (pathOf(stack[i]) !== pathOf(current)) return stack[i];
+    if (pathOf(stack[i]) !== pathOf(current)) return isInside(stack[i], current) ? null : stack[i];
   }
   return null;
 }
+
+/** A navigation that replaces the current screen rather than adding one (the builder starting a workout) is noted before it happens. */
+export const REPLACE_KEY = "hl:nav:replace";
 
 /** What a screen is called in a Back button. Null for a screen with no good short name. */
 export function screenName(url: string): string | null {

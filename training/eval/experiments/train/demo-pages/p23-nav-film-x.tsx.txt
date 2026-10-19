@@ -1,0 +1,12 @@
+"use client";
+import { PageHeader } from "@/components/ui/page-header";
+import { useGoBack } from "@/lib/use-go-back";
+export default function Page() {
+  const leave = useGoBack("/lab/p23-nav/film");
+  return (
+    <div>
+      <PageHeader back={{ href: "/lab/p23-nav/film", label: "Film room" }} />
+      <main className="p-4"><h1 data-page>lesson</h1><button type="button" onClick={leave}>Leave lesson</button></main>
+    </div>
+  );
+}

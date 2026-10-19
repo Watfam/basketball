@@ -4,10 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSyncExternalStore, type ReactNode } from "react";
 import { cameFrom } from "@/lib/use-go-back";
-import { screenName } from "@/lib/nav-stack";
+import { NAV_EVENT, screenName } from "@/lib/nav-stack";
 import { headerLinkClass } from "@/components/ui/header-link-class";
 
-const subscribeNone = () => () => {};
+const subscribeNav = (onChange: () => void) => {
+  window.addEventListener(NAV_EVENT, onChange);
+  return () => window.removeEventListener(NAV_EVENT, onChange);
+};
 
 /**
  * "Back" that goes to the screen the player came from and says its name (from the workout library: "Workouts", not always "Train").
@@ -17,7 +20,7 @@ export function BackLink({ href, label }: { href: string; label: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   // Read from this tab's record of screens; the server (and the first paint) knows nothing of it and shows the default.
-  const from = useSyncExternalStore(subscribeNone, () => cameFrom(pathname), () => null);
+  const from = useSyncExternalStore(subscribeNav, () => cameFrom(pathname), () => null);
   const name = from ? screenName(from) ?? "Back" : null;
   return (
     <Link

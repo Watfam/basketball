@@ -11,7 +11,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <main className="space-y-3 p-4">
         <h1 data-page>{id}</h1>
         <p data-filter>{f ?? "none"}</p>
-        {id === "a" && <Link href="/lab/p23-nav/b">to b</Link>}
+        {id === "a" && <><Link href="/lab/p23-nav/b">to b</Link><br /><Link href="/lab/p23-nav/film">to film</Link></>}
+        {id === "film" && <Link href="/lab/p23-nav/film/x">to lesson</Link>}
         {id === "b" && <><Link href="/lab/p23-nav/c">to c</Link><br /><Link href="/lab/p23-nav/lib">to lib</Link><br /><Link href="/lab/p21-done">to done</Link></>}
         {id === "lib" && (
           <SheetPicker chip label="Filter" title="Filter" value={`Filter ${f ?? "none"}`}>

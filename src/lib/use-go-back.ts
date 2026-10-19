@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { NAV_KEY, screenBefore } from "@/lib/nav-stack";
+import { NAV_KEY, REPLACE_KEY, screenBefore } from "@/lib/nav-stack";
 
 /** The screen the player came from (the full address), or null when the app was just opened on this one. Safe to call during an event. */
 export function cameFrom(current: string): string | null {
@@ -22,4 +22,9 @@ export function useGoBack(fallback: string): () => void {
     if (cameFrom(pathname)) router.back();
     else router.push(fallback);
   }, [router, pathname, fallback]);
+}
+
+/** Say that the next navigation replaces this screen instead of adding one, so the record of screens matches the browser's history. */
+export function noteReplace() {
+  try { sessionStorage.setItem(REPLACE_KEY, String(Date.now())); } catch { /* private mode */ }
 }

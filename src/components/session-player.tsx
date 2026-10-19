@@ -19,7 +19,7 @@ import {
 import { isWatchableUrl } from "@/lib/basketball/film";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
-import { cameFrom } from "@/lib/use-go-back";
+import { cameFrom, noteReplace } from "@/lib/use-go-back";
 import { originKey } from "@/lib/nav-stack";
 import { beepDone, beepWarning, primeAlerts } from "@/lib/alerts";
 import { useDrillSound } from "@/lib/use-drill-sound";
@@ -154,6 +154,7 @@ export function SessionPlayer({
   function leave() {
     let origin: string | null = null;
     try { origin = sessionStorage.getItem(originKey(sessionId)); } catch { origin = null; }
+    noteReplace();
     router.replace(origin ?? `/players/${playerId}`);
   }
   const scrollerRef = useRef<HTMLDivElement>(null);

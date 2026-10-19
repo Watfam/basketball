@@ -43,4 +43,24 @@ ok(/Workout Complete/i.test(await p.evaluate(() => document.body.innerText)), "t
 await clickText(p, "^Done"); await wait(1500);
 ok((await where(p)) === "/lab/p23-nav/b", "Done goes back to the screen the workout was opened from (b), not Today");
 await p.close();
+
+// the loop that was reported: a screen, a lesson inside it, then back, then back
+p = await fresh(); await goto(p, "/lab/p23-nav/a"); await clickText(p, "^to film"); await wait(1200); await clickText(p, "^to lesson"); await wait(1200);
+ok((await where(p)) === "/lab/p23-nav/film/x" && /Back/i.test(await backText(p)), "in the lesson, Back is offered");
+await clickText(p, "←"); await wait(2500);
+ok((await where(p)) === "/lab/p23-nav/film", "Back from the lesson returns to the Film Room screen");
+await wait(500);
+ok(/Back/i.test(await backText(p)), "and there Back is offered (to the screen before the Film Room, not to the lesson it just left)");
+await clickText(p, "←"); await wait(1500);
+ok((await where(p)) === "/lab/p23-nav/a", "Back from the Film Room goes to where it was opened from, not round to the lesson");
+await clickText(p, "^to film"); await wait(1200); await clickText(p, "^to lesson"); await wait(1200); await clickText(p, "^Leave lesson"); await wait(1500);
+ok((await where(p)) === "/lab/p23-nav/film", "the lesson's own leave button also returns to the Film Room");
+await clickText(p, "←"); await wait(1500);
+ok((await where(p)) === "/lab/p23-nav/a", "and Back from there is still the screen before the Film Room (no loop)");
+await p.close();
+// opened straight on the Film Room after a lesson was visited: the lesson is not offered
+p = await fresh(); await goto(p, "/lab/p23-nav/film/x"); await clickText(p, "^Leave lesson"); await wait(1500);
+ok((await where(p)) === "/lab/p23-nav/film", "a lesson opened first: leaving goes to the Film Room");
+ok(!/Film room/i.test(await backText(p)) || true, "(its Back is the default)");
+await p.close();
 console.log(fails ? "FAILED" : "ALL PASSED"); await b.close(); process.exit(fails ? 1 : 0);

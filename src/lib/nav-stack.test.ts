@@ -34,3 +34,12 @@ test("names for the Back button", () => {
   assert.equal(screenName("/coach"), "Coach home");
   assert.equal(screenName("/teams/t1"), null);
 });
+
+test("back never goes deeper: from the Film Room, a lesson opened from it is not where back goes (that is a loop)", () => {
+  const s = ["/players/p/workouts", "/players/p/film", "/players/p/film/sessions/x"];
+  assert.equal(screenBefore(s, "/players/p/film"), null, "from the Film Room the last screen was a lesson inside it: use the default (Train)");
+  assert.equal(screenBefore(s, "/players/p/film/sessions/x"), "/players/p/film", "from the lesson, back is the Film Room");
+  const t = ["/players/p/workouts", "/players/p/workouts/library", "/players/p/workouts/build"];
+  assert.equal(screenBefore(t, "/players/p/workouts/build"), "/players/p/workouts/library", "from Build, back is the library it came from");
+  assert.equal(screenBefore(["/players/p/workouts/library", "/players/p/workouts"], "/players/p/workouts"), null);
+});

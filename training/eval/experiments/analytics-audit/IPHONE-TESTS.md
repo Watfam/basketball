@@ -112,3 +112,4 @@ Quit and reopen the app first. Then, each time, note where you land:
 3. Train, then the "Next lesson" line, then close the lesson: you land on Train. Train, Film room, then a lesson: closing keeps you in the Film Room.
 4. Pick filters on Workouts (skill, then time, then level), then press the back control once: you should leave the screen in one step.
 5. Today's link under Recent now says "Workout history" (it always opened the history list).
+6. Train, Film room, Sessions tab, open a study session, tap the back control at the top left (it should take you to the Film Room), then the back control there (it should take you to Train, not back into the lesson). Finish a study session and tap Back to Film Room: then Back again should go to Train. You should never go round in a circle.

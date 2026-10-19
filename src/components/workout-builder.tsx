@@ -10,6 +10,7 @@ import { WORKOUT_SKILLS } from "@/lib/basketball/train-library";
 import { LENGTHS, MAX_ENTRIES, clampInt, defaultName, draftWorkout, entryMinutes, toEntry, totalMinutes, type BuilderDrill, type BuilderEntry } from "@/lib/basketball/workout-builder";
 import type { SkillLevel } from "@/lib/basketball/assessment";
 import { haptic } from "@/lib/haptics";
+import { noteReplace } from "@/lib/use-go-back";
 
 export type BuilderInitial = { id: string; name: string; skills: string[]; entries: BuilderEntry[] };
 
@@ -103,9 +104,11 @@ export function WorkoutBuilder({ playerId, level, drills, suggestedSkills, initi
       if (thenStart) {
         const s = await startWorkoutSession(playerId, res.workoutId);
         if (s?.error || !s?.sessionId) { setError(s?.error ?? "Saved, but it could not be started."); return; }
+        noteReplace();
         router.replace(`/players/${playerId}/sessions/${s.sessionId}`);
         return;
       }
+      noteReplace();
       router.replace(`/players/${playerId}/workouts?saved=${res.workoutId}`);
     });
   };
@@ -115,6 +118,7 @@ export function WorkoutBuilder({ playerId, level, drills, suggestedSkills, initi
     startTransition(async () => {
       const res = await deleteCustomWorkout(initial.id);
       if (res.error) { setError(res.error); return; }
+      noteReplace();
       router.replace(`/players/${playerId}/workouts`);
     });
   };

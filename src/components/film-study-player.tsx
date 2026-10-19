@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useGoBack } from "@/lib/use-go-back";
 import { completeFilmSession } from "@/app/actions";
 import { isWatchableUrl, durationLabel, FILM_KIND_LABELS } from "@/lib/basketball/film";
 import { haptic } from "@/lib/haptics";
@@ -48,7 +48,8 @@ export function FilmStudyPlayer({
   alreadyCompleted: boolean;
   existingTakeaway: string | null;
 }) {
-  const router = useRouter();
+  // Leaving a lesson goes back to the Film Room screen it was opened from (pushing a second Film Room would make Back loop between the two).
+  const goFilmRoom = useGoBack(`/players/${playerId}/film`);
   const [index, setIndex] = useState(0);
   const [takeaway, setTakeaway] = useState(existingTakeaway ?? "");
   const [done, setDone] = useState(false);
@@ -105,7 +106,7 @@ export function FilmStudyPlayer({
           </div>
         </div>
 
-        <Button size="lg" block onClick={() => router.push(`/players/${playerId}/film`)} className="mt-5">
+        <Button size="lg" block onClick={goFilmRoom} className="mt-5">
           Back to Film Room
         </Button>
       </div>
@@ -117,7 +118,7 @@ export function FilmStudyPlayer({
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <button
           type="button"
-          onClick={() => router.push(`/players/${playerId}/film`)}
+          onClick={goFilmRoom}
           className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim transition-colors hover:text-foreground"
         >
           ← Film Room
