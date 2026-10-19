@@ -28,7 +28,7 @@ export function SoundCheck({ className }: { className?: string }) {
           haptic("tap");
           const s = soundCheck();
           setSaid(
-            `Played a high blip (make), a low blip (miss) and three beeps. Audio is ${s.state}${s.session ? ` in ${s.session} mode` : ""}. Heard nothing, or too quiet? Choose Max above and press the phone's volume button up.`
+            `Played a high blip (make), a low blip (miss) and three beeps. Audio is ${s.state}${s.session ? ` in ${s.session} mode` : ""}. Heard nothing, or too quiet? Choose Loud above and press the phone's volume button up.`
           );
         }}
       >
@@ -66,8 +66,8 @@ export function DrillSoundControls() {
 }
 
 /**
- * How loud the app's own sounds are: Normal, Loud (the default) or Max. Picking one plays a make and a miss at that level. The phone's own
- * volume still sets the ceiling, so Max only helps with the volume buttons turned up.
+ * How loud the app's own sounds are: Normal or Loud (the default). Picking one plays a make and a miss at that level. The phone's own
+ * volume still sets the ceiling, so Loud only helps with the volume buttons turned up.
  */
 export function SoundLevelPicker({ className = "w-full max-w-xs" }: { className?: string }) {
   const [raw, setRaw] = useLocalDraft(SOUND_LEVEL_KEY);
@@ -82,7 +82,7 @@ export function SoundLevelPicker({ className = "w-full max-w-xs" }: { className?
   return (
     <div className={className}>
       <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Sound level</p>
-      <div role="radiogroup" aria-label="Sound level" className="mt-1.5 grid grid-cols-3 gap-1.5">
+      <div role="radiogroup" aria-label="Sound level" className="mt-1.5 grid grid-cols-2 gap-1.5">
         {SOUND_LEVELS.map((l) => (
           <button
             key={l.value}

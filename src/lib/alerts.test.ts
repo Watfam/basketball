@@ -62,7 +62,7 @@ test("audio the phone interrupted (a call, the lock screen) is started again bef
   assert.equal(ctx.state, "running");
 });
 
-test("the sound level sets how loud: Loud by default, Normal as it used to be, Max the loudest the phone can be told", async () => {
+test("the sound level sets how loud: Loud by default, Normal as it used to be; an old 'max' setting is Loud", async () => {
   const { writeDraft } = await import("./use-local-draft.ts");
   const peakAt = (level: string | null) => {
     writeDraft("hl:sound:level", level);
@@ -70,10 +70,10 @@ test("the sound level sets how loud: Loud by default, Normal as it used to be, M
     alerts.blipShot(true);
     return { peak: played[0].peak, type: played[0].type };
   };
-  assert.deepEqual(peakAt(null), { peak: 0.75, type: "square" }, "Loud when nothing was chosen");
+  assert.deepEqual(peakAt(null), { peak: 1, type: "square" }, "Loud when nothing was chosen");
   assert.deepEqual(peakAt("normal"), { peak: 0.3, type: "sine" });
-  assert.deepEqual(peakAt("loud"), { peak: 0.75, type: "square" });
-  assert.deepEqual(peakAt("max"), { peak: 1, type: "square" });
-  assert.deepEqual(peakAt("nonsense"), { peak: 0.75, type: "square" }, "an unknown value is Loud");
+  assert.deepEqual(peakAt("loud"), { peak: 1, type: "square" });
+  assert.deepEqual(peakAt("max"), { peak: 1, type: "square" }, "a phone that chose the short-lived Max keeps the same loudness as Loud");
+  assert.deepEqual(peakAt("nonsense"), { peak: 1, type: "square" }, "an unknown value is Loud");
   writeDraft("hl:sound:level", null);
 });

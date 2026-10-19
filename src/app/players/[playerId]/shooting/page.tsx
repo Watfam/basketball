@@ -28,7 +28,8 @@ type SessionRow = {
   goal_reached?: boolean | null;
 };
 
-const UNLABELED = "Unlabeled";
+// Sets with no name read "No name", the same words as the drill list on the setup card.
+const UNLABELED = "No name";
 /** The filter value for every drill at once. */
 const ALL = "All";
 
