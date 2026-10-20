@@ -107,7 +107,8 @@ export function HomeView(p: HomeViewProps) {
         </CardSection>
       </section>
 
-      {p.focus && <FocusCard focus={p.focus} />}
+      {/* "Next benchmark" is what the Benchmarks section below already says, so it is not shown twice. */}
+      {p.focus && p.focus.kind !== "benchmark" && <FocusCard focus={p.focus} />}
 
       <section aria-label="Benchmarks" className="space-y-2.5">
         <div className="flex items-baseline justify-between gap-3">
