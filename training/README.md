@@ -871,3 +871,49 @@ Nothing integrated into counting. Read `session-review/REPORT.md`.
 Opt-in, local-only retention of compact per-shot tracking records for saved sessions (`hl-history` IndexedDB: observed rim-relative points, fingerprint, quality, framing; no video),
 behind the `hl:session-review` flag (off by default) plus a per-phone opt-in; cross-session shot comparison with explicit comparability rules; bounded consistency analytics with abstention.
 Real-IndexedDB checks 25/25, 126 app tests, baseline unchanged. ~1.5 KB/shot; recorder ~5 us/frame on a desktop. NOT validated on an iPhone: see the REPORT's on-device procedure and the in-app storage test (Camera lab > Session review).
+
+### Round seven: a real black-ball clip (IMG_4915), plan and exam registered BEFORE ball-7 exists (2026-10-22)
+Matt filmed a new ball at his kids' hoop (dark grey/black, not orange) because the app called every shot a miss. Measured on ball-6: it detects this ball
+in only 9.3% of frames near the rim at this clip's distance (score >= 0.2, scale 1), against 34-46% for the orange ball at the same distance on the eight
+existing clips. Run through the shipped counting core on real detections from the first minute: the only call in that span is a miss, the ball is seen
+approaching the rim three times and never below it, so V1/V2's "a ball below the net" test defaults to miss regardless of the real outcome. This is the
+exact failure Matt described, and it is not new: round four's notes (`26-orange-only.mjs`, this file, 2026-10-05) already found a black ball's few real
+training boxes and dropped them because the colour filter cannot tell one from a shadow, ending "it needs its own clip"; round five logged "not done:
+more black-ball positives" and no later round returned to it. IMG_4915 is that clip, three weeks later.
+- **Why a motion proposer, not the model's own proposals.** Round six seeded its new positives from ball-5's own proposals, confirmed by an independent
+  circle-edge fit. That would not work here: ball-6 only proposes this ball 9% of the time, so its proposals would teach only the handful of cases
+  already found. Instead, `tools/52-round7-black-ball.mjs` finds candidates from frame-to-frame motion in the play area (a coarse grid diff, grouped into
+  blobs, no colour test), confirms each with the SAME colour-blind circle-edge fit round three and six used, and keeps a circle only if: it is not the
+  skin-tone band, it sits in a low-saturation ("grey/black," not blue sky or green leaf) band at a sane brightness, the circle's OWN pixels (not just
+  something nearby) genuinely changed from the previous frame (a ball passing through is never the same object twice; this is what rejects the hoop
+  stand's cone, which a nearby shadow kept dragging the motion grid onto), it is not within one hand-identified static-prop rectangle (that same stand),
+  it does not recur at nearly the same spot more than twice across the whole clip (a bolt or a leaf gap flickering with the light), and it is at least
+  10 px in radius (a "circle" found at the radius floor in cluttered leaf texture is cheap to produce by chance out of tens of thousands of tries; every
+  real sighting of this ball measured 10 px or more). Exempt from the orange test, like IMG_4844's sky balls in round six.
+  Candidates: 49,750 raw motion-confirmed circles over the 7:08 clip, 325 pass every filter above. Eye-checked by Claude in stages as each filter was
+  added (sheets in `training/work/round7/`, not committed): the last full-clip sample is about 85-90% a real ball, tightly boxed, across pavement, sky,
+  tree canopy, the net and backboard, near a hand; the rest is mostly small boxes in dense leaf clutter that slipped past the size floor at its edges.
+  ball-6's own low-score proposals (score >= 0.05) were tried as a second source and rejected: confirmed by the same circle fit without the self-motion
+  test (this source has no frame-to-frame signal to require), the great majority sit on the net or backboard structure at this clip's distance, not the
+  ball; not used.
+- **Dataset** (`52-round7-black-ball.mjs render`): round six's merged set (dataset14) plus the 325 kept circles, rendered the same way (two 416 px windows
+  per kept frame at 0.8-1.25x the source's own measured scale, ball placed within 15% of centre, capped at 300 source frames, split by time within the
+  source 70/15/15): 594 new pictures. `Training Video/dataset_v7.zip` (dataset15, top folder `dataset`), notebook `colab/train_ball_detector.ipynb` now
+  reads it and writes to `hardwood-lab/out7`. Merged: train 5786 (4506 with a ball), val 838 (484), test 1239 (909).
+- **Exam, registered now, before Matt runs Colab:**
+  1. The eight labelled clips, frozen scorer, exactly as `training/eval/README.md` runs it: ball-7 must not score below ball-6's recorded numbers
+     (V4 159 of 166 matched shots, 159 of 178 written). A drop here means the new data cost the orange ball something; ball-6 stays.
+  2. IMG_4915's own held-out test split (the last 15% of the clip by time, never in train or val: frames 10917-12843 of 12844, 1927 frames). Baseline,
+     measured now so it cannot move: ball-6 detects the ball in 162 of 1927 of those frames (8.4%, score >= 0.2, same window). Ball-7 must detect it in
+     clearly more of the same 1927 frames, with the far side of the gain approaching (not necessarily matching) the orange-ball rate of 34-46% measured
+     the same way. Run with `MODEL=<ball-7.onnx> node tools/22-dump-detections.mjs "Training Video/IMG_4915.MOV" 712 240 <out.json> 0.05`, same window
+     as this report, then count frames >= 0.2 at or past 10917.
+  3. Not scored, no written make/miss list exists for this clip: whether more of those frames give the shipped rule a below-the-net sighting to call
+     from. Reported for the record only.
+  4. Promote ball-7 to production only if 1 and 2 both pass, exactly as every prior round's promotion rule. Otherwise ball-6 stays and the gap is
+     reported, not patched around.
+- **Limits stated up front:** one clip, one lighting, one ball, filmed on one driveway; a second black ball (or the same ball under floodlights) is
+  untested. The false-positive residue in the training data (an estimated 10-15% of the 325, mostly small boxes in leaf clutter) was not hand-removed
+  frame by frame, only filtered by rule and spot-checked by sheet; round four's and round six's own eye checks accepted a similar or higher residue
+  before use. No real make/miss ground truth exists for IMG_4915, so criterion 2 is the whole exam; end-to-end accuracy on this ball is not claimed
+  until Matt shoots a session with it and the counts can be checked against what he saw.
