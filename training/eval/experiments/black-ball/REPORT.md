@@ -36,6 +36,15 @@ cluttered leaf texture is cheap to produce by chance out of tens of thousands of
 stages, about 85-90% a real ball on the final sample. Full plan, dataset numbers and the exam registered before training: `training/README.md`,
 "Round seven."
 
+## The exam (2026-10-23)
+
+Matt trained ball-7 in Colab and sent a handwritten make/miss list for IMG_4915 (`training/labels/IMG_4915-truth.json`, 50 shots). Full numbers:
+`training/README.md`, "ROUND SEVEN EXAM." Short version: ball-7 fails the registered no-regression bar on the eight orange-ball clips by 2 correct
+calls (two new false makes, one old wrong call fixed, and a real fix to IMG_4873's long-standing "shot vanishes into a merge" problem that the
+bar's own arithmetic does not reward). Against Matt's real list for IMG_4915 — not available when the bar was written — ball-6 gets 28 of 50 right
+(56%, close to calling everything a miss), ball-7 gets 37 of 50 (74%). **Not promoted**, per the registered rule, but the tradeoff (2 shots on the
+orange ball against 9 shots on the one this round was for) is a real decision left to Matt, not resolved by the rule as written.
+
 ## Limits
 
 One clip, one ball, one driveway, one lighting. No written make/miss list exists for this clip, so the exam is detection recall on held-out

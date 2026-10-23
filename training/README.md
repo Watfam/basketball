@@ -917,3 +917,31 @@ more black-ball positives" and no later round returned to it. IMG_4915 is that c
   frame by frame, only filtered by rule and spot-checked by sheet; round four's and round six's own eye checks accepted a similar or higher residue
   before use. No real make/miss ground truth exists for IMG_4915, so criterion 2 is the whole exam; end-to-end accuracy on this ball is not claimed
   until Matt shoots a session with it and the counts can be checked against what he saw.
+
+### ROUND SEVEN EXAM (2026-10-23), ball-7 trained by Matt in Colab against the plan above, as registered
+Matt also sent a handwritten make/miss list for IMG_4915 while this ran (`training/labels/IMG_4915-truth.json`, 50 shots, transcribed by Claude, agrees
+with his own totals 26-24). That list did not exist when criterion 2 was registered, so it is additional evidence, not a substitute for it; both are
+reported. All detections re-dumped fresh for both models for this exam (`dets7-*`, `dets6b-4915`/`dets7b-IMG_4915`), nothing reused from before training.
+
+1. **The eight frozen clips, frozen scorer, minScore 0.2** (the registered bar: must not score below ball-6's 159 of 166 matched, 159 of 178 written).
+   Ball-7: **157 of 177 matched, 157 of 178 written (88.2%, against ball-6's 89.3%). FAILS the registered bar by 2 correct calls.**
+   Per-clip, ball-7 introduces two new wrong calls on clips it had no reason to touch: IMG_4839 shot 27 (written miss, ball-6 right, ball-7 calls make)
+   and IMG_4872 shot 1 (written miss, ball-6 right, ball-7 calls make). It also fixes one ball-6 had wrong: IMG_4874 shot 5 (written miss, ball-6 called
+   make, ball-7 gets it right). The striking change is IMG_4873 (the known rim-hardware-phantom clip): ball-6 never even counts 11 of its 22 written
+   shots (they vanish into merges, `written_never_seen`); ball-7 counts and matches all 22, at a lower hit rate on those newly-visible ones (10 of 22
+   right). Net: a real fix to a long-standing problem (a shot that silently never appears at all) bought with a few wrong outcomes elsewhere, and the
+   net correct count is lower than ball-6's by the registered measure.
+2. **IMG_4915's held-out test split (last 15% by time), re-measured at the corrected window** (cropX 730, cropY 207, matching the app's own
+   `hoopWindow` placement for this rim, not the approximate one `inspect`-level work used earlier): ball-6 9.6% (185 of 1927), ball-7 10.1% (194 of
+   1927). Technically "more," not "clearly more," and nowhere near the orange-ball range: **this registered criterion is at best a weak pass**, and
+   on the whole clip ball-7 actually fires less often than ball-6 (7.0% vs 10.7%) — raw firing rate turns out not to track what matters here.
+3. **Real make/miss accuracy against Matt's list, informational when registered, now measurable (not part of the registered gate, but the clearest
+   signal of the three):** ball-6 gets **28 of 50 right (56.0%)** — close to what calling almost every shot a miss would score, since 24 of 50 really
+   are misses, and ball-6's calls are "miss" on all but 4 of the 50 (matching the original bug report exactly). Ball-7 gets **37 of 50 right (74.0%)**,
+   9 more correct, including makes it now calls correctly throughout the clip instead of defaulting to miss. This is the number closest to what Matt
+   actually experiences, and it is a clear, large improvement — far clearer than criterion 2's frequency measure, which undersold it: firing less
+   often but more accurately at the moments that decide the call matters more than firing often.
+- **Verdict against the rule as written:** criterion 1 fails, so by "promote only if 1 and 2 both pass, otherwise ball-6 stays," **ball-7 is NOT
+  promoted.** This is reported, not patched around, exactly as planned — but it leaves a real tension the plan did not anticipate: the registered
+  gate (built to protect the orange ball) is failed by 2 shots out of 178, while the thing this round was actually for improved by 9 shots out of 50
+  on real ground truth that did not exist when the gate was written. Put to Matt rather than decided here.
