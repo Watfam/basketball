@@ -962,3 +962,34 @@ every frame gets a box. Two prior experiments already measured the ceiling here 
 constraints: Experiment 2 (2026-10-16) found the release and early flight are outside the window 22 of 33 times and a 2x window helps but costs
 detections elsewhere; Experiment 1 (2026-10-15) found a persistent tracker does not beat plain per-frame detection at association. Round eight
 should treat "expand tracking" as the open question those left unresolved, not retry either unchanged.
+
+### Round eight, part one: rim-hardware hard negatives, plan registered BEFORE mining (2026-10-23)
+Checked first: does ball-7 still fire on IMG_4873's rim hardware (the 2026-10-14 rim-phantom root cause)? Yes, unchanged — 409 of 1842 detections
+at score >= 0.2 sit within 20 px of the rim in the 416 px window, spanning frames 141 to 4192 of 4352 (almost the entire clip). This is the same
+phantom, since round seven never trained on it.
+- **Why a hard negative, not a filter.** The 2026-10-14 experiment tried five live-rule filters against this and none met its bar; its own
+  conclusion was to fix it at the source, in training, which was never done. A detection that recurs at nearly the same native pixel across almost
+  the whole clip cannot be the ball (a ball is never in one spot for minutes); it is the backboard/rim assembly itself.
+- **Plan:** identify ball-7's detections that cluster tightly in position (within ~15 px) and recur across a wide span of the clip (the same
+  static-recurrence signature `tools/52-round7-black-ball.mjs` used, in reverse: there it dropped a recurring circle as noise, here the recurrence
+  itself IS the thing to teach against), crop 416 px hoop-window-style "no ball" pictures centred on exactly those false boxes, eye-check a sample,
+  and add them as explicit negatives to the next training round, the same way rounds four and five added backboard-shadow negatives.
+- **Criteria, registered now:** (1) the false-positive class is confirmed by position (static, spans most of the clip) before any crop is taken, not
+  guessed from a single frame; (2) a random eye-check sample of the mined crops is genuinely free of the real ball (checked by Claude before they
+  are used); (3) the next model is re-examined on the SAME IMG_4873 metric used in the round-seven exam (shots counted and matched, 11 of 22 before
+  round seven, 22 of 22 after; outcome correct 10 of 22 after) plus the full round-seven exam's three checks, so a fix for 4873 is not allowed to
+  quietly cost the black ball or the other seven clips without it being reported. No promotion without a registered result, exactly as every round.
+- **Not yet decided:** whether this round also carries "expand tracking so a ball in the shot is never lost" (the second ask), or whether that is
+  its own round, since it needs a design choice between the two previously-explored directions (a wider/second window, or revisiting
+  tracking-based association) rather than more data for the existing detector. Reported separately once scoped.
+
+### Round eight, part one, mined (2026-10-23): `tools/53-round8-hard-negatives.mjs`
+`find` clustered ball-7's own IMG_4873 detections by a 15 px native grid; five of six static-recurrent clusters turned out to be the real ball
+returning to the rim on many different shots across the clip (caught by eye on the first pass, then confirmed numerically: 58-100% of each
+cluster's frames fall within 45 frames of a real reference shot). Only one cluster is independent of shot timing (11% near a shot) — the rim and
+net at native (1019, 515), present whether or not a shot is happening, exactly the 2026-10-14 phantom. 24 random frames of it, eye-checked: no
+ball in any of them. `crops` cut 150 416 px "no ball" training pictures centred on it (jittered 20 px, spread across frames 141-4192), 4 more
+spot-checked after the fact: clean. Written to `training/work/round8/negatives/IMG_4873/` (git-ignored, like all training pictures) plus a
+manifest; `training/labels/round8/IMG_4873-phantoms.json` records the cluster itself. Not yet merged into a dataset or sent anywhere — that is
+the next step, plus deciding whether other clips need the same treatment (none of the other seven showed this never-counted pattern in the round
+seven exam, so none have been checked) and scoping the "expand tracking" half of the ask.
