@@ -990,6 +990,28 @@ cluster's frames fall within 45 frames of a real reference shot). Only one clust
 net at native (1019, 515), present whether or not a shot is happening, exactly the 2026-10-14 phantom. 24 random frames of it, eye-checked: no
 ball in any of them. `crops` cut 150 416 px "no ball" training pictures centred on it (jittered 20 px, spread across frames 141-4192), 4 more
 spot-checked after the fact: clean. Written to `training/work/round8/negatives/IMG_4873/` (git-ignored, like all training pictures) plus a
-manifest; `training/labels/round8/IMG_4873-phantoms.json` records the cluster itself. Not yet merged into a dataset or sent anywhere — that is
-the next step, plus deciding whether other clips need the same treatment (none of the other seven showed this never-counted pattern in the round
-seven exam, so none have been checked) and scoping the "expand tracking" half of the ask.
+manifest; `training/labels/round8/IMG_4873-phantoms.json` records the cluster itself.
+
+### Round eight, part two, mined (2026-10-23): `tools/54-round8-hard-positives.mjs`
+The same motion-based, colour-blind proposer as round seven, run on IMG_4873 again but the other direction: candidates the model does NOT
+already have, confirmed by the circle-edge fit and self-motion, with the orange colour test turned back on (this ball is orange) and a
+recurring-position cap. Of 148,332 raw motion blobs, 19 survive every filter — a small number, which is itself informative: ball-7 is not
+missing many real sightings of the ball on this clip when it is actually visible, so the clip's poor outcome accuracy (10 of 22 right, round
+seven exam) is more about which way each call goes than about the ball going unseen. All 19 eye-checked: real orange ball, correctly boxed,
+against brick, sky and tree bark. 38 416 px training pictures cut from them (two renders each).
+
+### Round eight: merged and packaged for Colab (2026-10-23), `tools/55-round8-render.mjs`
+Round seven's dataset (dataset15) plus the 150 rim-hardware negatives and the 38 hard positives above: train 5918 (4533 with a ball, was 5786),
+val 867 (490, was 838), test 1266 (914, was 1239). `Training Video/dataset_v8.zip` (dataset16, top folder `dataset`), notebook
+`colab/train_ball_detector.ipynb` now reads it and writes to `hardwood-lab/out8`. Matt runs it in Colab.
+
+**Exam, registered now, before ball-8 exists** (same shape as round seven's, since nothing here is allowed to quietly cost what round seven
+already won):
+1. The eight frozen clips, frozen scorer, minScore 0.2: must not score below ball-7's 157 of 177 matched, 157 of 178 written (88.2%). Ideally it
+   recovers some or all of the 2-shot gap against ball-6 (159 of 178) that round seven opened, but that is not the bar — not losing further
+   ground is.
+2. IMG_4873 specifically, same metric as the round-seven exam: shots counted and matched (ball-6: 11 of 22; ball-7: 22 of 22) and outcome correct
+   (ball-7: 10 of 22). Ball-8 should not drop below 22 of 22 counted, and should improve on 10 of 22 right — that is the one this round was for.
+3. IMG_4915's held-out test split and Matt's real make/miss list (ball-6: 8.4% held-out detection, 28 of 50 right; ball-7: 10.1%, 37 of 50
+   right): must not regress, reported either way.
+4. Promote only if 1 and 2 pass; 3 is reported for the record, as it was last round.
