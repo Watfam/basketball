@@ -1,8 +1,8 @@
 yolox_nano.onnx is the YOLOX-Nano model from https://github.com/Megvii-BaseDetection/YOLOX
 released under the Apache License 2.0 (text in YOLOX-LICENSE.txt).
 
-ball-6.onnx is our own basketball detector: YOLOX-Nano (Apache License 2.0, as
-above) fine-tuned on hoop windows of family driveway footage (round 6 in
+ball-7.onnx is our own basketball detector: YOLOX-Nano (Apache License 2.0, as
+above) fine-tuned on hoop windows of family driveway footage (round 7 in
 training/README.md). It holds learned weights only; no images or footage are
 in the file, and the footage itself is never committed.
-sha256 4d19f88b829063c4af5f16e684a60ec6532ee1a87a57f84391daa198bfd5f593
+sha256 d44ecb3b2cb2385ef90be4e644e47b909a8b9f21c91bfe87378e8825064f1785

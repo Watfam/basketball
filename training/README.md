@@ -945,3 +945,20 @@ reported. All detections re-dumped fresh for both models for this exam (`dets7-*
   promoted.** This is reported, not patched around, exactly as planned — but it leaves a real tension the plan did not anticipate: the registered
   gate (built to protect the orange ball) is failed by 2 shots out of 178, while the thing this round was actually for improved by 9 shots out of 50
   on real ground truth that did not exist when the gate was written. Put to Matt rather than decided here.
+
+### Promote ball-7 anyway (Matt's decision, 2026-10-23), and what has to happen next
+Matt: move forward with ball-7 despite the failed criterion 1 — a real app should not be missing attempts outright (IMG_4873's 11 never-counted
+shots) or defaulting a ball it cannot see to "miss" (the original bug), and 9 more correct calls out of 50 on the ball actually in use outweighs 2
+wrong calls out of 178 on one it is not. This is a deliberate override of the registered no-regression rule, not a pass; the two known new mistakes
+(IMG_4839 shot 27, IMG_4872 shot 1, both false makes) are accepted, not fixed, by this promotion. `public/models/ball-6.onnx` removed,
+`public/models/ball-7.onnx` added (sha256 in `NOTICE.txt`); `src/lib/vision/engine.ts` and `lab-calls.ts`'s `MODEL_VERSION` point at it.
+
+Matt also asked for two follow-ups, which are round eight's job, not done in this commit: (1) stop losing attempts outright — IMG_4873's
+rim-hardware false "ball" is a known cause (the 2026-10-14 rim-phantom experiment tried five filters and none met its bar; its own conclusion was
+hard-negative training on the rim hardware, never done); ball-7 improved this a lot by accident (11 of 22 silently-uncounted shots on 4873 down to
+0) without ever being trained on it, so there is reason to think a round aimed at it directly would do better still. (2) "Expand the tracking so no
+ball in the shot is lost" — read as: widen how much of the ball's path the camera and detector actually see and hold onto, not as a promise that
+every frame gets a box. Two prior experiments already measured the ceiling here under the current one-camera, 416 px-window, single-frame-at-a-time
+constraints: Experiment 2 (2026-10-16) found the release and early flight are outside the window 22 of 33 times and a 2x window helps but costs
+detections elsewhere; Experiment 1 (2026-10-15) found a persistent tracker does not beat plain per-frame detection at association. Round eight
+should treat "expand tracking" as the open question those left unresolved, not retry either unchanged.
