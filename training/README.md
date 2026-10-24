@@ -1015,3 +1015,22 @@ already won):
 3. IMG_4915's held-out test split and Matt's real make/miss list (ball-6: 8.4% held-out detection, 28 of 50 right; ball-7: 10.1%, 37 of 50
    right): must not regress, reported either way.
 4. Promote only if 1 and 2 pass; 3 is reported for the record, as it was last round.
+
+### ROUND EIGHT EXAM (2026-10-23), ball-8 trained by Matt in Colab, as registered above
+All detections re-dumped fresh for ball-8 on all nine clips, at the corrected IMG_4915 window as round seven's exam used.
+
+1. **Eight frozen clips, frozen scorer, minScore 0.2: 168 of 178 written right (94.4%), matched 177.** Clearly passes the registered bar (157)
+   and beats ball-6 (159) too — not just no regression, a net win over both predecessors. Two of round seven's new mistakes are fixed
+   (IMG_4872 shot 1, and a pre-existing IMG_4866 wrong call neither ball-6 nor ball-7 had caught); IMG_4839 shot 27 is still wrong, unchanged
+   since round seven; one new wrong call appears on IMG_4873 (shot 11) and the IMG_4874 shot 5 fix from round seven is undone. Net across all
+   eight: +11 correct calls versus ball-7.
+2. **IMG_4873: 22 of 22 counted and matched (unchanged from round seven, the structural fix holds), 20 of 22 right (90.9%), up from 10 of 22.**
+   Clearly passes.
+3. **IMG_4915 (reported, not a gate): held-out detection 6.4% (down from ball-7's 10.1%, below even ball-6's 9.6%); real make/miss list 33 of
+   50 right (66.0%), down from ball-7's 37 of 50 (74.0%) but still above ball-6's 28 of 50 (56.0%); 6 shots never counted at all (round seven
+   had 1). This is a real regression, not reported-and-ignored: round eight's new data was entirely orange (rim-hardware negatives, orange
+   hard positives), nothing reinforced the black ball, and it likely got diluted in the retrain.**
+4. **Promoted (Matt's decision, 2026-10-23), with the regression in 3 accepted, not fixed, by this promotion.** `public/models/ball-7.onnx`
+   removed, `ball-8.onnx` added (sha256 in `NOTICE.txt`); `engine.ts` and `lab-calls.ts`'s `MODEL_VERSION` point at it. Matt: promote now,
+   fix the black ball next — recovering it is round nine's first job, by folding round seven's black-ball data back in alongside round
+   eight's additions (not instead of them), so the next retrain does not have to re-choose between the two.
