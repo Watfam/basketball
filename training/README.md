@@ -1031,6 +1031,36 @@ All detections re-dumped fresh for ball-8 on all nine clips, at the corrected IM
    had 1). This is a real regression, not reported-and-ignored: round eight's new data was entirely orange (rim-hardware negatives, orange
    hard positives), nothing reinforced the black ball, and it likely got diluted in the retrain.**
 4. **Promoted (Matt's decision, 2026-10-23), with the regression in 3 accepted, not fixed, by this promotion.** `public/models/ball-7.onnx`
-   removed, `ball-8.onnx` added (sha256 in `NOTICE.txt`); `engine.ts` and `lab-calls.ts`'s `MODEL_VERSION` point at it. Matt: promote now,
-   fix the black ball next — recovering it is round nine's first job, by folding round seven's black-ball data back in alongside round
-   eight's additions (not instead of them), so the next retrain does not have to re-choose between the two.
+   removed, `ball-8.onnx` added (sha256 in `NOTICE.txt`); `engine.ts` and `lab-calls.ts`'s `MODEL_VERSION` point at it.
+
+### Correction: what actually caused the black-ball regression (2026-10-23)
+Not "diluted by more orange data" as first guessed when promoting — round seven's 594 black-ball pictures are still in round eight's dataset
+unchanged (checked: all 594 file names present in `dataset16`). The real cause, found by diffing every shot ball-7 and ball-8 disagree on
+against Matt's written list: 10 of IMG_4915's 50 shots flip from right to wrong, and **9 of those 10 are written makes** (several going to
+"never counted" outright) — the regression is concentrated almost entirely on the ball being seen *below the net*, not on the ball in general.
+Checking round seven's own training positives explains why that spot was fragile to begin with: of the 325 kept, only 18 are anywhere near the
+rim, and of those, only **2 show the ball below the net at all**. Round seven taught the model this ball well in the air and near the rim, but
+almost never confirming a make. Round eight then added rim-area "no ball" negatives from a different clip (the IMG_4873 hardware fix), which
+plausibly made the model warier of round objects right at the net in general, and the black ball had almost no below-net examples to hold its
+ground with.
+
+### Round nine (not started): mine more below-the-net black-ball positives
+The fix is not "put back what was removed" (nothing was); it is to mine the specific gap: real black-ball sightings below the net in IMG_4915,
+which round seven's miner found very few of. Plan: the same motion-based, colour-blind proposer as rounds seven and eight, restricted to the
+below-net region of IMG_4915 (cheap to scan, a small area instead of the whole court), excluding anything ball-8 already detects there, eye-checked
+before use. Exam: the same three checks as round eight's, plus Matt's real make/miss list on IMG_4915 is the one that must clearly improve this
+time — it was reported, not gated, for rounds seven and eight; round nine is explicitly for it.
+
+### Round nine, mined and packaged (2026-10-23): `tools/56-round9-below-net.mjs`, `tools/57-round9-render.mjs`
+First pass used a generous below-net box (the net down to roughly head height on a standing kid) and was badly contaminated: of 154 candidates,
+eye-checking found a large share were real faces and hair, not the ball — below the net is exactly where players stand to retrieve it, and dark
+hair at low light passes the same "round, neutral-coloured, genuinely moving" tests a dark ball does. Narrowed the box to just below the net
+itself (12-95 px under the rim, not down to head height): 30 candidates, eye-checked at every one (an indexed contact sheet, not a random
+sample) — all but one or two a real ball, right where a make needs confirming. 58 416 px training pictures cut from them.
+Merged onto round eight's dataset (dataset16): train 5959 (was 5918), val 876 (was 867), test 1274 (was 1266). `Training Video/dataset_v9.zip`
+(dataset17, top folder `dataset`), notebook now reads it and writes to `hardwood-lab/out9`. Matt runs it in Colab.
+
+**Exam, registered now:** the same four-part exam as round eight (the eight frozen clips must not regress below ball-8's 168 of 178; IMG_4873
+must hold 22 of 22 counted and not fall below 20 of 22 right), plus this time Matt's real IMG_4915 list is itself gated, not just reported:
+ball-9 must beat ball-8's 33 of 50 (66.0%), and ideally recover toward or past ball-7's 37 of 50 (74.0%). Promote only if the eight-clip and
+IMG_4873 checks pass AND IMG_4915 improves — this round exists for IMG_4915, so unlike before, it does not get a pass if that one regresses too.
