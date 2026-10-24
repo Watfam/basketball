@@ -1064,3 +1064,17 @@ Merged onto round eight's dataset (dataset16): train 5959 (was 5918), val 876 (w
 must hold 22 of 22 counted and not fall below 20 of 22 right), plus this time Matt's real IMG_4915 list is itself gated, not just reported:
 ball-9 must beat ball-8's 33 of 50 (66.0%), and ideally recover toward or past ball-7's 37 of 50 (74.0%). Promote only if the eight-clip and
 IMG_4873 checks pass AND IMG_4915 improves — this round exists for IMG_4915, so unlike before, it does not get a pass if that one regresses too.
+
+### ROUND NINE EXAM (2026-10-24), ball-9 trained by Matt in Colab, as registered above. All three checks pass; promoted.
+1. **Eight frozen clips: 168 of 178 written right (94.4%), matched 177.** Identical to ball-8 — holds the round-eight win exactly, no new
+   regression from the below-net additions.
+2. **IMG_4873: 22 of 22 counted and matched, 20 of 22 right (90.9%).** Identical to ball-8 — the structural fix and its outcome accuracy both
+   hold.
+3. **IMG_4915, gated this round: 41 of 50 right (82.0%), up from ball-8's 33 of 50 (66.0%) — clears the bar and sets a new high across every
+   model** (ball-6 56.0%, ball-7 74.0%, ball-8 66.0%, ball-9 82.0%). Held-out detection 12.0% (also the best yet: ball-6 9.6%, ball-7 10.1%,
+   ball-8 6.4%). For the first time every one of the 50 written shots is both counted and matched (0 never-counted; ball-6 had 2, ball-7 had
+   1, ball-8 had 6).
+4. **Promoted.** `public/models/ball-8.onnx` removed, `ball-9.onnx` added (sha256 in `NOTICE.txt`); `engine.ts` and `lab-calls.ts`'s
+   `MODEL_VERSION` point at it. The fix was precise: 58 pictures targeted at exactly the gap (below the net, where round eight's regression
+   concentrated) recovered it fully without costing anything on the eight-clip or IMG_4873 side. Nothing outstanding from this line of work;
+   future rounds are open (more clips, more balls, the "expand tracking" question from round eight's framing) rather than fixing a known gap.

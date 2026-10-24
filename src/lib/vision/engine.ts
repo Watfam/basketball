@@ -56,7 +56,7 @@ export const MODELS: Record<ModelId, ModelSpec> = {
     scoreThreshold: 0.25,
   },
   ball: {
-    url: "/models/ball-8.onnx",
+    url: "/models/ball-9.onnx",
     numClasses: 1,
     classes: [0],
     ballClass: 0,
