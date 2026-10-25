@@ -1104,3 +1104,20 @@ outcome calls, not a known wrong call — so the bar is "no regression, ideally 
 4. **New this round:** on the six newly-mined clips (IMG_4839, IMG_4840, IMG_4851, IMG_4866, IMG_4867, IMG_4874), held-out/missed-detection
    rate should not get worse than ball-9's, and ideally improves — that is the recall this round's data was built to move. Promote if 1-3 all
    hold; treat 4 as the signal for whether this kind of mining (recall gaps on already-passing clips) is worth repeating in future rounds.
+
+### ROUND TEN EXAM (2026-10-24), ball-10 trained by Matt in Colab, as registered above. All four checks pass; promoted.
+1. **Eight frozen clips: 169 of 178 written right (94.9%), matched 177 of 178.** A one-shot improvement over ball-9's 168 of 178 — no
+   regression anywhere; every per-clip count held or ticked up (`training/fixtures/dets10-*.json`).
+2. **IMG_4873: 22 of 22 counted and matched, 22 of 22 right (100%).** Holds exactly — the round-eight structural fix and round-nine's
+   outcome accuracy both still stand undisturbed.
+3. **IMG_4915: 42 of 50 right (84.0%), up from ball-9's 41 of 50 (82.0%).** Small improvement, no regression on the black ball.
+4. **Recall on the six newly-mined clips: of the 560 exact ball positions confirmed as ball-9 misses, ball-10 now detects 57 (10%)**
+   (`IMG_4839` 7/93, `IMG_4840` 17/145, `IMG_4851` 5/115, `IMG_4866` 6/40, `IMG_4867` 20/139, `IMG_4874` 2/28) — an improvement from ball-9's
+   0% on that exact set (by definition), but a modest one given 1,114 targeted training pictures went in. Worth being honest about: this
+   round's mining approach (more crops of the same kind of miss, on clips already passing their outcome calls) moved detection recall only a
+   little. Most of what's left in that 560 is likely harder than round seven/nine's gaps (motion blur, partial occlusion, the ball tiny or
+   half off-screen) — not the kind of thing more of the same crop recovers quickly. Future rounds chasing recall further should expect
+   diminishing returns from re-mining these same clips, and should weigh new conditions/clips over another pass at the same residual misses.
+5. **Promoted.** `public/models/ball-9.onnx` removed, `ball-10.onnx` added (sha256 in `NOTICE.txt`); `engine.ts` and `lab-calls.ts`'s
+   `MODEL_VERSION` point at it. All four registered checks passed with no trade-off, the cleanest promotion since round nine — but the weak
+   recall-recovery number (point 4) is the real finding of this round, not the promotion itself.
