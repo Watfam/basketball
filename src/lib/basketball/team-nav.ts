@@ -11,7 +11,7 @@
  * leads with the next practice or game rather than the roster.
  */
 export type TeamTab = {
-  key: "roster" | "practice" | "games" | "history" | "scouting";
+  key: "roster" | "practice" | "games" | "history" | "scouting" | "plays";
   label: string;
   href: (teamId: string) => string;
 };
@@ -22,6 +22,7 @@ export const TEAM_TABS: TeamTab[] = [
   { key: "games", label: "Games", href: (id) => `/teams/${id}/games` },
   { key: "history", label: "History", href: (id) => `/teams/${id}/practice/history` },
   { key: "scouting", label: "Scouting", href: (id) => `/teams/${id}/scouting` },
+  { key: "plays", label: "Plays", href: (id) => `/teams/${id}/plays` },
 ];
 
 /**
@@ -42,6 +43,7 @@ export function activeTeamTab(pathname: string, teamId: string): TeamTab["key"] 
   if (rest.startsWith("/practice")) return "practice";
   if (rest.startsWith("/games")) return "games";
   if (rest.startsWith("/scouting")) return "scouting";
+  if (rest.startsWith("/plays")) return "plays";
   return null;
 }
 
@@ -50,7 +52,11 @@ export function activeTeamTab(pathname: string, teamId: string): TeamTab["key"] 
  * read across a gym — a nav bar competing for that space (and one
  * mis-tap away from dumping the coach out mid-practice) has no business
  * there. Same reasoning as the player-facing session player.
+ *
+ * The play designer is the same shape for the same reason: its own bottom
+ * toolbar (Move/Pass/Cut/Dribble/Screen) already owns that strip of the
+ * screen, and the court above it is drawn edge to edge.
  */
 export function isImmersiveTeamRoute(pathname: string): boolean {
-  return pathname.endsWith("/run");
+  return pathname.endsWith("/run") || pathname.includes("/plays");
 }

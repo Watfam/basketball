@@ -44,6 +44,14 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
           <path d="M4 19V9M10 19V5M16 19v-7M22 19H2" />
         </svg>
       );
+    case "plays":
+      return (
+        <svg {...common}>
+          <circle cx="6" cy="18" r="2.2" />
+          <circle cx="18" cy="6" r="2.2" fill="currentColor" stroke="none" />
+          <path d="M8 16.5 15.5 8.5" strokeDasharray="2.2 2" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>
