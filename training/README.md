@@ -1078,3 +1078,29 @@ IMG_4873 checks pass AND IMG_4915 improves — this round exists for IMG_4915, s
    `MODEL_VERSION` point at it. The fix was precise: 58 pictures targeted at exactly the gap (below the net, where round eight's regression
    concentrated) recovered it fully without costing anything on the eight-clip or IMG_4873 side. Nothing outstanding from this line of work;
    future rounds are open (more clips, more balls, the "expand tracking" question from round eight's framing) rather than fixing a known gap.
+
+### Round ten: mining the six untouched frozen clips for silent recall gaps, plan registered BEFORE mining (2026-10-24)
+Matt: "Let's go with option 1 and keep refining and improving" — without new footage, the next lever is mining the existing clips harder.
+Of the eight frozen exam clips, round eight's hard-positive miner (`tools/54-round8-hard-positives.mjs`) had only ever been run against
+IMG_4873 (the worst-scoring clip at the time). The other six — IMG_4839, IMG_4840, IMG_4851, IMG_4866, IMG_4867, IMG_4874 — were examined for
+their remaining *wrong calls* (rule-threshold edge cases, 2D depth ambiguity on a make/miss-off-the-back-rim) but never mined for plain
+detection recall, i.e. real balls the model's own boxes (ball-9, `dets9-*.json`) silently miss mid-flight even when the shot is still called
+right. The same motion/circle-fit/orange-colour miner used on IMG_4873 is reused unchanged on all six, each against its own `dets9-*.json` so
+"already found" means "found by ball-9."
+
+### Round ten, mined and packaged (2026-10-24): `tools/54-round8-hard-positives.mjs` (reused), `tools/58-round10-render.mjs`
+Raw motion/circle/colour candidates per clip: IMG_4839 93, IMG_4840 145, IMG_4851 115, IMG_4866 40, IMG_4867 139, IMG_4874 28 (560 total).
+Eye-checked every clip's full contact sheet (zoomed in on anything ambiguous in a person's hands or against clutter) — all six came back
+clean, no contamination pattern like IMG_4915's below-net faces/hair. Crops cut per clip: IMG_4839 186, IMG_4840 286, IMG_4851 228,
+IMG_4866 80, IMG_4867 278, IMG_4874 56 (1,114 total 416 px training pictures). Merged onto round nine's dataset (dataset17 -> dataset18):
+train 6742 (was 5959), val 1043 (was 876), test 1438 (was 1274). `Training Video/dataset_v10.zip` (dataset18, top folder `dataset`),
+notebook now reads it and writes to `hardwood-lab/out10`. Matt runs it in Colab.
+
+**Exam, registered now:** unlike rounds eight and nine, this round targets plain detection recall on clips that were already passing their
+outcome calls, not a known wrong call — so the bar is "no regression, ideally some recall improvement," not "fix X."
+1. **Eight frozen clips must not regress below ball-9's 168 of 178 written right (94.4%), matched count not below 177.**
+2. **IMG_4873 must hold 22 of 22 counted and matched, not fall below 20 of 22 right (90.9%).**
+3. **IMG_4915 must not regress below ball-9's 41 of 50 right (82.0%).**
+4. **New this round:** on the six newly-mined clips (IMG_4839, IMG_4840, IMG_4851, IMG_4866, IMG_4867, IMG_4874), held-out/missed-detection
+   rate should not get worse than ball-9's, and ideally improves — that is the recall this round's data was built to move. Promote if 1-3 all
+   hold; treat 4 as the signal for whether this kind of mining (recall gaps on already-passing clips) is worth repeating in future rounds.
