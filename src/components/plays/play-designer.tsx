@@ -10,7 +10,7 @@ import { Toolbar } from "@/components/plays/toolbar";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
 import { nextFrame } from "@/lib/plays/frames";
-import { EXAMPLE_PLAY, type DefenseId, type DrawnLine, type OffenseId } from "@/lib/plays/types";
+import { EXAMPLE_PLAY, type DefenseId, type DrawnLine, type Frame, type OffenseId } from "@/lib/plays/types";
 
 let lineSeq = 0;
 function nextLineId() {
@@ -18,8 +18,18 @@ function nextLineId() {
   return `line-${lineSeq}`;
 }
 
-export function PlayDesigner({ teamId, teamName }: { teamId: string; teamName: string }) {
-  const [frames, setFrames] = useState(EXAMPLE_PLAY);
+export function PlayDesigner({
+  teamId,
+  teamName,
+  initialFrames,
+  initialPlayName,
+}: {
+  teamId: string;
+  teamName: string;
+  initialFrames?: Frame[];
+  initialPlayName?: string;
+}) {
+  const [frames, setFrames] = useState(initialFrames ?? EXAMPLE_PLAY);
   const [activeIndex, setActiveIndex] = useState(0);
   const [mode, setMode] = useState<"edit" | "film">("edit");
   const [tool, setTool] = useState<Tool>("move");
@@ -91,7 +101,12 @@ export function PlayDesigner({ teamId, teamName }: { teamId: string; teamName: s
         <Link href={`/teams/${teamId}`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
           ← {teamName}
         </Link>
-        <span className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-foreground-mute">Lightning Play Designer</span>
+        <span className="truncate px-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-foreground-mute">
+          {initialPlayName ?? "Lightning Play Designer"}
+        </span>
+        <Link href={`/teams/${teamId}/plays/playbook`} className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent hover:text-accent-hover">
+          Playbook
+        </Link>
       </div>
 
       <div className="relative min-h-0 flex-1">

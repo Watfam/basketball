@@ -1,9 +1,17 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlayDesigner } from "@/components/plays/play-designer";
+import { LIBRARY_PLAYS } from "@/lib/plays/library";
 
-export default async function PlaysPage({ params }: { params: Promise<{ teamId: string }> }) {
+export default async function PlaysPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ teamId: string }>;
+  searchParams: Promise<{ lib?: string }>;
+}) {
   const { teamId } = await params;
+  const { lib } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: { user } }, { data: team }] = await Promise.all([
@@ -14,5 +22,7 @@ export default async function PlaysPage({ params }: { params: Promise<{ teamId: 
   if (!user) redirect("/login");
   if (!team) notFound();
 
-  return <PlayDesigner teamId={teamId} teamName={team.name} />;
+  const libraryPlay = lib ? LIBRARY_PLAYS.find((p) => p.id === lib) : undefined;
+
+  return <PlayDesigner teamId={teamId} teamName={team.name} initialFrames={libraryPlay?.frames} initialPlayName={libraryPlay?.name} />;
 }
