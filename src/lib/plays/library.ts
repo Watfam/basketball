@@ -173,6 +173,31 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
     ]
   ),
 
+  play("uconn-flare-slip", "Horns Flare Slip", "UConn", "man",
+    "Confirmed from two independent sources: a named breakdown (\"the 4 [Karaban] sets the flare screen for [Spencer]... Karaban's defender jumps out to switch, worried about the 3PA... Karaban then slips to the rim for a pass and finish\") plus a separately-found clip titled \"UConn's Flare to Slip Action.\" UConn's own playbook is also documented chaining flare action with Zoom in other possessions (lesson titles like \"horns : flare : zoom\"), but no move-by-move source confirmed a Zoom step inside this specific sequence, so none is drawn here — the direct skip to the slipping big is the confirmed read.",
+    [
+      {
+        offense: [o("O1", 25, 30), o("O4", 22, 14), o("O3", 30, 20), o("O2", 6, 20), o("O5", 44, 9)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("screen", "offense", [{ x: 22, y: 14 }, { x: 27, y: 17 }]),
+          ln("cut", "offense", [{ x: 30, y: 20 }, { x: 44, y: 14 }]),
+          ln("cut", "offense", [{ x: 22, y: 14 }, { x: 28, y: 9 }]),
+          ln("pass", "offense", [{ x: 25, y: 30 }, { x: 28, y: 9 }]),
+        ],
+        note: "Horns flare: O4 screens for the shooter, then slips it the instant the defense switches onto him — direct skip to the short corner instead.",
+      },
+      {
+        offense: [o("O1", 25, 26), o("O4", 28, 9), o("O3", 44, 14), o("O2", 6, 20), o("O5", 44, 9)],
+        defense: [],
+        ballHolder: "O4",
+        lines: [],
+        note: "The slip beats the switch — catch right at the rim in the short corner.",
+      },
+    ]
+  ),
+
   // ------------------------------------------------------------- Auburn (Bruce Pearl) — man + BLOB
   play("auburn-flex", "Flex Continuity", "Auburn", "man",
     "Hoop Vision, \"the Auburn flex\" (HV Weekly), plus briangeisinger.substack.com \"Big Flex\" — both move-by-move breakdowns of 2022-23/2024-25 Auburn possessions.",
