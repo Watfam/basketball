@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { PlayCourt } from "@/components/plays/play-court";
 import { haptic } from "@/lib/haptics";
+import type { Region } from "@/lib/plays/bounds";
 import type { Point } from "@/lib/plays/geometry";
 import { advanceClock, clockToFraction, fractionToClock, interpolateFrame, type PlaybackClock } from "@/lib/plays/playback";
 import type { Frame } from "@/lib/plays/types";
 
 const SPEEDS = [0.5, 1, 2] as const;
 
-export function FilmPlayer({ frames, onExit }: { frames: Frame[]; onExit: () => void }) {
+export function FilmPlayer({ frames, onExit, region }: { frames: Frame[]; onExit: () => void; region?: Region }) {
   const [clock, setClock] = useState<PlaybackClock>({ frameIndex: 0, phase: "hold", t: 0 });
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
@@ -38,8 +39,9 @@ export function FilmPlayer({ frames, onExit }: { frames: Frame[]; onExit: () => 
 
   const fromFrame = frames[clock.frameIndex];
   // Holding shows the frame's own lines as annotations of a stable diagram. Mid-transition the players
-  // are already gliding along what those lines meant, so the lines themselves are hidden — showing the
-  // *next* frame's own (future) lines while still mid-flight toward it would be premature and confusing.
+  // are already gliding along what those lines meant, so the lines fade out instead (linesVisible
+  // below) — the *next* frame's own (future) lines are already in the DOM so they can fade back in
+  // the instant the new hold begins, rather than popping in.
   let shown: Frame;
   let ballOverride: Point | undefined;
   if (clock.phase === "hold") {
@@ -47,7 +49,7 @@ export function FilmPlayer({ frames, onExit }: { frames: Frame[]; onExit: () => 
   } else {
     const toFrame = frames[clock.frameIndex + 1];
     const result = interpolateFrame(fromFrame, toFrame, clock.t);
-    shown = { ...result.frame, lines: [] };
+    shown = result.frame;
     ballOverride = result.ballOverride;
   }
 
@@ -67,7 +69,7 @@ export function FilmPlayer({ frames, onExit }: { frames: Frame[]; onExit: () => 
   const fraction = clockToFraction(clock, frames.length);
 
   return (
-    <div className="theme-dark fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
+    <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
       <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))]">
         <button type="button" onClick={() => { haptic("tap"); onExit(); }} className="text-sm font-bold text-foreground-dim hover:text-foreground">
           ✕ Done
@@ -89,6 +91,8 @@ export function FilmPlayer({ frames, onExit }: { frames: Frame[]; onExit: () => 
           onEraseLine={() => {}}
           ballOverride={ballOverride}
           interactive={false}
+          region={region}
+          linesVisible={clock.phase === "hold"}
         />
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import type { Region } from "@/lib/plays/bounds";
 import { distance, length, maxDeviationFromChord, smoothPath, sub, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
 import { resolveDefense } from "@/lib/plays/resolve";
 import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
@@ -177,6 +178,8 @@ export function PlayCourt({
   onEraseLine,
   ballOverride,
   interactive = true,
+  region,
+  linesVisible = true,
 }: {
   frame: Frame;
   tool: Tool;
@@ -190,6 +193,10 @@ export function PlayCourt({
   ballOverride?: Point;
   /** False during film playback: no drag, draw, or tap-to-open-sheet. */
   interactive?: boolean;
+  /** Crops the viewBox to this court-feet region instead of the whole court — fitting both axes to where the play actually happens, not just one, is what actually makes the action render bigger (see bounds.ts). Falls back to the whole court (plus the standard margin) when absent. */
+  region?: Region;
+  /** False fades the drawn lines out (e.g. mid-transition in film mode) instead of popping them away. */
+  linesVisible?: boolean;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gesture = useRef<{
@@ -316,11 +323,12 @@ export function PlayCourt({
   }
 
   const drawPreview = drawing;
+  const view = region ?? { x: -MARGIN, y: -MARGIN, width: COURT_WIDTH + MARGIN * 2, height: COURT_LENGTH + MARGIN * 2 };
 
   return (
     <svg
       ref={svgRef}
-      viewBox={`${-MARGIN} ${-MARGIN} ${COURT_WIDTH + MARGIN * 2} ${COURT_LENGTH + MARGIN * 2}`}
+      viewBox={`${view.x} ${view.y} ${view.width} ${view.height}`}
       className="h-full w-full touch-none select-none"
       style={{ background: "#6b4423" }}
       onPointerDown={interactive ? onPointerDown : undefined}
@@ -331,9 +339,11 @@ export function PlayCourt({
       <ArrowDefs />
       <CourtMarkings />
 
-      {frame.lines.map((line) => (
-        <LinePath key={line.id} line={line} />
-      ))}
+      <g style={{ opacity: linesVisible ? 1 : 0, transition: interactive ? "none" : "opacity 0.35s ease-out" }}>
+        {frame.lines.map((line) => (
+          <LinePath key={line.id} line={line} />
+        ))}
+      </g>
       {drawPreview && drawPreview.points.length > 1 && (
         <LinePath line={{ id: "preview", type: tool as LineType, color: "black", points: drawPreview.points }} />
       )}

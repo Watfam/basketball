@@ -30,16 +30,31 @@ export function clockToFraction(clock: PlaybackClock, frameCount: number): numbe
   return Math.max(0, Math.min(1, (before + within) / total));
 }
 
-/** The inverse of clockToFraction — where a dragged scrubber lands. */
+/**
+ * The inverse of clockToFraction — where a dragged scrubber lands. Walks the timeline segment by
+ * segment (hold, transition, hold, transition, ..., hold) rather than dividing by a uniform
+ * hold+transition chunk size, because the very last segment is a hold with no transition after it —
+ * treating every chunk as uniform put fraction 1.0 (the scrubber's own end stop) one segment early,
+ * landing back on frame 0 instead of resting on the last frame. Verified numerically at every frame
+ * count's fraction 0 and 1 before fixing.
+ */
 export function fractionToClock(fraction: number, frameCount: number): PlaybackClock {
-  const perFrame = HOLD_MS + TRANSITION_MS;
   const total = frameCount * HOLD_MS + Math.max(0, frameCount - 1) * TRANSITION_MS;
-  const target = Math.max(0, Math.min(1, fraction)) * total;
-  let frameIndex = Math.min(frameCount - 1, Math.floor(target / perFrame));
-  const within = target - frameIndex * perFrame;
-  if (within < HOLD_MS) return { frameIndex, phase: "hold", t: within / HOLD_MS };
-  frameIndex = Math.min(frameCount - 2, frameIndex);
-  return { frameIndex, phase: "transition", t: (within - HOLD_MS) / TRANSITION_MS };
+  let remaining = Math.max(0, Math.min(1, fraction)) * total;
+  for (let i = 0; i < frameCount; i++) {
+    if (remaining <= HOLD_MS) return { frameIndex: i, phase: "hold", t: HOLD_MS > 0 ? remaining / HOLD_MS : 0 };
+    remaining -= HOLD_MS;
+    if (i === frameCount - 1) break;
+    if (remaining <= TRANSITION_MS) return { frameIndex: i, phase: "transition", t: remaining / TRANSITION_MS };
+    remaining -= TRANSITION_MS;
+  }
+  return { frameIndex: frameCount - 1, phase: "hold", t: 1 };
+}
+
+/** Symmetric ease-in-out (ease(0.5) === 0.5 exactly) — motion settles into each stop instead of halting abruptly mid-speed. */
+export function ease(t: number): number {
+  const c = Math.max(0, Math.min(1, t));
+  return c < 0.5 ? 4 * c * c * c : 1 - (-2 * c + 2) ** 3 / 2;
 }
 
 /**
@@ -49,7 +64,8 @@ export function fractionToClock(fraction: number, frameCount: number): PlaybackC
  * interpolated offense/ball below. Returns a ball override for when the ball is traveling a pass's
  * own path rather than sitting on a player.
  */
-export function interpolateFrame(from: Frame, to: Frame, t: number): { frame: Frame; ballOverride?: Point } {
+export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame: Frame; ballOverride?: Point } {
+  const t = ease(rawT);
   const offense = to.offense.map((o) => {
     const path = to.arrivals?.[o.id];
     if (path) return { ...o, pos: pointAlongPath(path, t) };

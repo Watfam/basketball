@@ -46,6 +46,12 @@ test("fractionToClock never points a transition past the second-to-last frame", 
   assert.ok(atEnd.frameIndex <= 1 || atEnd.phase === "hold");
 });
 
+test("fractionToClock at the very end of the scrubber rests on the LAST frame, not frame 0 (regression: used to wrap back to the start)", () => {
+  for (const frameCount of [1, 2, 3, 6]) {
+    assert.deepEqual(fractionToClock(1, frameCount), { frameIndex: frameCount - 1, phase: "hold", t: 1 }, `frameCount=${frameCount}`);
+  }
+});
+
 const from: Frame = {
   offense: [{ id: "O1", pos: { x: 0, y: 0 } }],
   defense: [{ id: "X1", man: "O1", coverage: "onBall" }],

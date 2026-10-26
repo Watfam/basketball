@@ -7,6 +7,7 @@ import { FrameStrip } from "@/components/plays/frame-strip";
 import { PlayCourt, type Tool } from "@/components/plays/play-court";
 import { PlayerSheet } from "@/components/plays/player-sheet";
 import { Toolbar } from "@/components/plays/toolbar";
+import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
 import { nextFrame } from "@/lib/plays/frames";
@@ -35,6 +36,12 @@ export function PlayDesigner({
   const [tool, setTool] = useState<Tool>("move");
   const [selected, setSelected] = useState<OffenseId | DefenseId | null>(null);
   const [dragging, setDragging] = useState<{ kind: "offense" | "defense"; id: string } | null>(null);
+  // Fits the view to wherever the play actually happens across every frame — most plays use a
+  // fraction of the floor, and a full-court view would shrink that action down to a corner of the
+  // screen. A coach can still back out to the real full court to check spacing against the whole
+  // floor.
+  const [fitToPlay, setFitToPlay] = useState(true);
+  const region = fitToPlay ? computeContentBounds(frames) : undefined;
 
   const frame = frames[activeIndex];
 
@@ -92,21 +99,30 @@ export function PlayDesigner({
   }
 
   if (mode === "film") {
-    return <FilmPlayer frames={frames} onExit={() => setMode("edit")} />;
+    return <FilmPlayer frames={frames} onExit={() => setMode("edit")} region={region} />;
   }
 
   return (
-    <div className="theme-dark fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-surface/80 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur">
-        <Link href={`/teams/${teamId}`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
-          ← {teamName}
-        </Link>
-        <span className="truncate px-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-foreground-mute">
-          {initialPlayName ?? "Lightning Play Designer"}
-        </span>
-        <Link href={`/teams/${teamId}/plays/playbook`} className="shrink-0 text-xs font-extrabold uppercase tracking-wide text-accent hover:text-accent-hover">
-          Playbook
-        </Link>
+    <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
+      <div className="shrink-0 border-b border-line bg-surface/80 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur">
+        <div className="flex items-center justify-between gap-3">
+          <Link href={`/teams/${teamId}`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
+            ← {teamName}
+          </Link>
+          <Link href={`/teams/${teamId}/plays/playbook`} className="text-xs font-extrabold uppercase tracking-wide text-accent hover:text-accent-hover">
+            Playbook
+          </Link>
+        </div>
+        <div className="mt-1 flex items-center justify-between gap-3">
+          <h1 className="truncate text-[15px] font-bold text-foreground">{initialPlayName ?? "Lightning Play Designer"}</h1>
+          <button
+            type="button"
+            onClick={() => setFitToPlay((f) => !f)}
+            className="shrink-0 rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim hover:border-accent hover:text-accent"
+          >
+            {fitToPlay ? "Full court" : "Fit to play"}
+          </button>
+        </div>
       </div>
 
       <div className="relative min-h-0 flex-1">
@@ -119,6 +135,7 @@ export function PlayDesigner({
           onDragStateChange={setDragging}
           onAddLine={addLine}
           onEraseLine={eraseLine}
+          region={region}
         />
       </div>
 
