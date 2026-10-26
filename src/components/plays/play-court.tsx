@@ -58,15 +58,32 @@ function resolveDefense(frame: Frame) {
   });
 }
 
+/** Math.cos/sin aren't guaranteed bit-identical between Node (SSR) and the browser (CSR) — rounding before it reaches a path string keeps the two renders byte-for-byte equal, avoiding a hydration mismatch. */
+const r3 = (n: number) => Math.round(n * 1000) / 1000;
+
 function CourtMarkings() {
   const topHoop = DEFENDED_HOOP;
   const botHoop: Point = { x: 25, y: COURT_LENGTH - topHoop.y };
+  // The 3pt line: a real arc of radius R centred ON THE HOOP, clipped by the sidelines into two straight
+  // corner runs (NBA-ish: R = 23.75 ft, corners inset 22 ft from the court's centerline) — so the arc's
+  // belly sits R ft *beyond* the hoop (away from the baseline, toward half court), never toward it.
   const arc = (hoop: Point, flip: 1 | -1) => {
-    const r = 22;
-    const y0 = hoop.y + flip * 14.3; // where the arc meets the straight corner run, ~ the real NBA corner-3 geometry
-    const x1 = 3, x2 = 47;
-    const sweep = flip === 1 ? 1 : 0;
-    return `M ${x1} ${hoop.y} L ${x1} ${y0} A ${r} ${r} 0 0 ${sweep} ${x2} ${y0} L ${x2} ${hoop.y}`;
+    const R = 23.75, halfWidth = 22;
+    const dy0 = Math.sqrt(R * R - halfWidth * halfWidth);
+    const y0 = hoop.y + flip * dy0;
+    const x1 = hoop.x - halfWidth, x2 = hoop.x + halfWidth;
+    const baselineY = flip === 1 ? 0 : COURT_LENGTH;
+    const angle1 = Math.atan2(flip * dy0, -halfWidth);
+    const angle2 = Math.atan2(flip * dy0, halfWidth);
+    const belly = (Math.PI / 2) * flip;
+    const N = 24;
+    let d = `M ${x1} ${baselineY} L ${x1} ${r3(y0)}`;
+    for (let i = 1; i <= N; i++) {
+      const t = i / N;
+      const a = i <= N / 2 ? angle1 + (belly - angle1) * (t * 2) : belly + (angle2 - belly) * ((t - 0.5) * 2);
+      d += ` L ${r3(hoop.x + R * Math.cos(a))} ${r3(hoop.y + R * Math.sin(a))}`;
+    }
+    return `${d} L ${x2} ${baselineY}`;
   };
   const key = (hoop: Point, flip: 1 | -1) => `M ${17} ${hoop.y} V ${hoop.y + flip * 19} H ${33} V ${hoop.y}`;
   const hoopGlyph = (hoop: Point, flip: 1 | -1) => (
