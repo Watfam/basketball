@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { FilmPlayer } from "@/components/plays/film-player";
+import { FrameStrip } from "@/components/plays/frame-strip";
 import { PlayCourt, type Tool } from "@/components/plays/play-court";
 import { PlayerSheet } from "@/components/plays/player-sheet";
 import { Toolbar } from "@/components/plays/toolbar";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
-import { EXAMPLE_FRAME, type DefenseId, type DrawnLine, type Frame, type OffenseId } from "@/lib/plays/types";
+import { nextFrame } from "@/lib/plays/frames";
+import { EXAMPLE_PLAY, type DefenseId, type DrawnLine, type OffenseId } from "@/lib/plays/types";
 
 let lineSeq = 0;
 function nextLineId() {
@@ -16,10 +19,14 @@ function nextLineId() {
 }
 
 export function PlayDesigner({ teamId, teamName }: { teamId: string; teamName: string }) {
-  const [frame, setFrame] = useState<Frame>(EXAMPLE_FRAME);
+  const [frames, setFrames] = useState(EXAMPLE_PLAY);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [mode, setMode] = useState<"edit" | "film">("edit");
   const [tool, setTool] = useState<Tool>("move");
   const [selected, setSelected] = useState<OffenseId | DefenseId | null>(null);
   const [dragging, setDragging] = useState<{ kind: "offense" | "defense"; id: string } | null>(null);
+
+  const frame = frames[activeIndex];
 
   // The whole point of design mode: every touch on the court means move or
   // draw, never scroll the page underneath it.
@@ -31,8 +38,12 @@ export function PlayDesigner({ teamId, teamName }: { teamId: string; teamName: s
     };
   }, []);
 
+  function updateActive(fn: (f: typeof frame) => typeof frame) {
+    setFrames((fs) => fs.map((f, i) => (i === activeIndex ? fn(f) : f)));
+  }
+
   function movePlayer(id: OffenseId | DefenseId, pos: Point) {
-    setFrame((f) => {
+    updateActive((f) => {
       if (id.startsWith("O")) {
         return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)) };
       }
@@ -41,23 +52,37 @@ export function PlayDesigner({ teamId, teamName }: { teamId: string; teamName: s
   }
 
   function addLine(line: Omit<DrawnLine, "id">) {
-    setFrame((f) => ({ ...f, lines: [...f.lines, { ...line, id: nextLineId() }] }));
+    updateActive((f) => ({ ...f, lines: [...f.lines, { ...line, id: nextLineId() }] }));
   }
 
   function eraseLine(id: string) {
-    setFrame((f) => ({ ...f, lines: f.lines.filter((l) => l.id !== id) }));
+    updateActive((f) => ({ ...f, lines: f.lines.filter((l) => l.id !== id) }));
   }
 
   function setCoverage(id: DefenseId, coverage: Coverage) {
-    setFrame((f) => ({ ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage } : d)) }));
+    updateActive((f) => ({ ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage } : d)) }));
   }
 
   function setMan(id: DefenseId, man: OffenseId) {
-    setFrame((f) => ({ ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, man } : d)) }));
+    updateActive((f) => ({ ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, man } : d)) }));
   }
 
   function giveBall(id: OffenseId) {
-    setFrame((f) => ({ ...f, ballHolder: id }));
+    updateActive((f) => ({ ...f, ballHolder: id }));
+  }
+
+  function setNote(note: string) {
+    updateActive((f) => ({ ...f, note }));
+  }
+
+  function addFrame() {
+    setFrames((fs) => [...fs, nextFrame(fs[fs.length - 1])]);
+    setActiveIndex(frames.length);
+    setSelected(null);
+  }
+
+  if (mode === "film") {
+    return <FilmPlayer frames={frames} onExit={() => setMode("edit")} />;
   }
 
   return (
@@ -82,6 +107,17 @@ export function PlayDesigner({ teamId, teamName }: { teamId: string; teamName: s
         />
       </div>
 
+      <FrameStrip
+        frames={frames}
+        activeIndex={activeIndex}
+        onSelect={(i) => {
+          setActiveIndex(i);
+          setSelected(null);
+        }}
+        onAddFrame={addFrame}
+        onPlay={() => setMode("film")}
+        onNoteChange={setNote}
+      />
       <Toolbar tool={tool} onSelect={setTool} />
 
       {selected && (

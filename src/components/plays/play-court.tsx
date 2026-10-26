@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { computeCoveragePosition } from "@/lib/plays/coverage";
 import { distance, length, maxDeviationFromChord, smoothPath, sub, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
+import { resolveDefense } from "@/lib/plays/resolve";
 import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
 
 export type Tool = "move" | "pass" | "cut" | "dribble" | "screen";
@@ -47,45 +47,41 @@ function tryCapture(svg: SVGSVGElement, pointerId: number, release: boolean) {
   }
 }
 
-/** Live defender positions — purely a function of the frame, never stored. */
-function resolveDefense(frame: Frame) {
-  const byOffense = new Map(frame.offense.map((o) => [o.id, o.pos]));
-  const ball = byOffense.get(frame.ballHolder)!;
-  return frame.defense.map((d) => {
-    const man = byOffense.get(d.man)!;
-    const pos = computeCoveragePosition(d.coverage, man, ball, DEFENDED_HOOP, d.man === frame.ballHolder, d.manualPos);
-    return { ...d, pos, man };
-  });
-}
-
-/** Math.cos/sin aren't guaranteed bit-identical between Node (SSR) and the browser (CSR) — rounding before it reaches a path string keeps the two renders byte-for-byte equal, avoiding a hydration mismatch. */
-const r3 = (n: number) => Math.round(n * 1000) / 1000;
+// NFHS (high school) court markings, verified against the current rule book: 12 ft lane, 19 ft lane
+// length (baseline to free-throw line), 6 ft free-throw/center circle radius, a true-circle 19'9"
+// three-point arc (see threePt() below for why the corner isn't a separately-chosen inset).
+const LANE_HALF = 6;
+const LANE_LEN = 19;
+const FT_RADIUS = 6;
+const THREE_PT_R = 19.75;
 
 function CourtMarkings() {
   const topHoop = DEFENDED_HOOP;
   const botHoop: Point = { x: 25, y: COURT_LENGTH - topHoop.y };
-  // The 3pt line: a real arc of radius R centred ON THE HOOP, clipped by the sidelines into two straight
-  // corner runs (NBA-ish: R = 23.75 ft, corners inset 22 ft from the court's centerline) — so the arc's
-  // belly sits R ft *beyond* the hoop (away from the baseline, toward half court), never toward it.
-  const arc = (hoop: Point, flip: 1 | -1) => {
-    const R = 23.75, halfWidth = 22;
-    const dy0 = Math.sqrt(R * R - halfWidth * halfWidth);
-    const y0 = hoop.y + flip * dy0;
-    const x1 = hoop.x - halfWidth, x2 = hoop.x + halfWidth;
-    const baselineY = flip === 1 ? 0 : COURT_LENGTH;
-    const angle1 = Math.atan2(flip * dy0, -halfWidth);
-    const angle2 = Math.atan2(flip * dy0, halfWidth);
-    const belly = (Math.PI / 2) * flip;
-    const N = 24;
-    let d = `M ${x1} ${baselineY} L ${x1} ${r3(y0)}`;
-    for (let i = 1; i <= N; i++) {
-      const t = i / N;
-      const a = i <= N / 2 ? angle1 + (belly - angle1) * (t * 2) : belly + (angle2 - belly) * ((t - 0.5) * 2);
-      d += ` L ${r3(hoop.x + R * Math.cos(a))} ${r3(hoop.y + R * Math.sin(a))}`;
-    }
-    return `${d} L ${x2} ${baselineY}`;
+  const baselineY = (flip: 1 | -1) => (flip === 1 ? 0 : COURT_LENGTH);
+
+  const key = (flip: 1 | -1) => {
+    const b = baselineY(flip);
+    return `M ${25 - LANE_HALF} ${b} V ${b + flip * LANE_LEN} H ${25 + LANE_HALF} V ${b}`;
   };
-  const key = (hoop: Point, flip: 1 | -1) => `M ${17} ${hoop.y} V ${hoop.y + flip * 19} H ${33} V ${hoop.y}`;
+
+  // The 3pt line is a true circle of radius R centred on the hoop — not a corner inset chosen
+  // separately from the radius. Its leftmost/rightmost points (where the straight corner run takes
+  // over) sit exactly R ft out from the centerline, which is always level with the hoop itself (the
+  // same y, since those are the circle's horizontal extremes) — e.g. at R = 19'9" that is 25 - 19.75 =
+  // 5.25 ft (63 in) off the sideline, exactly matching a real court diagram's own corner measurement,
+  // not a fixed "3 ft inset" guess. The straight run is just that point's own x, from the baseline up
+  // to the hoop's y — tangent to the circle there, so the curve meets it with no kink.
+  const threePt = (hoop: Point, flip: 1 | -1) => {
+    const b = baselineY(flip);
+    const x1 = hoop.x - THREE_PT_R, x2 = hoop.x + THREE_PT_R;
+    const left: Point = { x: x1, y: hoop.y };
+    const right: Point = { x: x2, y: hoop.y };
+    const belly: Point = { x: hoop.x, y: hoop.y + flip * THREE_PT_R };
+    const curve = smoothPath([left, belly, right]).replace(/^M\s*[-\d.]+\s+[-\d.]+\s*/, "");
+    return `M ${x1} ${b} L ${x1} ${hoop.y} ${curve} L ${x2} ${b}`;
+  };
+
   const hoopGlyph = (hoop: Point, flip: 1 | -1) => (
     <g>
       <line x1={22} y1={hoop.y - flip * 1.25} x2={28} y2={hoop.y - flip * 1.25} stroke="#f4f1ea" strokeWidth={0.35} />
@@ -96,19 +92,19 @@ function CourtMarkings() {
   return (
     <g>
       <rect x={0} y={0} width={COURT_WIDTH} height={COURT_LENGTH} fill="#8a5a34" />
-    <g stroke="#f4f1ea" strokeWidth={0.25} fill="none" opacity={0.85}>
-      <rect x={0} y={0} width={COURT_WIDTH} height={COURT_LENGTH} />
-      <line x1={0} y1={COURT_LENGTH / 2} x2={COURT_WIDTH} y2={COURT_LENGTH / 2} />
-      <circle cx={25} cy={COURT_LENGTH / 2} r={6} />
-      <path d={key(topHoop, 1)} />
-      <path d={key(botHoop, -1)} />
-      <circle cx={25} cy={topHoop.y + 19} r={6} />
-      <circle cx={25} cy={botHoop.y - 19} r={6} />
-      <path d={arc(topHoop, 1)} />
-      <path d={arc(botHoop, -1)} />
-      {hoopGlyph(topHoop, 1)}
-      {hoopGlyph(botHoop, -1)}
-    </g>
+      <g stroke="#f4f1ea" strokeWidth={0.25} fill="none" opacity={0.85}>
+        <rect x={0} y={0} width={COURT_WIDTH} height={COURT_LENGTH} />
+        <line x1={0} y1={COURT_LENGTH / 2} x2={COURT_WIDTH} y2={COURT_LENGTH / 2} />
+        <circle cx={25} cy={COURT_LENGTH / 2} r={6} />
+        <path d={key(1)} />
+        <path d={key(-1)} />
+        <circle cx={25} cy={0 + LANE_LEN} r={FT_RADIUS} />
+        <circle cx={25} cy={COURT_LENGTH - LANE_LEN} r={FT_RADIUS} />
+        <path d={threePt(topHoop, 1)} />
+        <path d={threePt(botHoop, -1)} />
+        {hoopGlyph(topHoop, 1)}
+        {hoopGlyph(botHoop, -1)}
+      </g>
     </g>
   );
 }
@@ -166,6 +162,8 @@ export function PlayCourt({
   onDragStateChange,
   onAddLine,
   onEraseLine,
+  ballOverride,
+  interactive = true,
 }: {
   frame: Frame;
   tool: Tool;
@@ -175,6 +173,10 @@ export function PlayCourt({
   onDragStateChange: (d: { kind: "offense" | "defense"; id: string } | null) => void;
   onAddLine: (line: Omit<DrawnLine, "id">) => void;
   onEraseLine: (id: string) => void;
+  /** The ball's actual position mid-flight along a pass during playback — overrides deriving it from the holder. */
+  ballOverride?: Point;
+  /** False during film playback: no drag, draw, or tap-to-open-sheet. */
+  interactive?: boolean;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gesture = useRef<{
@@ -186,9 +188,9 @@ export function PlayCourt({
   } | null>(null);
   const [drawing, setDrawing] = useState<{ points: Point[] } | null>(null);
 
-  const defense = resolveDefense(frame);
-  const ball = frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 47 };
-  const ballPos = { x: ball.x + 1.7, y: ball.y + 1.7 };
+  const defense = resolveDefense(frame, ballOverride);
+  const holderPos = frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 47 };
+  const ballPos = ballOverride ?? { x: holderPos.x + 1.7, y: holderPos.y + 1.7 };
 
   function nearestPlayer(p: Point): { kind: "offense" | "defense"; id: string; pos: Point } | null {
     let best: { kind: "offense" | "defense"; id: string; pos: Point; d: number } | null = null;
@@ -308,10 +310,10 @@ export function PlayCourt({
       viewBox={`${-MARGIN} ${-MARGIN} ${COURT_WIDTH + MARGIN * 2} ${COURT_LENGTH + MARGIN * 2}`}
       className="h-full w-full touch-none select-none"
       style={{ background: "#6b4423" }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
+      onPointerDown={interactive ? onPointerDown : undefined}
+      onPointerMove={interactive ? onPointerMove : undefined}
+      onPointerUp={interactive ? onPointerUp : undefined}
+      onPointerCancel={interactive ? onPointerUp : undefined}
     >
       <ArrowDefs />
       <CourtMarkings />
@@ -328,7 +330,7 @@ export function PlayCourt({
         const r = isDragging ? PLAYER_R * 1.3 : PLAYER_R;
         const cy = isDragging ? o.pos.y - LIFT_FEET : o.pos.y;
         return (
-          <g key={o.id} style={{ transition: isDragging ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
+          <g key={o.id} style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
             <circle cx={o.pos.x} cy={cy} r={r} fill={OFFENSE_FILL} stroke="#450a0a" strokeWidth={0.2} />
             <text x={o.pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill="#ffffff">
               {o.id.slice(1)}
@@ -342,7 +344,7 @@ export function PlayCourt({
         const r = isDragging ? PLAYER_R * 1.3 : PLAYER_R;
         const cy = isDragging ? d.pos.y - LIFT_FEET : d.pos.y;
         return (
-          <g key={d.id} style={{ transition: isDragging ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
+          <g key={d.id} style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
             <circle cx={d.pos.x} cy={cy} r={r} fill={DEFENSE_FILL} stroke="#0a1120" strokeWidth={0.2} />
             <text x={d.pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill={DEFENSE_NUMBER}>
               {d.id.slice(1)}
@@ -363,7 +365,7 @@ export function PlayCourt({
             fill={BALL_FILL}
             stroke="#7c2d12"
             strokeWidth={0.15}
-            style={{ transition: isDragging ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}
+            style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}
           />
         );
       })()}
