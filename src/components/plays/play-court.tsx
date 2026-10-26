@@ -55,6 +55,9 @@ const LANE_LEN = 19;
 const FT_RADIUS = 6;
 const THREE_PT_R = 19.75;
 
+/** Math.cos/sin are not guaranteed bit-identical between Node (SSR) and the browser (CSR) — rounding before it reaches a path string keeps the two renders byte-for-byte equal, avoiding a hydration mismatch. */
+const r3 = (n: number) => Math.round(n * 1000) / 1000;
+
 function CourtMarkings() {
   const topHoop = DEFENDED_HOOP;
   const botHoop: Point = { x: 25, y: COURT_LENGTH - topHoop.y };
@@ -72,14 +75,24 @@ function CourtMarkings() {
   // 5.25 ft (63 in) off the sideline, exactly matching a real court diagram's own corner measurement,
   // not a fixed "3 ft inset" guess. The straight run is just that point's own x, from the baseline up
   // to the hoop's y — tangent to the circle there, so the curve meets it with no kink.
+  //
+  // The curved part is sampled directly from the circle's own parametric equation (angle(t) =
+  // pi*(1 - flip*t) goes from the left corner at 180 deg, through the belly at 90*flip deg, to the
+  // right corner at 0 deg — verified numerically before writing this) rather than approximated with a
+  // 3-point spline: a Catmull-Rom curve through just the two corners and the belly cuts drastically
+  // inside the real circle everywhere between those three points (measured over 5 ft short of true at
+  // the deepest part of an earlier version of this arc) — nowhere close to round.
   const threePt = (hoop: Point, flip: 1 | -1) => {
     const b = baselineY(flip);
     const x1 = hoop.x - THREE_PT_R, x2 = hoop.x + THREE_PT_R;
-    const left: Point = { x: x1, y: hoop.y };
-    const right: Point = { x: x2, y: hoop.y };
-    const belly: Point = { x: hoop.x, y: hoop.y + flip * THREE_PT_R };
-    const curve = smoothPath([left, belly, right]).replace(/^M\s*[-\d.]+\s+[-\d.]+\s*/, "");
-    return `M ${x1} ${b} L ${x1} ${hoop.y} ${curve} L ${x2} ${b}`;
+    const N = 32;
+    let d = `M ${x1} ${b} L ${x1} ${hoop.y}`;
+    for (let i = 1; i <= N; i++) {
+      const t = i / N;
+      const a = Math.PI * (1 - flip * t);
+      d += ` L ${r3(hoop.x + THREE_PT_R * Math.cos(a))} ${r3(hoop.y + THREE_PT_R * Math.sin(a))}`;
+    }
+    return `${d} L ${x2} ${b}`;
   };
 
   const hoopGlyph = (hoop: Point, flip: 1 | -1) => (
