@@ -18,6 +18,8 @@ export type LibraryPlay = {
   category: PlayCategory;
   /** Where this was sourced from, and how confident that sourcing is — shown in the playbook so nothing reads as more authoritative than it is. */
   source: string;
+  /** A real, verified YouTube video that shows or teaches this exact action. Left out rather than guessed at when nothing specific enough turned up — see the no-invented-URLs rule. */
+  videoUrl?: string;
   frames: Frame[];
 };
 
@@ -37,9 +39,10 @@ function play(
   team: LibraryTeam,
   category: PlayCategory,
   source: string,
-  frames: Frame[]
+  frames: Frame[],
+  videoUrl?: string
 ): LibraryPlay {
-  return { id, name, team, category, source, frames };
+  return { id, name, team, category, source, frames, videoUrl };
 }
 
 /**
@@ -49,36 +52,65 @@ function play(
  * attribution is: a named, move-by-move breakdown of real film is marked as such; where that kind of
  * detail was not publicly available for a given team, the entry says so and is either a standard,
  * unattributed action (not claimed as that team's own) or built from the team's publicly stated
- * stylistic principles rather than a specific sourced play.
+ * stylistic principles rather than a specific sourced play. `videoUrl` is only ever a real link found
+ * and checked against the play it is attached to — never a guess at what a matching video's address
+ * might be.
  */
 export const LIBRARY_PLAYS: LibraryPlay[] = [
   // ---------------------------------------------------------------- UConn (Dan Hurley) — man sets
   play("uconn-hilo", "Middle Pin Hi-Lo", "UConn", "man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession for Adama Sanogo.",
+    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession for Adama Sanogo, played out here across the full pin-down-to-post-touch-to-finish sequence the breakdown describes rather than stopping partway through it.",
     [
       {
-        offense: [o("O1", 25, 34), o("O2", 14, 21), o("O3", 38, 21), o("O4", 44, 9), o("O5", 25, 9)],
+        offense: [o("O1", 25, 34), o("O2", 14, 21), o("O3", 38, 21), o("O4", 44, 9), o("O5", 25, 12)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "2-3 alignment. Sanogo starts up high at the post, ready to pin down for Calcaterra.",
+      },
+      {
+        offense: [o("O1", 25, 34), o("O2", 14, 21), o("O3", 38, 21), o("O4", 44, 9), o("O5", 22, 14)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 22, y: 14 }, { x: 19, y: 15 }])],
+        note: "Sanogo steps out and sets the pin down in the restricted area.",
+      },
+      {
+        offense: [o("O1", 25, 34), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 27, 9)],
         defense: [],
         ballHolder: "O1",
         lines: [
-          ln("screen", "offense", [{ x: 25, y: 9 }, { x: 19, y: 13 }]),
           ln("cut", "offense", [{ x: 14, y: 21 }, { x: 20, y: 18 }]),
-          ln("pass", "offense", [{ x: 25, y: 34 }, { x: 20, y: 18 }]),
+          ln("cut", "offense", [{ x: 22, y: 14 }, { x: 27, y: 9 }]),
         ],
-        note: "Sanogo pins down in the restricted area for the wing, then ducks into the post.",
+        note: "Calcaterra cuts hard off the screen toward the wing as Sanogo immediately ducks into the post behind him.",
       },
       {
-        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 30, 8)],
+        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 29, 8)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 25, y: 34 }, { x: 20, y: 18 }])],
+        note: "Entry pass to Calcaterra on the move.",
+      },
+      {
+        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 29, 8)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 20, y: 18 }, { x: 29, y: 8 }])],
+        note: "Hi-lo feed off the duck-in — post touch for Sanogo near the rim.",
+      },
+      {
+        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 26, 6)],
         defense: [],
         ballHolder: "O5",
         lines: [],
-        note: "Hi-lo feed off the duck-in — post touch for Sanogo near the rim.",
+        note: "Sanogo turns over his inside shoulder to finish at the rim.",
       },
     ]
   ),
 
   play("uconn-dho-rip", "DHO and Rip", "UConn", "man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession for Adama Sanogo.",
+    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession for Adama Sanogo, with the entry, handoff, rip screen, and finish each shown as its own beat.",
     [
       {
         offense: [o("O1", 14, 30), o("O5", 25, 19), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
@@ -90,71 +122,111 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
       {
         offense: [o("O1", 23, 19), o("O5", 25, 19), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
         defense: [],
+        ballHolder: "O5",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 19 }, { x: 23, y: 19 }])],
+        note: "Newton comes back to Sanogo for the dribble handoff.",
+      },
+      {
+        offense: [o("O1", 23, 19), o("O5", 25, 19), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
+        defense: [],
         ballHolder: "O1",
         lines: [
           ln("screen", "offense", [{ x: 23, y: 19 }, { x: 27, y: 16 }]),
           ln("cut", "offense", [{ x: 25, y: 19 }, { x: 30, y: 8 }]),
         ],
-        note: "Dribble handoff back to the point guard, who immediately sets a rip screen.",
+        note: "Handoff complete — Newton immediately turns to set the rip screen for Sanogo.",
+      },
+      {
+        offense: [o("O1", 21, 17), o("O5", 30, 8), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "The rip screen clears Sanogo across the lane to the opposite block.",
       },
       {
         offense: [o("O1", 21, 17), o("O5", 30, 8), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
         defense: [],
         ballHolder: "O5",
-        lines: [],
-        note: "The rip screen clears Sanogo to the opposite block for the post touch.",
+        lines: [ln("pass", "offense", [{ x: 21, y: 17 }, { x: 30, y: 8 }])],
+        note: "Post touch for Sanogo on the opposite block.",
       },
     ]
   ),
 
   play("uconn-buckeye-slip", "Buckeye Slip", "UConn", "man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession (Newton/Karaban/Sanogo).",
+    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession (Newton/Karaban/Sanogo), with the weak-side cut, the slipped ball screen, and the finish each broken into their own beat.",
     [
       {
         offense: [o("O1", 25, 30), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 25, 9)],
         defense: [],
         ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 25, y: 9 }, { x: 19, y: 15 }]),
-          ln("cut", "offense", [{ x: 25, y: 30 }, { x: 14, y: 26 }]),
-        ],
-        note: "Newton cuts weak side off a screen from Sanogo; the ball swings back to him.",
+        lines: [ln("screen", "offense", [{ x: 25, y: 9 }, { x: 19, y: 15 }])],
+        note: "Sanogo sets the screen for Newton to cut weak side.",
+      },
+      {
+        offense: [o("O1", 25, 30), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 22, 17)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 25, y: 30 }, { x: 14, y: 26 }])],
+        note: "Newton cuts off the screen; Sanogo relocates to the slot for the ball-screen game.",
       },
       {
         offense: [o("O1", 14, 26), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 22, 17)],
         defense: [],
         ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 22, y: 17 }, { x: 18, y: 20 }]),
-          ln("cut", "offense", [{ x: 22, y: 17 }, { x: 25, y: 9 }]),
-        ],
-        note: "Karaban steps up to ball-screen for Newton, then slips the screen before it is even set.",
+        lines: [ln("screen", "offense", [{ x: 22, y: 17 }, { x: 18, y: 20 }])],
+        note: "The ball swings back to Newton — Karaban steps up as if to set the ball screen.",
+      },
+      {
+        offense: [o("O1", 16, 23), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 24, 12)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 22, y: 17 }, { x: 25, y: 9 }])],
+        note: "Karaban slips the screen before it is even set — the defense still has to respect it for a beat.",
       },
       {
         offense: [o("O1", 16, 22), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 25, 9)],
         defense: [],
         ballHolder: "O1",
         lines: [ln("pass", "offense", [{ x: 16, y: 22 }, { x: 25, y: 9 }])],
-        note: "The defense has to respect the ball screen for a beat — Karaban slips behind it for the layup.",
+        note: "Newton finds Karaban slipping behind the screen.",
+      },
+      {
+        offense: [o("O1", 16, 22), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 25, 7)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [],
+        note: "Layup off the slip.",
       },
     ]
   ),
 
   play("uconn-lob-jackson", "Lob for Jackson", "UConn", "man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession.",
+    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession, with the rub screen, the triple-screen clearout, and the lob broken into their own beats instead of compressed into two frames.",
     [
       {
         offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 9), o("O5", 18, 8)],
         defense: [],
         ballHolder: "O1",
-        lines: [
-          ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 20 }]),
-          ln("screen", "offense", [{ x: 25, y: 9 }, { x: 31, y: 11 }]),
-        ],
-        note: "Jackson passes to the wing and sets a rub screen for Karaban coming off the opposite side.",
+        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 20 }])],
+        note: "Jackson passes to the wing.",
+      },
+      {
+        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 9), o("O5", 18, 8)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("screen", "offense", [{ x: 25, y: 9 }, { x: 31, y: 11 }])],
+        note: "Jackson sets a rub screen for Karaban coming off the opposite side.",
       },
       {
         offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 29, 12), o("O5", 25, 9)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 25, y: 9 }, { x: 29, y: 12 }])],
+        note: "Karaban comes off the rub screen toward the ball side.",
+      },
+      {
+        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 14, 20), o("O5", 18, 8)],
         defense: [],
         ballHolder: "O3",
         lines: [
@@ -167,8 +239,15 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 19, 25), o("O2", 10, 20), o("O3", 40, 20), o("O4", 14, 20), o("O5", 18, 8)],
         defense: [],
         ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 14, y: 20 }, { x: 19, y: 10 }])],
+        note: "Karaban peels off the clearout and sets the final screen on the lob defender.",
+      },
+      {
+        offense: [o("O1", 19, 25), o("O2", 10, 20), o("O3", 40, 20), o("O4", 19, 10), o("O5", 18, 8)],
+        defense: [],
+        ballHolder: "O5",
         lines: [ln("pass", "offense", [{ x: 40, y: 20 }, { x: 18, y: 8 }])],
-        note: "Karaban sets the final screen on the lob defender — alley-oop for Jackson at the rim.",
+        note: "Alley-oop lofted to Jackson at the rim.",
       },
     ]
   ),
@@ -202,12 +281,13 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         lines: [],
         note: "Finish at the rim.",
       },
-    ]
+    ],
+    "https://youtube.com/shorts/DZWPPWGTA7c"
   ),
 
   // ------------------------------------------------------------- Auburn (Bruce Pearl) — man + BLOB
   play("auburn-flex", "Flex Continuity", "Auburn", "man",
-    "Hoop Vision, \"the Auburn flex\" (HV Weekly), plus briangeisinger.substack.com \"Big Flex\" — both move-by-move breakdowns of real Auburn possessions, stitched into the fuller continuity those breakdowns describe (shallow cut, flex cut, screen-the-screener, then the two-man ball-screen game and its flare-screen counter) rather than stopping at the first read.",
+    "Hoop Vision, \"the Auburn flex\" (HV Weekly), plus briangeisinger.substack.com \"Big Flex\" — both move-by-move breakdowns of real Auburn possessions, stitched into the fuller continuity those breakdowns describe (shallow cut, flex cut, screen-the-screener, then the two-man ball-screen game and its flare-screen counter) rather than stopping at the first read. The linked video is a separate, confirmed X's-and-O's breakdown of this same flex system.",
     [
       {
         offense: [o("O1", 25, 32), o("O5", 32, 22), o("O2", 8, 9), o("O4", 20, 9), o("O3", 42, 12)],
@@ -263,7 +343,8 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         lines: [],
         note: "Catch-and-shoot three off the delayed close-out.",
       },
-    ]
+    ],
+    "https://www.youtube.com/watch?v=FBj8lJPW9io"
   ),
 
   play("auburn-zoom", "Zoom Action", "Auburn", "man",
@@ -314,8 +395,15 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play("auburn-flare", "Flare Counter", "Auburn", "man",
-    "The Auburn Observer, \"How Auburn basketball's offense zoomed into a new era vs. Baylor\" — named, move-by-move breakdown (Jasper/Williams/Green).",
+    "The Auburn Observer, \"How Auburn basketball's offense zoomed into a new era vs. Baylor\" — named, move-by-move breakdown (Jasper/Williams/Green), with the alignment, the drive, the flare screen, and the finish each shown as its own beat.",
     [
+      {
+        offense: [o("O3", 25, 32), o("O1", 14, 20), o("O4", 36, 18), o("O2", 10, 10), o("O5", 40, 10)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "Alignment before the drive.",
+      },
       {
         offense: [o("O3", 25, 30), o("O1", 14, 20), o("O4", 36, 18), o("O2", 10, 10), o("O5", 40, 10)],
         defense: [],
@@ -324,41 +412,65 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         note: "O3 drives middle off the dribble, collapsing the defense toward the paint.",
       },
       {
-        offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 36, 18), o("O2", 10, 10), o("O5", 40, 10)],
+        offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 40, 14), o("O2", 10, 10), o("O5", 40, 10)],
         defense: [],
         ballHolder: "O3",
-        lines: [
-          ln("screen", "offense", [{ x: 36, y: 18 }, { x: 40, y: 14 }]),
-          ln("pass", "offense", [{ x: 18, y: 22 }, { x: 44, y: 10 }]),
-        ],
-        note: "O4 flares out to the corner off a screen as the drive draws help — kick-out for three.",
+        lines: [ln("screen", "offense", [{ x: 36, y: 18 }, { x: 40, y: 14 }])],
+        note: "O4 flares out off a screen as the drive draws help.",
+      },
+      {
+        offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 44, 10), o("O2", 10, 10), o("O5", 40, 10)],
+        defense: [],
+        ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 18, y: 22 }, { x: 44, y: 10 }])],
+        note: "Kick-out to the corner off the flare.",
       },
       {
         offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 44, 10), o("O2", 10, 10), o("O5", 40, 10)],
         defense: [],
         ballHolder: "O4",
         lines: [],
-        note: "Open corner three off the flare.",
+        note: "Open corner three.",
       },
     ]
   ),
 
   play("auburn-blob-14lob", "1-4 Flat Lob", "Auburn", "blob",
-    "Successknocks.com coaching breakdown names Auburn's use of \"1-4 flat stacks for lob plays\" on BLOB, without move-by-move detail — the alignment and action below is a standard way to run that call, not a confirmed exact diagram.",
+    "Successknocks.com coaching breakdown names Auburn's use of \"1-4 flat stacks for lob plays\" on BLOB, without move-by-move detail — the alignment and action below is a standard way to run that call, not a confirmed exact diagram, broken into finer beats than a 2-frame sketch so the cut and the lob read as the continuous action they are.",
     [
       {
         offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 20, 9), o("O4", 30, 9), o("O5", 36, 9)],
         defense: [],
         ballHolder: "O3",
+        lines: [],
+        note: "1-4 flat along the foul line.",
+      },
+      {
+        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 28, 8), o("O5", 36, 9)],
+        defense: [],
+        ballHolder: "O3",
         lines: [
           ln("screen", "offense", [{ x: 20, y: 9 }, { x: 24, y: 9 }]),
-          ln("cut", "offense", [{ x: 30, y: 9 }, { x: 25, y: 7 }]),
-          ln("pass", "offense", [{ x: 25, y: 2 }, { x: 25, y: 7 }]),
+          ln("cut", "offense", [{ x: 30, y: 9 }, { x: 28, y: 8 }]),
         ],
-        note: "1-4 flat along the foul line. O2 screens across for O4, who cuts to the rim for the lob.",
+        note: "O2 screens across for O4, who starts the cut to the rim.",
       },
       {
         offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 25, 7), o("O5", 36, 9)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 28, y: 8 }, { x: 25, y: 7 }])],
+        note: "O4 continues through the lane toward the rim as the lob is released.",
+      },
+      {
+        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 25, 7), o("O5", 36, 9)],
+        defense: [],
+        ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 25, y: 2 }, { x: 25, y: 7 }])],
+        note: "Lob caught in the air just short of the rim.",
+      },
+      {
+        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 25, 6), o("O5", 36, 9)],
         defense: [],
         ballHolder: "O4",
         lines: [],
@@ -369,31 +481,60 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
 
   // --------------------------------------------------------- Louisville (Pat Kelsey) — style-based
   play("louisville-5out-flow", "5-Out Flow", "Louisville", "man",
-    "Built from Kelsey's publicly stated system (SI/On3/Half Court Hoops reporting on his 5-out, pace-and-space principles at Charleston and Louisville) — a representative possession, not a specific sourced diagram.",
+    "Built from Kelsey's publicly stated system (SI/On3/Half Court Hoops reporting on his 5-out, pace-and-space principles at Charleston and Louisville) — a representative possession, not a specific sourced diagram. The linked video is Hoop Vision's general breakdown of 5-out offensive concepts (backdoor cuts, split action, zoom, staggers), not Louisville-specific footage.",
     [
       {
         offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
         defense: [],
         ballHolder: "O1",
+        lines: [],
+        note: "Five-out spacing to start — no post.",
+      },
+      {
+        offense: [o("O1", 25, 20), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
+        defense: [],
+        ballHolder: "O2",
         lines: [
           ln("pass", "offense", [{ x: 25, y: 32 }, { x: 10, y: 20 }]),
           ln("cut", "offense", [{ x: 25, y: 32 }, { x: 25, y: 20 }]),
         ],
-        note: "Five-out spacing — no post. Ball reverses to the wing as O1 cuts through to the opposite corner.",
+        note: "Ball reverses to the wing as O1 cuts through to the opposite corner.",
       },
       {
         offense: [o("O1", 44, 10), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
         defense: [],
-        ballHolder: "O2",
-        lines: [],
-        note: "Floor stays spaced for the next side ball screen or drive-and-kick.",
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 10, y: 20 }, { x: 40, y: 20 }])],
+        note: "Side to side — the ball keeps moving, probing for the gap in the defense's shape.",
       },
-    ]
+      {
+        offense: [o("O1", 44, 10), o("O2", 10, 20), o("O3", 32, 14), o("O4", 6, 10), o("O5", 44, 10)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("dribble", "offense", [{ x: 40, y: 20 }, { x: 32, y: 14 }])],
+        note: "O3 drives baseline off the catch — downhill, pace-and-space basketball.",
+      },
+      {
+        offense: [o("O1", 44, 10), o("O2", 10, 20), o("O3", 32, 14), o("O4", 6, 10), o("O5", 44, 10)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("pass", "offense", [{ x: 32, y: 14 }, { x: 44, y: 10 }])],
+        note: "Kick out to the corner for the catch-and-shoot three — the shot the spacing was built for.",
+      },
+    ],
+    "https://youtu.be/DITiFB5Aft4"
   ),
 
   play("louisville-5out-ballscreen", "5-Out Ball-Screen Attack", "Louisville", "man",
-    "Built from Kelsey's publicly stated system (pace, spacing, high three-point volume) — a representative possession, not a specific sourced diagram.",
+    "Built from Kelsey's publicly stated system (pace, spacing, high three-point volume) — a representative possession, not a specific sourced diagram. The linked video is Hoop Vision's general breakdown of 5-out offensive concepts, not Louisville-specific footage.",
     [
+      {
+        offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Five-out spacing — everyone stays off the post.",
+      },
       {
         offense: [o("O1", 25, 30), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
         defense: [],
@@ -405,8 +546,15 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 32, 20), o("O2", 10, 20), o("O3", 36, 24), o("O4", 6, 10), o("O5", 44, 10)],
         defense: [],
         ballHolder: "O1",
+        lines: [],
+        note: "Downhill off the screen — the defense has to collapse or give up the rim.",
+      },
+      {
+        offense: [o("O1", 32, 20), o("O2", 10, 20), o("O3", 36, 24), o("O4", 6, 10), o("O5", 44, 10)],
+        defense: [],
+        ballHolder: "O5",
         lines: [ln("pass", "offense", [{ x: 32, y: 20 }, { x: 44, y: 10 }])],
-        note: "Downhill off the screen, draws the help, kicks to the corner for three.",
+        note: "Kick to the corner off the help.",
       },
       {
         offense: [o("O1", 32, 20), o("O2", 10, 20), o("O3", 36, 24), o("O4", 6, 10), o("O5", 44, 10)],
@@ -415,36 +563,48 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         lines: [],
         note: "Catch-and-shoot three in the corner.",
       },
-    ]
+    ],
+    "https://youtu.be/DITiFB5Aft4"
   ),
 
   // ------------------------------------------------------------- Generic category fillers
   play("generic-zone-131", "1-3-1 vs 2-3: Pin and Skip", "Generic", "zone",
-    "Standard zone-offense action (coachesclipboard.net, basketballforcoaches.com) — not attributed to UConn, Auburn, or Louisville specifically; included to cover the zone-offense category with a legitimate, well-documented action.",
+    "Standard zone-offense action (coachesclipboard.net, basketballforcoaches.com) — not attributed to UConn, Auburn, or Louisville specifically; included to cover the zone-offense category with a legitimate, well-documented action, with the entry, the post holding, and the skip each shown as its own beat.",
     [
       {
         offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 40, 10)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 10, y: 20 }])],
-        note: "1-3-1 alignment against a 2-3 zone. Ball goes to the wing.",
+        lines: [],
+        note: "1-3-1 alignment against a 2-3 zone.",
       },
       {
         offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 40, 10)],
         defense: [],
         ballHolder: "O2",
-        lines: [
-          ln("cut", "offense", [{ x: 25, y: 12 }, { x: 25, y: 12 }]),
-          ln("pass", "offense", [{ x: 10, y: 20 }, { x: 6, y: 9 }]),
-        ],
-        note: "The weak-side post stays put and back-screens the low defender as the ball skips to the weak corner.",
+        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 10, y: 20 }])],
+        note: "Ball goes to the wing. The weak-side post stays put and reads the zone's shift.",
+      },
+      {
+        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 40, 10)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("cut", "offense", [{ x: 25, y: 12 }, { x: 25, y: 12 }])],
+        note: "O4 holds the middle, back-screening the low defender as the zone commits to the ball side.",
+      },
+      {
+        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 6, 9)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 10, y: 20 }, { x: 6, y: 9 }])],
+        note: "Skip pass beats the zone's rotation to the weak corner.",
       },
       {
         offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 6, 9)],
         defense: [],
         ballHolder: "O5",
         lines: [],
-        note: "Open three in the corner — the skip pass beats the zone's rotation.",
+        note: "Open three in the corner before the zone can recover.",
       },
     ]
   ),
@@ -456,11 +616,22 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 2, 42), o("O2", 20, 9), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
         defense: [],
         ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 20, y: 19 }, { x: 20, y: 24 }]),
-          ln("cut", "offense", [{ x: 20, y: 9 }, { x: 14, y: 22 }]),
-        ],
-        note: "Box alignment. O4 screens for O2, who pops out to the sideline for the inbound.",
+        lines: [],
+        note: "Box alignment at the inbound.",
+      },
+      {
+        offense: [o("O1", 2, 42), o("O2", 20, 9), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 20, y: 19 }, { x: 20, y: 24 }])],
+        note: "O4 steps up to screen for O2.",
+      },
+      {
+        offense: [o("O1", 2, 42), o("O2", 14, 22), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 20, y: 9 }, { x: 14, y: 22 }])],
+        note: "O2 pops off the screen to the sideline for the inbound.",
       },
       {
         offense: [o("O1", 2, 42), o("O2", 14, 22), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
@@ -479,22 +650,36 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 25, 80), o("O2", 6, 60), o("O3", 44, 60), o("O4", 15, 45), o("O5", 35, 45)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 25, y: 80 }, { x: 6, y: 60 }])],
-        note: "Four across against the 2-2-1. Inbound to the side, away from the middle trap.",
+        lines: [],
+        note: "Four across against the 2-2-1.",
       },
       {
-        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 42), o("O5", 35, 45)],
+        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 15, 45), o("O5", 35, 45)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("pass", "offense", [{ x: 6, y: 60 }, { x: 25, y: 42 }])],
-        note: "O4 flashes to the middle for the quick pass up the gut, splitting the trap.",
+        lines: [ln("pass", "offense", [{ x: 25, y: 80 }, { x: 6, y: 60 }])],
+        note: "Inbound to the side, away from the middle trap.",
       },
       {
         offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 42), o("O5", 35, 45)],
         defense: [],
         ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 6, y: 60 }, { x: 25, y: 42 }])],
+        note: "O4 flashes to the middle for the quick pass up the gut, splitting the trap.",
+      },
+      {
+        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 25), o("O5", 35, 45)],
+        defense: [],
+        ballHolder: "O4",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 42 }, { x: 25, y: 25 }])],
+        note: "Numbers advantage — O4 pushes it up the floor before the press can reset.",
+      },
+      {
+        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 10), o("O5", 35, 45)],
+        defense: [],
+        ballHolder: "O4",
         lines: [],
-        note: "Numbers advantage the rest of the way up the floor.",
+        note: "Layup off the numbers advantage.",
       },
     ]
   ),

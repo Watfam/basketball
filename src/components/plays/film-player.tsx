@@ -10,7 +10,18 @@ import type { Frame } from "@/lib/plays/types";
 
 const SPEEDS = [0.5, 1, 2] as const;
 
-export function FilmPlayer({ frames, onExit, region }: { frames: Frame[]; onExit: () => void; region?: Region }) {
+export function FilmPlayer({
+  frames,
+  onExit,
+  region,
+  onFlip,
+}: {
+  frames: Frame[];
+  onExit: () => void;
+  region?: Region;
+  /** Mirrors the play left-right across the court — present only when the caller owns the frame data to flip. */
+  onFlip?: () => void;
+}) {
   const [clock, setClock] = useState<PlaybackClock>({ frameIndex: 0, phase: "hold", t: 0 });
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
@@ -77,6 +88,24 @@ export function FilmPlayer({ frames, onExit, region }: { frames: Frame[]; onExit
         <span className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-foreground-mute">
           Frame {clock.frameIndex + 1} of {frames.length}
         </span>
+        {onFlip ? (
+          <button
+            type="button"
+            onClick={() => { haptic("tap"); onFlip(); }}
+            aria-label="Flip to the other side of the court"
+            className="flex items-center gap-1 rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim hover:border-accent hover:text-accent"
+          >
+            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M8 3 4 7l4 4" />
+              <path d="M4 7h11a5 5 0 0 1 5 5" />
+              <path d="M16 21l4-4-4-4" />
+              <path d="M20 17H9a5 5 0 0 1-5-5" />
+            </svg>
+            Flip
+          </button>
+        ) : (
+          <span className="w-[52px]" />
+        )}
       </div>
 
       <div className="relative min-h-0 flex-1">
