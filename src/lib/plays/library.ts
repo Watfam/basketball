@@ -39,9 +39,9 @@ function d(id: DefenseId, man: OffenseId, manualPos: Point): DefensePlayer {
 }
 
 let seq = 0;
-function ln(type: DrawnLine["type"], color: DrawnLine["color"], points: { x: number; y: number }[]): DrawnLine {
+function ln(type: DrawnLine["type"], color: DrawnLine["color"], points: { x: number; y: number }[], beat?: number): DrawnLine {
   seq += 1;
-  return { id: `lib${seq}`, type, color, points };
+  return { id: `lib${seq}`, type, color, points, beat };
 }
 
 function play(
@@ -889,26 +889,26 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         note: "1 dribbles to the wing, pulling x1 out with him.",
       },
       {
-        offense: [o("O1", 10, 23), o("O2", 25, 32), o("O3", 26, 20), o("O4", 8, 9), o("O5", 42, 9)],
-        defense: [d("X1", "O2", { x: 14, y: 23 }), d("X2", "O3", { x: 30.5, y: 22.5 }), d("X3", "O4", { x: 12, y: 9.5 }), d("X4", "O5", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
-        ballHolder: "O2",
-        lines: [ln("cut", "offense", [{ x: 24, y: 23 }, { x: 25, y: 32 }]), ln("pass", "offense", [{ x: 10, y: 23 }, { x: 25, y: 32 }])],
-        note: "2 pops to the top and catches the pass from 1.",
-        ballArrival: [{ x: 10, y: 23 }, { x: 25, y: 32 }],
-      },
-      {
         offense: [o("O1", 10, 23), o("O2", 25, 32), o("O3", 40, 23), o("O4", 8, 9), o("O5", 42, 9)],
         defense: [d("X1", "O2", { x: 14, y: 23 }), d("X2", "O3", { x: 30.5, y: 22.5 }), d("X3", "O4", { x: 12, y: 9.5 }), d("X4", "O5", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
         ballHolder: "O2",
-        lines: [ln("cut", "offense", [{ x: 26, y: 20 }, { x: 40, y: 23 }])],
-        note: "3 pops out to the opposite wing.",
+        lines: [
+          ln("cut", "offense", [{ x: 24, y: 23 }, { x: 25, y: 32 }]),
+          ln("pass", "offense", [{ x: 10, y: 23 }, { x: 25, y: 32 }]),
+          ln("cut", "offense", [{ x: 26, y: 20 }, { x: 40, y: 23 }]),
+        ],
+        note: "2 pops to the top and catches the pass from 1, while 3 pops out to the opposite wing at the same time.",
+        ballArrival: [{ x: 10, y: 23 }, { x: 25, y: 32 }],
       },
       {
         offense: [o("O1", 10, 23), o("O2", 25, 32), o("O3", 40, 23), o("O4", 8, 9), o("O5", 27, 8)],
         defense: [d("X1", "O2", { x: 14, y: 23 }), d("X2", "O3", { x: 30.5, y: 22.5 }), d("X3", "O4", { x: 12, y: 9.5 }), d("X4", "O5", { x: 37, y: 20 }), d("X5", "O1", { x: 25, y: 7 })],
         ballHolder: "O3",
-        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 23 }]), ln("screen", "offense", [{ x: 42, y: 9 }, { x: 27, y: 8 }])],
-        note: "2 reverses to 3 — the quick swing forces x4 to come out and guard him. On the pass, 5 screens x5.",
+        lines: [
+          ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 23 }], 1),
+          ln("screen", "offense", [{ x: 42, y: 9 }, { x: 27, y: 8 }], 2),
+        ],
+        note: "2 reverses to 3 with one quick pass — the swing forces x4 to come out and guard him. 5 screens x5 right as the ball leaves 2's hand.",
         ballArrival: [{ x: 25, y: 32 }, { x: 40, y: 23 }],
       },
       {
