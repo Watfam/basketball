@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TEAM_TABS, activeTeamTab, isImmersiveTeamRoute } from "@/lib/basketball/team-nav";
+import { useState } from "react";
+import { TEAM_TABS, TEAM_MORE_TABS, activeTeamTab, isImmersiveTeamRoute } from "@/lib/basketball/team-nav";
 import { haptic } from "@/lib/haptics";
+import { Sheet, PickLink } from "@/components/ui/sheet";
 
 function TabIcon({ tab, className }: { tab: string; className?: string }) {
   const common = {
@@ -52,6 +54,14 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
           <path d="M8 16.5 15.5 8.5" strokeDasharray="2.2 2" />
         </svg>
       );
+    case "more":
+      return (
+        <svg {...common}>
+          <circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+          <circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none" />
+        </svg>
+      );
     default:
       return (
         <svg {...common}>
@@ -73,9 +83,12 @@ function TabIcon({ tab, className }: { tab: string; className?: string }) {
  */
 export function TeamBottomNav({ teamId }: { teamId: string }) {
   const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [moreOpener, setMoreOpener] = useState<HTMLElement | null>(null);
   if (isImmersiveTeamRoute(pathname)) return null;
 
   const active = activeTeamTab(pathname, teamId);
+  const moreActive = TEAM_MORE_TABS.some((tab) => tab.key === active);
 
   return (
     <nav
@@ -102,7 +115,33 @@ export function TeamBottomNav({ teamId }: { teamId: string }) {
             </Link>
           );
         })}
+        <button
+          type="button"
+          onClick={(e) => {
+            haptic("tap");
+            setMoreOpener(e.currentTarget);
+            setMoreOpen(true);
+          }}
+          aria-haspopup="dialog"
+          aria-current={moreActive ? "page" : undefined}
+          className={`flex flex-1 flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-extrabold uppercase tracking-[0.08em] transition-colors ${
+            moreActive ? "bg-accent/10 text-accent" : "text-foreground-mute hover:text-foreground-dim"
+          }`}
+        >
+          <TabIcon tab="more" className="h-5 w-5" />
+          More
+        </button>
       </div>
+
+      {moreOpen && (
+        <Sheet title="More" onClose={() => setMoreOpen(false)} opener={moreOpener}>
+          <div className="space-y-1.5">
+            {TEAM_MORE_TABS.map((tab) => (
+              <PickLink key={tab.key} href={tab.href(teamId)} selected={active === tab.key} title={tab.label} />
+            ))}
+          </div>
+        </Sheet>
+      )}
     </nav>
   );
 }

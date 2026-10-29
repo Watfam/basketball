@@ -1,14 +1,22 @@
 /**
  * The team area's bottom-bar destinations.
  *
- * Five tabs, matching how a coach actually thinks about a team: what is
- * happening next, what we are running, when we play, how it is going, and
- * who we are playing. Replaces the tile grid that used to sit on the team
- * hub — with a bar, every destination is one tap from anywhere.
+ * Four tabs on the bar itself, matching the iPhone norm (five slots, one
+ * reserved for More) instead of cramming all six destinations into one
+ * row. History and Scouting — the two a coach reaches for less often than
+ * the daily loop of planning, running, and reviewing a team — live behind
+ * the More tab instead; see TEAM_MORE_TABS.
  *
  * The first tab keeps the key "roster" (its route is still the team hub,
  * which still holds the roster) but reads "Today", because that hub now
  * leads with the next practice or game rather than the roster.
+ *
+ * Plays points at the playbook list, not straight into the designer — the
+ * designer is a full-bleed, nav-free canvas (its own toolbar owns the
+ * bottom strip), so landing there the instant this tab is tapped felt like
+ * being dropped into a different app. The list is an ordinary page with
+ * this same bottom bar; opening an actual play from it is what earns the
+ * jump into the immersive designer.
  */
 export type TeamTab = {
   key: "roster" | "practice" | "games" | "history" | "scouting" | "plays";
@@ -20,9 +28,13 @@ export const TEAM_TABS: TeamTab[] = [
   { key: "roster", label: "Today", href: (id) => `/teams/${id}` },
   { key: "practice", label: "Practice", href: (id) => `/teams/${id}/practice` },
   { key: "games", label: "Games", href: (id) => `/teams/${id}/games` },
-  { key: "history", label: "History", href: (id) => `/teams/${id}/practice/history` },
+  { key: "plays", label: "Plays", href: (id) => `/teams/${id}/plays/playbook` },
+];
+
+/** The destinations tucked behind the bottom bar's More tab. */
+export const TEAM_MORE_TABS: TeamTab[] = [
+  { key: "history", label: "Practice history", href: (id) => `/teams/${id}/practice/history` },
   { key: "scouting", label: "Scouting", href: (id) => `/teams/${id}/scouting` },
-  { key: "plays", label: "Plays", href: (id) => `/teams/${id}/plays` },
 ];
 
 /**

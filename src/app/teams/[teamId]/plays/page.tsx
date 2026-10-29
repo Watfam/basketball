@@ -16,7 +16,7 @@ export default async function PlaysPage({
 
   const [{ data: { user } }, { data: team }] = await Promise.all([
     supabase.auth.getUser(),
-    supabase.schema("hoops").from("teams").select("id, name").eq("id", teamId).maybeSingle(),
+    supabase.schema("hoops").from("teams").select("id").eq("id", teamId).maybeSingle(),
   ]);
 
   if (!user) redirect("/login");
@@ -24,5 +24,5 @@ export default async function PlaysPage({
 
   const libraryPlay = lib ? LIBRARY_PLAYS.find((p) => p.id === lib) : undefined;
 
-  return <PlayDesigner teamId={teamId} teamName={team.name} initialFrames={libraryPlay?.frames} initialPlayName={libraryPlay?.name} />;
+  return <PlayDesigner teamId={teamId} initialFrames={libraryPlay?.frames} initialPlayName={libraryPlay?.name} />;
 }

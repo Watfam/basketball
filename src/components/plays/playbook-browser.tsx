@@ -88,6 +88,11 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
 
   return (
     <div className="space-y-4">
+      <ButtonLink href={`/teams/${teamId}/plays`} size="md" block onClick={() => haptic("tap")}>
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" aria-hidden><path d="M12 5v14M5 12h14" /></svg>
+        New play
+      </ButtonLink>
+
       <div className="relative">
         <svg viewBox="0 0 24 24" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-mute" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
           <circle cx="11" cy="11" r="7" />

@@ -23,12 +23,10 @@ function nextLineId() {
 
 export function PlayDesigner({
   teamId,
-  teamName,
   initialFrames,
   initialPlayName,
 }: {
   teamId: string;
-  teamName: string;
   initialFrames?: Frame[];
   initialPlayName?: string;
 }) {
@@ -113,15 +111,12 @@ export function PlayDesigner({
     <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
       <div className="shrink-0 border-b border-line bg-surface/80 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur">
         <div className="flex items-center justify-between gap-3">
-          <Link href={`/teams/${teamId}`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
-            ← {teamName}
-          </Link>
-          <Link href={`/teams/${teamId}/plays/playbook`} className="text-xs font-extrabold uppercase tracking-wide text-accent hover:text-accent-hover">
-            Playbook
+          <Link href={`/teams/${teamId}/plays/playbook`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
+            ← Playbook
           </Link>
         </div>
         <div className="mt-1 flex items-center justify-between gap-3">
-          <h1 className="truncate text-[15px] font-bold text-foreground">{initialPlayName ?? "Lightning Play Designer"}</h1>
+          <h1 className="truncate text-[15px] font-bold text-foreground">{initialPlayName ?? "New Play"}</h1>
           <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
