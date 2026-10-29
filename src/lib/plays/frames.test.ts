@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { nextFrame } from "./frames.ts";
+import { duplicateFrameAt, nextFrame, removeFrameAt } from "./frames.ts";
 import type { Frame } from "./types.ts";
 
 const base: Frame = {
@@ -76,4 +76,38 @@ test("the new frame starts with no lines and an empty note, and a frame with no 
   assert.equal(n2.ballHolder, base.ballHolder);
   assert.equal(n2.arrivals, undefined);
   assert.equal(n2.ballArrival, undefined);
+});
+
+test("duplicating a frame inserts an identical copy right after it, with no arrivals of its own since nothing moved to get there", () => {
+  const withArrival: Frame = { ...base, arrivals: { O1: base.lines[0].points } };
+  const frames = [withArrival, nextFrame(withArrival)];
+  const next = duplicateFrameAt(frames, 0);
+  assert.equal(next.length, 3);
+  assert.deepEqual(next[1].offense, withArrival.offense);
+  assert.deepEqual(next[1].lines, withArrival.lines);
+  assert.equal(next[1].arrivals, undefined);
+  assert.equal(next[1].ballArrival, undefined);
+  // the original and the frame after the copy are untouched
+  assert.deepEqual(next[0], withArrival);
+  assert.deepEqual(next[2], frames[1]);
+});
+
+test("duplicating past the end of the array is a no-op", () => {
+  const frames = [base];
+  assert.deepEqual(duplicateFrameAt(frames, 5), frames);
+});
+
+test("removing a frame drops it and clears the next frame's stale arrival path", () => {
+  const second = { ...nextFrame(base), arrivals: { O2: [{ x: 1, y: 1 }, { x: 2, y: 2 }] } };
+  const frames = [base, second, nextFrame(second)];
+  const next = removeFrameAt(frames, 1);
+  assert.equal(next.length, 2);
+  assert.deepEqual(next[0], base);
+  assert.equal(next[1].arrivals, undefined);
+  assert.equal(next[1].ballArrival, undefined);
+});
+
+test("removing the last remaining frame is refused", () => {
+  const frames = [base];
+  assert.deepEqual(removeFrameAt(frames, 0), frames);
 });

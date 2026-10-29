@@ -9,6 +9,7 @@ const TOOLS: { key: Tool; label: string }[] = [
   { key: "cut", label: "Cut" },
   { key: "dribble", label: "Dribble" },
   { key: "screen", label: "Screen" },
+  { key: "erase", label: "Erase" },
 ];
 
 function ToolIcon({ tool, className }: { tool: Tool; className?: string }) {
@@ -47,16 +48,55 @@ function ToolIcon({ tool, className }: { tool: Tool; className?: string }) {
           <path d="M15.5 4.5 19 8" />
         </svg>
       );
+    case "erase":
+      return (
+        <svg {...common}>
+          <path d="M4 17 14 7l5 5-10 10H6Z" />
+          <path d="M9 20H4" />
+        </svg>
+      );
   }
 }
 
-export function Toolbar({ tool, onSelect }: { tool: Tool; onSelect: (t: Tool) => void }) {
+function UndoIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h11a6 6 0 0 1 0 12h-1" />
+    </svg>
+  );
+}
+
+function RedoIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M15 14l5-5-5-5" />
+      <path d="M20 9H9a6 6 0 0 0 0 12h1" />
+    </svg>
+  );
+}
+
+export function Toolbar({
+  tool,
+  onSelect,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo,
+}: {
+  tool: Tool;
+  onSelect: (t: Tool) => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+}) {
   return (
     <nav
       aria-label="Drawing tool"
       className="shrink-0 border-t border-line bg-background/95 pb-[max(0.4rem,env(safe-area-inset-bottom))] backdrop-blur"
     >
-      <div className="mx-auto flex w-full max-w-lg px-1">
+      <div className="mx-auto flex w-full max-w-lg items-stretch gap-0.5 px-1">
         {TOOLS.map((t) => {
           const active = tool === t.key;
           return (
@@ -69,7 +109,11 @@ export function Toolbar({ tool, onSelect }: { tool: Tool; onSelect: (t: Tool) =>
               }}
               aria-pressed={active}
               className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10px] font-extrabold uppercase tracking-[0.06em] transition-colors ${
-                active ? "bg-accent/10 text-accent" : "text-foreground-mute hover:text-foreground-dim"
+                active
+                  ? t.key === "erase"
+                    ? "bg-danger/10 text-danger"
+                    : "bg-accent/10 text-accent"
+                  : "text-foreground-mute hover:text-foreground-dim"
               }`}
             >
               <ToolIcon tool={t.key} className="h-5 w-5" />
@@ -77,6 +121,31 @@ export function Toolbar({ tool, onSelect }: { tool: Tool; onSelect: (t: Tool) =>
             </button>
           );
         })}
+        <div className="my-1.5 w-px shrink-0 bg-line" />
+        <button
+          type="button"
+          onClick={() => {
+            haptic("tap");
+            onUndo();
+          }}
+          disabled={!canUndo}
+          aria-label="Undo"
+          className="flex w-9 shrink-0 items-center justify-center rounded-xl text-foreground-mute hover:text-foreground-dim disabled:opacity-30"
+        >
+          <UndoIcon className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            haptic("tap");
+            onRedo();
+          }}
+          disabled={!canRedo}
+          aria-label="Redo"
+          className="flex w-9 shrink-0 items-center justify-center rounded-xl text-foreground-mute hover:text-foreground-dim disabled:opacity-30"
+        >
+          <RedoIcon className="h-4 w-4" />
+        </button>
       </div>
     </nav>
   );

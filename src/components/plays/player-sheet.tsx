@@ -3,7 +3,7 @@
 import { Sheet } from "@/components/ui/sheet";
 import { haptic } from "@/lib/haptics";
 import { COVERAGES, COVERAGE_LABEL, type Coverage } from "@/lib/plays/coverage";
-import { OFFENSE_IDS, type DefenseId, type DefensePlayer, type Frame, type OffenseId } from "@/lib/plays/types";
+import type { DefenseId, DefensePlayer, Frame, OffenseId } from "@/lib/plays/types";
 
 const PICKABLE_COVERAGES = COVERAGES.filter((c) => c !== "manual");
 
@@ -31,7 +31,7 @@ export function PlayerSheet({
       <Sheet title={`${defender.id} — guarding ${defender.man}`} onClose={onClose} opener={opener} done={false}>
         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-mute">Guarding</p>
         <div className="mt-2 flex flex-wrap gap-2">
-          {OFFENSE_IDS.map((o) => (
+          {frame.offense.map((o) => o.id).map((o) => (
             <button
               key={o}
               type="button"

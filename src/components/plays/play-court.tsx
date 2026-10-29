@@ -6,7 +6,7 @@ import { distance, length, maxDeviationFromChord, smoothPath, sub, trimEnd, unit
 import { resolveDefense } from "@/lib/plays/resolve";
 import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
 
-export type Tool = "move" | "pass" | "cut" | "dribble" | "screen";
+export type Tool = "move" | "pass" | "cut" | "dribble" | "screen" | "erase";
 
 const LINE_COLOR_HEX = { offense: "#dc2626", defense: "#1e3a8a", black: "#111827" } as const;
 const OFFENSE_FILL = "#dc2626";
@@ -18,6 +18,8 @@ const BALL_FILL = "#f97316";
 const MARGIN = 4;
 const PLAYER_R = 1.7;
 const HIT_R = 3.4;
+/** How close a line's start point must be to a player for the line to inherit his color and snap onto him — much tighter than HIT_R (which is for forgiving grabs in Move). A wide net here is exactly what caused a line meant for an offensive player to ink in as the defender standing tight on him instead; this makes "which player did I actually touch" unambiguous rather than "which player happens to be nearest." */
+const DRAW_START_HIT_R = PLAYER_R + 0.5;
 const BALL_R = 1.1;
 /** How far a token lifts above the fingertip while dragging, in court feet — fixed rather than derived from the live px-per-foot scale, so it's readable from render without touching a ref. */
 const LIFT_FEET = 3.4;
@@ -216,15 +218,15 @@ export function PlayCourt({
   const holderPos = frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 47 };
   const ballPos = ballOverride ?? { x: holderPos.x + 1.7, y: holderPos.y + 1.7 };
 
-  function nearestPlayer(p: Point): { kind: "offense" | "defense"; id: string; pos: Point } | null {
+  function nearestPlayer(p: Point, radius: number = HIT_R): { kind: "offense" | "defense"; id: string; pos: Point } | null {
     let best: { kind: "offense" | "defense"; id: string; pos: Point; d: number } | null = null;
     for (const o of frame.offense) {
       const d = distance(p, o.pos);
-      if (d < HIT_R && (!best || d < best.d)) best = { kind: "offense", id: o.id, pos: o.pos, d };
+      if (d < radius && (!best || d < best.d)) best = { kind: "offense", id: o.id, pos: o.pos, d };
     }
     for (const x of defense) {
       const d = distance(p, x.pos);
-      if (d < HIT_R && (!best || d < best.d)) best = { kind: "defense", id: x.id, pos: x.pos, d };
+      if (d < radius && (!best || d < best.d)) best = { kind: "defense", id: x.id, pos: x.pos, d };
     }
     return best;
   }
@@ -250,8 +252,14 @@ export function PlayCourt({
     if (!svg) return;
     const p = clientToCourt(svg, e.clientX, e.clientY);
 
+    if (tool === "erase") {
+      const line = nearestLine(p);
+      if (line) onEraseLine(line.id);
+      return;
+    }
+
     if (tool !== "move") {
-      const snap = nearestPlayer(p);
+      const snap = nearestPlayer(p, DRAW_START_HIT_R);
       setDrawing({ points: [snap ? snap.pos : p] });
       tryCapture(svg, e.pointerId, false);
       return;
@@ -261,10 +269,7 @@ export function PlayCourt({
     if (hit) {
       gesture.current = { kind: hit.kind, id: hit.id, startClient: { x: e.clientX, y: e.clientY }, startPos: hit.pos, moved: false };
       tryCapture(svg, e.pointerId, false);
-      return;
     }
-    const line = nearestLine(p);
-    if (line) onEraseLine(line.id);
   }
 
   function onPointerMove(e: ReactPointerEvent<SVGSVGElement>) {
@@ -301,7 +306,7 @@ export function PlayCourt({
     // A real drag samples many points even along a dead-straight path; only a deliberate wander off that path's own chord counts as "freehand curved."
     const isStraight = maxDeviationFromChord(d.points) < STRAIGHT_TOLERANCE;
     const points = isStraight ? [d.points[0], snapEnd ? snapEnd.pos : end] : [...d.points.slice(0, -1), snapEnd ? snapEnd.pos : end];
-    const startHit = nearestPlayer(d.points[0]);
+    const startHit = nearestPlayer(d.points[0], DRAW_START_HIT_R);
     const color: DrawnLine["color"] = startHit ? (startHit.kind === "offense" ? "offense" : "defense") : "black";
     onAddLine({ type: tool as LineType, color, points });
   }

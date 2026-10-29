@@ -63,3 +63,32 @@ export function nextFrame(current: Frame): Frame {
 
   return { offense, defense, ballHolder, lines: [], note: "", arrivals: Object.keys(arrivals).length ? arrivals : undefined, ballArrival };
 }
+
+/**
+ * Inserts a copy of the frame at `index` right after it — same positions, lines and note, for a step
+ * that repeats a shape with one small change. The copy has no arrivals of its own: nothing actually
+ * moved getting into it (it's identical to the frame right before it), so there's no path to replay.
+ */
+export function duplicateFrameAt(frames: Frame[], index: number): Frame[] {
+  const source = frames[index];
+  if (!source) return frames;
+  const copy: Frame = { ...source, lines: source.lines.map((l) => ({ ...l, points: [...l.points] })), arrivals: undefined, ballArrival: undefined };
+  const next = [...frames];
+  next.splice(index + 1, 0, copy);
+  return next;
+}
+
+/**
+ * Removes the frame at `index`. Refuses to drop the play's last frame. The frame that now follows
+ * the gap loses its own recorded arrival paths — they described arriving from the frame that just
+ * disappeared, which no longer matches where its new predecessor actually stands — falling back to a
+ * plain straight-line glide instead of a path that would otherwise start from the wrong place.
+ */
+export function removeFrameAt(frames: Frame[], index: number): Frame[] {
+  if (frames.length <= 1 || index < 0 || index >= frames.length) return frames;
+  const next = frames.filter((_, i) => i !== index);
+  if (index < next.length) {
+    next[index] = { ...next[index], arrivals: undefined, ballArrival: undefined };
+  }
+  return next;
+}

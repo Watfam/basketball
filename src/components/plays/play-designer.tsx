@@ -14,10 +14,14 @@ import { FormError, Input, TextArea } from "@/components/ui/field";
 import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
-import { nextFrame } from "@/lib/plays/frames";
+import { duplicateFrameAt, nextFrame, removeFrameAt } from "@/lib/plays/frames";
+import { formationFrame, type Formation } from "@/lib/plays/formations";
 import { mirrorFrames } from "@/lib/plays/mirror";
-import { EXAMPLE_PLAY, type DefenseId, type DrawnLine, type Frame, type OffenseId } from "@/lib/plays/types";
+import { addDefense, addOffense, removeDefense, removeOffense } from "@/lib/plays/roster";
+import { DEFENSE_IDS, EXAMPLE_PLAY, OFFENSE_IDS, type DefenseId, type DrawnLine, type Frame, type OffenseId } from "@/lib/plays/types";
 import { haptic } from "@/lib/haptics";
+
+const HISTORY_LIMIT = 20;
 
 let lineSeq = 0;
 function nextLineId() {
@@ -44,6 +48,8 @@ export function PlayDesigner({
   initialKeys?: string[];
 }) {
   const [frames, setFrames] = useState(initialFrames ?? EXAMPLE_PLAY);
+  const [past, setPast] = useState<Frame[][]>([]);
+  const [future, setFuture] = useState<Frame[][]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [mode, setMode] = useState<"edit" | "film">("edit");
   const [tool, setTool] = useState<Tool>("move");
@@ -79,6 +85,37 @@ export function PlayDesigner({
     };
   }, []);
 
+  /** Snapshots `frames` for Undo before a mutation — call once per user gesture, never inside a loop of continuous updates (a drag records one snapshot at pickup, not one per pointermove tick). */
+  function recordHistory() {
+    setPast((p) => [...p.slice(-(HISTORY_LIMIT - 1)), frames]);
+    setFuture([]);
+  }
+
+  function undo() {
+    if (!past.length) return;
+    haptic("tap");
+    const prev = past[past.length - 1];
+    setPast((p) => p.slice(0, -1));
+    setFuture((f) => [frames, ...f].slice(0, HISTORY_LIMIT));
+    setFrames(prev);
+    setActiveIndex((i) => Math.min(i, prev.length - 1));
+  }
+
+  function redo() {
+    if (!future.length) return;
+    haptic("tap");
+    const next = future[0];
+    setFuture((f) => f.slice(1));
+    setPast((p) => [...p, frames].slice(-HISTORY_LIMIT));
+    setFrames(next);
+    setActiveIndex((i) => Math.min(i, next.length - 1));
+  }
+
+  function handleDragStateChange(d: { kind: "offense" | "defense"; id: string } | null) {
+    if (d && !dragging) recordHistory();
+    setDragging(d);
+  }
+
   function updateActive(fn: (f: typeof frame) => typeof frame) {
     setFrames((fs) => fs.map((f, i) => (i === activeIndex ? fn(f) : f)));
   }
@@ -93,10 +130,12 @@ export function PlayDesigner({
   }
 
   function addLine(line: Omit<DrawnLine, "id">) {
+    recordHistory();
     updateActive((f) => ({ ...f, lines: [...f.lines, { ...line, id: nextLineId() }] }));
   }
 
   function eraseLine(id: string) {
+    recordHistory();
     updateActive((f) => ({ ...f, lines: f.lines.filter((l) => l.id !== id) }));
   }
 
@@ -117,14 +156,58 @@ export function PlayDesigner({
   }
 
   function addFrame() {
+    recordHistory();
     setFrames((fs) => [...fs, nextFrame(fs[fs.length - 1])]);
     setActiveIndex(frames.length);
     setSelected(null);
   }
 
+  function duplicateFrame(index: number) {
+    recordHistory();
+    setFrames((fs) => duplicateFrameAt(fs, index));
+    setActiveIndex(index + 1);
+    setSelected(null);
+  }
+
+  function deleteFrame(index: number) {
+    if (frames.length <= 1) return;
+    recordHistory();
+    const newLength = frames.length - 1;
+    setFrames((fs) => removeFrameAt(fs, index));
+    setActiveIndex((i) => Math.min(i > index ? i - 1 : i, newLength - 1));
+    setSelected(null);
+  }
+
+  function insertFormation(formation: Formation) {
+    recordHistory();
+    haptic("tap");
+    const inserted = formationFrame(formation, frame);
+    setFrames((fs) => {
+      const next = [...fs];
+      next.splice(activeIndex + 1, 0, inserted);
+      return next;
+    });
+    setActiveIndex(activeIndex + 1);
+    setSelected(null);
+  }
+
   function flip() {
     haptic("tap");
+    recordHistory();
     setFrames((fs) => mirrorFrames(fs));
+  }
+
+  function addPlayer(role: "offense" | "defense", id: OffenseId | DefenseId) {
+    haptic("tap");
+    recordHistory();
+    setFrames((fs) => (role === "offense" ? addOffense(fs, id as OffenseId) : addDefense(fs, id as DefenseId)));
+  }
+
+  function removePlayer(role: "offense" | "defense", id: OffenseId | DefenseId) {
+    haptic("tap");
+    recordHistory();
+    setFrames((fs) => (role === "offense" ? removeOffense(fs, id as OffenseId) : removeDefense(fs, id as DefenseId)));
+    setSelected((s) => (s === id ? null : s));
   }
 
   async function save() {
@@ -258,6 +341,13 @@ export function PlayDesigner({
               <TextArea value={keysText} onChange={(e) => setKeysText(e.target.value)} rows={5} placeholder={"Screener: hold until contact.\nCutter: set up the defender first."} />
             </div>
 
+            <div className="space-y-3 border-t border-line pt-3">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Roster — up to 5 a side</p>
+              <RosterRow label="Offense" ids={OFFENSE_IDS} onCourt={frames[0].offense.map((o) => o.id)} color="offense" onAdd={(id) => addPlayer("offense", id)} onRemove={(id) => removePlayer("offense", id)} />
+              <RosterRow label="Defense" ids={DEFENSE_IDS} onCourt={frames[0].defense.map((d) => d.id)} color="defense" onAdd={(id) => addPlayer("defense", id)} onRemove={(id) => removePlayer("defense", id)} />
+              <p className="text-[11px] text-foreground-mute">Applies to the whole play, not just this step — tap a player on court to drop him, tap an empty slot to bring him back.</p>
+            </div>
+
             <div className="space-y-2 border-t border-line pt-3">
               <p className="text-[11px] text-foreground-mute">
                 Corrects the shared default every team starts from, not just your team&apos;s copy. A team with its own edit to this play keeps it.
@@ -292,7 +382,7 @@ export function PlayDesigner({
           dragging={dragging}
           onTapPlayer={setSelected}
           onMovePlayer={movePlayer}
-          onDragStateChange={setDragging}
+          onDragStateChange={handleDragStateChange}
           onAddLine={addLine}
           onEraseLine={eraseLine}
           region={region}
@@ -307,10 +397,13 @@ export function PlayDesigner({
           setSelected(null);
         }}
         onAddFrame={addFrame}
+        onDuplicateFrame={duplicateFrame}
+        onDeleteFrame={deleteFrame}
+        onInsertFormation={insertFormation}
         onPlay={() => setMode("film")}
         onNoteChange={setNote}
       />
-      <Toolbar tool={tool} onSelect={setTool} />
+      <Toolbar tool={tool} onSelect={setTool} onUndo={undo} onRedo={redo} canUndo={past.length > 0} canRedo={future.length > 0} />
 
       {selected && (
         <PlayerSheet
@@ -344,6 +437,54 @@ function FlipIcon({ className }: { className?: string }) {
       <path d="M16 21l4-4-4-4" />
       <path d="M20 17H9a5 5 0 0 1-5-5" />
     </svg>
+  );
+}
+
+const ROSTER_FILL = { offense: "#dc2626", defense: "#17306b" } as const;
+
+function RosterRow<T extends string>({
+  label,
+  ids,
+  onCourt,
+  color,
+  onAdd,
+  onRemove,
+}: {
+  label: string;
+  ids: readonly T[];
+  onCourt: T[];
+  color: "offense" | "defense";
+  onAdd: (id: T) => void;
+  onRemove: (id: T) => void;
+}) {
+  const present = new Set(onCourt);
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="w-14 shrink-0 text-xs font-bold text-foreground-dim">
+        {label} <span className="text-foreground-mute">({onCourt.length}/5)</span>
+      </span>
+      <div className="flex flex-1 gap-1.5">
+        {ids.map((id) => {
+          const isOn = present.has(id);
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => (isOn ? onRemove(id) : onAdd(id))}
+              aria-label={`${isOn ? "Remove" : "Add"} ${label} ${id.slice(1)}`}
+              className={
+                isOn
+                  ? "flex h-9 w-9 items-center justify-center rounded-full border text-xs font-extrabold transition-colors"
+                  : "flex h-9 w-9 items-center justify-center rounded-full border border-dashed border-line-strong text-xs font-extrabold text-foreground-mute transition-colors"
+              }
+              style={isOn ? { backgroundColor: ROSTER_FILL[color], borderColor: ROSTER_FILL[color], color: color === "defense" ? "#F2B705" : "#fff" } : undefined}
+            >
+              {id.slice(1)}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
