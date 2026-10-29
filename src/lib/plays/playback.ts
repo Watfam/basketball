@@ -1,4 +1,6 @@
+import { findMovementPath } from "./frames";
 import { lerp, pointAlongPath, type Point } from "./geometry";
+import { resolveDefense } from "./resolve";
 import type { Frame } from "./types";
 
 /** Nominal (unscaled by speed) durations from the spec. */
@@ -77,20 +79,59 @@ function windowed(raw: number, start: number, end: number): number {
  * transition with only one of the two (a plain reversal pass with nobody cutting, or a cut with no
  * pass) just eases over the whole window — there is nothing to sequence it against.
  */
+const MOVE_TYPES: Frame["lines"][number]["type"][] = ["cut", "dribble", "screen"];
+
 export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame: Frame; ballOverride?: Point } {
-  const hasBallMove = !!to.ballArrival;
+  // `arrivals`/`ballArrival` are the fast path — set automatically by nextFrame() for anything built
+  // live in the designer. A line drawn some other way (hand-authored data, or a player dragged by
+  // hand with a line drawn afterward to annotate the move) never gets one, so this also searches both
+  // frames' own lines for one whose two ends land on (where he started, where he ended up) — see
+  // findMovementPath. Without this, a curved or multi-bend line would still render correctly at rest
+  // but playback would silently cut the corner with a straight glide instead of following it.
+  const fromDefResolved = resolveDefense(from);
+
+  const offensePaths = new Map<string, Point[]>();
+  for (const o of to.offense) {
+    const stored = to.arrivals?.[o.id];
+    const fromPos = from.offense.find((f) => f.id === o.id)?.pos;
+    const path = stored ?? (fromPos ? findMovementPath(from.lines, to.lines, MOVE_TYPES, fromPos, o.pos) : undefined);
+    if (path) offensePaths.set(o.id, path);
+  }
+
+  const defensePaths = new Map<string, Point[]>();
+  for (const d of from.defense) {
+    const stored = to.arrivals?.[d.id];
+    if (stored) {
+      defensePaths.set(d.id, stored);
+      continue;
+    }
+    const toDef = to.defense.find((x) => x.id === d.id);
+    const fromPos = fromDefResolved.find((r) => r.id === d.id)?.pos;
+    if (toDef?.coverage === "manual" && toDef.manualPos && fromPos) {
+      const path = findMovementPath(from.lines, to.lines, MOVE_TYPES, fromPos, toDef.manualPos);
+      if (path) defensePaths.set(d.id, path);
+    }
+  }
+
+  const fromBallPos = from.offense.find((o) => o.id === from.ballHolder)?.pos;
+  const toBallPos = to.offense.find((o) => o.id === to.ballHolder)?.pos;
+  const ballPath =
+    to.ballArrival ??
+    (from.ballHolder !== to.ballHolder && fromBallPos && toBallPos ? findMovementPath(from.lines, to.lines, ["pass"], fromBallPos, toBallPos) : undefined);
+
+  const hasBallMove = !!ballPath;
   const hasPlayerMove =
     to.offense.some((o) => {
       const fromPos = from.offense.find((f) => f.id === o.id)?.pos;
       return fromPos ? fromPos.x !== o.pos.x || fromPos.y !== o.pos.y : false;
-    }) || from.defense.some((d) => !!to.arrivals?.[d.id]);
+    }) || defensePaths.size > 0;
 
   const stagger = hasBallMove && hasPlayerMove;
   const moveT = stagger ? windowed(rawT, 0, 0.65) : ease(rawT);
   const ballT = stagger ? windowed(rawT, 0.5, 1) : ease(rawT);
 
   const offense = to.offense.map((o) => {
-    const path = to.arrivals?.[o.id];
+    const path = offensePaths.get(o.id);
     if (path) return { ...o, pos: pointAlongPath(path, moveT) };
     const fromPos = from.offense.find((f) => f.id === o.id)?.pos ?? o.pos;
     return { ...o, pos: lerp(fromPos, o.pos, moveT) };
@@ -101,7 +142,7 @@ export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame:
   // coverage the coach deliberately changed) takes over only at the instant that frame is actually
   // reached, not at the first frame of the transition toward it.
   const defense = from.defense.map((d) => {
-    const path = to.arrivals?.[d.id];
+    const path = defensePaths.get(d.id);
     if (!path) return d;
     return { ...d, coverage: "manual" as const, manualPos: pointAlongPath(path, moveT) };
   });
@@ -110,6 +151,6 @@ export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame:
   // stays the old holder until the catch actually happens, at arrival — not the instant the pass is
   // thrown.
   const frame: Frame = { ...to, offense, defense, ballHolder: from.ballHolder };
-  const ballOverride = to.ballArrival ? pointAlongPath(to.ballArrival, ballT) : undefined;
+  const ballOverride = ballPath ? pointAlongPath(ballPath, ballT) : undefined;
   return { frame, ballOverride };
 }

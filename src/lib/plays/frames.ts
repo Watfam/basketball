@@ -3,7 +3,7 @@ import { resolveDefense } from "./resolve";
 import type { DrawnLine, Frame, OffenseId } from "./types";
 
 /** "Starts within about 3 feet of him." */
-const NEAR = 3;
+export const NEAR = 3;
 
 function linesOfType(lines: DrawnLine[], types: DrawnLine["type"][]): DrawnLine[] {
   return lines.filter((l) => types.includes(l.type));
@@ -14,6 +14,22 @@ function movementLinesNear(lines: DrawnLine[], pos: Point): DrawnLine[] {
   return linesOfType(lines, ["cut", "dribble", "screen"])
     .filter((l) => distance(l.points[0], pos) <= NEAR)
     .sort((a, b) => distance(a.points[0], pos) - distance(b.points[0], pos));
+}
+
+/**
+ * The drawn line — of the given type(s), from either frame — that explains a move from `fromPos` to
+ * `toPos`: one whose two ends each land near one of those points, not just whichever happens to start
+ * nearby. Two authoring styles both produce a line that matches this: the live designer's own
+ * forward-looking one (a line drawn on the frame you're leaving, found in `fromLines`) and a
+ * hand-authored, retroactive one (a line drawn on the frame you're arriving at, annotating how you got
+ * there, found in `toLines`) — this doesn't care which frame it came from, only that both ends line up.
+ */
+export function findMovementPath(fromLines: DrawnLine[], toLines: DrawnLine[], types: DrawnLine["type"][], fromPos: Point, toPos: Point): Point[] | undefined {
+  const candidates = linesOfType([...fromLines, ...toLines], types).filter(
+    (l) => distance(l.points[0], fromPos) <= NEAR && distance(l.points[l.points.length - 1], toPos) <= NEAR
+  );
+  candidates.sort((a, b) => distance(a.points[0], fromPos) - distance(b.points[0], fromPos));
+  return candidates[0]?.points;
 }
 
 /**
