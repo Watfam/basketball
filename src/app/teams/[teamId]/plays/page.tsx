@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlayDesigner } from "@/components/plays/play-designer";
 import { LIBRARY_PLAYS } from "@/lib/plays/library";
+import { getPlayEdit } from "@/lib/plays/play-edits-store";
+import { applyEdit } from "@/lib/plays/merge-edits";
 
 export default async function PlaysPage({
   params,
@@ -22,7 +24,19 @@ export default async function PlaysPage({
   if (!user) redirect("/login");
   if (!team) notFound();
 
-  const libraryPlay = lib ? LIBRARY_PLAYS.find((p) => p.id === lib) : undefined;
+  const basePlay = lib ? LIBRARY_PLAYS.find((p) => p.id === lib) : undefined;
+  const edit = basePlay ? await getPlayEdit(supabase.schema("hoops"), teamId, basePlay.id) : null;
+  const libraryPlay = basePlay ? applyEdit(basePlay, edit) : undefined;
 
-  return <PlayDesigner teamId={teamId} initialFrames={libraryPlay?.frames} initialPlayName={libraryPlay?.name} />;
+  return (
+    <PlayDesigner
+      teamId={teamId}
+      libraryPlayId={libraryPlay?.id}
+      initialFrames={libraryPlay?.frames}
+      initialPlayName={libraryPlay?.name}
+      initialVs={libraryPlay?.vs}
+      initialAbout={libraryPlay?.about}
+      initialKeys={libraryPlay?.keys}
+    />
+  );
 }

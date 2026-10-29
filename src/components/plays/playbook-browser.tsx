@@ -6,7 +6,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { haptic } from "@/lib/haptics";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { PlayThumbnail } from "@/components/plays/play-thumbnail";
-import { LIBRARY_PLAYS, PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
+import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
 
 type TabKey = "offense" | "situations" | "defense" | "starred";
 const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] = [
@@ -41,7 +41,7 @@ function matches(p: LibraryPlay, q: string): boolean {
   return hay.includes(q);
 }
 
-export function PlaybookBrowser({ teamId }: { teamId: string }) {
+export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; plays: LibraryPlay[] }) {
   const [tab, setTab] = useState<TabKey>("offense");
   const [chip, setChip] = useState<"all" | PlayCategory>("all");
   const [query, setQuery] = useState("");
@@ -73,19 +73,19 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
 
   const groups = useMemo(() => {
     if (q) {
-      const results = LIBRARY_PLAYS.filter((p) => matches(p, q));
+      const results = allPlays.filter((p) => matches(p, q));
       return results.length ? [{ label: `Search results`, plays: results }] : [];
     }
     if (tab === "starred") {
-      const results = LIBRARY_PLAYS.filter((p) => starred.has(p.id));
+      const results = allPlays.filter((p) => starred.has(p.id));
       return results.length ? [{ label: "Starred", plays: results }] : [];
     }
     const cats = activeTab.categories ?? [];
     const visibleCats = chip === "all" ? cats : [chip as PlayCategory];
     return visibleCats
-      .map((cat) => ({ label: PLAY_CATEGORY_LABEL[cat], plays: LIBRARY_PLAYS.filter((p) => p.category === cat) }))
+      .map((cat) => ({ label: PLAY_CATEGORY_LABEL[cat], plays: allPlays.filter((p) => p.category === cat) }))
       .filter((g) => g.plays.length > 0);
-  }, [q, tab, chip, starred, activeTab]);
+  }, [q, tab, chip, starred, activeTab, allPlays]);
 
   return (
     <div className="space-y-4">

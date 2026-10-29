@@ -17,7 +17,7 @@ import { SPEEDS, usePlayClock } from "@/lib/plays/use-play-clock";
  * there" interaction as the step list a coach is already used to — and Full screen hands off to the
  * same immersive player the designer uses, rather than a second, different-feeling playback engine.
  */
-export function PlayViewer({ play, teamId }: { play: LibraryPlay; teamId: string }) {
+export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamId: string; canEdit: boolean }) {
   const [frames, setFrames] = useState(play.frames);
   const [fullscreen, setFullscreen] = useState(false);
   const region = computeContentBounds(frames);
@@ -41,6 +41,20 @@ export function PlayViewer({ play, teamId }: { play: LibraryPlay; teamId: string
           ← Playbook
         </Link>
         <div className="flex items-center gap-1.5">
+          {canEdit && (
+            <Link
+              href={`/teams/${teamId}/plays?lib=${play.id}`}
+              onClick={() => haptic("tap")}
+              aria-label="Edit this play"
+              className="flex items-center gap-1 rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim hover:border-accent hover:text-accent"
+            >
+              <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M4 20h4L19 9l-4-4L4 16z" />
+                <path d="M13.5 6.5l4 4" />
+              </svg>
+              Edit
+            </Link>
+          )}
           <button
             type="button"
             onClick={flip}
