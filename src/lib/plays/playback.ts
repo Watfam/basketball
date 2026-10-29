@@ -57,20 +57,43 @@ export function ease(t: number): number {
   return c < 0.5 ? 4 * c * c * c : 1 - (-2 * c + 2) ** 3 / 2;
 }
 
+/** Re-maps `raw` onto the sub-window [start,end] of the transition, then eases it — ease()'s own internal clamp means a raw value outside the window just holds at 0 or 1, no clamping needed here. */
+function windowed(raw: number, start: number, end: number): number {
+  return ease((raw - start) / (end - start));
+}
+
 /**
  * The frame to render at a point in the transition from `from` to `to`: a player glides along the
  * path he arrived on (his drawn line) if `to` recorded one, otherwise a straight interpolation; a
  * formula-driven defender is passed through unchanged so his coverage keeps reacting live to the
  * interpolated offense/ball below. Returns a ball override for when the ball is traveling a pass's
  * own path rather than sitting on a player.
+ *
+ * Movement and a pass in the same transition are staggered, not simultaneous: the cut, dribble, or
+ * screen that creates the passing lane plays out over the first ~65% of the transition, and the pass
+ * itself travels over the last ~50%, so the two halves overlap just enough to read as one continuous
+ * action rather than "everyone drifts at once, lines pop back in" — the actual order of a real
+ * possession (the move happens, then the ball follows it) instead of an undifferentiated blend. A
+ * transition with only one of the two (a plain reversal pass with nobody cutting, or a cut with no
+ * pass) just eases over the whole window — there is nothing to sequence it against.
  */
 export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame: Frame; ballOverride?: Point } {
-  const t = ease(rawT);
+  const hasBallMove = !!to.ballArrival;
+  const hasPlayerMove =
+    to.offense.some((o) => {
+      const fromPos = from.offense.find((f) => f.id === o.id)?.pos;
+      return fromPos ? fromPos.x !== o.pos.x || fromPos.y !== o.pos.y : false;
+    }) || from.defense.some((d) => !!to.arrivals?.[d.id]);
+
+  const stagger = hasBallMove && hasPlayerMove;
+  const moveT = stagger ? windowed(rawT, 0, 0.65) : ease(rawT);
+  const ballT = stagger ? windowed(rawT, 0.5, 1) : ease(rawT);
+
   const offense = to.offense.map((o) => {
     const path = to.arrivals?.[o.id];
-    if (path) return { ...o, pos: pointAlongPath(path, t) };
+    if (path) return { ...o, pos: pointAlongPath(path, moveT) };
     const fromPos = from.offense.find((f) => f.id === o.id)?.pos ?? o.pos;
-    return { ...o, pos: lerp(fromPos, o.pos, t) };
+    return { ...o, pos: lerp(fromPos, o.pos, moveT) };
   });
 
   // Based on `from`, not `to`: a defender with no arrival path keeps reacting to the *current*
@@ -80,13 +103,13 @@ export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame:
   const defense = from.defense.map((d) => {
     const path = to.arrivals?.[d.id];
     if (!path) return d;
-    return { ...d, coverage: "manual" as const, manualPos: pointAlongPath(path, t) };
+    return { ...d, coverage: "manual" as const, manualPos: pointAlongPath(path, moveT) };
   });
 
   // Same reasoning as defense: who "has the ball" for coverage purposes (e.g. Auto's on-ball check)
   // stays the old holder until the catch actually happens, at arrival — not the instant the pass is
   // thrown.
   const frame: Frame = { ...to, offense, defense, ballHolder: from.ballHolder };
-  const ballOverride = to.ballArrival ? pointAlongPath(to.ballArrival, t) : undefined;
+  const ballOverride = to.ballArrival ? pointAlongPath(to.ballArrival, ballT) : undefined;
   return { frame, ballOverride };
 }

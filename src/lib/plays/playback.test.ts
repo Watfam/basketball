@@ -93,3 +93,20 @@ test("a pass sets a ball override that travels the pass line, separate from the 
   const { ballOverride } = interpolateFrame(from, to, 0.5);
   assert.deepEqual(ballOverride, { x: 10, y: 0 });
 });
+
+test("a cut and a pass in the SAME transition are staggered, not simultaneous: the cutter is most of the way there while the ball has not left the passer's hand yet", () => {
+  const to: Frame = { ...from, offense: [{ id: "O1", pos: { x: 10, y: 0 } }], ballArrival: [{ x: 0, y: 0 }, { x: 20, y: 0 }] };
+  const { frame, ballOverride } = interpolateFrame(from, to, 0.5);
+  // Move window is [0, 0.65] of the transition — at raw 0.5 the cutter is well past the plain-lerp
+  // midpoint (5), not sitting exactly on it the way an unstaggered 0.5 would.
+  assert.ok(frame.offense[0].pos.x > 6, `expected the cutter well past halfway, got x=${frame.offense[0].pos.x}`);
+  // Ball window is [0.5, 1] — at raw 0.5 it has not started moving off the passer's spot yet.
+  assert.deepEqual(ballOverride, { x: 0, y: 0 });
+});
+
+test("a transition with ONLY a pass (nobody else moving) is not staggered — the ball still eases over the whole window", () => {
+  const to: Frame = { ...from, ballArrival: [{ x: 0, y: 0 }, { x: 20, y: 0 }] };
+  const { ballOverride } = interpolateFrame(from, to, 0.25);
+  // ease(0.25) = 4 * 0.25^3 = 0.0625 -> x = 0.0625 * 20 = 1.25
+  assert.ok(Math.abs((ballOverride?.x ?? -1) - 1.25) < 1e-9, `expected the unstaggered ease(0.25) point, got ${JSON.stringify(ballOverride)}`);
+});

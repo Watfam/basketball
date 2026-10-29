@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { PlayCourt } from "@/components/plays/play-court";
 import { haptic } from "@/lib/haptics";
 import type { Region } from "@/lib/plays/bounds";
-import type { Point } from "@/lib/plays/geometry";
-import { advanceClock, clockToFraction, fractionToClock, interpolateFrame, type PlaybackClock } from "@/lib/plays/playback";
+import { SPEEDS, usePlayClock } from "@/lib/plays/use-play-clock";
 import type { Frame } from "@/lib/plays/types";
-
-const SPEEDS = [0.5, 1, 2] as const;
 
 export function FilmPlayer({
   frames,
@@ -22,62 +18,7 @@ export function FilmPlayer({
   /** Mirrors the play left-right across the court — present only when the caller owns the frame data to flip. */
   onFlip?: () => void;
 }) {
-  const [clock, setClock] = useState<PlaybackClock>({ frameIndex: 0, phase: "hold", t: 0 });
-  const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
-  const lastRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!playing) {
-      lastRef.current = null;
-      return;
-    }
-    let raf: number;
-    const tick = (now: number) => {
-      const last = lastRef.current ?? now;
-      const dt = now - last;
-      lastRef.current = now;
-      setClock((prev) => {
-        const next = advanceClock(prev, dt, speed, frames.length);
-        if (next.done) setPlaying(false);
-        return { frameIndex: next.frameIndex, phase: next.phase, t: next.t };
-      });
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [playing, speed, frames.length]);
-
-  const fromFrame = frames[clock.frameIndex];
-  // Holding shows the frame's own lines as annotations of a stable diagram. Mid-transition the players
-  // are already gliding along what those lines meant, so the lines fade out instead (linesVisible
-  // below) — the *next* frame's own (future) lines are already in the DOM so they can fade back in
-  // the instant the new hold begins, rather than popping in.
-  let shown: Frame;
-  let ballOverride: Point | undefined;
-  if (clock.phase === "hold") {
-    shown = fromFrame;
-  } else {
-    const toFrame = frames[clock.frameIndex + 1];
-    const result = interpolateFrame(fromFrame, toFrame, clock.t);
-    shown = result.frame;
-    ballOverride = result.ballOverride;
-  }
-
-  function togglePlay() {
-    haptic("tap");
-    if (!playing && clock.frameIndex === frames.length - 1 && clock.phase === "hold" && clock.t >= 1) {
-      setClock({ frameIndex: 0, phase: "hold", t: 0 });
-    }
-    setPlaying((p) => !p);
-  }
-
-  function scrub(fraction: number) {
-    lastRef.current = null;
-    setClock(fractionToClock(fraction, frames.length));
-  }
-
-  const fraction = clockToFraction(clock, frames.length);
+  const { clock, shown, ballOverride, fromFrame, playing, speed, setSpeed, togglePlay, scrub, fraction } = usePlayClock(frames, { autoplay: true });
 
   return (
     <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
@@ -156,7 +97,7 @@ export function FilmPlayer({
 
           <button
             type="button"
-            onClick={togglePlay}
+            onClick={() => { haptic("tap"); togglePlay(); }}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-on-accent"
             aria-label={playing ? "Pause" : "Play"}
           >

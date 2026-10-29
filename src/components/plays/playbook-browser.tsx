@@ -247,8 +247,8 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
                     )}
 
                     <div className="mt-3 flex items-center justify-between gap-3">
-                      <ButtonLink href={`/teams/${teamId}/plays?lib=${p.id}`} size="sm" variant="secondary">
-                        Open in designer
+                      <ButtonLink href={`/teams/${teamId}/plays/playbook/${p.id}`} size="sm" variant="secondary">
+                        View play
                       </ButtonLink>
                       <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         {p.frames.length} beats
