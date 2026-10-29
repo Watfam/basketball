@@ -85,7 +85,6 @@ export function PlayViewer({ play, teamId }: { play: LibraryPlay; teamId: string
             ballOverride={ballOverride}
             interactive={false}
             region={region}
-            linesVisible={clock.phase === "hold"}
           />
         </div>
 

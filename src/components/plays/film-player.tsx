@@ -62,7 +62,6 @@ export function FilmPlayer({
           ballOverride={ballOverride}
           interactive={false}
           region={region}
-          linesVisible={clock.phase === "hold"}
         />
       </div>
 

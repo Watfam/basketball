@@ -2,7 +2,7 @@
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Region } from "@/lib/plays/bounds";
-import { distance, length, maxDeviationFromChord, smoothPath, sub, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
+import { distance, length, maxDeviationFromChord, smoothPath, sub, trimEnd, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
 import { resolveDefense } from "@/lib/plays/resolve";
 import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
 
@@ -135,23 +135,30 @@ function ArrowDefs() {
   );
 }
 
+// A line's own endpoint sits exactly on the player token it points at, but that token paints over
+// the line layer — an arrowhead placed right at the destination is really there, just invisible
+// under an opaque circle. Trimming the path back first is what makes the arrow (or the screen's
+// T-bar) actually show up next to the token instead of vanishing underneath it.
+const ARROW_TRIM = 2;
+const SCREEN_TRIM = 1.7;
+
 function LinePath({ line }: { line: DrawnLine }) {
   const color = LINE_COLOR_HEX[line.color];
-  const pts = line.points;
-  const start = pts[0];
-  const end = pts[pts.length - 1];
+  const trimmed = trimEnd(line.points, line.type === "screen" ? SCREEN_TRIM : ARROW_TRIM);
+  const start = trimmed[0];
+  const end = trimmed[trimmed.length - 1];
 
   if (line.type === "dribble") {
-    return <path d={zigzagAlongPath(pts)} fill="none" stroke={color} strokeWidth={0.35} strokeLinejoin="round" strokeLinecap="round" markerEnd={`url(#arrow-${line.color})`} />;
+    return <path d={zigzagAlongPath(trimmed)} fill="none" stroke={color} strokeWidth={0.35} strokeLinejoin="round" strokeLinecap="round" markerEnd={`url(#arrow-${line.color})`} />;
   }
 
-  const d = smoothPath(pts);
+  const d = smoothPath(trimmed);
   const dash = line.type === "pass" ? "1.4 1.1" : undefined;
   const marker = line.type === "pass" || line.type === "cut" ? `url(#arrow-${line.color})` : undefined;
 
   let screenCap: React.ReactNode = null;
   if (line.type === "screen") {
-    const dir = unit(sub(end, pts[pts.length - 2] ?? start));
+    const dir = unit(sub(end, trimmed[trimmed.length - 2] ?? start));
     const normal = { x: -dir.y, y: dir.x };
     const capLen = 1.6;
     const a = { x: end.x + normal.x * capLen, y: end.y + normal.y * capLen };
@@ -179,7 +186,6 @@ export function PlayCourt({
   ballOverride,
   interactive = true,
   region,
-  linesVisible = true,
 }: {
   frame: Frame;
   tool: Tool;
@@ -195,8 +201,6 @@ export function PlayCourt({
   interactive?: boolean;
   /** Crops the viewBox to this court-feet region instead of the whole court — fitting both axes to where the play actually happens, not just one, is what actually makes the action render bigger (see bounds.ts). Falls back to the whole court (plus the standard margin) when absent. */
   region?: Region;
-  /** False fades the drawn lines out (e.g. mid-transition in film mode) instead of popping them away. */
-  linesVisible?: boolean;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gesture = useRef<{
@@ -339,7 +343,7 @@ export function PlayCourt({
       <ArrowDefs />
       <CourtMarkings />
 
-      <g style={{ opacity: linesVisible ? 1 : 0, transition: interactive ? "none" : "opacity 0.35s ease-out" }}>
+      <g>
         {frame.lines.map((line) => (
           <LinePath key={line.id} line={line} />
         ))}

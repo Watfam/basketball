@@ -23,6 +23,30 @@ export function clampDistanceTo(from: Point, to: Point, maxDist: number): Point 
   return d <= maxDist ? to : add(from, scale(unit(sub(to, from)), maxDist));
 }
 
+/**
+ * Shortens a path by `dist` feet, walking back from its end — so a line's own tip (and the arrowhead
+ * drawn at it) lands just outside the player token it points at instead of underneath it. Player
+ * tokens paint over the line layer, so an arrowhead placed exactly at the destination's own
+ * coordinate is invisible: it is there, just hidden under an opaque circle. Walks segment by segment
+ * rather than assuming the last segment alone is long enough, so a path whose final leg is short
+ * still trims the full `dist`.
+ */
+export function trimEnd(points: Point[], dist: number): Point[] {
+  if (points.length < 2 || dist <= 0) return points;
+  const pts = points.slice();
+  let remaining = dist;
+  for (let i = pts.length - 1; i > 0; i--) {
+    const seg = distance(pts[i], pts[i - 1]);
+    if (seg >= remaining) {
+      const t = remaining / seg;
+      return [...pts.slice(0, i), lerp(pts[i], pts[i - 1], t)];
+    }
+    remaining -= seg;
+    pts.pop();
+  }
+  return [pts[0]];
+}
+
 /** Catmull-Rom through 2+ points, as a cubic-bezier SVG path (smooth freehand curves). Falls back to a straight line for exactly 2 points. */
 export function smoothPath(points: Point[]): string {
   if (points.length < 2) return "";
