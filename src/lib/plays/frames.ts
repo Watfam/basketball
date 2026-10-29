@@ -24,12 +24,12 @@ function movementLinesNear(lines: DrawnLine[], pos: Point): DrawnLine[] {
  * hand-authored, retroactive one (a line drawn on the frame you're arriving at, annotating how you got
  * there, found in `toLines`) — this doesn't care which frame it came from, only that both ends line up.
  */
-export function findMovementPath(fromLines: DrawnLine[], toLines: DrawnLine[], types: DrawnLine["type"][], fromPos: Point, toPos: Point): Point[] | undefined {
+export function findMovementLine(fromLines: DrawnLine[], toLines: DrawnLine[], types: DrawnLine["type"][], fromPos: Point, toPos: Point): DrawnLine | undefined {
   const candidates = linesOfType([...fromLines, ...toLines], types).filter(
     (l) => distance(l.points[0], fromPos) <= NEAR && distance(l.points[l.points.length - 1], toPos) <= NEAR
   );
   candidates.sort((a, b) => distance(a.points[0], fromPos) - distance(b.points[0], fromPos));
-  return candidates[0]?.points;
+  return candidates[0];
 }
 
 /**

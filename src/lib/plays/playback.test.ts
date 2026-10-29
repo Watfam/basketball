@@ -168,6 +168,66 @@ test("a derived path moves a manual defender too, the same as an offensive playe
   assert.ok(Math.abs(x1.manualPos!.x - straightMidpoint.x) > 0.5 || Math.abs(x1.manualPos!.y - straightMidpoint.y) > 0.5);
 });
 
+test("tagging one line's beat does not affect a transition with no tags at all — the old two-slot formula still applies exactly", () => {
+  const to: Frame = { ...from, offense: [{ id: "O1", pos: { x: 10, y: 0 } }], ballArrival: [{ x: 0, y: 0 }, { x: 20, y: 0 }] };
+  const { frame, ballOverride } = interpolateFrame(from, to, 0.5);
+  assert.ok(frame.offense[0].pos.x > 6);
+  assert.deepEqual(ballOverride, { x: 0, y: 0 });
+});
+
+test("two movements tagged beat 1 and beat 2 are sequenced — the second barely starts while the first is well underway", () => {
+  const fromTwo: Frame = { ...from, offense: [{ id: "O1", pos: { x: 0, y: 0 } }, { id: "O2", pos: { x: 0, y: 5 } }] };
+  const toTwo: Frame = {
+    ...from,
+    offense: [{ id: "O1", pos: { x: 10, y: 0 } }, { id: "O2", pos: { x: 10, y: 5 } }],
+    lines: [
+      { id: "l1", type: "cut", color: "offense", points: [{ x: 0, y: 0 }, { x: 10, y: 0 }], beat: 1 },
+      { id: "l2", type: "cut", color: "offense", points: [{ x: 0, y: 5 }, { x: 10, y: 5 }], beat: 2 },
+    ],
+  };
+  const { frame } = interpolateFrame(fromTwo, toTwo, 0.5);
+  const o1 = frame.offense.find((o) => o.id === "O1")!.pos.x;
+  const o2 = frame.offense.find((o) => o.id === "O2")!.pos.x;
+  assert.ok(o1 > o2, `expected beat 1 (O1, x=${o1}) well ahead of beat 2 (O2, x=${o2}) at the midpoint`);
+  assert.ok(o1 > 7, `expected beat 1's mover mostly there already, got x=${o1}`);
+  assert.ok(o2 < 3, `expected beat 2's mover barely started, got x=${o2}`);
+});
+
+test("an untagged pass alongside an explicitly-tagged movement still defaults to AFTER the movement, not simultaneous with it", () => {
+  const fromOne: Frame = { ...from, ballHolder: "O1", offense: [{ id: "O1", pos: { x: 0, y: 0 } }, { id: "O2", pos: { x: 20, y: 0 } }] };
+  const toOne: Frame = {
+    ...from,
+    ballHolder: "O2",
+    offense: [{ id: "O1", pos: { x: 10, y: 0 } }, { id: "O2", pos: { x: 20, y: 0 } }],
+    lines: [
+      { id: "l1", type: "cut", color: "offense", points: [{ x: 0, y: 0 }, { x: 10, y: 0 }], beat: 1 },
+      { id: "l2", type: "pass", color: "offense", points: [{ x: 0, y: 0 }, { x: 20, y: 0 }] },
+    ],
+  };
+  const { ballOverride } = interpolateFrame(fromOne, toOne, 0.3);
+  // Beat 1 (the cut) owns roughly the first slot of 2 beats; the untagged pass defaults to right
+  // after it (beat 2) — at 0.3 of the transition, the pass has barely begun, same spirit as the
+  // untagged-everywhere default.
+  assert.ok((ballOverride?.x ?? 99) < 5, `expected the pass to have barely started at t=0.3, got ${JSON.stringify(ballOverride)}`);
+});
+
+test("three beats sequence in order: by t=0.9 the third beat is well underway while the first is long done", () => {
+  const fromThree: Frame = { ...from, offense: [{ id: "O1", pos: { x: 0, y: 0 } }, { id: "O2", pos: { x: 0, y: 5 } }, { id: "O3", pos: { x: 0, y: 10 } }] };
+  const toThree: Frame = {
+    ...from,
+    offense: [{ id: "O1", pos: { x: 10, y: 0 } }, { id: "O2", pos: { x: 10, y: 5 } }, { id: "O3", pos: { x: 10, y: 10 } }],
+    lines: [
+      { id: "l1", type: "cut", color: "offense", points: [{ x: 0, y: 0 }, { x: 10, y: 0 }], beat: 1 },
+      { id: "l2", type: "cut", color: "offense", points: [{ x: 0, y: 5 }, { x: 10, y: 5 }], beat: 2 },
+      { id: "l3", type: "cut", color: "offense", points: [{ x: 0, y: 10 }, { x: 10, y: 10 }], beat: 3 },
+    ],
+  };
+  const { frame } = interpolateFrame(fromThree, toThree, 0.9);
+  const x = (id: string) => frame.offense.find((o) => o.id === id)!.pos.x;
+  assert.ok(x("O1") > 9.5, `beat 1 should be essentially arrived by t=0.9, got ${x("O1")}`);
+  assert.ok(x("O3") < x("O1"), `beat 3 should still trail beat 1 at t=0.9: O3=${x("O3")} O1=${x("O1")}`);
+});
+
 test("a derived pass path moves the ball along the curve, the same as a stored ballArrival", () => {
   const fromPass: Frame = { ...from, ballHolder: "O1", offense: [{ id: "O1", pos: { x: 0, y: 0 } }, { id: "O2", pos: { x: 20, y: 0 } }] };
   const toPass: Frame = {

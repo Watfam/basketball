@@ -1,7 +1,7 @@
-import { findMovementPath } from "./frames";
+import { findMovementLine } from "./frames";
 import { lerp, pointAlongPath, type Point } from "./geometry";
 import { resolveDefense } from "./resolve";
-import type { Frame } from "./types";
+import type { DrawnLine, Frame } from "./types";
 
 /** Nominal (unscaled by speed) durations from the spec. */
 export const HOLD_MS = 1300;
@@ -65,59 +65,80 @@ function windowed(raw: number, start: number, end: number): number {
 }
 
 /**
+ * The sub-window of the transition that beat `beat` gets, given the full set of beats actually in
+ * play this step. Consecutive beats overlap by half a beat's width so the motion reads as one
+ * continuous action rather than stop-and-go — the same idea as the old fixed move-then-pass split,
+ * generalized from exactly two slots to however many beats are actually used.
+ */
+function beatWindow(beat: number, allBeats: number[]): [number, number] {
+  const sorted = [...new Set(allBeats)].sort((a, b) => a - b);
+  const k = sorted.length;
+  if (k <= 1) return [0, 1];
+  const i = sorted.indexOf(beat);
+  const span = 1 / (k + 0.5);
+  return [i * span, Math.min(1, (i + 1.5) * span)];
+}
+
+/**
  * The frame to render at a point in the transition from `from` to `to`: a player glides along the
  * path he arrived on (his drawn line) if `to` recorded one, otherwise a straight interpolation; a
  * formula-driven defender is passed through unchanged so his coverage keeps reacting live to the
  * interpolated offense/ball below. Returns a ball override for when the ball is traveling a pass's
  * own path rather than sitting on a player.
  *
- * Movement and a pass in the same transition are staggered, not simultaneous: the cut, dribble, or
- * screen that creates the passing lane plays out over the first ~65% of the transition, and the pass
- * itself travels over the last ~50%, so the two halves overlap just enough to read as one continuous
- * action rather than "everyone drifts at once, lines pop back in" — the actual order of a real
- * possession (the move happens, then the ball follows it) instead of an undifferentiated blend. A
- * transition with only one of the two (a plain reversal pass with nobody cutting, or a cut with no
- * pass) just eases over the whole window — there is nothing to sequence it against.
+ * By default, movement and a pass in the same transition are staggered, not simultaneous: the cut,
+ * dribble or screen that creates the passing lane plays out over the first ~65% of the transition,
+ * and the pass itself travels over the last ~50%, so the two halves overlap just enough to read as
+ * one continuous action — the actual order of a real possession, not an undifferentiated blend. A
+ * transition with only one of the two just eases over the whole window. Tagging a line's `beat`
+ * (1, 2 or 3 — see DrawnLine.beat) opts the WHOLE transition into fully sequenced beats instead,
+ * generalizing that same two-slot idea to however many beats are actually used; anything untagged
+ * defaults to beat 1 (the front of the step) except an untagged pass, which still defaults to right
+ * after whatever's moving, matching the plain two-slot behavior when nothing is tagged at all.
  */
-const MOVE_TYPES: Frame["lines"][number]["type"][] = ["cut", "dribble", "screen"];
+const MOVE_TYPES: DrawnLine["type"][] = ["cut", "dribble", "screen"];
 
 export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame: Frame; ballOverride?: Point } {
   // `arrivals`/`ballArrival` are the fast path — set automatically by nextFrame() for anything built
   // live in the designer. A line drawn some other way (hand-authored data, or a player dragged by
   // hand with a line drawn afterward to annotate the move) never gets one, so this also searches both
   // frames' own lines for one whose two ends land on (where he started, where he ended up) — see
-  // findMovementPath. Without this, a curved or multi-bend line would still render correctly at rest
-  // but playback would silently cut the corner with a straight glide instead of following it.
+  // findMovementLine. Without this, a curved or multi-bend line would still render correctly at rest
+  // but playback would silently cut the corner with a straight glide instead of following it. Reading
+  // the matched line itself (rather than just its points) is also how a tagged `beat` is recovered,
+  // regardless of which authoring style produced the line.
   const fromDefResolved = resolveDefense(from);
 
   const offensePaths = new Map<string, Point[]>();
+  const offenseBeats = new Map<string, number>();
   for (const o of to.offense) {
-    const stored = to.arrivals?.[o.id];
     const fromPos = from.offense.find((f) => f.id === o.id)?.pos;
-    const path = stored ?? (fromPos ? findMovementPath(from.lines, to.lines, MOVE_TYPES, fromPos, o.pos) : undefined);
-    if (path) offensePaths.set(o.id, path);
+    const line = fromPos ? findMovementLine(from.lines, to.lines, MOVE_TYPES, fromPos, o.pos) : undefined;
+    const path = line?.points ?? to.arrivals?.[o.id];
+    if (path) {
+      offensePaths.set(o.id, path);
+      offenseBeats.set(o.id, line?.beat ?? 1);
+    }
   }
 
   const defensePaths = new Map<string, Point[]>();
+  const defenseBeats = new Map<string, number>();
   for (const d of from.defense) {
-    const stored = to.arrivals?.[d.id];
-    if (stored) {
-      defensePaths.set(d.id, stored);
-      continue;
-    }
     const toDef = to.defense.find((x) => x.id === d.id);
     const fromPos = fromDefResolved.find((r) => r.id === d.id)?.pos;
-    if (toDef?.coverage === "manual" && toDef.manualPos && fromPos) {
-      const path = findMovementPath(from.lines, to.lines, MOVE_TYPES, fromPos, toDef.manualPos);
-      if (path) defensePaths.set(d.id, path);
+    const line = toDef?.coverage === "manual" && toDef.manualPos && fromPos ? findMovementLine(from.lines, to.lines, MOVE_TYPES, fromPos, toDef.manualPos) : undefined;
+    const path = line?.points ?? to.arrivals?.[d.id];
+    if (path) {
+      defensePaths.set(d.id, path);
+      defenseBeats.set(d.id, line?.beat ?? 1);
     }
   }
 
   const fromBallPos = from.offense.find((o) => o.id === from.ballHolder)?.pos;
   const toBallPos = to.offense.find((o) => o.id === to.ballHolder)?.pos;
-  const ballPath =
-    to.ballArrival ??
-    (from.ballHolder !== to.ballHolder && fromBallPos && toBallPos ? findMovementPath(from.lines, to.lines, ["pass"], fromBallPos, toBallPos) : undefined);
+  const ballLine =
+    from.ballHolder !== to.ballHolder && fromBallPos && toBallPos ? findMovementLine(from.lines, to.lines, ["pass"], fromBallPos, toBallPos) : undefined;
+  const ballPath = ballLine?.points ?? to.ballArrival;
 
   const hasBallMove = !!ballPath;
   const hasPlayerMove =
@@ -126,13 +147,35 @@ export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame:
       return fromPos ? fromPos.x !== o.pos.x || fromPos.y !== o.pos.y : false;
     }) || defensePaths.size > 0;
 
-  const stagger = hasBallMove && hasPlayerMove;
-  const moveT = stagger ? windowed(rawT, 0, 0.65) : ease(rawT);
-  const ballT = stagger ? windowed(rawT, 0.5, 1) : ease(rawT);
+  const anyExplicitBeat = [...from.lines, ...to.lines].some((l) => l.beat !== undefined);
+
+  let moveT: number;
+  let ballT: number;
+  let offenseT: (id: string) => number;
+  let defenseT: (id: string) => number;
+
+  if (!anyExplicitBeat) {
+    // Nothing in this play has ever used explicit beats — exactly the original two-slot formula,
+    // byte-for-byte, so every existing play keeps its exact feel.
+    const stagger = hasBallMove && hasPlayerMove;
+    moveT = stagger ? windowed(rawT, 0, 0.65) : ease(rawT);
+    ballT = stagger ? windowed(rawT, 0.5, 1) : ease(rawT);
+    offenseT = () => moveT;
+    defenseT = () => moveT;
+  } else {
+    const movementBeats = [...offenseBeats.values(), ...defenseBeats.values()];
+    const defaultBallBeat = movementBeats.length ? Math.max(...movementBeats) + 1 : 1;
+    const ballBeat = ballLine?.beat ?? defaultBallBeat;
+    const allBeats = hasBallMove ? [...movementBeats, ballBeat] : movementBeats;
+    offenseT = (id) => windowed(rawT, ...beatWindow(offenseBeats.get(id) ?? 1, allBeats));
+    defenseT = (id) => windowed(rawT, ...beatWindow(defenseBeats.get(id) ?? 1, allBeats));
+    moveT = ease(rawT); // only reached by a plain lerp fallback below (no drawn path at all to sequence)
+    ballT = windowed(rawT, ...beatWindow(ballBeat, allBeats));
+  }
 
   const offense = to.offense.map((o) => {
     const path = offensePaths.get(o.id);
-    if (path) return { ...o, pos: pointAlongPath(path, moveT) };
+    if (path) return { ...o, pos: pointAlongPath(path, offenseT(o.id)) };
     const fromPos = from.offense.find((f) => f.id === o.id)?.pos ?? o.pos;
     return { ...o, pos: lerp(fromPos, o.pos, moveT) };
   });
@@ -144,7 +187,7 @@ export function interpolateFrame(from: Frame, to: Frame, rawT: number): { frame:
   const defense = from.defense.map((d) => {
     const path = defensePaths.get(d.id);
     if (!path) return d;
-    return { ...d, coverage: "manual" as const, manualPos: pointAlongPath(path, moveT) };
+    return { ...d, coverage: "manual" as const, manualPos: pointAlongPath(path, defenseT(d.id)) };
   });
 
   // Same reasoning as defense: who "has the ball" for coverage purposes (e.g. Auto's on-ball check)

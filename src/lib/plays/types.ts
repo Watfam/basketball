@@ -25,6 +25,8 @@ export type DrawnLine = {
   color: LineColor;
   /** 2 points for a straight line, 3+ for a curve (rendered with Catmull-Rom). */
   points: Point[];
+  /** Which beat of this step the move plays on — 1, 2 or 3. Absent means 1 (the default: everyone not explicitly delayed moves together, at the front of the step). Only changes playback timing within one transition; never affects the static diagram. */
+  beat?: number;
 };
 
 export type Frame = {

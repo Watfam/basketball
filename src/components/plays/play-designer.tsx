@@ -18,7 +18,7 @@ import { duplicateFrameAt, nextFrame, removeFrameAt } from "@/lib/plays/frames";
 import { formationFrame, type Formation } from "@/lib/plays/formations";
 import { mirrorFrames } from "@/lib/plays/mirror";
 import { addDefense, addOffense, removeDefense, removeOffense } from "@/lib/plays/roster";
-import { DEFENSE_IDS, EXAMPLE_PLAY, OFFENSE_IDS, type DefenseId, type DrawnLine, type Frame, type OffenseId } from "@/lib/plays/types";
+import { DEFENSE_IDS, EXAMPLE_PLAY, OFFENSE_IDS, type DefenseId, type DrawnLine, type Frame, type LineColor, type OffenseId } from "@/lib/plays/types";
 import { haptic } from "@/lib/haptics";
 
 const HISTORY_LIMIT = 20;
@@ -54,6 +54,7 @@ export function PlayDesigner({
   const [mode, setMode] = useState<"edit" | "film">("edit");
   const [tool, setTool] = useState<Tool>("move");
   const [selected, setSelected] = useState<OffenseId | DefenseId | null>(null);
+  const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const [dragging, setDragging] = useState<{ kind: "offense" | "defense"; id: string } | null>(null);
   const [name, setName] = useState(initialPlayName ?? "New Play");
   const [vs, setVs] = useState(initialVs ?? "");
@@ -74,6 +75,7 @@ export function PlayDesigner({
   const region = fitToPlay ? computeContentBounds(frames) : undefined;
 
   const frame = frames[activeIndex];
+  const selectedLine = selectedLineId ? frame.lines.find((l) => l.id === selectedLineId) : undefined;
 
   // The whole point of design mode: every touch on the court means move or
   // draw, never scroll the page underneath it.
@@ -84,6 +86,12 @@ export function PlayDesigner({
       document.body.style.overflow = prev;
     };
   }, []);
+
+  /** Moves to a different frame, dropping any selected line — it belongs to the frame it was selected on, and leaving that frame should drop it rather than leave a stale selection (and its editing handles) pointing wherever it is now. */
+  function goToFrame(i: number) {
+    setActiveIndex(i);
+    setSelectedLineId(null);
+  }
 
   /** Snapshots `frames` for Undo before a mutation — call once per user gesture, never inside a loop of continuous updates (a drag records one snapshot at pickup, not one per pointermove tick). */
   function recordHistory() {
@@ -99,6 +107,7 @@ export function PlayDesigner({
     setFuture((f) => [frames, ...f].slice(0, HISTORY_LIMIT));
     setFrames(prev);
     setActiveIndex((i) => Math.min(i, prev.length - 1));
+    setSelectedLineId(null);
   }
 
   function redo() {
@@ -109,6 +118,7 @@ export function PlayDesigner({
     setPast((p) => [...p, frames].slice(-HISTORY_LIMIT));
     setFrames(next);
     setActiveIndex((i) => Math.min(i, next.length - 1));
+    setSelectedLineId(null);
   }
 
   function handleDragStateChange(d: { kind: "offense" | "defense"; id: string } | null) {
@@ -137,6 +147,26 @@ export function PlayDesigner({
   function eraseLine(id: string) {
     recordHistory();
     updateActive((f) => ({ ...f, lines: f.lines.filter((l) => l.id !== id) }));
+    setSelectedLineId((s) => (s === id ? null : s));
+  }
+
+  function editLineEndpoint(lineId: string, which: "start" | "end", point: Point, color?: LineColor) {
+    recordHistory();
+    haptic("tap");
+    updateActive((f) => ({
+      ...f,
+      lines: f.lines.map((l) => {
+        if (l.id !== lineId) return l;
+        const points = which === "start" ? [point, ...l.points.slice(1)] : [...l.points.slice(0, -1), point];
+        return { ...l, points, color: color ?? l.color };
+      }),
+    }));
+  }
+
+  function setLineBeat(lineId: string, beat: number) {
+    recordHistory();
+    haptic("tap");
+    updateActive((f) => ({ ...f, lines: f.lines.map((l) => (l.id === lineId ? { ...l, beat } : l)) }));
   }
 
   function setCoverage(id: DefenseId, coverage: Coverage) {
@@ -158,14 +188,14 @@ export function PlayDesigner({
   function addFrame() {
     recordHistory();
     setFrames((fs) => [...fs, nextFrame(fs[fs.length - 1])]);
-    setActiveIndex(frames.length);
+    goToFrame(frames.length);
     setSelected(null);
   }
 
   function duplicateFrame(index: number) {
     recordHistory();
     setFrames((fs) => duplicateFrameAt(fs, index));
-    setActiveIndex(index + 1);
+    goToFrame(index + 1);
     setSelected(null);
   }
 
@@ -175,6 +205,7 @@ export function PlayDesigner({
     const newLength = frames.length - 1;
     setFrames((fs) => removeFrameAt(fs, index));
     setActiveIndex((i) => Math.min(i > index ? i - 1 : i, newLength - 1));
+    setSelectedLineId(null);
     setSelected(null);
   }
 
@@ -187,7 +218,7 @@ export function PlayDesigner({
       next.splice(activeIndex + 1, 0, inserted);
       return next;
     });
-    setActiveIndex(activeIndex + 1);
+    goToFrame(activeIndex + 1);
     setSelected(null);
   }
 
@@ -291,6 +322,24 @@ export function PlayDesigner({
           <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
+              onClick={undo}
+              disabled={!past.length}
+              aria-label="Undo"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-line-strong text-foreground-dim hover:border-accent hover:text-accent disabled:opacity-30"
+            >
+              <UndoIcon className="h-3 w-3" />
+            </button>
+            <button
+              type="button"
+              onClick={redo}
+              disabled={!future.length}
+              aria-label="Redo"
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-line-strong text-foreground-dim hover:border-accent hover:text-accent disabled:opacity-30"
+            >
+              <RedoIcon className="h-3 w-3" />
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 haptic("tap");
                 setFitToPlay((f) => !f);
@@ -385,15 +434,54 @@ export function PlayDesigner({
           onDragStateChange={handleDragStateChange}
           onAddLine={addLine}
           onEraseLine={eraseLine}
+          selectedLineId={selectedLineId}
+          onSelectLine={setSelectedLineId}
+          onEditLineEndpoint={editLineEndpoint}
           region={region}
         />
       </div>
+
+      {selectedLine && (
+        <div className="flex shrink-0 items-center gap-2 border-t border-line bg-raised px-3 py-2">
+          <span className="flex items-center gap-1.5 text-xs font-bold capitalize text-foreground-dim">
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: LINE_SWATCH[selectedLine.color] }} />
+            {selectedLine.type}
+          </span>
+          <div className="flex flex-1 items-center justify-end gap-1">
+            <span className="mr-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Plays</span>
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setLineBeat(selectedLine.id, n)}
+                className={`flex h-7 w-7 items-center justify-center rounded-full border text-[11px] font-extrabold ${
+                  (selectedLine.beat ?? 1) === n ? "border-accent bg-accent/10 text-accent" : "border-line-strong text-foreground-mute"
+                }`}
+              >
+                {n === 1 ? "1st" : n === 2 ? "2nd" : "3rd"}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => eraseLine(selectedLine.id)}
+            aria-label="Delete this line"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-foreground-mute hover:text-danger"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M3 6h18" />
+              <path d="M8 6V4h8v2" />
+              <path d="M19 6l-1 14H6L5 6" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       <FrameStrip
         frames={frames}
         activeIndex={activeIndex}
         onSelect={(i) => {
-          setActiveIndex(i);
+          goToFrame(i);
           setSelected(null);
         }}
         onAddFrame={addFrame}
@@ -403,7 +491,7 @@ export function PlayDesigner({
         onPlay={() => setMode("film")}
         onNoteChange={setNote}
       />
-      <Toolbar tool={tool} onSelect={setTool} onUndo={undo} onRedo={redo} canUndo={past.length > 0} canRedo={future.length > 0} />
+      <Toolbar tool={tool} onSelect={setTool} />
 
       {selected && (
         <PlayerSheet
@@ -417,6 +505,24 @@ export function PlayDesigner({
         />
       )}
     </div>
+  );
+}
+
+function UndoIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M9 14 4 9l5-5" />
+      <path d="M4 9h11a6 6 0 0 1 0 12h-1" />
+    </svg>
+  );
+}
+
+function RedoIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M15 14l5-5-5-5" />
+      <path d="M20 9H9a6 6 0 0 0 0 12h1" />
+    </svg>
   );
 }
 
@@ -441,6 +547,7 @@ function FlipIcon({ className }: { className?: string }) {
 }
 
 const ROSTER_FILL = { offense: "#dc2626", defense: "#17306b" } as const;
+const LINE_SWATCH: Record<LineColor, string> = { offense: "#dc2626", defense: "#1e3a8a", black: "#111827" };
 
 function RosterRow<T extends string>({
   label,

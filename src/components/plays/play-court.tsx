@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Region } from "@/lib/plays/bounds";
 import { distance, length, maxDeviationFromChord, smoothPath, sub, trimEnd, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
 import { resolveDefense } from "@/lib/plays/resolve";
-import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
+import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineColor, type LineType, type OffenseId } from "@/lib/plays/types";
 
 export type Tool = "move" | "pass" | "cut" | "dribble" | "screen" | "erase";
 
@@ -20,6 +20,8 @@ const PLAYER_R = 1.7;
 const HIT_R = 3.4;
 /** How close a line's start point must be to a player for the line to inherit his color and snap onto him — much tighter than HIT_R (which is for forgiving grabs in Move). A wide net here is exactly what caused a line meant for an offensive player to ink in as the defender standing tight on him instead; this makes "which player did I actually touch" unambiguous rather than "which player happens to be nearest." */
 const DRAW_START_HIT_R = PLAYER_R + 0.5;
+/** How close a touch must land to a selected line's own endpoint handle to grab it. */
+const HANDLE_HIT_R = PLAYER_R + 0.6;
 const BALL_R = 1.1;
 /** How far a token lifts above the fingertip while dragging, in court feet — fixed rather than derived from the live px-per-foot scale, so it's readable from render without touching a ref. */
 const LIFT_FEET = 3.4;
@@ -144,14 +146,23 @@ function ArrowDefs() {
 const ARROW_TRIM = 2;
 const SCREEN_TRIM = 1.7;
 
-function LinePath({ line }: { line: DrawnLine }) {
+function LinePath({ line, selected }: { line: DrawnLine; selected?: boolean }) {
   const color = LINE_COLOR_HEX[line.color];
   const trimmed = trimEnd(line.points, line.type === "screen" ? SCREEN_TRIM : ARROW_TRIM);
   const start = trimmed[0];
   const end = trimmed[trimmed.length - 1];
 
+  const halo = selected ? (
+    <path d={line.type === "dribble" ? zigzagAlongPath(trimmed) : smoothPath(trimmed)} fill="none" stroke="#f2560a" strokeWidth={1.1} strokeLinecap="round" opacity={0.35} />
+  ) : null;
+
   if (line.type === "dribble") {
-    return <path d={zigzagAlongPath(trimmed)} fill="none" stroke={color} strokeWidth={0.35} strokeLinejoin="round" strokeLinecap="round" markerEnd={`url(#arrow-${line.color})`} />;
+    return (
+      <g>
+        {halo}
+        <path d={zigzagAlongPath(trimmed)} fill="none" stroke={color} strokeWidth={0.35} strokeLinejoin="round" strokeLinecap="round" markerEnd={`url(#arrow-${line.color})`} />
+      </g>
+    );
   }
 
   const d = smoothPath(trimmed);
@@ -170,8 +181,19 @@ function LinePath({ line }: { line: DrawnLine }) {
 
   return (
     <g>
+      {halo}
       <path d={d} fill="none" stroke={color} strokeWidth={0.35} strokeDasharray={dash} strokeLinecap="round" markerEnd={marker} />
       {screenCap}
+    </g>
+  );
+}
+
+/** A small, generously-tappable handle at one end of the selected line — the untrimmed raw point, not the arrow's visually-trimmed tip, since dragging operates on the real stored data. */
+function LineHandle({ point, color }: { point: Point; color: string }) {
+  return (
+    <g>
+      <circle cx={point.x} cy={point.y} r={1.1} fill="#fff" stroke={color} strokeWidth={0.5} />
+      <circle cx={point.x} cy={point.y} r={0.35} fill={color} />
     </g>
   );
 }
@@ -185,6 +207,9 @@ export function PlayCourt({
   onDragStateChange,
   onAddLine,
   onEraseLine,
+  selectedLineId = null,
+  onSelectLine,
+  onEditLineEndpoint,
   ballOverride,
   interactive = true,
   region,
@@ -197,6 +222,10 @@ export function PlayCourt({
   onDragStateChange: (d: { kind: "offense" | "defense"; id: string } | null) => void;
   onAddLine: (line: Omit<DrawnLine, "id">) => void;
   onEraseLine: (id: string) => void;
+  /** The line currently selected for editing (Move tool only) — its endpoints get draggable handles. */
+  selectedLineId?: string | null;
+  onSelectLine?: (id: string | null) => void;
+  onEditLineEndpoint?: (lineId: string, which: "start" | "end", point: Point, color?: LineColor) => void;
   /** The ball's actual position mid-flight along a pass during playback — overrides deriving it from the holder. */
   ballOverride?: Point;
   /** False during film playback: no drag, draw, or tap-to-open-sheet. */
@@ -212,7 +241,14 @@ export function PlayCourt({
     startPos: Point;
     moved: boolean;
   } | null>(null);
+  const lineGesture = useRef<{ lineId: string; which: "start" | "end" } | null>(null);
   const [drawing, setDrawing] = useState<{ points: Point[] } | null>(null);
+  const [dragEndpoint, setDragEndpoint] = useState<{ lineId: string; which: "start" | "end"; point: Point } | null>(null);
+
+  useEffect(() => {
+    if (tool !== "move") onSelectLine?.(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tool]);
 
   const defense = resolveDefense(frame, ballOverride);
   const holderPos = frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 47 };
@@ -267,9 +303,27 @@ export function PlayCourt({
 
     const hit = nearestPlayer(p);
     if (hit) {
+      onSelectLine?.(null);
       gesture.current = { kind: hit.kind, id: hit.id, startClient: { x: e.clientX, y: e.clientY }, startPos: hit.pos, moved: false };
       tryCapture(svg, e.pointerId, false);
+      return;
     }
+
+    const selected = selectedLineId ? frame.lines.find((l) => l.id === selectedLineId) : undefined;
+    if (selected) {
+      const startD = distance(p, selected.points[0]);
+      const endD = distance(p, selected.points[selected.points.length - 1]);
+      if (startD < HANDLE_HIT_R || endD < HANDLE_HIT_R) {
+        const which: "start" | "end" = startD <= endD ? "start" : "end";
+        lineGesture.current = { lineId: selected.id, which };
+        setDragEndpoint({ lineId: selected.id, which, point: which === "start" ? selected.points[0] : selected.points[selected.points.length - 1] });
+        tryCapture(svg, e.pointerId, false);
+        return;
+      }
+    }
+
+    const tapped = nearestLine(p);
+    onSelectLine?.(tapped?.id ?? null);
   }
 
   function onPointerMove(e: ReactPointerEvent<SVGSVGElement>) {
@@ -282,6 +336,12 @@ export function PlayCourt({
       if (distance(last, p) > 0.6) {
         setDrawing({ points: [...drawing.points, p] });
       }
+      return;
+    }
+
+    if (lineGesture.current) {
+      const p = clientToCourt(svg, e.clientX, e.clientY);
+      setDragEndpoint({ ...lineGesture.current, point: p });
       return;
     }
 
@@ -321,6 +381,22 @@ export function PlayCourt({
       return;
     }
 
+    const lg = lineGesture.current;
+    if (lg) {
+      lineGesture.current = null;
+      const p = clientToCourt(svg!, e.clientX, e.clientY);
+      if (lg.which === "start") {
+        const snap = nearestPlayer(p, DRAW_START_HIT_R);
+        const color: LineColor = snap ? (snap.kind === "offense" ? "offense" : "defense") : "black";
+        onEditLineEndpoint?.(lg.lineId, "start", snap ? snap.pos : p, color);
+      } else {
+        const snap = nearestPlayer(p);
+        onEditLineEndpoint?.(lg.lineId, "end", snap ? snap.pos : p);
+      }
+      setDragEndpoint(null);
+      return;
+    }
+
     const g = gesture.current;
     gesture.current = null;
     if (!g) return;
@@ -349,13 +425,32 @@ export function PlayCourt({
       <CourtMarkings />
 
       <g>
-        {frame.lines.map((line) => (
-          <LinePath key={line.id} line={line} />
-        ))}
+        {frame.lines.map((line) => {
+          const live =
+            dragEndpoint?.lineId === line.id
+              ? { ...line, points: dragEndpoint.which === "start" ? [dragEndpoint.point, ...line.points.slice(1)] : [...line.points.slice(0, -1), dragEndpoint.point] }
+              : line;
+          return <LinePath key={line.id} line={live} selected={tool === "move" && selectedLineId === line.id} />;
+        })}
       </g>
       {drawPreview && drawPreview.points.length > 1 && (
         <LinePath line={{ id: "preview", type: tool as LineType, color: "black", points: drawPreview.points }} />
       )}
+      {tool === "move" &&
+        selectedLineId &&
+        (() => {
+          const sel = frame.lines.find((l) => l.id === selectedLineId);
+          if (!sel) return null;
+          const color = LINE_COLOR_HEX[sel.color];
+          const startPt = dragEndpoint?.lineId === sel.id && dragEndpoint.which === "start" ? dragEndpoint.point : sel.points[0];
+          const endPt = dragEndpoint?.lineId === sel.id && dragEndpoint.which === "end" ? dragEndpoint.point : sel.points[sel.points.length - 1];
+          return (
+            <g>
+              <LineHandle point={startPt} color={color} />
+              <LineHandle point={endPt} color={color} />
+            </g>
+          );
+        })()}
 
       {frame.offense.map((o) => {
         const isDragging = dragging?.kind === "offense" && dragging.id === o.id;
