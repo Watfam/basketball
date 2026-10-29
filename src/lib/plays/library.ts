@@ -107,7 +107,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 3, 3.5), o("O2", 44.5, 21), o("O3", 25, 32), o("O4", 47, 3.5), o("O5", 5.5, 21)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 14, y: 30 }, { x: 25, y: 32 }]), ln("cut", "offense", [{ x: 3, y: 3.5 }, { x: 5.5, y: 21 }]), ln("cut", "offense", [{ x: 26, y: 7 }, { x: 15, y: 3 }, { x: 3, y: 3.5 }])],
+        lines: [ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 8.4, y: 23.8 }, { x: 11.4, y: 26.2 }, { x: 14.6, y: 28.3 }, { x: 17.9, y: 29.9 }, { x: 21.4, y: 31.1 }, { x: 25, y: 32 }]), ln("cut", "offense", [{ x: 3, y: 3.5 }, { x: 5.5, y: 21 }]), ln("cut", "offense", [{ x: 26, y: 7 }, { x: 22.3, y: 5.8 }, { x: 18.6, y: 4.8 }, { x: 14.8, y: 4.1 }, { x: 10.9, y: 3.7 }, { x: 7, y: 3.5 }, { x: 3, y: 3.5 }])],
         note: "Fill toward the ball: 3 fills the top, 5 lifts to the wing, 1 clears to the open corner.",
       },
       {
@@ -129,7 +129,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 3, 3.5), o("O2", 47, 3.5), o("O3", 25, 32), o("O4", 44.5, 21), o("O5", 5.5, 21)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("cut", "offense", [{ x: 25, y: 7.5 }, { x: 36, y: 4 }, { x: 47, y: 3.5 }])],
+        lines: [ln("cut", "offense", [{ x: 25, y: 7.5 }, { x: 28.7, y: 6.4 }, { x: 32.3, y: 5.5 }, { x: 36, y: 4.8 }, { x: 39.7, y: 4.2 }, { x: 43.3, y: 3.8 }, { x: 47, y: 3.5 }])],
         note: "2 clears to the empty corner. Back in the 5-out shape — keep it moving.",
       },
     ]
@@ -174,7 +174,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 46, 15), o("O2", 16.5, 30), o("O3", 4, 15), o("O4", 33.5, 30), o("O5", 17, 9.5)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("cut", "offense", [{ x: 23.5, y: 6.5 }, { x: 38, y: 5 }, { x: 46, y: 15 }]), ln("cut", "offense", [{ x: 46, y: 15 }, { x: 33.5, y: 30 }])],
+        lines: [ln("cut", "offense", [{ x: 23.5, y: 6.5 }, { x: 28.2, y: 6.3 }, { x: 32.4, y: 6.8 }, { x: 36.4, y: 7.9 }, { x: 39.9, y: 9.6 }, { x: 43.2, y: 12 }, { x: 46, y: 15 }]), ln("cut", "offense", [{ x: 46, y: 15 }, { x: 33.5, y: 30 }])],
         note: "1 exits to the weak-side wing; 4 lifts to the open slot.",
       },
       {
@@ -220,7 +220,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 33, 14), o("O2", 47, 5.5), o("O3", 20, 33), o("O4", 3, 3.5), o("O5", 16.5, 4)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 32 }, { x: 31, y: 25 }, { x: 33, y: 14 }]), ln("cut", "offense", [{ x: 44, y: 18 }, { x: 47, y: 5.5 }]), ln("cut", "offense", [{ x: 6, y: 18 }, { x: 20, y: 33 }]), ln("cut", "offense", [{ x: 33, y: 4.5 }, { x: 16.5, y: 4 }])],
+        lines: [ln("dribble", "offense", [{ x: 25, y: 32 }, { x: 26.9, y: 29.6 }, { x: 28.6, y: 26.9 }, { x: 30, y: 24 }, { x: 31.2, y: 20.9 }, { x: 32.2, y: 17.6 }, { x: 33, y: 14 }]), ln("cut", "offense", [{ x: 44, y: 18 }, { x: 47, y: 5.5 }]), ln("cut", "offense", [{ x: 6, y: 18 }, { x: 20, y: 33 }]), ln("cut", "offense", [{ x: 33, y: 4.5 }, { x: 16.5, y: 4 }])],
         note: "1 drives the right gap. 2 drifts to the corner, 3 rotates to the top, 5 slides opposite to the dunker.",
       },
       {
@@ -280,7 +280,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 35.5, 17.5), o("O2", 3, 3.5), o("O3", 47, 3.5), o("O4", 23, 32), o("O5", 25.5, 7)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 33.5 }, { x: 35.5, y: 29 }, { x: 35.5, y: 17.5 }]), ln("cut", "offense", [{ x: 27.2, y: 30.5 }, { x: 26.5, y: 20 }, { x: 25.5, y: 7 }]), ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 23, y: 32 }])],
+        lines: [ln("dribble", "offense", [{ x: 25, y: 33.5 }, { x: 28.2, y: 31.8 }, { x: 30.8, y: 29.7 }, { x: 32.9, y: 27.3 }, { x: 34.3, y: 24.4 }, { x: 35.2, y: 21.1 }, { x: 35.5, y: 17.5 }]), ln("cut", "offense", [{ x: 27.2, y: 30.5 }, { x: 27, y: 26.9 }, { x: 26.7, y: 23.2 }, { x: 26.4, y: 19.4 }, { x: 26.1, y: 15.4 }, { x: 25.8, y: 11.3 }, { x: 25.5, y: 7 }]), ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 23, y: 32 }])],
         note: "1 attacks downhill. 5 rolls to the rim, 4 pops to the top.",
       },
       {
@@ -326,14 +326,14 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 34, 30), o("O2", 5.5, 17), o("O3", 18.5, 7), o("O4", 16, 30), o("O5", 30, 7.5)],
         defense: [],
         ballHolder: "O4",
-        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 30, y: 7.5 }]), ln("cut", "offense", [{ x: 45, y: 12 }, { x: 30, y: 2.5 }, { x: 18.5, y: 7 }])],
+        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 30, y: 7.5 }]), ln("cut", "offense", [{ x: 45, y: 12 }, { x: 40.1, y: 9.2 }, { x: 35.4, y: 7.2 }, { x: 30.9, y: 6 }, { x: 26.6, y: 5.6 }, { x: 22.4, y: 5.9 }, { x: 18.5, y: 7 }])],
         note: "Flex cut: 5 screens on the block, 3 runs his man off it to the opposite block.",
       },
       {
         offense: [o("O1", 31.5, 13), o("O2", 5.5, 17), o("O3", 18.5, 7), o("O4", 16, 30), o("O5", 34, 30)],
         defense: [],
         ballHolder: "O4",
-        lines: [ln("screen", "offense", [{ x: 34, y: 30 }, { x: 31.5, y: 13 }]), ln("cut", "offense", [{ x: 30, y: 7.5 }, { x: 37, y: 20 }, { x: 34, y: 30 }])],
+        lines: [ln("screen", "offense", [{ x: 34, y: 30 }, { x: 31.5, y: 13 }]), ln("cut", "offense", [{ x: 30, y: 7.5 }, { x: 32.1, y: 11.6 }, { x: 33.6, y: 15.6 }, { x: 34.5, y: 19.4 }, { x: 34.9, y: 23.1 }, { x: 34.7, y: 26.6 }, { x: 34, y: 30 }])],
         note: "Screen the screener: 1 sets a down screen for 5.",
       },
       {
@@ -348,7 +348,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 31.5, 13), o("O2", 31.5, 7), o("O3", 18, 8), o("O4", 16, 30), o("O5", 34, 30)],
         defense: [],
         ballHolder: "O5",
-        lines: [ln("screen", "offense", [{ x: 18.5, y: 7 }, { x: 18, y: 8 }]), ln("cut", "offense", [{ x: 5.5, y: 17 }, { x: 19, y: 2.5 }, { x: 31.5, y: 7 }])],
+        lines: [ln("screen", "offense", [{ x: 18.5, y: 7 }, { x: 18, y: 8 }]), ln("cut", "offense", [{ x: 5.5, y: 17 }, { x: 10, y: 12.7 }, { x: 14.4, y: 9.4 }, { x: 18.8, y: 7.3 }, { x: 23.1, y: 6.1 }, { x: 27.3, y: 6 }, { x: 31.5, y: 7 }])],
         note: "Repeat on the other side: 3 screens on the block for 2’s flex cut.",
       },
     ]
@@ -378,7 +378,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 25, 33), o("O2", 44, 21.5), o("O3", 40, 15), o("O4", 18, 8), o("O5", 33, 9.5)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 32, y: 9 }, { x: 33, y: 9.5 }]), ln("screen", "offense", [{ x: 39.5, y: 12 }, { x: 40, y: 15 }]), ln("cut", "offense", [{ x: 25, y: 4 }, { x: 36, y: 4 }, { x: 44, y: 21.5 }])],
+        lines: [ln("screen", "offense", [{ x: 32, y: 9 }, { x: 33, y: 9.5 }]), ln("screen", "offense", [{ x: 39.5, y: 12 }, { x: 40, y: 15 }]), ln("cut", "offense", [{ x: 25, y: 4 }, { x: 28.6, y: 4.5 }, { x: 32, y: 5.9 }, { x: 35.3, y: 8.4 }, { x: 38.3, y: 11.8 }, { x: 41.3, y: 16.2 }, { x: 44, y: 21.5 }])],
         note: "2 reads his man and goes right — 5 then 3 set the staggered screens.",
       },
       {
@@ -430,7 +430,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 35, 19), o("O2", 25.5, 19.5), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 25, 7)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 34.5 }, { x: 35, y: 29.5 }, { x: 35, y: 19 }]), ln("cut", "offense", [{ x: 27.2, y: 31.2 }, { x: 25, y: 7 }]), ln("screen", "offense", [{ x: 25, y: 16.5 }, { x: 25.5, y: 19.5 }])],
+        lines: [ln("dribble", "offense", [{ x: 25, y: 34.5 }, { x: 28.1, y: 32.7 }, { x: 30.6, y: 30.6 }, { x: 32.5, y: 28.1 }, { x: 33.9, y: 25.4 }, { x: 34.7, y: 22.3 }, { x: 35, y: 19 }]), ln("cut", "offense", [{ x: 27.2, y: 31.2 }, { x: 25, y: 7 }]), ln("screen", "offense", [{ x: 25, y: 16.5 }, { x: 25.5, y: 19.5 }])],
         note: "1 attacks; 5 rolls; 2 back screens 5’s defender on the way.",
       },
       {
@@ -505,7 +505,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 25, 12.5), o("O2", 39.5, 26.5), o("O3", 4, 17), o("O4", 6, 5), o("O5", 33, 9)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("dribble", "offense", [{ x: 36, y: 26.5 }, { x: 24, y: 25 }, { x: 25, y: 12.5 }]), ln("cut", "offense", [{ x: 30, y: 28.5 }, { x: 33, y: 9 }])],
+        lines: [ln("dribble", "offense", [{ x: 36, y: 26.5 }, { x: 32.4, y: 25.7 }, { x: 29.4, y: 24.3 }, { x: 27.3, y: 22.3 }, { x: 25.8, y: 19.6 }, { x: 25, y: 16.4 }, { x: 25, y: 12.5 }]), ln("cut", "offense", [{ x: 30, y: 28.5 }, { x: 33, y: 9 }])],
         note: "1 turns the corner and attacks the paint; 5 rolls.",
       },
     ]
@@ -586,7 +586,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 30, 6), o("O2", 44.5, 22), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 29, 22)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("screen", "offense", [{ x: 30, y: 20 }, { x: 29, y: 22 }]), ln("cut", "offense", [{ x: 25, y: 33 }, { x: 33.5, y: 20 }, { x: 30, y: 6 }])],
+        lines: [ln("screen", "offense", [{ x: 30, y: 20 }, { x: 29, y: 22 }]), ln("cut", "offense", [{ x: 25, y: 33 }, { x: 27.5, y: 28.6 }, { x: 29.3, y: 24.2 }, { x: 30.5, y: 19.8 }, { x: 31, y: 15.2 }, { x: 30.8, y: 10.6 }, { x: 30, y: 6 }])],
         note: "5 back screens; 1 cuts hard to the rim.",
       },
       {
@@ -600,7 +600,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 47, 3.5), o("O2", 28.5, 14), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 38, 8)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("dribble", "offense", [{ x: 44.5, y: 22 }, { x: 35, y: 17.5 }, { x: 28.5, y: 14 }]), ln("cut", "offense", [{ x: 40.5, y: 24 }, { x: 38, y: 8 }])],
+        lines: [ln("dribble", "offense", [{ x: 44.5, y: 22 }, { x: 41.4, y: 20.5 }, { x: 38.5, y: 19.1 }, { x: 35.8, y: 17.8 }, { x: 33.2, y: 16.4 }, { x: 30.8, y: 15.2 }, { x: 28.5, y: 14 }]), ln("cut", "offense", [{ x: 40.5, y: 24 }, { x: 38, y: 8 }])],
         note: "2 attacks the middle; 5 rolls.",
       },
     ]
@@ -830,7 +830,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 6.5, 78.6), o("O2", 43.5, 78.6), o("O3", 22.5, 65.7), o("O4", 25, 85.6), o("O5", 32, 50)],
         defense: [d("X4", "O4", { x: 25, y: 82.7 }), d("X1", "O4", { x: 9, y: 76.4 }), d("X2", "O4", { x: 41, y: 76.4 }), d("X3", "O4", { x: 23, y: 67.9 }), d("X5", "O4", { x: 32, y: 53.6 })],
         ballHolder: "O4",
-        lines: [ln("cut", "offense", [{ x: 18, y: 78.2 }, { x: 10, y: 70.6 }, { x: 6.5, y: 78.6 }]), ln("cut", "offense", [{ x: 32, y: 78.2 }, { x: 40, y: 70.6 }, { x: 43.5, y: 78.6 }]), ln("cut", "offense", [{ x: 18.5, y: 75.5 }, { x: 22.5, y: 65.7 }]), ln("cut", "offense", [{ x: 31.5, y: 75.5 }, { x: 32, y: 50 }]), ln("cut", "defense", [{ x: 19.5, y: 76.9 }, { x: 9, y: 76.4 }]), ln("cut", "defense", [{ x: 30.5, y: 76.9 }, { x: 41, y: 76.4 }]), ln("cut", "defense", [{ x: 19.5, y: 64.3 }, { x: 23, y: 67.9 }]), ln("cut", "defense", [{ x: 30.5, y: 64.3 }, { x: 32, y: 53.6 }])],
+        lines: [ln("cut", "offense", [{ x: 18, y: 78.2 }, { x: 15.5, y: 76.1 }, { x: 13.2, y: 74.9 }, { x: 11.1, y: 74.5 }, { x: 9.3, y: 75 }, { x: 7.8, y: 76.4 }, { x: 6.5, y: 78.6 }]), ln("cut", "offense", [{ x: 32, y: 78.2 }, { x: 34.5, y: 76.1 }, { x: 36.8, y: 74.9 }, { x: 38.9, y: 74.5 }, { x: 40.7, y: 75 }, { x: 42.2, y: 76.4 }, { x: 43.5, y: 78.6 }]), ln("cut", "offense", [{ x: 18.5, y: 75.5 }, { x: 22.5, y: 65.7 }]), ln("cut", "offense", [{ x: 31.5, y: 75.5 }, { x: 32, y: 50 }]), ln("cut", "defense", [{ x: 19.5, y: 76.9 }, { x: 9, y: 76.4 }]), ln("cut", "defense", [{ x: 30.5, y: 76.9 }, { x: 41, y: 76.4 }]), ln("cut", "defense", [{ x: 19.5, y: 64.3 }, { x: 23, y: 67.9 }]), ln("cut", "defense", [{ x: 30.5, y: 64.3 }, { x: 32, y: 53.6 }])],
         note: "1 and 2 pop to the corners; 3 holds the middle, 5 runs ahead.",
       },
       {
@@ -945,21 +945,21 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 30.5, 19), o("O2", 19.5, 19), o("O3", 33, -1.4), o("O4", 30.5, 4.5), o("O5", 25.5, 8.5)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 25.5, y: 8.5 }]), ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 25.5, y: 12 }, { x: 30.5, y: 4.5 }])],
+        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 25.5, y: 8.5 }]), ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 20.8, y: 9.4 }, { x: 22.9, y: 9.6 }, { x: 25, y: 9.3 }, { x: 26.9, y: 8.3 }, { x: 28.8, y: 6.7 }, { x: 30.5, y: 4.5 }])],
         note: "5 screens across; 4 cuts to the front of the rim.",
       },
       {
         offense: [o("O1", 25, 13.5), o("O2", 19.5, 19), o("O3", 33, -1.4), o("O4", 30.5, 4.5), o("O5", 23, 4.5)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 25, y: 13.5 }]), ln("cut", "offense", [{ x: 25.5, y: 8.5 }, { x: 21.5, y: 9.5 }, { x: 23, y: 4.5 }])],
+        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 25, y: 13.5 }]), ln("cut", "offense", [{ x: 25.5, y: 8.5 }, { x: 24.3, y: 8.7 }, { x: 23.4, y: 8.5 }, { x: 22.9, y: 8 }, { x: 22.6, y: 7.2 }, { x: 22.7, y: 6 }, { x: 23, y: 4.5 }])],
         note: "Screen the screener: 1 screens down for 5, who dives to the rim.",
       },
       {
         offense: [o("O1", 25, 13.5), o("O2", 4, 4.5), o("O3", 33, -1.4), o("O4", 30.5, 4.5), o("O5", 23, 4.5)],
         defense: [],
         ballHolder: "O5",
-        lines: [ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 12, y: 15 }, { x: 4, y: 4.5 }]), ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 23, y: 4.5 }])],
+        lines: [ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 17, y: 17.5 }, { x: 14.4, y: 15.6 }, { x: 11.9, y: 13.4 }, { x: 9.3, y: 10.8 }, { x: 6.7, y: 7.8 }, { x: 4, y: 4.5 }]), ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 23, y: 4.5 }])],
         note: "2 pops to the corner as the safety. Read 4, then 5, then 2.",
         ballArrival: [{ x: 33, y: -1.4 }, { x: 23, y: 4.5 }],
       },
@@ -989,7 +989,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 32, -1.4), o("O2", 45.5, 25), o("O3", 21, 17.5), o("O4", 40.5, 6), o("O5", 25.5, 4.5)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("cut", "offense", [{ x: 30, y: 6 }, { x: 25.5, y: 4.5 }]), ln("cut", "offense", [{ x: 30, y: 10.5 }, { x: 40.5, y: 6 }]), ln("cut", "offense", [{ x: 30, y: 15 }, { x: 26.5, y: 18 }, { x: 21, y: 17.5 }]), ln("cut", "offense", [{ x: 30, y: 19.5 }, { x: 45.5, y: 25 }])],
+        lines: [ln("cut", "offense", [{ x: 30, y: 6 }, { x: 25.5, y: 4.5 }]), ln("cut", "offense", [{ x: 30, y: 10.5 }, { x: 40.5, y: 6 }]), ln("cut", "offense", [{ x: 30, y: 15 }, { x: 28.8, y: 15.9 }, { x: 27.4, y: 16.6 }, { x: 26, y: 17.1 }, { x: 24.4, y: 17.4 }, { x: 22.8, y: 17.6 }, { x: 21, y: 17.5 }]), ln("cut", "offense", [{ x: 30, y: 19.5 }, { x: 45.5, y: 25 }])],
         note: "The line explodes: 5 rolls to the rim, 4 to the short corner, 3 curls to the elbow, 2 out to the wing.",
       },
       {
@@ -1070,7 +1070,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 43, 36), o("O2", 51.5, 26), o("O3", 27.5, 5), o("O4", 18.5, 8.5), o("O5", 22, 17)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 22, y: 17 }]), ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 26.5, y: 15 }, { x: 27.5, y: 5 }])],
+        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 22, y: 17 }]), ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 21.7, y: 17.5 }, { x: 23.5, y: 15.7 }, { x: 25, y: 13.5 }, { x: 26.2, y: 11 }, { x: 27, y: 8.2 }, { x: 27.5, y: 5 }])],
         note: "5 back screens for 3, who cuts to the rim.",
       },
       {
@@ -1114,7 +1114,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 47.5, 44.5), o("O2", 25.5, 6.5), o("O3", 51.5, 42), o("O4", 47, 4.5), o("O5", 25, 32)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("cut", "offense", [{ x: 42, y: 44 }, { x: 47.5, y: 44.5 }]), ln("cut", "offense", [{ x: 42, y: 38 }, { x: 33, y: 20 }, { x: 25.5, y: 6.5 }]), ln("cut", "offense", [{ x: 42, y: 32 }, { x: 47, y: 4.5 }]), ln("cut", "offense", [{ x: 42, y: 26 }, { x: 25, y: 32 }])],
+        lines: [ln("cut", "offense", [{ x: 42, y: 44 }, { x: 47.5, y: 44.5 }]), ln("cut", "offense", [{ x: 42, y: 38 }, { x: 39, y: 32.1 }, { x: 36.2, y: 26.5 }, { x: 33.4, y: 21.1 }, { x: 30.7, y: 16 }, { x: 28, y: 11.1 }, { x: 25.5, y: 6.5 }]), ln("cut", "offense", [{ x: 42, y: 32 }, { x: 47, y: 4.5 }]), ln("cut", "offense", [{ x: 42, y: 26 }, { x: 25, y: 32 }])],
         note: "The line breaks: 1 comes back to the ball, 2 goes deep to the rim, 4 to the corner, 5 to the top.",
       },
       {
@@ -1196,7 +1196,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 42.5, 11), o("O2", 47, 3.5), o("O3", 3, 3.5), o("O4", 18.5, 8.5), o("O5", 35, 29)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 35, y: 29 }]), ln("dribble", "offense", [{ x: 33, y: 32 }, { x: 42.5, y: 24.5 }, { x: 42.5, y: 11 }])],
+        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 35, y: 29 }]), ln("dribble", "offense", [{ x: 33, y: 32 }, { x: 35.9, y: 29.3 }, { x: 38.3, y: 26.3 }, { x: 40.1, y: 23 }, { x: 41.4, y: 19.3 }, { x: 42.2, y: 15.3 }, { x: 42.5, y: 11 }])],
         note: "5 ball screens; 1 drives hard right toward the baseline.",
       },
       {
@@ -1303,7 +1303,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 9.5, 64.3), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 27, 79.5), o("O5", 33, 50)],
         defense: [d("X4", "O1", { x: 25.5, y: 77.7 }), d("X1", "O1", { x: 11, y: 66.6 }), d("X2", "O1", { x: 36.5, y: 71.5 }), d("X3", "O1", { x: 13.5, y: 56.3 }), d("X5", "O1", { x: 31.5, y: 51.8 })],
         ballHolder: "O1",
-        lines: [ln("dribble", "offense", [{ x: 18, y: 76.4 }, { x: 10.5, y: 72.4 }, { x: 9.5, y: 64.3 }]), ln("cut", "defense", [{ x: 17.5, y: 78.6 }, { x: 11, y: 66.6 }])],
+        lines: [ln("dribble", "offense", [{ x: 18, y: 76.4 }, { x: 15.7, y: 75 }, { x: 13.7, y: 73.3 }, { x: 12.1, y: 71.4 }, { x: 10.9, y: 69.2 }, { x: 10, y: 66.9 }, { x: 9.5, y: 64.3 }]), ln("cut", "defense", [{ x: 17.5, y: 78.6 }, { x: 11, y: 66.6 }])],
         note: "x1 cuts off the dribbler and turns him to the sideline.",
       },
       {
@@ -1543,7 +1543,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         offense: [o("O1", 25, 32), o("O2", 47, 4.5), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
         defense: [d("X1", "O1", { x: 19.5, y: 20 }), d("X2", "O1", { x: 30.5, y: 20 }), d("X3", "O1", { x: 18.5, y: 8 }), d("X4", "O1", { x: 31.5, y: 8 }), d("X5", "O1", { x: 45.5, y: 7.5 })],
         ballHolder: "O1",
-        lines: [ln("cut", "offense", [{ x: 44.5, y: 21 }, { x: 47, y: 15 }, { x: 47, y: 4.5 }]), ln("cut", "defense", [{ x: 42, y: 19.5 }, { x: 45.5, y: 7.5 }])],
+        lines: [ln("cut", "offense", [{ x: 44.5, y: 21 }, { x: 45.3, y: 18.9 }, { x: 45.9, y: 16.5 }, { x: 46.4, y: 13.9 }, { x: 46.7, y: 11 }, { x: 46.9, y: 7.9 }, { x: 47, y: 4.5 }]), ln("cut", "defense", [{ x: 42, y: 19.5 }, { x: 45.5, y: 7.5 }])],
         note: "2 cuts to the corner; x5 chases and denies. The box stays home.",
       },
       {
