@@ -1,34 +1,41 @@
-import type { DrawnLine, Frame, OffenseId, OffensePlayer } from "./types";
+import type { DefenseId, DrawnLine, Frame, OffenseId, OffensePlayer, DefensePlayer } from "./types";
+import type { Point } from "./geometry";
 
-export type PlayCategory = "man" | "zone" | "blob" | "slob" | "fullCourt";
+export type PlayCategory = "man" | "zone" | "blob" | "slob" | "fullCourt" | "late" | "defense";
 export const PLAY_CATEGORY_LABEL: Record<PlayCategory, string> = {
   man: "Man",
   zone: "Zone",
   blob: "BLOB",
   slob: "SLOB",
-  fullCourt: "Full court",
+  fullCourt: "Press break",
+  late: "Late game",
+  defense: "Defense",
 };
-
-export type LibraryTeam = "UConn" | "Auburn" | "Louisville" | "Generic";
 
 export type LibraryPlay = {
   id: string;
   name: string;
-  team: LibraryTeam;
   category: PlayCategory;
-  /** Short situation tag shown as a subtitle in the list — "vs Man", "vs 2-3 Zone", "Baseline OB". */
+  /** Short situation tag shown as the card subtitle — "vs Man", "vs 2-3 Zone", "Baseline OB". */
   vs: string;
-  /** Where this was sourced from, and how confident that sourcing is — shown in the playbook so nothing reads as more authoritative than it is. */
-  source: string;
-  /** Scannable coaching cues for this specific action — shown next to the diagram so a coach can read the whole play without stepping through every frame. */
+  /** What the play is for and the core read — the first thing a player or coach should know, shown on the card and above the step list. */
+  about: string;
+  /** Scannable coaching cues for this specific action. */
   keys: string[];
-  /** A real, verified YouTube video that shows or teaches this exact action. Left out rather than guessed at when nothing specific enough turned up — see the no-invented-URLs rule. */
-  videoUrl?: string;
   frames: Frame[];
+  /** Only set when there's something true and specific worth saying about where this came from (e.g. it matches the team's own defensive system). Left out for standard, widely-taught actions rather than inventing a citation for them. */
+  source?: string;
+  /** A real, verified YouTube video that shows or teaches this exact action. Never a guess. */
+  videoUrl?: string;
 };
 
 function o(id: OffenseId, x: number, y: number): OffensePlayer {
   return { id, pos: { x, y } };
+}
+
+/** A defender placed by hand rather than resolved from a coverage rule — right for a diagram of a specific, named action instead of a live man-to-man read. `man` only matters if the coverage is ever switched off "manual"; it is not used to position this defender. */
+function d(id: DefenseId, man: OffenseId, manualPos: Point): DefensePlayer {
+  return { id, man, coverage: "manual", manualPos };
 }
 
 let seq = 0;
@@ -40,736 +47,1461 @@ function ln(type: DrawnLine["type"], color: DrawnLine["color"], points: { x: num
 function play(
   id: string,
   name: string,
-  team: LibraryTeam,
   category: PlayCategory,
   vs: string,
-  source: string,
+  about: string,
   keys: string[],
   frames: Frame[],
+  source?: string,
   videoUrl?: string
 ): LibraryPlay {
-  return { id, name, team, category, vs, source, keys, frames, videoUrl };
+  return { id, name, category, vs, about, keys, frames, source, videoUrl };
 }
 
 /**
- * A small, illustrated playbook. Every play here shows offense only (no defenders) — these are
- * publicly-documented actions, not a scouted defense's reaction to them, so drawing defenders would
- * mean inventing a defense nobody confirmed. Each play's `source` says plainly how solid the
- * attribution is: a named, move-by-move breakdown of real film is marked as such; where that kind of
- * detail was not publicly available for a given team, the entry says so and is either a standard,
- * unattributed action (not claimed as that team's own) or built from the team's publicly stated
- * stylistic principles rather than a specific sourced play. `videoUrl` is only ever a real link found
- * and checked against the play it is attached to — never a guess at what a matching video's address
- * might be.
+ * The Lightning playbook: standard, widely-taught actions (Flex, Horns, UCLA Cut, Floppy, Spain
+ * pick-and-roll, standard zone reads, standard press breaks, standard BLOB/SLOB shapes, and the
+ * team's own Run & Jump defense) rather than possessions reconstructed from specific game film.
+ * Earlier versions of this library tried to stay faithful to real, partially-documented college
+ * possessions and the geometry suffered for it — a real possession isn't drawn to teach cleanly.
+ * These are. `source` is left out for exactly that reason on most plays: there is nothing false to
+ * say by omitting it, but attaching a specific team or clip to a standard action would be.
  */
 export const LIBRARY_PLAYS: LibraryPlay[] = [
-  // ---------------------------------------------------------------- UConn (Dan Hurley) — man sets
-  play("uconn-hilo", "Middle Pin Hi-Lo", "UConn", "man", "vs Man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession for Adama Sanogo, played out here across the full pin-down-to-post-touch-to-finish sequence the breakdown describes rather than stopping partway through it.",
+  play(
+    "five-out",
+    "5-Out Motion",
+    "man",
+    "vs Man",
+    "Base pass-and-cut offense. Five spots on the perimeter, nobody stands, and every pass is followed by a cut.",
     [
-      "Sanogo: hold the pin down until contact, then duck in — don't pop.",
-      "Cutter: use the screen tight, shoulder to hip.",
-      "Passer: hit the cutter on the move, then look inside immediately for the hi-lo.",
-      "Hi-lo denied? Reverse the ball and start over, don't force it.",
+      "Pass, cut, fill. Never stand after a pass.",
+      "If you are not open in the lane after one count, clear out.",
+      "Hold 15–18 ft spacing. Two players on one spot is a mistake.",
+      "Wing overplayed? Go backdoor.",
     ],
     [
       {
-        offense: [o("O1", 25, 34), o("O2", 14, 21), o("O3", 38, 21), o("O4", 44, 9), o("O5", 25, 12)],
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 3, 3.5)],
         defense: [],
         ballHolder: "O1",
         lines: [],
-        note: "2-3 alignment. Sanogo starts up high at the post, ready to pin down for Calcaterra.",
+        note: "Base pass-and-cut offense. Five spots on the perimeter, nobody stands, and every pass is followed by a cut.",
       },
       {
-        offense: [o("O1", 25, 34), o("O2", 14, 21), o("O3", 38, 21), o("O4", 44, 9), o("O5", 22, 14)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 22, y: 14 }, { x: 19, y: 15 }])],
-        note: "Sanogo steps out and sets the pin down in the restricted area.",
-      },
-      {
-        offense: [o("O1", 25, 34), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 27, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [
-          ln("cut", "offense", [{ x: 14, y: 21 }, { x: 20, y: 18 }]),
-          ln("cut", "offense", [{ x: 22, y: 14 }, { x: 27, y: 9 }]),
-        ],
-        note: "Calcaterra cuts hard off the screen toward the wing as Sanogo immediately ducks into the post behind him.",
-      },
-      {
-        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 29, 8)],
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 3, 3.5)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("pass", "offense", [{ x: 25, y: 34 }, { x: 20, y: 18 }])],
-        note: "Entry pass to Calcaterra on the move.",
+        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 44.5, y: 21 }])],
+        note: "1 passes to 2 on the wing.",
       },
       {
-        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 29, 8)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [ln("pass", "offense", [{ x: 20, y: 18 }, { x: 29, y: 8 }])],
-        note: "Hi-lo feed off the duck-in — post touch for Sanogo near the rim.",
-      },
-      {
-        offense: [o("O1", 25, 30), o("O2", 20, 18), o("O3", 38, 21), o("O4", 44, 9), o("O5", 26, 6)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [],
-        note: "Sanogo turns over his inside shoulder to finish at the rim.",
-      },
-    ]
-  ),
-
-  play("uconn-dho-rip", "DHO and Rip", "UConn", "man", "vs Man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession for Adama Sanogo, with the entry, handoff, rip screen, and finish each shown as its own beat.",
-    [
-      "Big man: hand it off at the hip, square up, then pivot straight into the rip screen.",
-      "Guard: take the handoff on the move — don't stand and wait for it.",
-      "Rip screener: set it moving toward the baseline, not standing still.",
-      "Cutter: sprint off the rip — the defense is still recovering from the handoff.",
-    ],
-    [
-      {
-        offense: [o("O1", 14, 30), o("O5", 25, 19), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 14, y: 30 }, { x: 25, y: 19 }])],
-        note: "Entry pass to Sanogo at the elbow.",
-      },
-      {
-        offense: [o("O1", 23, 19), o("O5", 25, 19), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 19 }, { x: 23, y: 19 }])],
-        note: "Newton comes back to Sanogo for the dribble handoff.",
-      },
-      {
-        offense: [o("O1", 23, 19), o("O5", 25, 19), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 23, y: 19 }, { x: 27, y: 16 }]),
-          ln("cut", "offense", [{ x: 25, y: 19 }, { x: 30, y: 8 }]),
-        ],
-        note: "Handoff complete — Newton immediately turns to set the rip screen for Sanogo.",
-      },
-      {
-        offense: [o("O1", 21, 17), o("O5", 30, 8), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [],
-        note: "The rip screen clears Sanogo across the lane to the opposite block.",
-      },
-      {
-        offense: [o("O1", 21, 17), o("O5", 30, 8), o("O2", 38, 24), o("O3", 10, 10), o("O4", 40, 10)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [ln("pass", "offense", [{ x: 21, y: 17 }, { x: 30, y: 8 }])],
-        note: "Post touch for Sanogo on the opposite block.",
-      },
-    ]
-  ),
-
-  play("uconn-buckeye-slip", "Buckeye Slip", "UConn", "man", "vs Man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession (Newton/Karaban/Sanogo), with the weak-side cut, the slipped ball screen, and the finish each broken into their own beat.",
-    [
-      "First screener: hold just long enough to occupy the defender, then relocate.",
-      "Second screener: only fake the screen — slip the instant the defense shows help.",
-      "Ball handler: sell the ball screen with your eyes before the slip happens.",
-      "Passer: find the slipping screener immediately — the window is one beat.",
-    ],
-    [
-      {
-        offense: [o("O1", 25, 30), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 25, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 25, y: 9 }, { x: 19, y: 15 }])],
-        note: "Sanogo sets the screen for Newton to cut weak side.",
-      },
-      {
-        offense: [o("O1", 25, 30), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 22, 17)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("cut", "offense", [{ x: 25, y: 30 }, { x: 14, y: 26 }])],
-        note: "Newton cuts off the screen; Sanogo relocates to the slot for the ball-screen game.",
-      },
-      {
-        offense: [o("O1", 14, 26), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 22, 17)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 22, y: 17 }, { x: 18, y: 20 }])],
-        note: "The ball swings back to Newton — Karaban steps up as if to set the ball screen.",
-      },
-      {
-        offense: [o("O1", 16, 23), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 24, 12)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("cut", "offense", [{ x: 22, y: 17 }, { x: 25, y: 9 }])],
-        note: "Karaban slips the screen before it is even set — the defense still has to respect it for a beat.",
-      },
-      {
-        offense: [o("O1", 16, 22), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 25, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 16, y: 22 }, { x: 25, y: 9 }])],
-        note: "Newton finds Karaban slipping behind the screen.",
-      },
-      {
-        offense: [o("O1", 16, 22), o("O2", 14, 22), o("O3", 36, 22), o("O4", 44, 10), o("O5", 25, 7)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [],
-        note: "Layup off the slip.",
-      },
-    ]
-  ),
-
-  play("uconn-lob-jackson", "Lob for Jackson", "UConn", "man", "vs Man",
-    "Hoop Vision, \"the UConn playbook\" — move-by-move breakdown of a 2023 possession, with the rub screen, the triple-screen clearout, and the lob broken into their own beats instead of compressed into two frames.",
-    [
-      "Clear out the whole strong side before the lob — spacing is what makes this work.",
-      "Final screener: screen the lob defender's body, not just a spot on the floor.",
-      "Lob passer: throw it above the rim, to the rim side, never behind.",
-      "Finisher: time the cut so you catch in the air, not standing under it.",
-    ],
-    [
-      {
-        offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 9), o("O5", 18, 8)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 20 }])],
-        note: "Jackson passes to the wing.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 9), o("O5", 18, 8)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [ln("screen", "offense", [{ x: 25, y: 9 }, { x: 31, y: 11 }])],
-        note: "Jackson sets a rub screen for Karaban coming off the opposite side.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 29, 12), o("O5", 25, 9)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [ln("cut", "offense", [{ x: 25, y: 9 }, { x: 29, y: 12 }])],
-        note: "Karaban comes off the rub screen toward the ball side.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 14, 20), o("O5", 18, 8)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [
-          ln("screen", "offense", [{ x: 25, y: 28 }, { x: 19, y: 25 }]),
-          ln("cut", "offense", [{ x: 29, y: 12 }, { x: 14, y: 20 }]),
-        ],
-        note: "Newton runs Karaban off a triple screen to clear that whole side of the floor.",
-      },
-      {
-        offense: [o("O1", 19, 25), o("O2", 10, 20), o("O3", 40, 20), o("O4", 14, 20), o("O5", 18, 8)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [ln("cut", "offense", [{ x: 14, y: 20 }, { x: 19, y: 10 }])],
-        note: "Karaban peels off the clearout and sets the final screen on the lob defender.",
-      },
-      {
-        offense: [o("O1", 19, 25), o("O2", 10, 20), o("O3", 40, 20), o("O4", 19, 10), o("O5", 18, 8)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [ln("pass", "offense", [{ x: 40, y: 20 }, { x: 18, y: 8 }])],
-        note: "Alley-oop lofted to Jackson at the rim.",
-      },
-    ]
-  ),
-
-  play("uconn-flare-slip", "Horns Flare Slip", "UConn", "man", "vs Man",
-    "Confirmed from two independent sources: a named breakdown (\"the 4 [Karaban] sets the flare screen for [Spencer]... Karaban's defender jumps out to switch, worried about the 3PA... Karaban then slips to the rim for a pass and finish\") plus a separately-found clip titled \"UConn's Flare to Slip Action.\" UConn's own playbook is also documented chaining flare action with Zoom in other possessions (lesson titles like \"horns : flare : zoom\"), but no move-by-move source confirmed a Zoom step inside this specific sequence, so none is drawn here — the direct skip to the slipping big is the confirmed read.",
-    [
-      "Screener: sell the flare screen hard enough that the defense has to respect the three.",
-      "The instant the defender jumps to switch, slip — don't wait to see if the switch happens.",
-      "Passer: hit the short corner on the move, before help can rotate back.",
-      "Finisher: one live dribble to the rim, not a standing catch-and-shoot.",
-    ],
-    [
-      {
-        offense: [o("O1", 25, 30), o("O4", 22, 14), o("O3", 30, 20), o("O2", 6, 20), o("O5", 44, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 22, y: 14 }, { x: 27, y: 17 }]),
-          ln("cut", "offense", [{ x: 30, y: 20 }, { x: 44, y: 14 }]),
-          ln("cut", "offense", [{ x: 22, y: 14 }, { x: 28, y: 9 }]),
-          ln("pass", "offense", [{ x: 25, y: 30 }, { x: 28, y: 9 }]),
-        ],
-        note: "Horns flare: O4 screens for the shooter, then slips it the instant the defense switches onto him — direct skip to the short corner instead.",
-      },
-      {
-        offense: [o("O1", 25, 26), o("O4", 28, 9), o("O3", 44, 14), o("O2", 6, 20), o("O5", 44, 9)],
-        defense: [],
-        ballHolder: "O4",
-        lines: [ln("dribble", "offense", [{ x: 28, y: 9 }, { x: 25, y: 6 }])],
-        note: "The slip beats the switch — catch in the short corner, one dribble from the rim.",
-      },
-      {
-        offense: [o("O1", 25, 26), o("O4", 25, 6), o("O3", 44, 14), o("O2", 6, 20), o("O5", 44, 9)],
-        defense: [],
-        ballHolder: "O4",
-        lines: [],
-        note: "Finish at the rim.",
-      },
-    ],
-    "https://youtube.com/shorts/DZWPPWGTA7c"
-  ),
-
-  // ------------------------------------------------------------- Auburn (Bruce Pearl) — man + BLOB
-  play("auburn-flex", "Flex Continuity", "Auburn", "man", "vs Man",
-    "Hoop Vision, \"the Auburn flex\" (HV Weekly), plus briangeisinger.substack.com \"Big Flex\" — both move-by-move breakdowns of real Auburn possessions, stitched into the fuller continuity those breakdowns describe (shallow cut, flex cut, screen-the-screener, then the two-man ball-screen game and its flare-screen counter) rather than stopping at the first read. The linked video is a separate, confirmed X's-and-O's breakdown of this same flex system.",
-    [
-      "Cutters: walk your man in before you use the screen — set him up, don't just run the pattern.",
-      "Down screener: screen low, then pop — never stand after setting it.",
-      "Ball screen: screener sprints into it, wide base, holds until contact.",
-      "Keep the floor balanced — two up, three in the flex spots at all times.",
-    ],
-    [
-      {
-        offense: [o("O1", 25, 32), o("O5", 32, 22), o("O2", 8, 9), o("O4", 20, 9), o("O3", 42, 12)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [
-          ln("cut", "offense", [{ x: 32, y: 22 }, { x: 10, y: 20 }]),
-          ln("screen", "offense", [{ x: 20, y: 9 }, { x: 14, y: 9 }]),
-          ln("cut", "offense", [{ x: 8, y: 9 }, { x: 22, y: 9 }]),
-        ],
-        note: "2-3 alignment: the top player (O5) cuts shallow to the weak slot while the corner (O2) flex-cuts off the baseline screen.",
-      },
-      {
-        offense: [o("O1", 25, 30), o("O5", 10, 20), o("O2", 22, 9), o("O4", 20, 9), o("O3", 42, 12)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 22, y: 9 }, { x: 28, y: 9 }]),
-          ln("cut", "offense", [{ x: 42, y: 12 }, { x: 18, y: 9 }]),
-          ln("screen", "offense", [{ x: 20, y: 9 }, { x: 24, y: 13 }]),
-          ln("cut", "offense", [{ x: 22, y: 9 }, { x: 28, y: 22 }]),
-        ],
-        note: "Screen the screener: O2 screens away for O3 cutting through, then immediately curls back out off a pindown from O4.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O5", 10, 20), o("O2", 28, 22), o("O4", 24, 13), o("O3", 18, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("cut", "offense", [{ x: 28, y: 22 }, { x: 22, y: 26 }])],
-        note: "O2 clears out further to the top to set up the ball-screen two-man game with the point guard.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O5", 10, 20), o("O2", 22, 26), o("O4", 24, 13), o("O3", 18, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [
-          ln("screen", "offense", [{ x: 22, y: 26 }, { x: 25, y: 26 }]),
-          ln("dribble", "offense", [{ x: 25, y: 28 }, { x: 30, y: 23 }]),
-        ],
-        note: "O2 sets the ball screen for the point guard — downhill drive off the two-man game.",
-      },
-      {
-        offense: [o("O1", 30, 23), o("O5", 10, 20), o("O2", 25, 26), o("O4", 24, 13), o("O3", 18, 9)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 30, y: 23 }, { x: 10, y: 20 }])],
-        note: "The drive collapses the defense — kick out to O5 for the catch-and-shoot three.",
-      },
-      {
-        offense: [o("O1", 30, 23), o("O5", 10, 20), o("O2", 25, 26), o("O4", 24, 13), o("O3", 18, 9)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [],
-        note: "Catch-and-shoot three off the delayed close-out.",
-      },
-    ],
-    "https://www.youtube.com/watch?v=FBj8lJPW9io"
-  ),
-
-  play("auburn-zoom", "Zoom Action", "Auburn", "man", "vs Man",
-    "The Auburn Observer, \"How Auburn basketball's offense zoomed into a new era vs. Baylor\" — named, move-by-move breakdown of a 2024-25 possession (Broome/Johnson/Jones), extended through to the finish the same breakdown describes rather than stopping at the handoff.",
-    [
-      "Big man: hand it off at the hip with two-side spacing already set.",
-      "After the handoff, screen again immediately — don't just hand it off and stand.",
-      "Driver: attack downhill hard enough to actually collapse the defense.",
-      "Weak-side big: seal and show a target hand the instant help comes.",
-    ],
-    [
-      {
-        offense: [o("O1", 25, 32), o("O4", 25, 19), o("O2", 18, 9), o("O3", 40, 22), o("O5", 32, 9)],
-        defense: [],
-        ballHolder: "O4",
-        lines: [
-          ln("screen", "offense", [{ x: 32, y: 9 }, { x: 26, y: 12 }]),
-          ln("cut", "offense", [{ x: 18, y: 9 }, { x: 25, y: 19 }]),
-        ],
-        note: "Broome has the ball at the top; O5 pin-downs for O2, who curls up toward the ball.",
-      },
-      {
-        offense: [o("O1", 25, 32), o("O4", 25, 19), o("O2", 24, 20), o("O3", 40, 22), o("O5", 30, 8)],
-        defense: [],
-        ballHolder: "O4",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 19 }, { x: 21, y: 18 }])],
-        note: "Broome dribbles at O2 for the handoff, creating two-side spacing.",
-      },
-      {
-        offense: [o("O1", 25, 32), o("O4", 21, 18), o("O2", 21, 18), o("O3", 40, 22), o("O5", 30, 8)],
+        offense: [o("O1", 26, 7), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 3, 3.5)],
         defense: [],
         ballHolder: "O2",
-        lines: [
-          ln("dribble", "offense", [{ x: 21, y: 18 }, { x: 18, y: 9 }]),
-          ln("cut", "offense", [{ x: 30, y: 8 }, { x: 25, y: 7 }]),
-        ],
-        note: "Handoff complete — O2 attacks downhill off the Zoom action, collapsing the defense toward the rim.",
+        lines: [ln("cut", "offense", [{ x: 25, y: 32 }, { x: 26, y: 7 }])],
+        note: "1 face-cuts to the rim looking for the give-and-go.",
       },
       {
-        offense: [o("O1", 25, 30), o("O4", 21, 18), o("O2", 18, 9), o("O3", 40, 22), o("O5", 25, 7)],
+        offense: [o("O1", 3, 3.5), o("O2", 44.5, 21), o("O3", 25, 32), o("O4", 47, 3.5), o("O5", 5.5, 21)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("pass", "offense", [{ x: 18, y: 9 }, { x: 25, y: 7 }])],
-        note: "The drive draws O5's defender off him — dish for the finish at the rim.",
+        lines: [ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 14, y: 30 }, { x: 25, y: 32 }]), ln("cut", "offense", [{ x: 3, y: 3.5 }, { x: 5.5, y: 21 }]), ln("cut", "offense", [{ x: 26, y: 7 }, { x: 15, y: 3 }, { x: 3, y: 3.5 }])],
+        note: "Fill toward the ball: 3 fills the top, 5 lifts to the wing, 1 clears to the open corner.",
       },
       {
-        offense: [o("O1", 25, 30), o("O4", 21, 18), o("O2", 18, 9), o("O3", 40, 22), o("O5", 25, 7)],
+        offense: [o("O1", 3, 3.5), o("O2", 44.5, 21), o("O3", 25, 32), o("O4", 47, 3.5), o("O5", 5.5, 21)],
         defense: [],
-        ballHolder: "O5",
-        lines: [],
-        note: "Finish at the rim off the Zoom action.",
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 44.5, y: 21 }, { x: 25, y: 32 }])],
+        note: "2 reverses the ball to 3 at the top.",
+      },
+      {
+        offense: [o("O1", 3, 3.5), o("O2", 25, 7.5), o("O3", 25, 32), o("O4", 44.5, 21), o("O5", 5.5, 21)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 44.5, y: 21 }, { x: 25, y: 7.5 }]), ln("cut", "offense", [{ x: 47, y: 3.5 }, { x: 44.5, y: 21 }])],
+        note: "2 basket cuts; 4 lifts to the wing behind him.",
+      },
+      {
+        offense: [o("O1", 3, 3.5), o("O2", 47, 3.5), o("O3", 25, 32), o("O4", 44.5, 21), o("O5", 5.5, 21)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 25, y: 7.5 }, { x: 36, y: 4 }, { x: 47, y: 3.5 }])],
+        note: "2 clears to the empty corner. Back in the 5-out shape — keep it moving.",
       },
     ]
   ),
 
-  play("auburn-flare", "Flare Counter", "Auburn", "man", "vs Man",
-    "The Auburn Observer, \"How Auburn basketball's offense zoomed into a new era vs. Baylor\" — named, move-by-move breakdown (Jasper/Williams/Green), with the alignment, the drive, the flare screen, and the finish each shown as its own beat.",
+  play(
+    "four-out",
+    "4-Out 1-In Motion",
+    "man",
+    "vs Man",
+    "Four perimeter spots with one post. Same pass-and-cut rules, plus a post who seals and plays out of the block.",
     [
-      "Driver: go all the way to the paint — a half-hearted drive doesn't draw real help.",
-      "Flare screener: screen the body, angle it toward the corner, not just a pick-and-pop.",
-      "Shooter: wait for the screen before you fade — don't cut early.",
-      "Kick-out passer: throw it early, to where the shooter is going, not where he is.",
+      "Post: seal with your hips, show a target hand away from the defender.",
+      "Wing looks inside first on every catch.",
+      "When the post catches, cutters cut — the post is a passer too.",
+      "Re-post when the ball reverses.",
     ],
     [
       {
-        offense: [o("O3", 25, 32), o("O1", 14, 20), o("O4", 36, 18), o("O2", 10, 10), o("O5", 40, 10)],
+        offense: [o("O1", 16.5, 30), o("O2", 33.5, 30), o("O3", 4, 15), o("O4", 46, 15), o("O5", 18.5, 8.5)],
         defense: [],
-        ballHolder: "O3",
+        ballHolder: "O1",
         lines: [],
-        note: "Alignment before the drive.",
+        note: "Four perimeter spots with one post. Same pass-and-cut rules, plus a post who seals and plays out of the block.",
       },
       {
-        offense: [o("O3", 25, 30), o("O1", 14, 20), o("O4", 36, 18), o("O2", 10, 10), o("O5", 40, 10)],
+        offense: [o("O1", 16.5, 30), o("O2", 33.5, 30), o("O3", 4, 15), o("O4", 46, 15), o("O5", 17, 9.5)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 30 }, { x: 18, y: 22 }])],
-        note: "O3 drives middle off the dribble, collapsing the defense toward the paint.",
+        lines: [ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 17, y: 9.5 }]), ln("pass", "offense", [{ x: 16.5, y: 30 }, { x: 4, y: 15 }])],
+        note: "1 enters to 3 on the wing. 5 seals ball-side.",
       },
       {
-        offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 40, 14), o("O2", 10, 10), o("O5", 40, 10)],
+        offense: [o("O1", 23.5, 6.5), o("O2", 16.5, 30), o("O3", 4, 15), o("O4", 46, 15), o("O5", 17, 9.5)],
         defense: [],
         ballHolder: "O3",
-        lines: [ln("screen", "offense", [{ x: 36, y: 18 }, { x: 40, y: 14 }])],
-        note: "O4 flares out off a screen as the drive draws help.",
+        lines: [ln("cut", "offense", [{ x: 16.5, y: 30 }, { x: 23.5, y: 6.5 }]), ln("cut", "offense", [{ x: 33.5, y: 30 }, { x: 16.5, y: 30 }])],
+        note: "1 basket cuts; 2 slides over to fill the ball-side slot.",
       },
       {
-        offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 44, 10), o("O2", 10, 10), o("O5", 40, 10)],
+        offense: [o("O1", 46, 15), o("O2", 16.5, 30), o("O3", 4, 15), o("O4", 33.5, 30), o("O5", 17, 9.5)],
         defense: [],
-        ballHolder: "O4",
-        lines: [ln("pass", "offense", [{ x: 18, y: 22 }, { x: 44, y: 10 }])],
-        note: "Kick-out to the corner off the flare.",
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 23.5, y: 6.5 }, { x: 38, y: 5 }, { x: 46, y: 15 }]), ln("cut", "offense", [{ x: 46, y: 15 }, { x: 33.5, y: 30 }])],
+        note: "1 exits to the weak-side wing; 4 lifts to the open slot.",
       },
       {
-        offense: [o("O3", 18, 22), o("O1", 14, 20), o("O4", 44, 10), o("O2", 10, 10), o("O5", 40, 10)],
+        offense: [o("O1", 46, 15), o("O2", 16.5, 30), o("O3", 4, 15), o("O4", 33.5, 30), o("O5", 17, 9.5)],
         defense: [],
-        ballHolder: "O4",
-        lines: [],
-        note: "Open corner three.",
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 4, y: 15 }, { x: 17, y: 9.5 }])],
+        note: "3 feeds the post: 5 catches on the block.",
+      },
+      {
+        offense: [o("O1", 46, 15), o("O2", 16.5, 30), o("O3", 4, 15), o("O4", 33.5, 30), o("O5", 17, 9.5)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 17, y: 9.5 }, { x: 16.5, y: 30 }])],
+        note: "Help comes — 5 kicks it out to 2 for the shot or a re-post.",
       },
     ]
   ),
 
-  play("auburn-blob-14lob", "1-4 Flat Lob", "Auburn", "blob", "Baseline OB",
-    "Successknocks.com coaching breakdown names Auburn's use of \"1-4 flat stacks for lob plays\" on BLOB, without move-by-move detail — the alignment and action below is a standard way to run that call, not a confirmed exact diagram, broken into finer beats than a 2-frame sketch so the cut and the lob read as the continuous action they are.",
+  play(
+    "dribble-drive",
+    "Dribble Drive",
+    "man",
+    "vs Man",
+    "Drive the gap and everyone moves on a rule: drift, rotate, post opposite. Turns help into open kick-outs.",
     [
-      "Screener: set it and hold — a moving screen is a turnover waiting to happen.",
-      "Cutter: sprint the whole way, hands ready before the ball is released.",
-      "Inbounder: throw it high, to the rim side, on the slap — no hesitation.",
-      "No lob? Reset into the half-court offense immediately, don't force it.",
+      "Attack gaps, not defenders.",
+      "Every drive moves everyone: drift, rotate, post opposite.",
+      "Two feet in the paint: finish or kick.",
+      "A closeout is a drive — catch it ready to go.",
     ],
     [
       {
-        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 20, 9), o("O4", 30, 9), o("O5", 36, 9)],
+        offense: [o("O1", 25, 32), o("O2", 44, 18), o("O3", 6, 18), o("O4", 3, 3.5), o("O5", 33, 4.5)],
         defense: [],
-        ballHolder: "O3",
+        ballHolder: "O1",
         lines: [],
-        note: "1-4 flat along the foul line.",
+        note: "Drive the gap and everyone moves on a rule: drift, rotate, post opposite. Turns help into open kick-outs.",
       },
       {
-        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 28, 8), o("O5", 36, 9)],
+        offense: [o("O1", 33, 14), o("O2", 47, 5.5), o("O3", 20, 33), o("O4", 3, 3.5), o("O5", 16.5, 4)],
         defense: [],
-        ballHolder: "O3",
-        lines: [
-          ln("screen", "offense", [{ x: 20, y: 9 }, { x: 24, y: 9 }]),
-          ln("cut", "offense", [{ x: 30, y: 9 }, { x: 28, y: 8 }]),
-        ],
-        note: "O2 screens across for O4, who starts the cut to the rim.",
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 32 }, { x: 31, y: 25 }, { x: 33, y: 14 }]), ln("cut", "offense", [{ x: 44, y: 18 }, { x: 47, y: 5.5 }]), ln("cut", "offense", [{ x: 6, y: 18 }, { x: 20, y: 33 }]), ln("cut", "offense", [{ x: 33, y: 4.5 }, { x: 16.5, y: 4 }])],
+        note: "1 drives the right gap. 2 drifts to the corner, 3 rotates to the top, 5 slides opposite to the dunker.",
       },
       {
-        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 25, 7), o("O5", 36, 9)],
+        offense: [o("O1", 33, 14), o("O2", 47, 5.5), o("O3", 20, 33), o("O4", 3, 3.5), o("O5", 16.5, 4)],
         defense: [],
-        ballHolder: "O3",
-        lines: [ln("cut", "offense", [{ x: 28, y: 8 }, { x: 25, y: 7 }])],
-        note: "O4 continues through the lane toward the rim as the lob is released.",
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 33, y: 14 }, { x: 47, y: 5.5 }])],
+        note: "The wing defender helps — 1 kicks to 2 in the corner.",
       },
       {
-        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 25, 7), o("O5", 36, 9)],
+        offense: [o("O1", 25, 25), o("O2", 37.5, 4.5), o("O3", 20, 33), o("O4", 3, 3.5), o("O5", 16.5, 4)],
         defense: [],
-        ballHolder: "O4",
-        lines: [ln("pass", "offense", [{ x: 25, y: 2 }, { x: 25, y: 7 }])],
-        note: "Lob caught in the air just short of the rim.",
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 47, y: 5.5 }, { x: 37.5, y: 4.5 }]), ln("cut", "offense", [{ x: 33, y: 14 }, { x: 25, y: 25 }])],
+        note: "2 attacks the closeout baseline.",
       },
       {
-        offense: [o("O3", 25, 2), o("O1", 14, 9), o("O2", 24, 9), o("O4", 25, 6), o("O5", 36, 9)],
+        offense: [o("O1", 25, 25), o("O2", 37.5, 4.5), o("O3", 20, 33), o("O4", 3, 3.5), o("O5", 16.5, 4)],
         defense: [],
-        ballHolder: "O4",
-        lines: [],
-        note: "Lob finished at the rim.",
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 37.5, y: 4.5 }, { x: 16.5, y: 4 }])],
+        note: "Big man steps up — 2 dumps it to 5 at the dunker spot.",
       },
     ]
   ),
 
-  // --------------------------------------------------------- Louisville (Pat Kelsey) — style-based
-  play("louisville-5out-flow", "5-Out Flow", "Louisville", "man", "vs Man",
-    "Built from Kelsey's publicly stated system (SI/On3/Half Court Hoops reporting on his 5-out, pace-and-space principles at Charleston and Louisville) — a representative possession, not a specific sourced diagram. The linked video is Hoop Vision's general breakdown of 5-out offensive concepts (backdoor cuts, split action, zoom, staggers), not Louisville-specific footage.",
+  play(
+    "horns-pnr",
+    "Horns Pick & Roll",
+    "man",
+    "vs Man",
+    "Two bigs at the elbows, shooters in the corners. 1 picks a side and plays the two-on-two with a roller and a popper.",
     [
-      "Nobody stands after a pass — fill behind every cut.",
-      "Hold real spacing: 15-18 feet apart, never two shooters on one spot.",
-      "Attack downhill the first live driving lane you see.",
-      "Kick out early — the extra pass is almost always the better shot.",
+      "Screener: sprint, wide base, hold until contact.",
+      "Ball handler: use the screen shoulder-to-shoulder, get downhill.",
+      "If the corner helps on the roll, kick to 3.",
+      "If both defenders go to the ball, 4 is open at the top.",
     ],
     [
       {
-        offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
+        offense: [o("O1", 25, 33.5), o("O2", 3, 3.5), o("O3", 47, 3.5), o("O4", 19.5, 19), o("O5", 30.5, 19)],
         defense: [],
         ballHolder: "O1",
         lines: [],
-        note: "Five-out spacing to start — no post.",
+        note: "Two bigs at the elbows, shooters in the corners. 1 picks a side and plays the two-on-two with a roller and a popper.",
       },
       {
-        offense: [o("O1", 25, 20), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
-        defense: [],
-        ballHolder: "O2",
-        lines: [
-          ln("pass", "offense", [{ x: 25, y: 32 }, { x: 10, y: 20 }]),
-          ln("cut", "offense", [{ x: 25, y: 32 }, { x: 25, y: 20 }]),
-        ],
-        note: "Ball reverses to the wing as O1 cuts through to the opposite corner.",
-      },
-      {
-        offense: [o("O1", 44, 10), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [ln("pass", "offense", [{ x: 10, y: 20 }, { x: 40, y: 20 }])],
-        note: "Side to side — the ball keeps moving, probing for the gap in the defense's shape.",
-      },
-      {
-        offense: [o("O1", 44, 10), o("O2", 10, 20), o("O3", 32, 14), o("O4", 6, 10), o("O5", 44, 10)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [ln("dribble", "offense", [{ x: 40, y: 20 }, { x: 32, y: 14 }])],
-        note: "O3 drives baseline off the catch — downhill, pace-and-space basketball.",
-      },
-      {
-        offense: [o("O1", 44, 10), o("O2", 10, 20), o("O3", 32, 14), o("O4", 6, 10), o("O5", 44, 10)],
+        offense: [o("O1", 25, 33.5), o("O2", 3, 3.5), o("O3", 47, 3.5), o("O4", 19.5, 19), o("O5", 27.2, 30.5)],
         defense: [],
         ballHolder: "O1",
-        lines: [ln("pass", "offense", [{ x: 32, y: 14 }, { x: 44, y: 10 }])],
-        note: "Kick out to the corner for the catch-and-shoot three — the shot the spacing was built for.",
+        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 27.2, y: 30.5 }])],
+        note: "5 steps up and sets the ball screen on 1’s right hip.",
       },
-    ],
-    "https://youtu.be/DITiFB5Aft4"
-  ),
-
-  play("louisville-5out-ballscreen", "5-Out Ball-Screen Attack", "Louisville", "man", "vs Man",
-    "Built from Kelsey's publicly stated system (pace, spacing, high three-point volume) — a representative possession, not a specific sourced diagram. The linked video is Hoop Vision's general breakdown of 5-out offensive concepts, not Louisville-specific footage.",
-    [
-      "Screener: relocate to set the ball screen — don't wait for the defense to set up first.",
-      "Ball handler: use the screen shoulder-to-shoulder, get all the way downhill.",
-      "If the big's man helps, find him rolling — that's the first read, not the last.",
-      "Corner shooters stay spaced and ready the entire possession.",
-    ],
-    [
       {
-        offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
+        offense: [o("O1", 35.5, 17.5), o("O2", 3, 3.5), o("O3", 47, 3.5), o("O4", 23, 32), o("O5", 25.5, 7)],
         defense: [],
         ballHolder: "O1",
-        lines: [],
-        note: "Five-out spacing — everyone stays off the post.",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 33.5 }, { x: 35.5, y: 29 }, { x: 35.5, y: 17.5 }]), ln("cut", "offense", [{ x: 27.2, y: 30.5 }, { x: 26.5, y: 20 }, { x: 25.5, y: 7 }]), ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 23, y: 32 }])],
+        note: "1 attacks downhill. 5 rolls to the rim, 4 pops to the top.",
       },
       {
-        offense: [o("O1", 25, 30), o("O2", 10, 20), o("O3", 40, 20), o("O4", 6, 10), o("O5", 44, 10)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 40, y: 20 }, { x: 32, y: 26 }])],
-        note: "O3 relocates up to set a ball screen for O1 with the floor spaced five-out.",
-      },
-      {
-        offense: [o("O1", 32, 20), o("O2", 10, 20), o("O3", 36, 24), o("O4", 6, 10), o("O5", 44, 10)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [],
-        note: "Downhill off the screen — the defense has to collapse or give up the rim.",
-      },
-      {
-        offense: [o("O1", 32, 20), o("O2", 10, 20), o("O3", 36, 24), o("O4", 6, 10), o("O5", 44, 10)],
+        offense: [o("O1", 35.5, 17.5), o("O2", 3, 3.5), o("O3", 47, 3.5), o("O4", 23, 32), o("O5", 25.5, 7)],
         defense: [],
         ballHolder: "O5",
-        lines: [ln("pass", "offense", [{ x: 32, y: 20 }, { x: 44, y: 10 }])],
-        note: "Kick to the corner off the help.",
-      },
-      {
-        offense: [o("O1", 32, 20), o("O2", 10, 20), o("O3", 36, 24), o("O4", 6, 10), o("O5", 44, 10)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [],
-        note: "Catch-and-shoot three in the corner.",
-      },
-    ],
-    "https://youtu.be/DITiFB5Aft4"
-  ),
-
-  // ------------------------------------------------------------- Generic category fillers
-  play("generic-zone-131", "1-3-1 vs 2-3: Pin and Skip", "Generic", "zone", "vs 2-3 Zone",
-    "Standard zone-offense action (coachesclipboard.net, basketballforcoaches.com) — not attributed to UConn, Auburn, or Louisville specifically; included to cover the zone-offense category with a legitimate, well-documented action, with the entry, the post holding, and the skip each shown as its own beat.",
-    [
-      "Hold the post in the middle as a decoy — his job is to occupy two defenders.",
-      "Reverse the ball with purpose — a zone shifts on the pass, not the catch.",
-      "Skip passes beat a zone's rotation; dribbling into it just invites a trap.",
-      "Shoot with confidence once you're inside the zone's recovery — hesitation kills the possession.",
-    ],
-    [
-      {
-        offense: [o("O1", 25, 32), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 40, 10)],
-        defense: [],
-        ballHolder: "O1",
-        lines: [],
-        note: "1-3-1 alignment against a 2-3 zone.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 40, 10)],
-        defense: [],
-        ballHolder: "O2",
-        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 10, y: 20 }])],
-        note: "Ball goes to the wing. The weak-side post stays put and reads the zone's shift.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 40, 10)],
-        defense: [],
-        ballHolder: "O2",
-        lines: [ln("cut", "offense", [{ x: 25, y: 12 }, { x: 25, y: 12 }])],
-        note: "O4 holds the middle, back-screening the low defender as the zone commits to the ball side.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 6, 9)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [ln("pass", "offense", [{ x: 10, y: 20 }, { x: 6, y: 9 }])],
-        note: "Skip pass beats the zone's rotation to the weak corner.",
-      },
-      {
-        offense: [o("O1", 25, 28), o("O2", 10, 20), o("O3", 40, 20), o("O4", 25, 12), o("O5", 6, 9)],
-        defense: [],
-        ballHolder: "O5",
-        lines: [],
-        note: "Open three in the corner before the zone can recover.",
+        lines: [ln("pass", "offense", [{ x: 35.5, y: 17.5 }, { x: 25.5, y: 7 }])],
+        note: "Big’s defender steps up to 1 — hit 5 on the roll.",
       },
     ]
   ),
 
-  play("generic-slob-box", "Box Set", "Generic", "slob", "Sideline OB",
-    "Standard SLOB alignment (coachesclipboard.net, teachhoops.com) — a widely-used quick-hitter, not attributed to any of the three programs specifically.",
+  play(
+    "flex",
+    "Flex",
+    "man",
+    "vs Man",
+    "Continuity offense built on two actions — the baseline flex screen and the down screen. Runs forever and teaches screening.",
     [
-      "Screener: set it before the cutter moves, not during.",
-      "Inbounder: count the five seconds out loud — know exactly how much time is left.",
-      "Cutter: pop to where you're open, not to a pre-set spot if the defense denies it.",
-      "Safe catch? Get into offense immediately — don't stand and admire it.",
+      "Cutter: set your man up — walk him in, then run him off the screen.",
+      "Down screener: screen low, then pop to the slot.",
+      "Look at the cutter first, the screener second.",
+      "Keep the floor balanced: always two up, three in the flex positions.",
     ],
     [
       {
-        offense: [o("O1", 2, 42), o("O2", 20, 9), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
+        offense: [o("O1", 34, 30), o("O2", 5.5, 17), o("O3", 45, 12), o("O4", 16, 30), o("O5", 31.5, 8.5)],
         defense: [],
         ballHolder: "O1",
         lines: [],
-        note: "Box alignment at the inbound.",
+        note: "Continuity offense built on two actions — the baseline flex screen and the down screen. Runs forever and teaches screening.",
       },
       {
-        offense: [o("O1", 2, 42), o("O2", 20, 9), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
+        offense: [o("O1", 34, 30), o("O2", 5.5, 17), o("O3", 45, 12), o("O4", 16, 30), o("O5", 31.5, 8.5)],
         defense: [],
-        ballHolder: "O1",
-        lines: [ln("screen", "offense", [{ x: 20, y: 19 }, { x: 20, y: 24 }])],
-        note: "O4 steps up to screen for O2.",
+        ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 34, y: 30 }, { x: 16, y: 30 }])],
+        note: "1 reverses the ball to 4.",
       },
       {
-        offense: [o("O1", 2, 42), o("O2", 14, 22), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
+        offense: [o("O1", 34, 30), o("O2", 5.5, 17), o("O3", 18.5, 7), o("O4", 16, 30), o("O5", 30, 7.5)],
         defense: [],
-        ballHolder: "O1",
-        lines: [ln("cut", "offense", [{ x: 20, y: 9 }, { x: 14, y: 22 }])],
-        note: "O2 pops off the screen to the sideline for the inbound.",
+        ballHolder: "O4",
+        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 30, y: 7.5 }]), ln("cut", "offense", [{ x: 45, y: 12 }, { x: 30, y: 2.5 }, { x: 18.5, y: 7 }])],
+        note: "Flex cut: 5 screens on the block, 3 runs his man off it to the opposite block.",
       },
       {
-        offense: [o("O1", 2, 42), o("O2", 14, 22), o("O3", 30, 9), o("O4", 20, 19), o("O5", 30, 19)],
+        offense: [o("O1", 31.5, 13), o("O2", 5.5, 17), o("O3", 18.5, 7), o("O4", 16, 30), o("O5", 34, 30)],
         defense: [],
-        ballHolder: "O2",
-        lines: [],
-        note: "Safe entry — offense into the half-court set.",
+        ballHolder: "O4",
+        lines: [ln("screen", "offense", [{ x: 34, y: 30 }, { x: 31.5, y: 13 }]), ln("cut", "offense", [{ x: 30, y: 7.5 }, { x: 37, y: 20 }, { x: 34, y: 30 }])],
+        note: "Screen the screener: 1 sets a down screen for 5.",
+      },
+      {
+        offense: [o("O1", 31.5, 13), o("O2", 5.5, 17), o("O3", 18.5, 7), o("O4", 16, 30), o("O5", 34, 30)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 16, y: 30 }, { x: 34, y: 30 }])],
+        note: "4 hits 5 at the top — or 3 posting on the block.",
+      },
+      {
+        offense: [o("O1", 31.5, 13), o("O2", 31.5, 7), o("O3", 18, 8), o("O4", 16, 30), o("O5", 34, 30)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("screen", "offense", [{ x: 18.5, y: 7 }, { x: 18, y: 8 }]), ln("cut", "offense", [{ x: 5.5, y: 17 }, { x: 19, y: 2.5 }, { x: 31.5, y: 7 }])],
+        note: "Repeat on the other side: 3 screens on the block for 2’s flex cut.",
       },
     ]
   ),
 
-  play("generic-pressbreak-4across", "4-Across vs 2-2-1", "Generic", "fullCourt", "vs 2-2-1 Press",
-    "Standard press-break structure (coachesclipboard.net) — a widely-used press break, not attributed to any of the three programs specifically.",
+  play(
+    "floppy",
+    "Floppy",
+    "man",
+    "vs Man",
+    "Shooter starts under the rim with a single screen on one side and a double stagger on the other. He picks the side.",
     [
-      "Meet every pass — catch on the move, pivot, face up immediately.",
-      "The middle of the floor beats every press; never force it to the sideline.",
-      "Inbounder steps in right after the pass as the safety outlet.",
-      "Once you've beaten the first line, push — numbers are now in your favor.",
+      "Shooter: shoulder to the screener’s hip, square up on the catch.",
+      "Defender trails? Curl to the paint.",
+      "Defender cheats under? Fade to the corner.",
+      "4 on the single side posts up if his man sags to help.",
     ],
     [
       {
-        offense: [o("O1", 25, 80), o("O2", 6, 60), o("O3", 44, 60), o("O4", 15, 45), o("O5", 35, 45)],
+        offense: [o("O1", 25, 33), o("O2", 25, 4), o("O3", 39.5, 12), o("O4", 18, 8), o("O5", 32, 9)],
         defense: [],
         ballHolder: "O1",
         lines: [],
-        note: "Four across against the 2-2-1.",
+        note: "Shooter starts under the rim with a single screen on one side and a double stagger on the other. He picks the side.",
       },
       {
-        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 15, 45), o("O5", 35, 45)],
+        offense: [o("O1", 25, 33), o("O2", 44, 21.5), o("O3", 40, 15), o("O4", 18, 8), o("O5", 33, 9.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 32, y: 9 }, { x: 33, y: 9.5 }]), ln("screen", "offense", [{ x: 39.5, y: 12 }, { x: 40, y: 15 }]), ln("cut", "offense", [{ x: 25, y: 4 }, { x: 36, y: 4 }, { x: 44, y: 21.5 }])],
+        note: "2 reads his man and goes right — 5 then 3 set the staggered screens.",
+      },
+      {
+        offense: [o("O1", 25, 33), o("O2", 44, 21.5), o("O3", 40, 15), o("O4", 18, 8), o("O5", 33, 9.5)],
         defense: [],
         ballHolder: "O2",
-        lines: [ln("pass", "offense", [{ x: 25, y: 80 }, { x: 6, y: 60 }])],
-        note: "Inbound to the side, away from the middle trap.",
+        lines: [ln("pass", "offense", [{ x: 25, y: 33 }, { x: 44, y: 21.5 }])],
+        note: "1 hits 2 coming off for the catch-and-shoot.",
       },
       {
-        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 42), o("O5", 35, 45)],
+        offense: [o("O1", 25, 33), o("O2", 44, 21.5), o("O3", 29, 6), o("O4", 18, 8), o("O5", 33, 9.5)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("cut", "offense", [{ x: 40, y: 15 }, { x: 29, y: 6 }])],
+        note: "Second option: 3 slips to the rim when his man helps on 2.",
+      },
+    ]
+  ),
+
+  play(
+    "spain",
+    "Spain Pick & Roll",
+    "man",
+    "vs Man",
+    "A ball screen with a back screen on the roller’s defender. Hard to guard — someone has to choose who is open.",
+    [
+      "2: screen the big’s defender in the back, then sprint out to the arc.",
+      "Roller: run straight to the rim, hands up.",
+      "Corner shooters stay wide and stay ready.",
+      "Works best against teams that hedge or show on ball screens.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 34.5), o("O2", 25, 16.5), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 21.5, 25)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "A ball screen with a back screen on the roller’s defender. Hard to guard — someone has to choose who is open.",
+      },
+      {
+        offense: [o("O1", 25, 34.5), o("O2", 25, 16.5), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 27.2, 31.2)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 21.5, y: 25 }, { x: 27.2, y: 31.2 }])],
+        note: "5 sprints up and screens for 1. 2 lurks at the free-throw line.",
+      },
+      {
+        offense: [o("O1", 35, 19), o("O2", 25.5, 19.5), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 25, 7)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 34.5 }, { x: 35, y: 29.5 }, { x: 35, y: 19 }]), ln("cut", "offense", [{ x: 27.2, y: 31.2 }, { x: 25, y: 7 }]), ln("screen", "offense", [{ x: 25, y: 16.5 }, { x: 25.5, y: 19.5 }])],
+        note: "1 attacks; 5 rolls; 2 back screens 5’s defender on the way.",
+      },
+      {
+        offense: [o("O1", 35, 19), o("O2", 25, 32), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 25, 7)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 25.5, y: 19.5 }, { x: 25, y: 32 }])],
+        note: "2 pops to the arc after the screen.",
+      },
+      {
+        offense: [o("O1", 35, 19), o("O2", 25, 32), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 25, 7)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 35, y: 19 }, { x: 25, y: 32 }])],
+        note: "Read: lob to 5 on the roll — or kick to 2 for three if his man helps.",
+      },
+    ]
+  ),
+
+  play(
+    "pistol",
+    "Pistol (21)",
+    "man",
+    "vs Man",
+    "Early offense out of transition: point guard and wing play a quick handoff on the side, then the trailer flows into a ball screen.",
+    [
+      "Run it before the defense is set.",
+      "Handoff: hand the ball off at the hip, then screen the defender.",
+      "Trailer: sprint into the screen — no slow trails.",
+      "Weak side stays spaced for the kick.",
+    ],
+    [
+      {
+        offense: [o("O1", 34, 33.5), o("O2", 45, 23), o("O3", 4, 17), o("O4", 6, 5), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Early offense out of transition: point guard and wing play a quick handoff on the side, then the trailer flows into a ball screen.",
+      },
+      {
+        offense: [o("O1", 34, 33.5), o("O2", 45, 23), o("O3", 4, 17), o("O4", 6, 5), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 34, y: 33.5 }, { x: 45, y: 23 }])],
+        note: "1 pushes the ball and hits 2 on the wing.",
+      },
+      {
+        offense: [o("O1", 42, 30), o("O2", 39.5, 26.5), o("O3", 4, 17), o("O4", 6, 5), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 45, y: 23 }, { x: 39.5, y: 26.5 }]), ln("cut", "offense", [{ x: 34, y: 33.5 }, { x: 42, y: 30 }])],
+        note: "1 runs behind 2; 2 dribbles toward him for the handoff.",
+      },
+      {
+        offense: [o("O1", 36, 26.5), o("O2", 39.5, 26.5), o("O3", 4, 17), o("O4", 6, 5), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 42, y: 30 }, { x: 36, y: 26.5 }]), ln("pass", "offense", [{ x: 39.5, y: 26.5 }, { x: 42, y: 30 }])],
+        note: "Handoff: 1 takes it back going toward the middle.",
+      },
+      {
+        offense: [o("O1", 36, 26.5), o("O2", 39.5, 26.5), o("O3", 4, 17), o("O4", 6, 5), o("O5", 30, 28.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 25, y: 42 }, { x: 30, y: 28.5 }])],
+        note: "5 trails into a ball screen.",
+      },
+      {
+        offense: [o("O1", 25, 12.5), o("O2", 39.5, 26.5), o("O3", 4, 17), o("O4", 6, 5), o("O5", 33, 9)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 36, y: 26.5 }, { x: 24, y: 25 }, { x: 25, y: 12.5 }]), ln("cut", "offense", [{ x: 30, y: 28.5 }, { x: 33, y: 9 }])],
+        note: "1 turns the corner and attacks the paint; 5 rolls.",
+      },
+    ]
+  ),
+
+  play(
+    "elevator",
+    "Elevator",
+    "man",
+    "vs Man",
+    "Shooter runs through two bigs standing side by side; the doors close behind him. A go-to set for a three.",
+    [
+      "Bigs: stand a step apart, close on 2’s heels, no moving screens.",
+      "2: run hard, catch on the move, feet set on the catch.",
+      "If the defense switches, 4 or 5 seals the smaller man.",
+    ],
+    [
+      {
+        offense: [o("O1", 6, 22), o("O2", 25, 4.5), o("O3", 47, 3.5), o("O4", 22, 20.5), o("O5", 28, 20.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Shooter runs through two bigs standing side by side; the doors close behind him. A go-to set for a three.",
+      },
+      {
+        offense: [o("O1", 6, 22), o("O2", 25, 29), o("O3", 47, 3.5), o("O4", 22, 20.5), o("O5", 28, 20.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 25, y: 4.5 }, { x: 25, y: 29 }])],
+        note: "2 sprints from under the rim up through the gap between 4 and 5.",
+      },
+      {
+        offense: [o("O1", 6, 22), o("O2", 25, 29), o("O3", 47, 3.5), o("O4", 23.8, 21.5), o("O5", 26.2, 21.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 22, y: 20.5 }, { x: 23.8, y: 21.5 }]), ln("screen", "offense", [{ x: 28, y: 20.5 }, { x: 26.2, y: 21.5 }])],
+        note: "The doors close: 4 and 5 step together right behind 2.",
+      },
+      {
+        offense: [o("O1", 6, 22), o("O2", 25, 29), o("O3", 47, 3.5), o("O4", 23.8, 21.5), o("O5", 26.2, 21.5)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 6, y: 22 }, { x: 25, y: 29 }])],
+        note: "1 hits 2 at the top for the three.",
+      },
+    ]
+  ),
+
+  play(
+    "ucla",
+    "UCLA Cut",
+    "man",
+    "vs Man",
+    "Point guard passes to the wing and cuts off a high-post back screen. Flows into a ball screen for the wing.",
+    [
+      "1: set up the cut by stepping away, then cut off the screener’s shoulder.",
+      "2: look for the lob or post-up first.",
+      "5: after the back screen, turn and find the ball.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 33), o("O2", 44.5, 22), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 30, 20)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Point guard passes to the wing and cuts off a high-post back screen. Flows into a ball screen for the wing.",
+      },
+      {
+        offense: [o("O1", 25, 33), o("O2", 44.5, 22), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 30, 20)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 25, y: 33 }, { x: 44.5, y: 22 }])],
+        note: "1 passes to 2 on the wing.",
+      },
+      {
+        offense: [o("O1", 30, 6), o("O2", 44.5, 22), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 29, 22)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("screen", "offense", [{ x: 30, y: 20 }, { x: 29, y: 22 }]), ln("cut", "offense", [{ x: 25, y: 33 }, { x: 33.5, y: 20 }, { x: 30, y: 6 }])],
+        note: "5 back screens; 1 cuts hard to the rim.",
+      },
+      {
+        offense: [o("O1", 47, 3.5), o("O2", 44.5, 22), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 40.5, 24)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("cut", "offense", [{ x: 30, y: 6 }, { x: 47, y: 3.5 }]), ln("screen", "offense", [{ x: 29, y: 22 }, { x: 40.5, y: 24 }])],
+        note: "1 clears to the corner. 5 steps out to ball screen for 2.",
+      },
+      {
+        offense: [o("O1", 47, 3.5), o("O2", 28.5, 14), o("O3", 5.5, 22), o("O4", 3, 3.5), o("O5", 38, 8)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 44.5, y: 22 }, { x: 35, y: 17.5 }, { x: 28.5, y: 14 }]), ln("cut", "offense", [{ x: 40.5, y: 24 }, { x: 38, y: 8 }])],
+        note: "2 attacks the middle; 5 rolls.",
+      },
+    ]
+  ),
+
+  play(
+    "zone-highlow",
+    "High-Low vs 2-3",
+    "zone",
+    "vs 2-3 Zone",
+    "Put a player at the free-throw line and one at the short corner. The middle of the zone can’t guard both.",
+    [
+      "High post: catch, face the rim, look low first.",
+      "Short corner forces the bottom three to choose.",
+      "Skip to the weak side when the zone over-shifts.",
+      "Attack gaps, not zone players.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 44, 20), o("O3", 6, 20), o("O4", 25, 28), o("O5", 32, 8)],
+        defense: [d("X1", "O1", { x: 19.5, y: 22.5 }), d("X2", "O1", { x: 30.5, y: 22.5 }), d("X3", "O1", { x: 12, y: 9.5 }), d("X4", "O1", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Put a player at the free-throw line and one at the short corner. The middle of the zone can’t guard both.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44, 20), o("O3", 6, 20), o("O4", 25, 19.5), o("O5", 39.5, 6.5)],
+        defense: [d("X1", "O2", { x: 28.5, y: 22.5 }), d("X2", "O2", { x: 40, y: 20.5 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 39.5, y: 11 }), d("X5", "O2", { x: 25, y: 7 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "offense", [{ x: 25, y: 28 }, { x: 25, y: 19.5 }]), ln("cut", "offense", [{ x: 32, y: 8 }, { x: 39.5, y: 6.5 }]), ln("cut", "defense", [{ x: 30.5, y: 22.5 }, { x: 40, y: 20.5 }]), ln("cut", "defense", [{ x: 19.5, y: 22.5 }, { x: 28.5, y: 22.5 }]), ln("cut", "defense", [{ x: 38, y: 9.5 }, { x: 39.5, y: 11 }]), ln("pass", "offense", [{ x: 25, y: 32 }, { x: 44, y: 20 }])],
+        note: "1 enters to 2. 4 flashes to the free-throw line, 5 slides to the short corner. Zone shifts.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44, 20), o("O3", 6, 20), o("O4", 25, 19.5), o("O5", 39.5, 6.5)],
+        defense: [d("X1", "O4", { x: 26.5, y: 24.5 }), d("X2", "O4", { x: 40, y: 20.5 }), d("X3", "O4", { x: 12, y: 9.5 }), d("X4", "O4", { x: 39.5, y: 11 }), d("X5", "O4", { x: 25.5, y: 13.5 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "defense", [{ x: 25, y: 7 }, { x: 25.5, y: 13.5 }]), ln("cut", "defense", [{ x: 28.5, y: 22.5 }, { x: 26.5, y: 24.5 }]), ln("pass", "offense", [{ x: 44, y: 20 }, { x: 25, y: 19.5 }])],
+        note: "2 hits 4 at the high post. The middle collapses on him.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44, 20), o("O3", 6, 20), o("O4", 25, 19.5), o("O5", 32.5, 4.5)],
+        defense: [d("X1", "O5", { x: 26.5, y: 24.5 }), d("X2", "O5", { x: 40, y: 20.5 }), d("X3", "O5", { x: 12, y: 9.5 }), d("X4", "O5", { x: 39.5, y: 11 }), d("X5", "O5", { x: 25.5, y: 13.5 })],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 39.5, y: 6.5 }, { x: 32.5, y: 4.5 }]), ln("pass", "offense", [{ x: 25, y: 19.5 }, { x: 39.5, y: 6.5 }])],
+        note: "5 steps in behind the center — 4 drops it down.",
+      },
+    ]
+  ),
+
+  play(
+    "zone-overload",
+    "Overload vs 2-3",
+    "zone",
+    "vs 2-3 Zone",
+    "Put three players on one side of a 2-3 and make the bottom defender guard two people.",
+    [
+      "Overload side: corner, wing, elbow.",
+      "Make the bottom defender guard two people.",
+      "Weak-side block: stay ready — you’re the easiest basket.",
+    ],
+    [
+      {
+        offense: [o("O1", 32, 31), o("O2", 45, 21), o("O3", 47, 3.5), o("O4", 19, 8), o("O5", 30.5, 19)],
+        defense: [d("X1", "O1", { x: 19.5, y: 22.5 }), d("X2", "O1", { x: 30.5, y: 22.5 }), d("X3", "O1", { x: 12, y: 9.5 }), d("X4", "O1", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Put three players on one side of a 2-3 and make the bottom defender guard two people.",
+      },
+      {
+        offense: [o("O1", 32, 31), o("O2", 45, 21), o("O3", 47, 3.5), o("O4", 19, 8), o("O5", 30.5, 19)],
+        defense: [d("X1", "O2", { x: 30, y: 23 }), d("X2", "O2", { x: 41.5, y: 21 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 41, y: 11 }), d("X5", "O2", { x: 25, y: 7 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 30.5, y: 22.5 }, { x: 41.5, y: 21 }]), ln("cut", "defense", [{ x: 19.5, y: 22.5 }, { x: 30, y: 23 }]), ln("cut", "defense", [{ x: 38, y: 9.5 }, { x: 41, y: 11 }]), ln("pass", "offense", [{ x: 32, y: 31 }, { x: 45, y: 21 }])],
+        note: "1 passes to 2. Three offensive players are now on one side.",
+      },
+      {
+        offense: [o("O1", 32, 31), o("O2", 45, 21), o("O3", 47, 3.5), o("O4", 19, 8), o("O5", 30.5, 19)],
+        defense: [d("X1", "O3", { x: 30, y: 23 }), d("X2", "O3", { x: 41.5, y: 21 }), d("X3", "O3", { x: 20, y: 9 }), d("X4", "O3", { x: 44.5, y: 6 }), d("X5", "O3", { x: 33, y: 8 })],
+        ballHolder: "O3",
+        lines: [ln("cut", "defense", [{ x: 41, y: 11 }, { x: 44.5, y: 6 }]), ln("cut", "defense", [{ x: 25, y: 7 }, { x: 33, y: 8 }]), ln("cut", "defense", [{ x: 12, y: 9.5 }, { x: 20, y: 9 }]), ln("pass", "offense", [{ x: 45, y: 21 }, { x: 47, y: 3.5 }])],
+        note: "2 swings to 3 in the corner; x4 has to close out.",
+      },
+      {
+        offense: [o("O1", 32, 31), o("O2", 45, 21), o("O3", 47, 3.5), o("O4", 19, 8), o("O5", 35, 7)],
+        defense: [d("X1", "O5", { x: 30, y: 23 }), d("X2", "O5", { x: 41.5, y: 21 }), d("X3", "O5", { x: 20, y: 9 }), d("X4", "O5", { x: 44.5, y: 6 }), d("X5", "O5", { x: 33, y: 8 })],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 30.5, y: 19 }, { x: 35, y: 7 }]), ln("pass", "offense", [{ x: 47, y: 3.5 }, { x: 30.5, y: 19 }])],
+        note: "5 dives from the elbow into the gap behind x4.",
+      },
+      {
+        offense: [o("O1", 32, 31), o("O2", 45, 21), o("O3", 47, 3.5), o("O4", 19, 8), o("O5", 35, 7)],
+        defense: [d("X1", "O4", { x: 30, y: 23 }), d("X2", "O4", { x: 41.5, y: 21 }), d("X3", "O4", { x: 20, y: 9 }), d("X4", "O4", { x: 44.5, y: 6 }), d("X5", "O4", { x: 33, y: 8 })],
+        ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 35, y: 7 }, { x: 19, y: 8 }])],
+        note: "If x5 steps over, 4 is open on the weak block.",
+      },
+    ]
+  ),
+
+  play(
+    "zone-131",
+    "Corners vs 1-3-1",
+    "zone",
+    "vs 1-3-1 Zone",
+    "The 1-3-1 is weakest in the corners and behind the baseline runner. Even front at the top, fill both corners.",
+    [
+      "Even front (two guards) splits the top defender.",
+      "The corners are open — the baseline runner can’t be in both.",
+      "Don’t dribble into the wing traps; pass out of them.",
+      "Skip to the opposite corner when x5 overplays.",
+    ],
+    [
+      {
+        offense: [o("O1", 16.5, 31), o("O2", 33.5, 31), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 39, 7.5)],
+        defense: [d("X1", "O1", { x: 25, y: 30 }), d("X2", "O1", { x: 9, y: 20.5 }), d("X3", "O1", { x: 25, y: 20 }), d("X4", "O1", { x: 41, y: 20.5 }), d("X5", "O1", { x: 25, y: 6 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "The 1-3-1 is weakest in the corners and behind the baseline runner. Even front at the top, fill both corners.",
+      },
+      {
+        offense: [o("O1", 16.5, 31), o("O2", 33.5, 31), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 39, 7.5)],
+        defense: [d("X1", "O2", { x: 30, y: 29 }), d("X2", "O2", { x: 9, y: 20.5 }), d("X3", "O2", { x: 25, y: 20 }), d("X4", "O2", { x: 38, y: 25 }), d("X5", "O2", { x: 33, y: 6.5 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 25, y: 30 }, { x: 30, y: 29 }]), ln("cut", "defense", [{ x: 41, y: 20.5 }, { x: 38, y: 25 }]), ln("cut", "defense", [{ x: 25, y: 6 }, { x: 33, y: 6.5 }]), ln("pass", "offense", [{ x: 16.5, y: 31 }, { x: 33.5, y: 31 }])],
+        note: "1 passes to 2. The top and wing defenders jump out.",
+      },
+      {
+        offense: [o("O1", 16.5, 31), o("O2", 33.5, 31), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 39, 7.5)],
+        defense: [d("X1", "O4", { x: 30, y: 29 }), d("X2", "O4", { x: 9, y: 20.5 }), d("X3", "O4", { x: 25, y: 20 }), d("X4", "O4", { x: 38, y: 25 }), d("X5", "O4", { x: 44, y: 5.5 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "defense", [{ x: 33, y: 6.5 }, { x: 44, y: 5.5 }]), ln("pass", "offense", [{ x: 33.5, y: 31 }, { x: 47, y: 3.5 }])],
+        note: "2 hits 4 in the corner. The baseline runner x5 has to race out.",
+      },
+      {
+        offense: [o("O1", 16.5, 31), o("O2", 33.5, 31), o("O3", 3, 3.5), o("O4", 47, 3.5), o("O5", 29, 4.5)],
+        defense: [d("X1", "O5", { x: 30, y: 29 }), d("X2", "O5", { x: 9, y: 20.5 }), d("X3", "O5", { x: 25, y: 20 }), d("X4", "O5", { x: 38, y: 25 }), d("X5", "O5", { x: 44, y: 5.5 })],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 39, y: 7.5 }, { x: 29, y: 4.5 }]), ln("pass", "offense", [{ x: 47, y: 3.5 }, { x: 39, y: 7.5 }])],
+        note: "5 ducks in behind x5 for a lay-up.",
+      },
+    ]
+  ),
+
+  play(
+    "zone-gap",
+    "Gap Attack vs 1-2-2",
+    "zone",
+    "vs 1-2-2 / 3-2",
+    "Against an odd front, attack the gaps on the dribble. Two defenders come to the ball and someone is left open.",
+    [
+      "Dribble into a gap, pass out of it.",
+      "Even front beats an odd zone.",
+      "Post slides to the spot the zone just left.",
+    ],
+    [
+      {
+        offense: [o("O1", 16.5, 32), o("O2", 33.5, 32), o("O3", 4, 18), o("O4", 46, 18), o("O5", 25, 13)],
+        defense: [d("X1", "O1", { x: 25, y: 30 }), d("X2", "O1", { x: 16, y: 23.5 }), d("X3", "O1", { x: 34, y: 23.5 }), d("X4", "O1", { x: 13, y: 8.5 }), d("X5", "O1", { x: 37, y: 8.5 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Against an odd front, attack the gaps on the dribble. Two defenders come to the ball and someone is left open.",
+      },
+      {
+        offense: [o("O1", 21, 25.5), o("O2", 33.5, 32), o("O3", 4, 18), o("O4", 46, 18), o("O5", 25, 13)],
+        defense: [d("X1", "O1", { x: 22.5, y: 27 }), d("X2", "O1", { x: 19, y: 24.5 }), d("X3", "O1", { x: 34, y: 23.5 }), d("X4", "O1", { x: 13, y: 8.5 }), d("X5", "O1", { x: 37, y: 8.5 })],
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 16.5, y: 32 }, { x: 21, y: 25.5 }]), ln("cut", "defense", [{ x: 25, y: 30 }, { x: 22.5, y: 27 }]), ln("cut", "defense", [{ x: 16, y: 23.5 }, { x: 19, y: 24.5 }])],
+        note: "1 dribbles into the gap between x1 and x2.",
+      },
+      {
+        offense: [o("O1", 21, 25.5), o("O2", 33.5, 32), o("O3", 4, 18), o("O4", 46, 18), o("O5", 25, 13)],
+        defense: [d("X1", "O3", { x: 22.5, y: 27 }), d("X2", "O3", { x: 19, y: 24.5 }), d("X3", "O3", { x: 34, y: 23.5 }), d("X4", "O3", { x: 8.5, y: 16 }), d("X5", "O3", { x: 37, y: 8.5 })],
+        ballHolder: "O3",
+        lines: [ln("cut", "defense", [{ x: 13, y: 8.5 }, { x: 8.5, y: 16 }]), ln("pass", "offense", [{ x: 21, y: 25.5 }, { x: 4, y: 18 }])],
+        note: "Two defenders on the ball — 1 hits 3 on the wing. x4 has to come up.",
+      },
+      {
+        offense: [o("O1", 21, 25.5), o("O2", 33.5, 32), o("O3", 4, 18), o("O4", 46, 18), o("O5", 17, 7.5)],
+        defense: [d("X1", "O5", { x: 22.5, y: 27 }), d("X2", "O5", { x: 19, y: 24.5 }), d("X3", "O5", { x: 34, y: 23.5 }), d("X4", "O5", { x: 8.5, y: 16 }), d("X5", "O5", { x: 37, y: 8.5 })],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 25, y: 13 }, { x: 17, y: 7.5 }]), ln("pass", "offense", [{ x: 4, y: 18 }, { x: 25, y: 13 }])],
+        note: "5 slides to the open block behind x4.",
+      },
+    ]
+  ),
+
+  play(
+    "box-break",
+    "Box Press Break",
+    "fullCourt",
+    "vs Man / Run & Jump",
+    "Four players in a box in the backcourt. Down screens free your guards, the screeners roll to the middle.",
+    [
+      "Meet every pass. Catch, pivot, face up.",
+      "The middle beats every press.",
+      "Inbounder steps in right away as the reversal.",
+      "Don’t dribble into a trap — pass over it.",
+    ],
+    [
+      {
+        offense: [o("O1", 18, 78.2), o("O2", 32, 78.2), o("O3", 18, 65.7), o("O4", 25, 85.6), o("O5", 32, 65.7)],
+        defense: [d("X4", "O4", { x: 25, y: 82.7 }), d("X1", "O4", { x: 19.5, y: 76.9 }), d("X2", "O4", { x: 30.5, y: 76.9 }), d("X3", "O4", { x: 19.5, y: 64.3 }), d("X5", "O4", { x: 30.5, y: 64.3 })],
+        ballHolder: "O4",
+        lines: [],
+        note: "Four players in a box in the backcourt. Down screens free your guards, the screeners roll to the middle.",
+      },
+      {
+        offense: [o("O1", 18, 78.2), o("O2", 32, 78.2), o("O3", 18.5, 75.5), o("O4", 25, 85.6), o("O5", 31.5, 75.5)],
+        defense: [d("X4", "O4", { x: 25, y: 82.7 }), d("X1", "O4", { x: 19.5, y: 76.9 }), d("X2", "O4", { x: 30.5, y: 76.9 }), d("X3", "O4", { x: 19.5, y: 64.3 }), d("X5", "O4", { x: 30.5, y: 64.3 })],
+        ballHolder: "O4",
+        lines: [ln("screen", "offense", [{ x: 18, y: 65.7 }, { x: 18.5, y: 75.5 }]), ln("screen", "offense", [{ x: 32, y: 65.7 }, { x: 31.5, y: 75.5 }])],
+        note: "On the slap: 3 screens down for 1, 5 screens down for 2.",
+      },
+      {
+        offense: [o("O1", 6.5, 78.6), o("O2", 43.5, 78.6), o("O3", 22.5, 65.7), o("O4", 25, 85.6), o("O5", 32, 50)],
+        defense: [d("X4", "O4", { x: 25, y: 82.7 }), d("X1", "O4", { x: 9, y: 76.4 }), d("X2", "O4", { x: 41, y: 76.4 }), d("X3", "O4", { x: 23, y: 67.9 }), d("X5", "O4", { x: 32, y: 53.6 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "offense", [{ x: 18, y: 78.2 }, { x: 10, y: 70.6 }, { x: 6.5, y: 78.6 }]), ln("cut", "offense", [{ x: 32, y: 78.2 }, { x: 40, y: 70.6 }, { x: 43.5, y: 78.6 }]), ln("cut", "offense", [{ x: 18.5, y: 75.5 }, { x: 22.5, y: 65.7 }]), ln("cut", "offense", [{ x: 31.5, y: 75.5 }, { x: 32, y: 50 }]), ln("cut", "defense", [{ x: 19.5, y: 76.9 }, { x: 9, y: 76.4 }]), ln("cut", "defense", [{ x: 30.5, y: 76.9 }, { x: 41, y: 76.4 }]), ln("cut", "defense", [{ x: 19.5, y: 64.3 }, { x: 23, y: 67.9 }]), ln("cut", "defense", [{ x: 30.5, y: 64.3 }, { x: 32, y: 53.6 }])],
+        note: "1 and 2 pop to the corners; 3 holds the middle, 5 runs ahead.",
+      },
+      {
+        offense: [o("O1", 6.5, 78.6), o("O2", 43.5, 78.6), o("O3", 22.5, 65.7), o("O4", 21, 80.9), o("O5", 32, 50)],
+        defense: [d("X4", "O1", { x: 25, y: 82.7 }), d("X1", "O1", { x: 9, y: 76.4 }), d("X2", "O1", { x: 41, y: 76.4 }), d("X3", "O1", { x: 23, y: 67.9 }), d("X5", "O1", { x: 32, y: 53.6 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 25, y: 85.6 }, { x: 21, y: 80.9 }]), ln("pass", "offense", [{ x: 25, y: 85.6 }, { x: 6.5, y: 78.6 }])],
+        note: "4 inbounds to 1 and steps in as the safety.",
+      },
+      {
+        offense: [o("O1", 6.5, 78.6), o("O2", 44, 46.5), o("O3", 23, 62.6), o("O4", 21, 80.9), o("O5", 33, 32.2)],
+        defense: [d("X4", "O3", { x: 25, y: 82.7 }), d("X1", "O3", { x: 9, y: 76.4 }), d("X2", "O3", { x: 41, y: 76.4 }), d("X3", "O3", { x: 23, y: 67.9 }), d("X5", "O3", { x: 32, y: 53.6 })],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 22.5, y: 65.7 }, { x: 23, y: 62.6 }]), ln("cut", "offense", [{ x: 43.5, y: 78.6 }, { x: 44, y: 46.5 }]), ln("cut", "offense", [{ x: 32, y: 50 }, { x: 33, y: 32.2 }]), ln("pass", "offense", [{ x: 6.5, y: 78.6 }, { x: 22.5, y: 65.7 }])],
+        note: "Ball to the middle: 1 hits 3 flashing up. 2 and 5 run the lanes.",
+      },
+      {
+        offense: [o("O1", 6.5, 78.6), o("O2", 44, 46.5), o("O3", 23, 62.6), o("O4", 21, 80.9), o("O5", 33, 32.2)],
+        defense: [d("X4", "O2", { x: 25, y: 82.7 }), d("X1", "O2", { x: 9, y: 76.4 }), d("X2", "O2", { x: 41, y: 76.4 }), d("X3", "O2", { x: 23, y: 67.9 }), d("X5", "O2", { x: 32, y: 53.6 })],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 23, y: 62.6 }, { x: 44, y: 46.5 }])],
+        note: "3 turns and pushes ahead to 2 on the sideline.",
+      },
+    ]
+  ),
+
+  play(
+    "one-four-break",
+    "1-4 Press Break",
+    "fullCourt",
+    "vs Zone Press (2-2-1)",
+    "Line up four across. Guards go back to the corners, the others push up the floor so there is always a middle and a sideline.",
+    [
+      "Get the ball in before the trap sets.",
+      "Middle player: face the ball, show two hands.",
+      "Pass out of the trap with a pivot and a fake.",
+      "Attack the rim after you beat it — numbers are on your side.",
+    ],
+    [
+      {
+        offense: [o("O1", 8, 73.3), o("O2", 42, 73.3), o("O3", 19, 73.3), o("O4", 25, 85.6), o("O5", 31, 73.3)],
+        defense: [d("X1", "O4", { x: 17.5, y: 77.7 }), d("X2", "O4", { x: 32.5, y: 77.7 }), d("X3", "O4", { x: 15, y: 57.2 }), d("X4", "O4", { x: 35, y: 57.2 }), d("X5", "O4", { x: 25, y: 31.3 })],
+        ballHolder: "O4",
+        lines: [],
+        note: "Line up four across. Guards go back to the corners, the others push up the floor so there is always a middle and a sideline.",
+      },
+      {
+        offense: [o("O1", 7, 80.4), o("O2", 43, 80.4), o("O3", 19, 73.3), o("O4", 25, 85.6), o("O5", 31, 73.3)],
+        defense: [d("X1", "O4", { x: 17.5, y: 77.7 }), d("X2", "O4", { x: 32.5, y: 77.7 }), d("X3", "O4", { x: 15, y: 57.2 }), d("X4", "O4", { x: 35, y: 57.2 }), d("X5", "O4", { x: 25, y: 31.3 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "offense", [{ x: 8, y: 73.3 }, { x: 7, y: 80.4 }]), ln("cut", "offense", [{ x: 42, y: 73.3 }, { x: 43, y: 80.4 }])],
+        note: "On the slap, 1 and 2 break back toward the corners.",
+      },
+      {
+        offense: [o("O1", 7, 80.4), o("O2", 43, 80.4), o("O3", 12, 55.4), o("O4", 25, 85.6), o("O5", 25.5, 61.7)],
+        defense: [d("X1", "O4", { x: 17.5, y: 77.7 }), d("X2", "O4", { x: 32.5, y: 77.7 }), d("X3", "O4", { x: 15, y: 57.2 }), d("X4", "O4", { x: 35, y: 57.2 }), d("X5", "O4", { x: 25, y: 31.3 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "offense", [{ x: 19, y: 73.3 }, { x: 12, y: 55.4 }]), ln("cut", "offense", [{ x: 31, y: 73.3 }, { x: 25.5, y: 61.7 }])],
+        note: "3 runs to the sideline, 5 flashes to the middle.",
+      },
+      {
+        offense: [o("O1", 7, 80.4), o("O2", 43, 80.4), o("O3", 12, 55.4), o("O4", 26, 80.4), o("O5", 25.5, 61.7)],
+        defense: [d("X1", "O1", { x: 10.5, y: 78.2 }), d("X2", "O1", { x: 32.5, y: 77.7 }), d("X3", "O1", { x: 11, y: 70.6 }), d("X4", "O1", { x: 35, y: 57.2 }), d("X5", "O1", { x: 25, y: 31.3 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 25, y: 85.6 }, { x: 26, y: 80.4 }]), ln("cut", "defense", [{ x: 17.5, y: 77.7 }, { x: 10.5, y: 78.2 }]), ln("cut", "defense", [{ x: 15, y: 57.2 }, { x: 11, y: 70.6 }]), ln("pass", "offense", [{ x: 25, y: 85.6 }, { x: 7, y: 80.4 }])],
+        note: "Inbound to 1; 4 steps in for reversal. Trap comes.",
+      },
+      {
+        offense: [o("O1", 7, 80.4), o("O2", 43, 80.4), o("O3", 12, 55.4), o("O4", 26, 80.4), o("O5", 25.5, 61.7)],
+        defense: [d("X1", "O5", { x: 10.5, y: 78.2 }), d("X2", "O5", { x: 32.5, y: 77.7 }), d("X3", "O5", { x: 11, y: 70.6 }), d("X4", "O5", { x: 35, y: 57.2 }), d("X5", "O5", { x: 25, y: 31.3 })],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 7, y: 80.4 }, { x: 25.5, y: 61.7 }])],
+        note: "Beat the trap: 1 throws to 5 in the middle, behind the first line.",
+      },
+      {
+        offense: [o("O1", 7, 80.4), o("O2", 42, 46.5), o("O3", 10, 35.7), o("O4", 26, 80.4), o("O5", 25.5, 61.7)],
+        defense: [d("X1", "O3", { x: 10.5, y: 78.2 }), d("X2", "O3", { x: 32.5, y: 77.7 }), d("X3", "O3", { x: 11, y: 70.6 }), d("X4", "O3", { x: 35, y: 57.2 }), d("X5", "O3", { x: 25, y: 31.3 })],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 12, y: 55.4 }, { x: 10, y: 35.7 }]), ln("cut", "offense", [{ x: 43, y: 80.4 }, { x: 42, y: 46.5 }]), ln("pass", "offense", [{ x: 25.5, y: 61.7 }, { x: 12, y: 55.4 }])],
+        note: "5 turns and finds 3 streaking down the sideline.",
+      },
+    ]
+  ),
+
+  play(
+    "blob-box",
+    "Box BLOB",
+    "blob",
+    "Baseline OB",
+    "Box set under your basket. A cross screen and then a screen-the-screener: two looks at the rim and a safety.",
+    [
+      "Inbounder slaps the ball to start it.",
+      "Read in order: first cutter, second cutter, safety.",
+      "Screens must be set — hold until contact.",
+      "Safety catch? Reset and get into offense.",
+    ],
+    [
+      {
+        offense: [o("O1", 30.5, 19), o("O2", 19.5, 19), o("O3", 33, -1.4), o("O4", 18.5, 8.5), o("O5", 31.5, 8.5)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "Box set under your basket. A cross screen and then a screen-the-screener: two looks at the rim and a safety.",
+      },
+      {
+        offense: [o("O1", 30.5, 19), o("O2", 19.5, 19), o("O3", 33, -1.4), o("O4", 30.5, 4.5), o("O5", 25.5, 8.5)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 25.5, y: 8.5 }]), ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 25.5, y: 12 }, { x: 30.5, y: 4.5 }])],
+        note: "5 screens across; 4 cuts to the front of the rim.",
+      },
+      {
+        offense: [o("O1", 25, 13.5), o("O2", 19.5, 19), o("O3", 33, -1.4), o("O4", 30.5, 4.5), o("O5", 23, 4.5)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 25, y: 13.5 }]), ln("cut", "offense", [{ x: 25.5, y: 8.5 }, { x: 21.5, y: 9.5 }, { x: 23, y: 4.5 }])],
+        note: "Screen the screener: 1 screens down for 5, who dives to the rim.",
+      },
+      {
+        offense: [o("O1", 25, 13.5), o("O2", 4, 4.5), o("O3", 33, -1.4), o("O4", 30.5, 4.5), o("O5", 23, 4.5)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 12, y: 15 }, { x: 4, y: 4.5 }]), ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 23, y: 4.5 }])],
+        note: "2 pops to the corner as the safety. Read 4, then 5, then 2.",
+      },
+    ]
+  ),
+
+  play(
+    "blob-stack",
+    "Stack BLOB",
+    "blob",
+    "Baseline OB",
+    "Four in a line on the ball-side lane. On the slap they explode in four directions.",
+    [
+      "Top man (2) is the safety — always get open.",
+      "5 seals his man with his back before he rolls.",
+      "Inbounder: ball fake before every pass.",
+    ],
+    [
+      {
+        offense: [o("O1", 32, -1.4), o("O2", 30, 19.5), o("O3", 30, 15), o("O4", 30, 10.5), o("O5", 30, 6)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Four in a line on the ball-side lane. On the slap they explode in four directions.",
+      },
+      {
+        offense: [o("O1", 32, -1.4), o("O2", 45.5, 25), o("O3", 21, 17.5), o("O4", 40.5, 6), o("O5", 25.5, 4.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 30, y: 6 }, { x: 25.5, y: 4.5 }]), ln("cut", "offense", [{ x: 30, y: 10.5 }, { x: 40.5, y: 6 }]), ln("cut", "offense", [{ x: 30, y: 15 }, { x: 26.5, y: 18 }, { x: 21, y: 17.5 }]), ln("cut", "offense", [{ x: 30, y: 19.5 }, { x: 45.5, y: 25 }])],
+        note: "The line explodes: 5 rolls to the rim, 4 to the short corner, 3 curls to the elbow, 2 out to the wing.",
+      },
+      {
+        offense: [o("O1", 32, -1.4), o("O2", 45.5, 25), o("O3", 21, 17.5), o("O4", 40.5, 6), o("O5", 25.5, 4.5)],
         defense: [],
         ballHolder: "O4",
-        lines: [ln("pass", "offense", [{ x: 6, y: 60 }, { x: 25, y: 42 }])],
-        note: "O4 flashes to the middle for the quick pass up the gut, splitting the trap.",
+        lines: [ln("pass", "offense", [{ x: 32, y: -1.4 }, { x: 40.5, y: 6 }])],
+        note: "Read in order. 4 is open in the short corner for the jumper.",
+      },
+    ]
+  ),
+
+  play(
+    "blob-zone",
+    "Seal BLOB vs Zone",
+    "blob",
+    "Baseline OB vs Zone",
+    "Against a 2-3 under your basket: a corner shooter pulls the zone wide and the post seals the middle.",
+    [
+      "Seal low with your back to the middle defender.",
+      "The diver times his cut on the slap.",
+      "No look? Inbound to 1 at the top and run zone offense.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 38, -1.4), o("O3", 47, 4), o("O4", 25, 19), o("O5", 31.5, 8)],
+        defense: [d("X1", "O2", { x: 19.5, y: 22.5 }), d("X2", "O2", { x: 30.5, y: 22.5 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 38, y: 9.5 }), d("X5", "O2", { x: 25, y: 7 })],
+        ballHolder: "O2",
+        lines: [],
+        note: "Against a 2-3 under your basket: a corner shooter pulls the zone wide and the post seals the middle.",
       },
       {
-        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 25), o("O5", 35, 45)],
-        defense: [],
+        offense: [o("O1", 25, 32), o("O2", 38, -1.4), o("O3", 47, 4), o("O4", 25, 19), o("O5", 29, 7.5)],
+        defense: [d("X1", "O2", { x: 19.5, y: 22.5 }), d("X2", "O2", { x: 30.5, y: 22.5 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 43, y: 6.5 }), d("X5", "O2", { x: 25, y: 7 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 38, y: 9.5 }, { x: 43, y: 6.5 }]), ln("screen", "offense", [{ x: 31.5, y: 8 }, { x: 29, y: 7.5 }])],
+        note: "3 in the corner pulls x4 out. 5 seals x5 from the ball-side block.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 38, -1.4), o("O3", 47, 4), o("O4", 27.5, 4), o("O5", 29, 7.5)],
+        defense: [d("X1", "O4", { x: 19.5, y: 22.5 }), d("X2", "O4", { x: 30.5, y: 22.5 }), d("X3", "O4", { x: 12, y: 9.5 }), d("X4", "O4", { x: 43, y: 6.5 }), d("X5", "O4", { x: 25, y: 7 })],
         ballHolder: "O4",
-        lines: [ln("dribble", "offense", [{ x: 25, y: 42 }, { x: 25, y: 25 }])],
-        note: "Numbers advantage — O4 pushes it up the floor before the press can reset.",
+        lines: [ln("cut", "offense", [{ x: 25, y: 19 }, { x: 27.5, y: 4 }]), ln("pass", "offense", [{ x: 38, y: -1.4 }, { x: 25, y: 19 }])],
+        note: "4 dives from the free-throw line into the open spot.",
+      },
+    ]
+  ),
+
+  play(
+    "slob-box",
+    "Box SLOB",
+    "slob",
+    "Sideline OB",
+    "Box set off the sideline. Back screen for a cutter at the rim, then screen the screener for a catch at the top.",
+    [
+      "Safety first — make sure the ball gets in.",
+      "Inbounder: count your 5 seconds out loud.",
+      "Catch at the top? Swing it and run offense.",
+    ],
+    [
+      {
+        offense: [o("O1", 30.5, 19), o("O2", 51.5, 26), o("O3", 19.5, 19), o("O4", 18.5, 8.5), o("O5", 31.5, 8.5)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [],
+        note: "Box set off the sideline. Back screen for a cutter at the rim, then screen the screener for a catch at the top.",
       },
       {
-        offense: [o("O1", 25, 70), o("O2", 6, 60), o("O3", 44, 60), o("O4", 25, 10), o("O5", 35, 45)],
+        offense: [o("O1", 43, 36), o("O2", 51.5, 26), o("O3", 19.5, 19), o("O4", 18.5, 8.5), o("O5", 31.5, 8.5)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("cut", "offense", [{ x: 30.5, y: 19 }, { x: 43, y: 36 }])],
+        note: "1 sprints back toward the ball as the safety.",
+      },
+      {
+        offense: [o("O1", 43, 36), o("O2", 51.5, 26), o("O3", 27.5, 5), o("O4", 18.5, 8.5), o("O5", 22, 17)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 22, y: 17 }]), ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 26.5, y: 15 }, { x: 27.5, y: 5 }])],
+        note: "5 back screens for 3, who cuts to the rim.",
+      },
+      {
+        offense: [o("O1", 43, 36), o("O2", 51.5, 26), o("O3", 27.5, 5), o("O4", 21.5, 20.5), o("O5", 25, 32)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("screen", "offense", [{ x: 18.5, y: 8.5 }, { x: 21.5, y: 20.5 }]), ln("cut", "offense", [{ x: 22, y: 17 }, { x: 25, y: 32 }])],
+        note: "4 screens for 5 (screen the screener); 5 pops to the top.",
+      },
+      {
+        offense: [o("O1", 43, 36), o("O2", 51.5, 26), o("O3", 27.5, 5), o("O4", 21.5, 20.5), o("O5", 25, 32)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 51.5, y: 26 }, { x: 25, y: 32 }])],
+        note: "Read: 3 at the rim, 5 at the top, 1 as the safety.",
+      },
+    ]
+  ),
+
+  play(
+    "slob-line",
+    "Line SLOB",
+    "slob",
+    "Sideline OB (backcourt pressure)",
+    "Get it in safely near half court. A line breaks in four directions so the inbounder always has a target.",
+    [
+      "Use it when you just need to inbound cleanly.",
+      "Deep cutter keeps the defense honest.",
+      "No one open by four? Throw it high and deep to 2.",
+    ],
+    [
+      {
+        offense: [o("O1", 42, 44), o("O2", 42, 38), o("O3", 51.5, 42), o("O4", 42, 32), o("O5", 42, 26)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "Get it in safely near half court. A line breaks in four directions so the inbounder always has a target.",
+      },
+      {
+        offense: [o("O1", 47.5, 44.5), o("O2", 25.5, 6.5), o("O3", 51.5, 42), o("O4", 47, 4.5), o("O5", 25, 32)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 42, y: 44 }, { x: 47.5, y: 44.5 }]), ln("cut", "offense", [{ x: 42, y: 38 }, { x: 33, y: 20 }, { x: 25.5, y: 6.5 }]), ln("cut", "offense", [{ x: 42, y: 32 }, { x: 47, y: 4.5 }]), ln("cut", "offense", [{ x: 42, y: 26 }, { x: 25, y: 32 }])],
+        note: "The line breaks: 1 comes back to the ball, 2 goes deep to the rim, 4 to the corner, 5 to the top.",
+      },
+      {
+        offense: [o("O1", 47.5, 44.5), o("O2", 25.5, 6.5), o("O3", 51.5, 42), o("O4", 47, 4.5), o("O5", 25, 32)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("pass", "offense", [{ x: 51.5, y: 42 }, { x: 47.5, y: 44.5 }])],
+        note: "Take what is open. Here: the safe pass to 1.",
+      },
+    ]
+  ),
+
+  play(
+    "home-run",
+    "Home Run",
+    "late",
+    "Full court, under 5 sec",
+    "Full length of the floor with seconds left. Long outlet to mid-court, then a quick pass ahead.",
+    [
+      "Inbounder: strongest arm, can run the baseline after a made basket.",
+      "5 catches high with two hands.",
+      "If 5 is denied, 1 is the short outlet.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 73.3), o("O2", 15, 62.6), o("O3", 35, 62.6), o("O4", 25, 85.6), o("O5", 25, 48.3)],
         defense: [],
         ballHolder: "O4",
         lines: [],
-        note: "Layup off the numbers advantage.",
+        note: "Full length of the floor with seconds left. Long outlet to mid-court, then a quick pass ahead.",
+      },
+      {
+        offense: [o("O1", 33, 80.4), o("O2", 9, 15.2), o("O3", 41, 23.2), o("O4", 25, 85.6), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O4",
+        lines: [ln("cut", "offense", [{ x: 15, y: 62.6 }, { x: 9, y: 15.2 }]), ln("cut", "offense", [{ x: 35, y: 62.6 }, { x: 41, y: 23.2 }]), ln("cut", "offense", [{ x: 25, y: 48.3 }, { x: 25, y: 42 }]), ln("cut", "offense", [{ x: 25, y: 73.3 }, { x: 33, y: 80.4 }])],
+        note: "2 and 3 sprint long, 5 flashes back to half court, 1 comes to the ball.",
+      },
+      {
+        offense: [o("O1", 33, 80.4), o("O2", 9, 15.2), o("O3", 41, 23.2), o("O4", 25, 85.6), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 25, y: 85.6 }, { x: 25, y: 42 }])],
+        note: "4 throws the long pass to 5 at mid-court.",
+      },
+      {
+        offense: [o("O1", 33, 80.4), o("O2", 9, 15.2), o("O3", 41, 23.2), o("O4", 25, 85.6), o("O5", 25, 42)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 25, y: 42 }, { x: 9, y: 15.2 }])],
+        note: "5 catches and throws ahead to 2 for the lay-up.",
+      },
+    ]
+  ),
+
+  play(
+    "hammer",
+    "Hammer (Need a 3)",
+    "late",
+    "Half court, need 3",
+    "Drive baseline, then a flare screen frees the weak-side corner shooter. The baseline-to-wing skip is hard to guard.",
+    [
+      "Driver must get deep — make the weak side help.",
+      "3: wait for the screen, then fade.",
+      "Feet behind the line — check before the shot.",
+    ],
+    [
+      {
+        offense: [o("O1", 33, 32), o("O2", 47, 3.5), o("O3", 3, 3.5), o("O4", 18.5, 8.5), o("O5", 30.5, 19)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Drive baseline, then a flare screen frees the weak-side corner shooter. The baseline-to-wing skip is hard to guard.",
+      },
+      {
+        offense: [o("O1", 42.5, 11), o("O2", 47, 3.5), o("O3", 3, 3.5), o("O4", 18.5, 8.5), o("O5", 35, 29)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 30.5, y: 19 }, { x: 35, y: 29 }]), ln("dribble", "offense", [{ x: 33, y: 32 }, { x: 42.5, y: 24.5 }, { x: 42.5, y: 11 }])],
+        note: "5 ball screens; 1 drives hard right toward the baseline.",
+      },
+      {
+        offense: [o("O1", 42.5, 11), o("O2", 47, 3.5), o("O3", 4.5, 18.5), o("O4", 8.5, 8), o("O5", 35, 29)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 18.5, y: 8.5 }, { x: 8.5, y: 8 }]), ln("cut", "offense", [{ x: 3, y: 3.5 }, { x: 4.5, y: 18.5 }])],
+        note: "Hammer: 4 sets a flare screen on 3’s defender. 3 fades to the left wing.",
+      },
+      {
+        offense: [o("O1", 42.5, 11), o("O2", 47, 3.5), o("O3", 4.5, 18.5), o("O4", 8.5, 8), o("O5", 35, 29)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 42.5, y: 11 }, { x: 4.5, y: 18.5 }])],
+        note: "1 throws the skip pass to 3 for the three.",
+      },
+    ]
+  ),
+
+  play(
+    "four-corners",
+    "Four Corners",
+    "late",
+    "Protect a lead",
+    "Spread the floor and make them foul. Four players in the corners of the half court, your best ball handler in the middle.",
+    [
+      "Only lay-ups. No quick shots.",
+      "Make your free throws — get the ball to your best shooters.",
+      "Meet passes; never catch standing still.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 26), o("O2", 4.5, 42), o("O3", 45.5, 42), o("O4", 4.5, 4.5), o("O5", 45.5, 4.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Spread the floor and make them foul. Four players in the corners of the half court, your best ball handler in the middle.",
+      },
+      {
+        offense: [o("O1", 25, 26), o("O2", 4.5, 42), o("O3", 45.5, 42), o("O4", 4.5, 4.5), o("O5", 45.5, 4.5)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Spread to the corners. 1 handles in the middle.",
+      },
+      {
+        offense: [o("O1", 29, 24), o("O2", 4.5, 42), o("O3", 45.5, 42), o("O4", 4.5, 4.5), o("O5", 45.5, 4.5)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 26 }, { x: 29, y: 24 }]), ln("pass", "offense", [{ x: 25, y: 26 }, { x: 45.5, y: 4.5 }])],
+        note: "Two defenders jump 1 — he hits the open corner (5).",
+      },
+      {
+        offense: [o("O1", 26, 7), o("O2", 4.5, 42), o("O3", 45.5, 42), o("O4", 4.5, 4.5), o("O5", 45.5, 4.5)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 29, y: 24 }, { x: 26, y: 7 }])],
+        note: "1 cuts to the rim; 5 hits him or brings it back out.",
+      },
+    ]
+  ),
+
+  play(
+    "run-jump",
+    "Run & Jump Press",
+    "defense",
+    "Full court man",
+    "Lightning base press. Man-to-man full court, turn the dribbler, and the closest level defender jumps him from the side.",
+    [
+      "Soft deny inbound to the corner below the FT line.",
+      "Inbounder’s defender: free safety on the inbound side until the catch, then full man.",
+      "Cut off the dribbler; closest level defender jumps from the side.",
+      "Never trap down.",
+      "Off the ball: level with or in front of the ball. Pinch if the dribbler goes middle.",
+      "Dead ball: on-ball defender runs to the most dangerous open man.",
+      "Ball side: loose deny. Help side: split the court.",
+    ],
+    [
+      {
+        offense: [o("O1", 18, 76.4), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 25, 85.6), o("O5", 33, 50)],
+        defense: [d("X4", "O4", { x: 22.5, y: 81.8 }), d("X1", "O4", { x: 17.5, y: 78.6 }), d("X2", "O4", { x: 36.5, y: 71.5 }), d("X3", "O4", { x: 13.5, y: 56.3 }), d("X5", "O4", { x: 31.5, y: 51.8 })],
+        ballHolder: "O4",
+        lines: [],
+        note: "Lightning base press. Man-to-man full court, turn the dribbler, and the closest level defender jumps him from the side.",
+      },
+      {
+        offense: [o("O1", 18, 76.4), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 25, 85.6), o("O5", 33, 50)],
+        defense: [d("X4", "O4", { x: 20.5, y: 80 }), d("X1", "O4", { x: 17.5, y: 78.6 }), d("X2", "O4", { x: 36.5, y: 71.5 }), d("X3", "O4", { x: 13.5, y: 56.3 }), d("X5", "O4", { x: 31.5, y: 51.8 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "defense", [{ x: 22.5, y: 81.8 }, { x: 20.5, y: 80 }])],
+        note: "Soft deny the inbound to the corner below the free-throw line. x4 is the free safety on the inbound side until the catch.",
+      },
+      {
+        offense: [o("O1", 18, 76.4), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 27, 79.5), o("O5", 33, 50)],
+        defense: [d("X4", "O1", { x: 25.5, y: 77.7 }), d("X1", "O1", { x: 17.5, y: 78.6 }), d("X2", "O1", { x: 36.5, y: 71.5 }), d("X3", "O1", { x: 13.5, y: 56.3 }), d("X5", "O1", { x: 31.5, y: 51.8 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 25, y: 85.6 }, { x: 27, y: 79.5 }]), ln("cut", "defense", [{ x: 20.5, y: 80 }, { x: 25.5, y: 77.7 }]), ln("pass", "offense", [{ x: 25, y: 85.6 }, { x: 18, y: 76.4 }])],
+        note: "Ball comes in to 1. x4 goes to full man on the inbounder.",
+      },
+      {
+        offense: [o("O1", 9.5, 64.3), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 27, 79.5), o("O5", 33, 50)],
+        defense: [d("X4", "O1", { x: 25.5, y: 77.7 }), d("X1", "O1", { x: 11, y: 66.6 }), d("X2", "O1", { x: 36.5, y: 71.5 }), d("X3", "O1", { x: 13.5, y: 56.3 }), d("X5", "O1", { x: 31.5, y: 51.8 })],
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 18, y: 76.4 }, { x: 10.5, y: 72.4 }, { x: 9.5, y: 64.3 }]), ln("cut", "defense", [{ x: 17.5, y: 78.6 }, { x: 11, y: 66.6 }])],
+        note: "x1 cuts off the dribbler and turns him to the sideline.",
+      },
+      {
+        offense: [o("O1", 8.5, 62.6), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 27, 79.5), o("O5", 33, 50)],
+        defense: [d("X4", "O1", { x: 25.5, y: 77.7 }), d("X1", "O1", { x: 11, y: 66.6 }), d("X2", "O1", { x: 36.5, y: 71.5 }), d("X3", "O1", { x: 8, y: 60.8 }), d("X5", "O1", { x: 31.5, y: 51.8 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "defense", [{ x: 13.5, y: 56.3 }, { x: 8, y: 60.8 }]), ln("dribble", "offense", [{ x: 9.5, y: 64.3 }, { x: 8.5, y: 62.6 }])],
+        note: "Jump: the closest level defender (x3) leaves his man and jumps the dribbler from the side. Never trap down.",
+      },
+      {
+        offense: [o("O1", 8.5, 62.6), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 27, 79.5), o("O5", 33, 50)],
+        defense: [d("X4", "O1", { x: 25.5, y: 77.7 }), d("X1", "O1", { x: 13.5, y: 54.5 }), d("X2", "O1", { x: 30, y: 65.2 }), d("X3", "O1", { x: 8, y: 60.8 }), d("X5", "O1", { x: 30.5, y: 50 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "defense", [{ x: 11, y: 66.6 }, { x: 13.5, y: 54.5 }]), ln("cut", "defense", [{ x: 36.5, y: 71.5 }, { x: 30, y: 65.2 }]), ln("cut", "defense", [{ x: 31.5, y: 51.8 }, { x: 30.5, y: 50 }])],
+        note: "On the jump, x1 runs to the most dangerous open man (3). Everyone rotates up.",
+      },
+    ],
+    "This is the team's own base press, not a standard textbook diagram — it matches the Run & Jump system Hardwood Lab already tracks for this team."
+  ),
+
+  play(
+    "man-help",
+    "Half-Court Man",
+    "defense",
+    "Help-side principles",
+    "Lightning half-court man rules. Pressure the ball, loose deny one pass away, split the court two passes away.",
+    [
+      "Ball side: loose deny. Help side: split the court.",
+      "Jump to the ball on every pass — move while the ball is in the air.",
+      "Closeout: short choppy steps, high hand, take away the shot.",
+      "Talk: “ball,” “help,” “shot.”",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O1", { x: 25, y: 29 }), d("X2", "O1", { x: 41.5, y: 20 }), d("X3", "O1", { x: 11, y: 19.5 }), d("X4", "O1", { x: 9.5, y: 7 }), d("X5", "O1", { x: 31.5, y: 10 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Lightning half-court man rules. Pressure the ball, loose deny one pass away, split the court two passes away.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O1", { x: 25, y: 29 }), d("X2", "O1", { x: 41.5, y: 20 }), d("X3", "O1", { x: 11, y: 19.5 }), d("X4", "O1", { x: 9.5, y: 7 }), d("X5", "O1", { x: 31.5, y: 10 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Ball at the top: pressure on the ball, one pass away loose deny.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O2", { x: 29.5, y: 26.5 }), d("X2", "O2", { x: 42, y: 21.5 }), d("X3", "O2", { x: 20.5, y: 21.5 }), d("X4", "O2", { x: 19.5, y: 9 }), d("X5", "O2", { x: 34.5, y: 10 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 41.5, y: 20 }, { x: 42, y: 21.5 }]), ln("cut", "defense", [{ x: 25, y: 29 }, { x: 29.5, y: 26.5 }]), ln("cut", "defense", [{ x: 11, y: 19.5 }, { x: 20.5, y: 21.5 }]), ln("cut", "defense", [{ x: 9.5, y: 7 }, { x: 19.5, y: 9 }]), ln("cut", "defense", [{ x: 31.5, y: 10 }, { x: 34.5, y: 10 }]), ln("pass", "offense", [{ x: 25, y: 32 }, { x: 44.5, y: 21 }])],
+        note: "Pass to the wing — everyone jumps to the ball. x3 and x4 sink to split the court.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 42, 6.5), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O2", { x: 29.5, y: 26.5 }), d("X2", "O2", { x: 43, y: 9.5 }), d("X3", "O2", { x: 19.5, y: 8 }), d("X4", "O2", { x: 38.5, y: 5 }), d("X5", "O2", { x: 34.5, y: 10 })],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 44.5, y: 21 }, { x: 42, y: 6.5 }]), ln("cut", "defense", [{ x: 42, y: 21.5 }, { x: 43, y: 9.5 }]), ln("cut", "defense", [{ x: 19.5, y: 9 }, { x: 38.5, y: 5 }]), ln("cut", "defense", [{ x: 20.5, y: 21.5 }, { x: 19.5, y: 8 }])],
+        note: "2 drives baseline: x4 rotates over to stop him, x3 drops to the weak block.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 42, 6.5), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O4", { x: 22, y: 14 }), d("X2", "O4", { x: 43, y: 9.5 }), d("X3", "O4", { x: 6.5, y: 6 }), d("X4", "O4", { x: 38.5, y: 5 }), d("X5", "O4", { x: 34.5, y: 10 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "defense", [{ x: 19.5, y: 8 }, { x: 6.5, y: 6 }]), ln("cut", "defense", [{ x: 29.5, y: 26.5 }, { x: 22, y: 14 }]), ln("pass", "offense", [{ x: 42, y: 6.5 }, { x: 3, y: 3.5 }])],
+        note: "Kick to 4 in the corner: x3 closes out, x1 sinks to the paint.",
+      },
+    ]
+  ),
+
+  play(
+    "zone-23",
+    "2-3 Zone Shifts",
+    "defense",
+    "Zone defense",
+    "Where each defender goes as the ball moves. Use it to protect foul trouble or a slower team.",
+    [
+      "Hands up and active — take away passing lanes.",
+      "Move on the pass, not the catch.",
+      "Box out by area: find the nearest body when the shot goes up.",
+      "Never let the ball into the high post uncontested.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 25, 18)],
+        defense: [d("X1", "O1", { x: 19.5, y: 22.5 }), d("X2", "O1", { x: 30.5, y: 22.5 }), d("X3", "O1", { x: 12, y: 9.5 }), d("X4", "O1", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Where each defender goes as the ball moves. Use it to protect foul trouble or a slower team.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 25, 18)],
+        defense: [d("X1", "O1", { x: 19.5, y: 22.5 }), d("X2", "O1", { x: 30.5, y: 22.5 }), d("X3", "O1", { x: 12, y: 9.5 }), d("X4", "O1", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Base: guards at the elbows, forwards at the blocks, center in the middle.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 25, 18)],
+        defense: [d("X1", "O2", { x: 26, y: 20.5 }), d("X2", "O2", { x: 42, y: 21.5 }), d("X3", "O2", { x: 21.5, y: 9 }), d("X4", "O2", { x: 38.5, y: 11 }), d("X5", "O2", { x: 30.5, y: 7.5 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 30.5, y: 22.5 }, { x: 42, y: 21.5 }]), ln("cut", "defense", [{ x: 19.5, y: 22.5 }, { x: 26, y: 20.5 }]), ln("cut", "defense", [{ x: 38, y: 9.5 }, { x: 38.5, y: 11 }]), ln("cut", "defense", [{ x: 25, y: 7 }, { x: 30.5, y: 7.5 }]), ln("cut", "defense", [{ x: 12, y: 9.5 }, { x: 21.5, y: 9 }]), ln("pass", "offense", [{ x: 25, y: 32 }, { x: 44.5, y: 21 }])],
+        note: "Ball to the wing: x2 takes the ball, x1 covers the high post, x4 drops, x5 slides ball side, x3 to the middle.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 47, 3.5), o("O5", 25, 18)],
+        defense: [d("X1", "O4", { x: 26.5, y: 19 }), d("X2", "O4", { x: 37.5, y: 16 }), d("X3", "O4", { x: 21.5, y: 9 }), d("X4", "O4", { x: 44.5, y: 5.5 }), d("X5", "O4", { x: 33, y: 7 })],
+        ballHolder: "O4",
+        lines: [ln("cut", "defense", [{ x: 38.5, y: 11 }, { x: 44.5, y: 5.5 }]), ln("cut", "defense", [{ x: 42, y: 21.5 }, { x: 37.5, y: 16 }]), ln("cut", "defense", [{ x: 30.5, y: 7.5 }, { x: 33, y: 7 }]), ln("cut", "defense", [{ x: 26, y: 20.5 }, { x: 26.5, y: 19 }]), ln("pass", "offense", [{ x: 44.5, y: 21 }, { x: 47, y: 3.5 }])],
+        note: "Ball to the corner: x4 closes out, x5 fronts the low block, x2 drops to the wing-elbow gap.",
+      },
+    ]
+  ),
+
+  play(
+    "trap-131",
+    "1-3-1 Trap",
+    "defense",
+    "Zone defense",
+    "Aggressive half-court zone. Trap the wings, cut off the high post, and send the baseline runner to the corner.",
+    [
+      "Trap with your knees and hands; no reaching.",
+      "Wing defender stops the ball from getting to the corner.",
+      "Baseline runner: you own the corner and the block.",
+      "Gamble only when the passer’s eyes give it away.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 33), o("O2", 45, 22), o("O3", 5, 22), o("O4", 47, 3.5), o("O5", 11, 7)],
+        defense: [d("X1", "O1", { x: 25, y: 30 }), d("X2", "O1", { x: 9, y: 20.5 }), d("X3", "O1", { x: 25, y: 20 }), d("X4", "O1", { x: 41, y: 20.5 }), d("X5", "O1", { x: 25, y: 6 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Aggressive half-court zone. Trap the wings, cut off the high post, and send the baseline runner to the corner.",
+      },
+      {
+        offense: [o("O1", 25, 33), o("O2", 45, 22), o("O3", 5, 22), o("O4", 47, 3.5), o("O5", 11, 7)],
+        defense: [d("X1", "O1", { x: 26.5, y: 30 }), d("X2", "O1", { x: 9, y: 20.5 }), d("X3", "O1", { x: 25, y: 20 }), d("X4", "O1", { x: 41, y: 20.5 }), d("X5", "O1", { x: 25, y: 6 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "defense", [{ x: 25, y: 30 }, { x: 26.5, y: 30 }])],
+        note: "x1 pressures the ball at the top and points it to one side.",
+      },
+      {
+        offense: [o("O1", 25, 33), o("O2", 45, 22), o("O3", 5, 22), o("O4", 47, 3.5), o("O5", 11, 7)],
+        defense: [d("X1", "O2", { x: 40.5, y: 24.5 }), d("X2", "O2", { x: 21, y: 15 }), d("X3", "O2", { x: 33, y: 17.5 }), d("X4", "O2", { x: 43, y: 18.5 }), d("X5", "O2", { x: 42.5, y: 6 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 26.5, y: 30 }, { x: 40.5, y: 24.5 }]), ln("cut", "defense", [{ x: 41, y: 20.5 }, { x: 43, y: 18.5 }]), ln("cut", "defense", [{ x: 25, y: 20 }, { x: 33, y: 17.5 }]), ln("cut", "defense", [{ x: 25, y: 6 }, { x: 42.5, y: 6 }]), ln("cut", "defense", [{ x: 9, y: 20.5 }, { x: 21, y: 15 }]), ln("pass", "offense", [{ x: 25, y: 33 }, { x: 45, y: 22 }])],
+        note: "Pass to the wing: x1 and x4 trap, x3 cuts off the high post, x5 runs to the corner, x2 drops to the middle.",
+      },
+      {
+        offense: [o("O1", 25, 33), o("O2", 45, 22), o("O3", 5, 22), o("O4", 47, 3.5), o("O5", 11, 7)],
+        defense: [d("X1", "O2", { x: 40.5, y: 24.5 }), d("X2", "O2", { x: 25.5, y: 25 }), d("X3", "O2", { x: 33, y: 17.5 }), d("X4", "O2", { x: 43, y: 18.5 }), d("X5", "O2", { x: 42.5, y: 6 })],
+        ballHolder: "O2",
+        lines: [ln("cut", "defense", [{ x: 21, y: 15 }, { x: 25.5, y: 25 }])],
+        note: "x2 reads the skip back to the top — jump the lane for the steal.",
+      },
+    ]
+  ),
+
+  play(
+    "press-221",
+    "2-2-1 Press",
+    "defense",
+    "Full court zone",
+    "Soft zone press. Let the inbound happen, funnel to the sideline, trap after the first dribble.",
+    [
+      "Front line: funnel to the sideline, never let the ball go middle.",
+      "Trappers: make it a “V” toward half court.",
+      "Interceptors read the passer’s eyes.",
+      "Beat? Sprint back and get into half-court defense.",
+    ],
+    [
+      {
+        offense: [o("O1", 13, 80.4), o("O2", 37, 74.2), o("O3", 20, 58.1), o("O4", 25, 85.6), o("O5", 30, 35.7)],
+        defense: [d("X1", "O4", { x: 17.5, y: 78.6 }), d("X2", "O4", { x: 32.5, y: 78.6 }), d("X3", "O4", { x: 14, y: 58.1 }), d("X4", "O4", { x: 36, y: 58.1 }), d("X5", "O4", { x: 25, y: 34 })],
+        ballHolder: "O4",
+        lines: [],
+        note: "Soft zone press. Let the inbound happen, funnel to the sideline, trap after the first dribble.",
+      },
+      {
+        offense: [o("O1", 13, 80.4), o("O2", 37, 74.2), o("O3", 20, 58.1), o("O4", 25, 85.6), o("O5", 30, 35.7)],
+        defense: [d("X1", "O1", { x: 17.5, y: 78.6 }), d("X2", "O1", { x: 32.5, y: 78.6 }), d("X3", "O1", { x: 14, y: 58.1 }), d("X4", "O1", { x: 36, y: 58.1 }), d("X5", "O1", { x: 25, y: 34 })],
+        ballHolder: "O1",
+        lines: [ln("pass", "offense", [{ x: 25, y: 85.6 }, { x: 13, y: 80.4 }])],
+        note: "Let the inbound happen; the front two funnel it to the sideline.",
+      },
+      {
+        offense: [o("O1", 8.5, 68.8), o("O2", 37, 74.2), o("O3", 20, 58.1), o("O4", 25, 85.6), o("O5", 30, 35.7)],
+        defense: [d("X1", "O1", { x: 11.5, y: 71.5 }), d("X2", "O1", { x: 32.5, y: 78.6 }), d("X3", "O1", { x: 7.5, y: 65.2 }), d("X4", "O1", { x: 36, y: 58.1 }), d("X5", "O1", { x: 25, y: 34 })],
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 13, y: 80.4 }, { x: 8.5, y: 68.8 }]), ln("cut", "defense", [{ x: 17.5, y: 78.6 }, { x: 11.5, y: 71.5 }]), ln("cut", "defense", [{ x: 14, y: 58.1 }, { x: 7.5, y: 65.2 }])],
+        note: "Trap after the first dribble: x1 and x3 trap 1 near the sideline.",
+      },
+      {
+        offense: [o("O1", 8.5, 68.8), o("O2", 37, 74.2), o("O3", 20, 58.1), o("O4", 25, 85.6), o("O5", 30, 35.7)],
+        defense: [d("X1", "O1", { x: 11.5, y: 71.5 }), d("X2", "O1", { x: 23, y: 67.9 }), d("X3", "O1", { x: 7.5, y: 65.2 }), d("X4", "O1", { x: 18.5, y: 53.6 }), d("X5", "O1", { x: 25, y: 28.6 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "defense", [{ x: 32.5, y: 78.6 }, { x: 23, y: 67.9 }]), ln("cut", "defense", [{ x: 36, y: 58.1 }, { x: 18.5, y: 53.6 }]), ln("cut", "defense", [{ x: 25, y: 34 }, { x: 25, y: 28.6 }])],
+        note: "Rotate: x2 takes the middle, x4 the sideline lane, x5 protects the rim.",
+      },
+    ]
+  ),
+
+  play(
+    "box-and-1",
+    "Box-and-1",
+    "defense",
+    "Junk defense",
+    "Face-guard their best scorer with one defender. The other four play a box zone.",
+    [
+      "Chaser: face-guard, deny every catch, no help.",
+      "Box: ball-side top takes the ball, bottom two protect the rim.",
+      "Make the other four beat you.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O1", { x: 19.5, y: 20 }), d("X2", "O1", { x: 30.5, y: 20 }), d("X3", "O1", { x: 18.5, y: 8 }), d("X4", "O1", { x: 31.5, y: 8 }), d("X5", "O1", { x: 42, y: 19.5 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Face-guard their best scorer with one defender. The other four play a box zone.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O1", { x: 19.5, y: 20 }), d("X2", "O1", { x: 30.5, y: 20 }), d("X3", "O1", { x: 18.5, y: 8 }), d("X4", "O1", { x: 31.5, y: 8 }), d("X5", "O1", { x: 42, y: 19.5 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "x5 face-guards their best scorer (2) everywhere. The other four hold the box.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 47, 4.5), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O1", { x: 19.5, y: 20 }), d("X2", "O1", { x: 30.5, y: 20 }), d("X3", "O1", { x: 18.5, y: 8 }), d("X4", "O1", { x: 31.5, y: 8 }), d("X5", "O1", { x: 45.5, y: 7.5 })],
+        ballHolder: "O1",
+        lines: [ln("cut", "offense", [{ x: 44.5, y: 21 }, { x: 47, y: 15 }, { x: 47, y: 4.5 }]), ln("cut", "defense", [{ x: 42, y: 19.5 }, { x: 45.5, y: 7.5 }])],
+        note: "2 cuts to the corner; x5 chases and denies. The box stays home.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 47, 4.5), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
+        defense: [d("X1", "O3", { x: 9.5, y: 20.5 }), d("X2", "O3", { x: 21.5, y: 21 }), d("X3", "O3", { x: 13, y: 8.5 }), d("X4", "O3", { x: 25.5, y: 8.5 }), d("X5", "O3", { x: 45.5, y: 7.5 })],
+        ballHolder: "O3",
+        lines: [ln("cut", "defense", [{ x: 19.5, y: 20 }, { x: 9.5, y: 20.5 }]), ln("cut", "defense", [{ x: 18.5, y: 8 }, { x: 13, y: 8.5 }]), ln("cut", "defense", [{ x: 30.5, y: 20 }, { x: 21.5, y: 21 }]), ln("cut", "defense", [{ x: 31.5, y: 8 }, { x: 25.5, y: 8.5 }]), ln("pass", "offense", [{ x: 25, y: 32 }, { x: 5.5, y: 21 }])],
+        note: "Ball to 3 on the left wing — x1 takes the wing, the box shifts.",
       },
     ]
   ),

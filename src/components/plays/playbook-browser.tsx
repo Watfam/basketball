@@ -8,10 +8,11 @@ import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { PlayThumbnail } from "@/components/plays/play-thumbnail";
 import { LIBRARY_PLAYS, PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
 
-type TabKey = "offense" | "situations" | "starred";
+type TabKey = "offense" | "situations" | "defense" | "starred";
 const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] = [
   { key: "offense", label: "Offense", categories: ["man", "zone"] },
-  { key: "situations", label: "Situations", categories: ["blob", "slob", "fullCourt"] },
+  { key: "situations", label: "Situations", categories: ["blob", "slob", "fullCourt", "late"] },
+  { key: "defense", label: "Defense", categories: ["defense"] },
   { key: "starred", label: "Starred", categories: null },
 ];
 
@@ -36,7 +37,7 @@ function StarIcon({ filled, className }: { filled: boolean; className?: string }
 }
 
 function matches(p: LibraryPlay, q: string): boolean {
-  const hay = `${p.name} ${p.vs} ${p.team} ${p.source} ${PLAY_CATEGORY_LABEL[p.category]}`.toLowerCase();
+  const hay = `${p.name} ${p.vs} ${p.about} ${p.source ?? ""} ${PLAY_CATEGORY_LABEL[p.category]}`.toLowerCase();
   return hay.includes(q);
 }
 
@@ -110,7 +111,7 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
 
       {!q && (
         <>
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-raised p-1">
+          <div className="grid grid-cols-4 gap-1 rounded-xl bg-raised p-1">
             {TABS.map((t) => (
               <button
                 key={t.key}
@@ -204,9 +205,7 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
                         {PLAY_CATEGORY_LABEL[p.category]}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs font-semibold text-foreground-dim">
-                      {p.team !== "Generic" ? `${p.team} · ${p.vs}` : p.vs}
-                    </p>
+                    <p className="mt-1 text-xs font-semibold text-foreground-dim">{p.vs}</p>
 
                     <button
                       type="button"
@@ -222,6 +221,7 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
 
                     {isOpen && (
                       <div className="mt-3 space-y-3 border-t border-line pt-3">
+                        <p className="text-xs leading-relaxed text-foreground-dim">{p.about}</p>
                         <ol className="space-y-1.5">
                           {p.frames.map((f, i) => (
                             <li key={i} className="flex gap-2 text-xs leading-relaxed text-foreground-dim">
@@ -242,7 +242,7 @@ export function PlaybookBrowser({ teamId }: { teamId: string }) {
                             </ul>
                           </div>
                         )}
-                        <p className="text-[11px] leading-relaxed text-foreground-mute">{p.source}</p>
+                        {p.source && <p className="text-[11px] leading-relaxed text-foreground-mute">{p.source}</p>}
                       </div>
                     )}
 
