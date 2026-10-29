@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { savePlayEditAction } from "@/app/actions/play-edits";
+import { savePlayEditAction, saveMasterOverrideAction } from "@/app/actions/play-edits";
 import { FilmPlayer } from "@/components/plays/film-player";
 import { FrameStrip } from "@/components/plays/frame-strip";
 import { PlayCourt, type Tool } from "@/components/plays/play-court";
 import { PlayerSheet } from "@/components/plays/player-sheet";
 import { Toolbar } from "@/components/plays/toolbar";
 import { Sheet } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { FormError, Input, TextArea } from "@/components/ui/field";
 import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
@@ -56,6 +57,9 @@ export function PlayDesigner({
   const [detailsOpener, setDetailsOpener] = useState<HTMLElement | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [masterConfirmArmed, setMasterConfirmArmed] = useState(false);
+  const [masterSaveState, setMasterSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [masterSaveError, setMasterSaveError] = useState<string | null>(null);
   // Fits the view to wherever the play actually happens across every frame — most plays use a
   // fraction of the floor, and a full-court view would shrink that action down to a corner of the
   // screen. A coach can still back out to the real full court to check spacing against the whole
@@ -139,6 +143,28 @@ export function PlayDesigner({
     setTimeout(() => setSaveState("idle"), 2000);
   }
 
+  async function saveMaster() {
+    if (!libraryPlayId) return;
+    if (!masterConfirmArmed) {
+      haptic("tap");
+      setMasterConfirmArmed(true);
+      return;
+    }
+    haptic("tap");
+    setMasterSaveState("saving");
+    setMasterSaveError(null);
+    const keys = keysText.split("\n").map((k) => k.trim()).filter(Boolean);
+    const result = await saveMasterOverrideAction(teamId, libraryPlayId, { name, vs, about, keys, frames });
+    setMasterConfirmArmed(false);
+    if (result.error) {
+      setMasterSaveState("idle");
+      setMasterSaveError(result.error);
+      return;
+    }
+    setMasterSaveState("saved");
+    setTimeout(() => setMasterSaveState("idle"), 2000);
+  }
+
   if (mode === "film") {
     return <FilmPlayer frames={frames} onExit={() => setMode("edit")} region={region} onFlip={flip} />;
   }
@@ -205,7 +231,15 @@ export function PlayDesigner({
       </div>
 
       {detailsOpen && (
-        <Sheet title="Play details" onClose={() => setDetailsOpen(false)} opener={detailsOpener}>
+        <Sheet
+          title="Play details"
+          onClose={() => {
+            setDetailsOpen(false);
+            setMasterConfirmArmed(false);
+            setMasterSaveError(null);
+          }}
+          opener={detailsOpener}
+        >
           <div className="space-y-3">
             <div className="space-y-1">
               <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Name</label>
@@ -222,6 +256,30 @@ export function PlayDesigner({
             <div className="space-y-1">
               <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Coaching points — one per line</label>
               <TextArea value={keysText} onChange={(e) => setKeysText(e.target.value)} rows={5} placeholder={"Screener: hold until contact.\nCutter: set up the defender first."} />
+            </div>
+
+            <div className="space-y-2 border-t border-line pt-3">
+              <p className="text-[11px] text-foreground-mute">
+                Corrects the shared default every team starts from, not just your team&apos;s copy. A team with its own edit to this play keeps it.
+              </p>
+              {masterConfirmArmed ? (
+                <div role="alertdialog" aria-label="Update the master copy for every team?" className="rounded-xl border border-danger/40 bg-danger/10 px-3 py-2.5">
+                  <p className="text-center text-xs font-semibold text-foreground">Update the master copy for every team?</p>
+                  <div className="mt-2 flex gap-2">
+                    <Button variant="danger" size="sm" className="flex-1" onClick={saveMaster} disabled={masterSaveState === "saving"}>
+                      {masterSaveState === "saving" ? "Updating…" : "Yes, update"}
+                    </Button>
+                    <Button variant="secondary" size="sm" className="flex-1" onClick={() => setMasterConfirmArmed(false)} disabled={masterSaveState === "saving"}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="secondary" size="sm" block onClick={saveMaster}>
+                  {masterSaveState === "saved" ? "Master copy updated" : "Update master copy"}
+                </Button>
+              )}
+              {masterSaveError && <FormError className="mt-1">{masterSaveError}</FormError>}
             </div>
           </div>
         </Sheet>

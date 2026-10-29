@@ -2,8 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlayDesigner } from "@/components/plays/play-designer";
 import { LIBRARY_PLAYS } from "@/lib/plays/library";
-import { getPlayEdit } from "@/lib/plays/play-edits-store";
-import { applyEdit } from "@/lib/plays/merge-edits";
+import { getMasterOverride, getPlayEdit } from "@/lib/plays/play-edits-store";
+import { resolvePlay } from "@/lib/plays/merge-edits";
 
 export default async function PlaysPage({
   params,
@@ -25,8 +25,11 @@ export default async function PlaysPage({
   if (!team) notFound();
 
   const basePlay = lib ? LIBRARY_PLAYS.find((p) => p.id === lib) : undefined;
-  const edit = basePlay ? await getPlayEdit(supabase.schema("hoops"), teamId, basePlay.id) : null;
-  const libraryPlay = basePlay ? applyEdit(basePlay, edit) : undefined;
+  const hoops = supabase.schema("hoops");
+  const [master, edit] = basePlay
+    ? await Promise.all([getMasterOverride(hoops, basePlay.id), getPlayEdit(hoops, teamId, basePlay.id)])
+    : [null, null];
+  const libraryPlay = basePlay ? resolvePlay(basePlay, master, edit) : undefined;
 
   return (
     <PlayDesigner

@@ -2,8 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PlayViewer } from "@/components/plays/play-viewer";
 import { LIBRARY_PLAYS } from "@/lib/plays/library";
-import { getPlayEdit } from "@/lib/plays/play-edits-store";
-import { applyEdit } from "@/lib/plays/merge-edits";
+import { getMasterOverride, getPlayEdit } from "@/lib/plays/play-edits-store";
+import { resolvePlay } from "@/lib/plays/merge-edits";
 
 export default async function PlayViewPage({ params }: { params: Promise<{ teamId: string; playId: string }> }) {
   const { teamId, playId } = await params;
@@ -13,9 +13,10 @@ export default async function PlayViewPage({ params }: { params: Promise<{ teamI
   if (!basePlay) notFound();
 
   const hoops = supabase.schema("hoops");
-  const [{ data: { user } }, { data: team }, edit] = await Promise.all([
+  const [{ data: { user } }, { data: team }, master, edit] = await Promise.all([
     supabase.auth.getUser(),
     hoops.from("teams").select("owner_id").eq("id", teamId).maybeSingle(),
+    getMasterOverride(hoops, playId),
     getPlayEdit(hoops, teamId, playId),
   ]);
 
@@ -32,7 +33,7 @@ export default async function PlayViewPage({ params }: { params: Promise<{ teamI
     canEdit = membership?.role === "coach" || membership?.role === "assistant_coach";
   }
 
-  const play = applyEdit(basePlay, edit);
+  const play = resolvePlay(basePlay, master, edit);
 
   return (
     <div className="flex flex-1 flex-col">

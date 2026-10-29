@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { PlaybookBrowser } from "@/components/plays/playbook-browser";
 import { LIBRARY_PLAYS } from "@/lib/plays/library";
-import { getPlayEditsForTeam } from "@/lib/plays/play-edits-store";
+import { getMasterOverridesAll, getPlayEditsForTeam } from "@/lib/plays/play-edits-store";
 import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
 
 export default async function PlaybookPage({ params }: { params: Promise<{ teamId: string }> }) {
@@ -18,8 +18,9 @@ export default async function PlaybookPage({ params }: { params: Promise<{ teamI
   if (!user) redirect("/login");
   if (!team) notFound();
 
-  const edits = await getPlayEditsForTeam(supabase.schema("hoops"), teamId);
-  const plays = mergeLibraryWithEdits(LIBRARY_PLAYS, edits);
+  const hoops = supabase.schema("hoops");
+  const [masters, edits] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId)]);
+  const plays = mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits);
 
   return (
     <div className="flex flex-1 flex-col">

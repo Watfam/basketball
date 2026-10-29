@@ -4,7 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getPlayEdit, resetPlayEdit, savePlayEdit, type PlayEditInput } from "@/lib/plays/play-edits-store";
+import { getPlayEdit, resetPlayEdit, savePlayEdit, saveMasterOverride, type PlayEditInput } from "@/lib/plays/play-edits-store";
 
 function refresh(teamId: string) {
   revalidatePath(`/teams/${teamId}/plays/playbook`, "page");
@@ -37,4 +37,14 @@ export async function resetPlayEditAction(teamId: string, libraryPlayId: string)
 export async function getPlayEditAction(teamId: string, libraryPlayId: string) {
   const supabase = await createClient();
   return getPlayEdit(supabase.schema("hoops"), teamId, libraryPlayId);
+}
+
+/** Corrects the shared baseline for every team, not just the caller's own. */
+export async function saveMasterOverrideAction(teamId: string, libraryPlayId: string, input: PlayEditInput): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+  const res = await saveMasterOverride(supabase.schema("hoops"), libraryPlayId, input);
+  if (!res.error) refresh(teamId);
+  return res;
 }
