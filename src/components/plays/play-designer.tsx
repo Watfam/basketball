@@ -68,11 +68,11 @@ export function PlayDesigner({
   const [masterConfirmArmed, setMasterConfirmArmed] = useState(false);
   const [masterSaveState, setMasterSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [masterSaveError, setMasterSaveError] = useState<string | null>(null);
-  // Fits the view to wherever the play actually happens across every frame — most plays use a
-  // fraction of the floor, and a full-court view would shrink that action down to a corner of the
-  // screen. A coach can still back out to the real full court to check spacing against the whole
-  // floor.
-  const [fitToPlay, setFitToPlay] = useState(true);
+  // Off by default — the court at its real size and spacing first, since an auto-zoomed crop the
+  // coach never asked for reads as the view randomly changing on them. "Fit to play" is there to
+  // opt into when a play uses only a fraction of the floor and the action would otherwise sit tiny
+  // in a corner of the screen.
+  const [fitToPlay, setFitToPlay] = useState(false);
   const region = fitToPlay ? computeContentBounds(frames) : undefined;
 
   const frame = frames[activeIndex];
