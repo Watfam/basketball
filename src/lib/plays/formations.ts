@@ -102,6 +102,14 @@ export const FORMATIONS: Formation[] = [
     offense: [o("O1", 25, 33), o("O2", 10, 22), o("O3", 40, 22), o("O4", 25, 18), o("O5", 25, 6)],
     defense: [d("X1", "O1", 25, 28), d("X2", "O2", 10, 16), d("X3", "O3", 40, 16), d("X4", "O4", 25, 14), d("X5", "O5", 25, 6)],
   },
+  {
+    id: "1-2-2-zone",
+    name: "1-2-2 Zone",
+    category: "defense",
+    description: "A single point up top, two guards at the wings, two defenders back underneath — stretches further than a 2-3 but leaves just two to cover the whole baseline.",
+    offense: [o("O1", 25, 32), o("O2", 4, 6), o("O3", 40, 22), o("O4", 12, 9), o("O5", 33, 25)],
+    defense: [d("X1", "O1", 25, 27), d("X2", "O2", 13, 19), d("X3", "O3", 37, 19), d("X4", "O4", 17, 8), d("X5", "O5", 33, 8)],
+  },
 ];
 
 /**

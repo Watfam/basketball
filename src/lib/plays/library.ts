@@ -1834,4 +1834,63 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
       },
     ]
   ),
+
+  play(
+    "flare-slip-pin2",
+    "Flare to Slip",
+    "zone",
+    "vs 1-2-2 Zone",
+    "A flare screen for the point guard away from the ball, slipped to the rim instead of held, while a second screener pins the corner man up to the wing at the same time — two actions at once, so a 1-2-2's back line only has two defenders to answer both.",
+    [
+      "5 (the flare screener): slip the instant 1's defender starts to chase the flare — the goal is beating him before he recovers, not setting a textbook screen.",
+      "4: hold the pin on 2's defender until 2 has actually cleared it. Let go early and the zone just slides over to cover him.",
+      "1: run the flare all the way out, full speed. A flare that doesn't look live won't pull the defender far enough off to open the slip behind him.",
+      "Whoever's on the wing with the ball: the slip to 5 is the first read — the reversal out to 2 off the pin is right there if it isn't open.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 4, 6), o("O3", 40, 22), o("O4", 12, 9), o("O5", 33, 25)],
+        defense: [d("X1", "O1", { x: 25, y: 27 }), d("X2", "O2", { x: 13, y: 19 }), d("X3", "O3", { x: 37, y: 19 }), d("X4", "O2", { x: 17, y: 8 }), d("X5", "O3", { x: 33, y: 8 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "1-2-2 zone look: 1 up top with the ball, 3 on the wing, 2 deep in the corner, 4 and 5 underneath — a standard 3-out/2-in spacing.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 4, 6), o("O3", 40, 22), o("O4", 12, 9), o("O5", 33, 25)],
+        defense: [d("X1", "O1", { x: 28, y: 24 }), d("X2", "O2", { x: 18, y: 18 }), d("X3", "O3", { x: 40, y: 19 }), d("X4", "O2", { x: 20, y: 8 }), d("X5", "O3", { x: 30, y: 8 })],
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 22 }])],
+        note: "1 reverses it to 3 on the wing — the zone shifts with the ball.",
+        ballArrival: [{ x: 25, y: 32 }, { x: 40, y: 22 }],
+      },
+      {
+        offense: [o("O1", 8, 27), o("O2", 16, 19), o("O3", 40, 22), o("O4", 7, 7), o("O5", 18, 28)],
+        defense: [d("X1", "O1", { x: 15, y: 26 }), d("X2", "O2", { x: 19, y: 21 }), d("X3", "O3", { x: 39, y: 20 }), d("X4", "O2", { x: 12, y: 9 }), d("X5", "O3", { x: 28, y: 8 })],
+        ballHolder: "O3",
+        lines: [
+          ln("screen", "offense", [{ x: 33, y: 25 }, { x: 18, y: 28 }]),
+          ln("cut", "offense", [{ x: 25, y: 32 }, { x: 8, y: 27 }]),
+          ln("screen", "offense", [{ x: 12, y: 9 }, { x: 7, y: 7 }]),
+          ln("cut", "offense", [{ x: 4, y: 6 }, { x: 16, y: 19 }]),
+        ],
+        note: "5 flares up for 1 while 4 pins down for 2, at the same time — 1 fades away from the ball, 2 pops off the pin to the left slot.",
+      },
+      {
+        offense: [o("O1", 8, 27), o("O2", 16, 19), o("O3", 40, 22), o("O4", 7, 7), o("O5", 21, 7)],
+        defense: [d("X1", "O1", { x: 10, y: 22 }), d("X2", "O2", { x: 19, y: 22 }), d("X3", "O3", { x: 36, y: 16 }), d("X4", "O2", { x: 11, y: 10 }), d("X5", "O3", { x: 26, y: 8 })],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 18, y: 28 }, { x: 21, y: 7 }]), ln("pass", "offense", [{ x: 40, y: 22 }, { x: 21, y: 7 }])],
+        note: "5 slips the screen instead of holding it — 3 hits him cutting to the rim before the back line can rotate over.",
+        ballArrival: [{ x: 40, y: 22 }, { x: 21, y: 7 }],
+      },
+      {
+        offense: [o("O1", 8, 27), o("O2", 16, 19), o("O3", 40, 22), o("O4", 7, 7), o("O5", 21, 7)],
+        defense: [d("X1", "O1", { x: 10, y: 22 }), d("X2", "O2", { x: 19, y: 22 }), d("X3", "O3", { x: 35, y: 15 }), d("X4", "O2", { x: 11, y: 10 }), d("X5", "O3", { x: 23, y: 8 })],
+        ballHolder: "O5",
+        lines: [],
+        note: "Finish at the rim off the slip — the zone's back line never got there.",
+      },
+    ],
+    "Action named and generally inspired by a short-form coaching clip posted by \"Coach B 0.3\" (titled \"3-2 Flare to Slip with Pin 2\") — the flare-into-a-slip and the simultaneous pin-down for 2 are standard, widely-taught actions. The 1-2-2 look and the specific zone reactions shown here are my own construction, not copied from that clip."
+  ),
 ];
