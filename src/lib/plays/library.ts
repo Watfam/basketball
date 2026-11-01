@@ -1319,6 +1319,54 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "blob-22",
+    "22",
+    "blob",
+    "Baseline OB vs 2-1-2 Zone",
+    "1 and 2 split to the corners together to pull the zone's baseline wide, then 5 screens the zone's lone middle defender so 4 can curl over it into the gap right at the rim for the catch and score.",
+    [
+      "1 and 2: split hard and at the same time — a slow split lets the zone's baseline stay home instead of widening out to the corners.",
+      "5: screen the middle defender, not air — hold it long enough for 4 to actually clear it before releasing.",
+      "4: read the screen, then get flat to the rim. You want to catch it right at the front of the goal, not drifting out toward the block.",
+      "3 (inbounder): this is a quick-hitter — the catch at the rim needs to beat the zone's back line rotating over from the corner.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 16), o("O2", 25, 22), o("O3", 34, -1.4), o("O4", 18.5, 8.5), o("O5", 31.5, 8.5)],
+        defense: [d("X1", "O1", { x: 17, y: 20 }), d("X2", "O2", { x: 33, y: 20 }), d("X3", "O1", { x: 25, y: 13 }), d("X4", "O2", { x: 16, y: 6.5 }), d("X5", "O1", { x: 34, y: 6.5 })],
+        ballHolder: "O3",
+        lines: [],
+        note: "BLOB vs a 2-1-2 zone: 1 and 2 stacked on the lane line, splitting the free-throw line. 4 on the opposite block, 5 on the ball-side block, 3 inbounding.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 4, 4), o("O3", 34, -1.4), o("O4", 18.5, 8.5), o("O5", 31.5, 8.5)],
+        defense: [d("X1", "O1", { x: 19, y: 18 }), d("X2", "O2", { x: 31, y: 18 }), d("X3", "O1", { x: 21, y: 11 }), d("X4", "O2", { x: 10, y: 6 }), d("X5", "O1", { x: 38, y: 6 })],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 25, y: 16 }, { x: 46, y: 4 }]), ln("cut", "offense", [{ x: 25, y: 22 }, { x: 4, y: 4 }])],
+        note: "1 and 2 split to the corners at the same time, pulling the zone's baseline defenders wide and clearing the middle.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 4, 4), o("O3", 34, -1.4), o("O4", 28, 7), o("O5", 25, 12.5)],
+        defense: [d("X1", "O1", { x: 19, y: 18 }), d("X2", "O2", { x: 31, y: 18 }), d("X3", "O1", { x: 22, y: 13 }), d("X4", "O2", { x: 11, y: 6 }), d("X5", "O1", { x: 34, y: 7 })],
+        ballHolder: "O3",
+        lines: [
+          ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 25, y: 12.5 }]),
+          ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 25, y: 14 }, { x: 28, y: 7 }]),
+        ],
+        note: "5 slides over to screen the zone's middle defender. 4 comes over the top of it to the ball side, right between the block and the rim.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 4, 4), o("O3", 34, -1.4), o("O4", 28, 7), o("O5", 25, 12.5)],
+        defense: [d("X1", "O1", { x: 19, y: 18 }), d("X2", "O2", { x: 31, y: 18 }), d("X3", "O1", { x: 22, y: 13 }), d("X4", "O2", { x: 11, y: 6 }), d("X5", "O1", { x: 31, y: 7 })],
+        ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 34, y: -1.4 }, { x: 28, y: 7 }])],
+        note: "3 fires it in to 4 for the score — the zone's middle defender is still hung up on the screen, and the back line rotates a step too late.",
+        ballArrival: [{ x: 34, y: -1.4 }, { x: 28, y: 7 }],
+      },
+    ]
+  ),
+
+  play(
     "slob-box",
     "Box SLOB",
     "slob",
