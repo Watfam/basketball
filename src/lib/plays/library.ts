@@ -1367,6 +1367,76 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "blob-22-counter",
+    "22 Counter",
+    "blob",
+    "Baseline OB vs 2-1-2 Zone",
+    "Same 22 look and the same first read (1 to the corner, 5 screening the middle), but 4 doesn't curl to the rim — he clears all the way out to the slot above the arc, with 2 faking the opposite corner before mirroring him on the other side. The ball goes through 1 instead of straight to 4, then 1 screens away for the inbounder before running the baseline himself — three catch-and-shoot threes and a sealed post, all live off one entry.",
+    [
+      "4: sell the cut across the lane like the rim is the target — the defense has seen 22 rolling to the block, and the slot pop only works if they bite on that first.",
+      "2: the fake toward the corner needs to look real — a half-hearted one lets the defense sit on the mirror spot before you get there.",
+      "1: after the pass to 4, get into the screen for 3 right away — he's standing on the sideline with nowhere to go until you free him.",
+      "4 on the catch: 3 for the three, then 5 sealed inside, then swing it to 2 — 1 is trailing the baseline the whole way and is the last read, spotting up in the far corner.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 16), o("O2", 25, 22), o("O3", 34, -1.4), o("O4", 18.5, 8.5), o("O5", 31.5, 8.5)],
+        defense: [d("X1", "O1", { x: 17, y: 20 }), d("X2", "O2", { x: 33, y: 20 }), d("X3", "O1", { x: 20, y: 13 }), d("X4", "O2", { x: 16, y: 6.5 }), d("X5", "O1", { x: 34, y: 6.5 })],
+        ballHolder: "O3",
+        lines: [],
+        note: "BLOB vs a 2-1-2 zone — the same 22 look: 1 and 2 stacked on the lane line, 4 on the opposite block, 5 on the ball-side block, 3 inbounding.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 16, 24), o("O3", 34, -1.4), o("O4", 34, 24), o("O5", 25, 12.5)],
+        defense: [d("X1", "O1", { x: 18, y: 22 }), d("X2", "O2", { x: 32, y: 22 }), d("X3", "O1", { x: 21, y: 13 }), d("X4", "O2", { x: 18, y: 8 }), d("X5", "O1", { x: 40, y: 6 })],
+        ballHolder: "O3",
+        lines: [
+          ln("cut", "offense", [{ x: 25, y: 16 }, { x: 46, y: 4 }]),
+          ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 25, y: 12.5 }]),
+          ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 28, y: 11 }, { x: 34, y: 24 }]),
+          ln("cut", "offense", [{ x: 25, y: 22 }, { x: 10, y: 10 }, { x: 16, y: 24 }]),
+        ],
+        note: "1 cuts to the corner and 5 slides to screen the zone's middle defender — same as 22. But 4 cuts across the lane and clears all the way out past the arc to the slot, in line with 3, while 2 fakes toward the opposite corner and mirrors him on the other side.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 16, 24), o("O3", 34, -1.4), o("O4", 34, 24), o("O5", 25, 12.5)],
+        defense: [d("X1", "O1", { x: 18, y: 22 }), d("X2", "O2", { x: 32, y: 22 }), d("X3", "O1", { x: 21, y: 13 }), d("X4", "O2", { x: 18, y: 8 }), d("X5", "O1", { x: 43, y: 5 })],
+        ballHolder: "O1",
+        lines: [ln("pass", "offense", [{ x: 34, y: -1.4 }, { x: 46, y: 4 }])],
+        note: "3 inbounds it to 1 in the corner.",
+        ballArrival: [{ x: 34, y: -1.4 }, { x: 46, y: 4 }],
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 16, 24), o("O3", 34, -1.4), o("O4", 34, 24), o("O5", 25, 12.5)],
+        defense: [d("X1", "O1", { x: 18, y: 22 }), d("X2", "O2", { x: 32, y: 22 }), d("X3", "O1", { x: 21, y: 13 }), d("X4", "O2", { x: 18, y: 8 }), d("X5", "O1", { x: 38, y: 7 })],
+        ballHolder: "O4",
+        lines: [ln("pass", "offense", [{ x: 46, y: 4 }, { x: 34, y: 24 }])],
+        note: "1 reverses it to 4 in the slot.",
+        ballArrival: [{ x: 46, y: 4 }, { x: 34, y: 24 }],
+      },
+      {
+        offense: [o("O1", 40, 3), o("O2", 16, 24), o("O3", 46, 4), o("O4", 34, 24), o("O5", 25, 8)],
+        defense: [d("X1", "O1", { x: 18, y: 22 }), d("X2", "O2", { x: 32, y: 22 }), d("X3", "O1", { x: 21, y: 9 }), d("X4", "O2", { x: 16, y: 10 }), d("X5", "O1", { x: 36, y: 6 })],
+        ballHolder: "O4",
+        lines: [
+          ln("screen", "offense", [{ x: 46, y: 4 }, { x: 40, y: 3 }]),
+          ln("cut", "offense", [{ x: 34, y: -1.4 }, { x: 46, y: 4 }]),
+          ln("cut", "offense", [{ x: 25, y: 12.5 }, { x: 25, y: 8 }]),
+        ],
+        note: "1 down screens for 3, who cuts in off the baseline to fill the corner 1 just left. 5 seals inside at the same time.",
+      },
+      {
+        offense: [o("O1", 40, 3), o("O2", 16, 24), o("O3", 46, 4), o("O4", 34, 24), o("O5", 25, 8)],
+        defense: [d("X1", "O1", { x: 18, y: 22 }), d("X2", "O2", { x: 32, y: 22 }), d("X3", "O1", { x: 21, y: 9 }), d("X4", "O2", { x: 16, y: 10 }), d("X5", "O1", { x: 38, y: 5 })],
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 34, y: 24 }, { x: 46, y: 4 }])],
+        note: "4 reads it — 3's open in the corner for the three, still a step ahead of 5's man, who got hung up on 1's screen. (5 sealed inside, then 2, then 1 trailing the baseline to the far corner, are the reads behind it.)",
+        ballArrival: [{ x: 34, y: 24 }, { x: 46, y: 4 }],
+      },
+    ]
+  ),
+
+  play(
     "slob-box",
     "Box SLOB",
     "slob",
