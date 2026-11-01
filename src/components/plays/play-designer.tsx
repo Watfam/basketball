@@ -14,7 +14,7 @@ import { FormError, Input, TextArea } from "@/components/ui/field";
 import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
-import { duplicateFrameAt, nextFrame, reattachLines, removeFrameAt } from "@/lib/plays/frames";
+import { duplicateFrameAt, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "@/lib/plays/frames";
 import { formationFrame, type Formation } from "@/lib/plays/formations";
 import { mirrorFrames } from "@/lib/plays/mirror";
 import { resolveDefense } from "@/lib/plays/resolve";
@@ -134,11 +134,17 @@ export function PlayDesigner({
   function movePlayer(id: OffenseId | DefenseId, pos: Point) {
     updateActive((f) => {
       const fromPos = id.startsWith("O") ? f.offense.find((o) => o.id === id)?.pos : resolveDefense(f).find((d) => d.id === id)?.pos;
-      const lines = fromPos ? reattachLines(f.lines, fromPos, pos) : f.lines;
-      if (id.startsWith("O")) {
-        return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)), lines };
+      if (!fromPos) {
+        if (id.startsWith("O")) return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)) };
+        return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)) };
       }
-      return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)), lines };
+      const lines = reattachLines(f.lines, fromPos, pos);
+      const arrivals = f.arrivals?.[id] ? { ...f.arrivals, [id]: reattachArrival(f.arrivals[id], fromPos, pos) } : f.arrivals;
+      const ballArrival = id === f.ballHolder ? reattachArrival(f.ballArrival, fromPos, pos) : f.ballArrival;
+      if (id.startsWith("O")) {
+        return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)), lines, arrivals, ballArrival };
+      }
+      return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)), lines, arrivals };
     });
   }
 
@@ -307,7 +313,7 @@ export function PlayDesigner({
   }
 
   if (mode === "film") {
-    return <FilmPlayer frames={frames} onExit={() => setMode("edit")} region={region} onFlip={flip} />;
+    return <FilmPlayer frames={frames} onExit={() => setMode("edit")} region={region} onFlip={flip} startAtStep={activeIndex} />;
   }
 
   return (

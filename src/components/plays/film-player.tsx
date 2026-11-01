@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { PlayCourt } from "@/components/plays/play-court";
 import { haptic } from "@/lib/haptics";
 import type { Region } from "@/lib/plays/bounds";
@@ -11,14 +12,27 @@ export function FilmPlayer({
   onExit,
   region,
   onFlip,
+  startAtStep,
 }: {
   frames: Frame[];
   onExit: () => void;
   region?: Region;
   /** Mirrors the play left-right across the court — present only when the caller owns the frame data to flip. */
   onFlip?: () => void;
+  /** Opens straight into the ONE transition leading into this step (from the hold right before it), then pauses there, instead of autoplaying the whole thing from the start — "show me just what happens between step i-1 and step i." Omit for the normal full-play autoplay. */
+  startAtStep?: number;
 }) {
-  const { clock, shown, ballOverride, fromFrame, playing, speed, setSpeed, togglePlay, scrub, fraction } = usePlayClock(frames, { autoplay: true });
+  const { clock, shown, ballOverride, fromFrame, playing, speed, setSpeed, togglePlay, scrub, jumpToStep, fraction } = usePlayClock(frames, {
+    autoplay: startAtStep === undefined,
+  });
+
+  useEffect(() => {
+    if (startAtStep !== undefined) jumpToStep(startAtStep);
+    // Mount-only: jumpToStep is a fresh function every render, and re-running this on every render
+    // (rather than once, for the initial jump this component opened with) would fight the viewer's
+    // own play/pause/scrub from then on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">

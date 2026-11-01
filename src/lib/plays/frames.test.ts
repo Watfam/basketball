@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { duplicateFrameAt, nextFrame, reattachLines, removeFrameAt } from "./frames.ts";
+import { duplicateFrameAt, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "./frames.ts";
 import type { DrawnLine, Frame } from "./types.ts";
 
 const base: Frame = {
@@ -136,4 +136,20 @@ test("reattachLines requires a tight match — a line that merely passes a few f
   const lines: DrawnLine[] = [{ id: "l1", type: "cut", color: "offense", points: [{ x: 22, y: 30 }, { x: 10, y: 20 }] }];
   const next = reattachLines(lines, { x: 25, y: 32 }, { x: 25, y: 10 });
   assert.deepEqual(next, lines);
+});
+
+test("reattachArrival moves a cached arrival path's endpoint to follow a player moved after nextFrame() recorded it", () => {
+  const path = [{ x: 10, y: 10 }, { x: 30, y: 10 }];
+  const next = reattachArrival(path, { x: 30, y: 10 }, { x: 30, y: 40 });
+  assert.deepEqual(next, [{ x: 10, y: 10 }, { x: 30, y: 40 }]);
+});
+
+test("reattachArrival leaves the path alone if its end isn't actually sitting on the moved player's old spot", () => {
+  const path = [{ x: 10, y: 10 }, { x: 30, y: 10 }];
+  const next = reattachArrival(path, { x: 5, y: 5 }, { x: 5, y: 50 });
+  assert.deepEqual(next, path);
+});
+
+test("reattachArrival passes through undefined unchanged — a player with no recorded arrival has nothing to fix up", () => {
+  assert.equal(reattachArrival(undefined, { x: 30, y: 10 }, { x: 30, y: 40 }), undefined);
 });

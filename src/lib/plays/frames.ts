@@ -58,6 +58,23 @@ export function reattachLines(lines: DrawnLine[], fromPos: Point, toPos: Point):
 }
 
 /**
+ * The same re-pointing as reattachLines, but for a single cached arrival path (`Frame.arrivals[id]`
+ * or `Frame.ballArrival`) rather than a visible, drawn `DrawnLine` — nextFrame() sets these when it
+ * auto-advances a step, and until now nothing ever touched them again. Move a player on the frame he
+ * just arrived at (fixing up exactly where he ends up) and the cached path keeps ending at his old
+ * spot — invisible at rest, but playback follows it right up to the old point and only then snaps to
+ * his real new one, which is the "jump back, then move" glitch this closes.
+ */
+export function reattachArrival(path: Point[] | undefined, fromPos: Point, toPos: Point): Point[] | undefined {
+  if (!path || path.length === 0) return path;
+  const end = path[path.length - 1];
+  if (distance(end, fromPos) >= LINE_FOLLOW_EPSILON) return path;
+  const next = [...path];
+  next[next.length - 1] = toPos;
+  return next;
+}
+
+/**
  * Copies the current frame and moves each player to the end of any cut, dribble or screen line that
  * starts within about 3 ft of him — including a formula-driven defender, checked against wherever his
  * coverage currently has him standing, not just a Manual one. A pass line starting at the ball handler
