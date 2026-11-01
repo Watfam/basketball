@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import type { Region } from "@/lib/plays/bounds";
 import { distance, length, maxDeviationFromChord, smoothPath, sub, trimEnd, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
 import { resolveDefense } from "@/lib/plays/resolve";
-import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineColor, type LineType, type OffenseId } from "@/lib/plays/types";
+import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
 
 export type Tool = "move" | "pass" | "cut" | "dribble" | "screen" | "erase";
 
@@ -225,7 +225,7 @@ export function PlayCourt({
   /** The line currently selected for editing (Move tool only) — its endpoints get draggable handles. */
   selectedLineId?: string | null;
   onSelectLine?: (id: string | null) => void;
-  onEditLineEndpoint?: (lineId: string, which: "start" | "end", point: Point, color?: LineColor) => void;
+  onEditLineEndpoint?: (lineId: string, which: "start" | "end", point: Point) => void;
   /** The ball's actual position mid-flight along a pass during playback — overrides deriving it from the holder. */
   ballOverride?: Point;
   /** False during film playback: no drag, draw, or tap-to-open-sheet. */
@@ -390,9 +390,13 @@ export function PlayCourt({
       lineGesture.current = null;
       const p = clientToCourt(svg!, e.clientX, e.clientY);
       if (lg.which === "start") {
+        // Deliberately doesn't touch color here, unlike a freshly-drawn line — dragging a handle is
+        // almost always "follow this same guy to where he actually is now," and recoloring on every
+        // such nudge (which an edit can easily land a couple feet from him, nearer a defender
+        // standing close by) turned a small correction into an unwanted team-color flip. A line's
+        // color is fixed once it's drawn; erase and redraw it to put it on a different team.
         const snap = nearestPlayer(p, DRAW_START_HIT_R);
-        const color: LineColor = snap ? (snap.kind === "offense" ? "offense" : "defense") : "black";
-        onEditLineEndpoint?.(lg.lineId, "start", snap ? snap.pos : p, color);
+        onEditLineEndpoint?.(lg.lineId, "start", snap ? snap.pos : p);
       } else {
         const snap = nearestPlayer(p);
         onEditLineEndpoint?.(lg.lineId, "end", snap ? snap.pos : p);

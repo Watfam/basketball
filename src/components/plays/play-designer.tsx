@@ -132,19 +132,32 @@ export function PlayDesigner({
   }
 
   function movePlayer(id: OffenseId | DefenseId, pos: Point) {
-    updateActive((f) => {
+    setFrames((fs) => {
+      const f = fs[activeIndex];
       const fromPos = id.startsWith("O") ? f.offense.find((o) => o.id === id)?.pos : resolveDefense(f).find((d) => d.id === id)?.pos;
-      if (!fromPos) {
-        if (id.startsWith("O")) return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)) };
-        return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)) };
-      }
-      const lines = reattachLines(f.lines, fromPos, pos);
-      const arrivals = f.arrivals?.[id] ? { ...f.arrivals, [id]: reattachArrival(f.arrivals[id], fromPos, pos) } : f.arrivals;
-      const ballArrival = id === f.ballHolder ? reattachArrival(f.ballArrival, fromPos, pos) : f.ballArrival;
-      if (id.startsWith("O")) {
-        return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)), lines, arrivals, ballArrival };
-      }
-      return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)), lines, arrivals };
+
+      return fs.map((fr, i) => {
+        if (i === activeIndex) {
+          if (!fromPos) {
+            if (id.startsWith("O")) return { ...fr, offense: fr.offense.map((o) => (o.id === id ? { ...o, pos } : o)) };
+            return { ...fr, defense: fr.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)) };
+          }
+          const lines = reattachLines(fr.lines, fromPos, pos);
+          const arrivals = fr.arrivals?.[id] ? { ...fr.arrivals, [id]: reattachArrival(fr.arrivals[id], fromPos, pos) } : fr.arrivals;
+          const ballArrival = id === fr.ballHolder ? reattachArrival(fr.ballArrival, fromPos, pos) : fr.ballArrival;
+          if (id.startsWith("O")) {
+            return { ...fr, offense: fr.offense.map((o) => (o.id === id ? { ...o, pos } : o)), lines, arrivals, ballArrival };
+          }
+          return { ...fr, defense: fr.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)), lines };
+        }
+        // A step's OWN lines are drawn against the player's spot in whichever step borders this
+        // transition — the step right before it (an arrow ending here) or right after it (an arrow
+        // starting from here). Moving him here means either neighbor can be holding a line whose end
+        // still points at the spot he just left; this is what keeps those catching up too, not just
+        // the step actually being edited.
+        if (!fromPos || (i !== activeIndex - 1 && i !== activeIndex + 1)) return fr;
+        return { ...fr, lines: reattachLines(fr.lines, fromPos, pos) };
+      });
     });
   }
 
@@ -159,7 +172,8 @@ export function PlayDesigner({
     setSelectedLineId((s) => (s === id ? null : s));
   }
 
-  function editLineEndpoint(lineId: string, which: "start" | "end", point: Point, color?: LineColor) {
+  /** A line's color is fixed once drawn — only ever set at creation, never re-derived from proximity when you drag a handle afterward. */
+  function editLineEndpoint(lineId: string, which: "start" | "end", point: Point) {
     recordHistory();
     haptic("tap");
     updateActive((f) => ({
@@ -167,7 +181,7 @@ export function PlayDesigner({
       lines: f.lines.map((l) => {
         if (l.id !== lineId) return l;
         const points = which === "start" ? [point, ...l.points.slice(1)] : [...l.points.slice(0, -1), point];
-        return { ...l, points, color: color ?? l.color };
+        return { ...l, points };
       }),
     }));
   }
