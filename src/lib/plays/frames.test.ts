@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { duplicateFrameAt, nextFrame, removeFrameAt } from "./frames.ts";
-import type { Frame } from "./types.ts";
+import { duplicateFrameAt, nextFrame, reattachLines, removeFrameAt } from "./frames.ts";
+import type { DrawnLine, Frame } from "./types.ts";
 
 const base: Frame = {
   offense: [
@@ -110,4 +110,30 @@ test("removing a frame drops it and clears the next frame's stale arrival path",
 test("removing the last remaining frame is refused", () => {
   const frames = [base];
   assert.deepEqual(removeFrameAt(frames, 0), frames);
+});
+
+test("reattachLines moves a line's endpoint when it sat exactly on the player who just moved", () => {
+  const lines: DrawnLine[] = [{ id: "l1", type: "cut", color: "offense", points: [{ x: 25, y: 32 }, { x: 10, y: 20 }] }];
+  const next = reattachLines(lines, { x: 25, y: 32 }, { x: 25, y: 10 });
+  assert.deepEqual(next[0].points[0], { x: 25, y: 10 });
+  assert.deepEqual(next[0].points[1], { x: 10, y: 20 });
+});
+
+test("reattachLines moves the END of a line too, and both ends if a degenerate line touches the old spot twice", () => {
+  const lines: DrawnLine[] = [{ id: "l1", type: "pass", color: "offense", points: [{ x: 10, y: 20 }, { x: 25, y: 32 }] }];
+  const next = reattachLines(lines, { x: 25, y: 32 }, { x: 25, y: 10 });
+  assert.deepEqual(next[0].points[0], { x: 10, y: 20 });
+  assert.deepEqual(next[0].points[1], { x: 25, y: 10 });
+});
+
+test("reattachLines leaves a line alone if neither end actually sat on the moved player's old spot", () => {
+  const lines: DrawnLine[] = [{ id: "l1", type: "cut", color: "offense", points: [{ x: 10, y: 20 }, { x: 15, y: 25 }] }];
+  const next = reattachLines(lines, { x: 25, y: 32 }, { x: 25, y: 10 });
+  assert.deepEqual(next, lines);
+});
+
+test("reattachLines requires a tight match — a line that merely passes a few feet from the old spot is not dragged along", () => {
+  const lines: DrawnLine[] = [{ id: "l1", type: "cut", color: "offense", points: [{ x: 22, y: 30 }, { x: 10, y: 20 }] }];
+  const next = reattachLines(lines, { x: 25, y: 32 }, { x: 25, y: 10 });
+  assert.deepEqual(next, lines);
 });

@@ -32,6 +32,31 @@ export function findMovementLine(fromLines: DrawnLine[], toLines: DrawnLine[], t
   return candidates[0];
 }
 
+/** How close a line's endpoint must sit to a player's spot to count as "drawn onto him" — tight, so a line that merely passes near him, or deliberately ends a couple feet short, doesn't get dragged along too when he moves. */
+const LINE_FOLLOW_EPSILON = 0.3;
+
+/**
+ * Re-points any line whose end sat exactly on `fromPos` (a player about to move away from it) to
+ * `toPos` instead. A line is never tagged to a player's id — "was it drawn onto him" is answered
+ * purely by whether it's currently sitting on his spot — so this works the same for a brand new line
+ * someone just drew and for hand-authored library content, with no migration needed either way.
+ * Without this, dragging, nudging or swapping a player leaves every line that touched him pointing at
+ * the empty space he used to stand in.
+ */
+export function reattachLines(lines: DrawnLine[], fromPos: Point, toPos: Point): DrawnLine[] {
+  return lines.map((l) => {
+    const start = l.points[0];
+    const end = l.points[l.points.length - 1];
+    const startHit = distance(start, fromPos) < LINE_FOLLOW_EPSILON;
+    const endHit = distance(end, fromPos) < LINE_FOLLOW_EPSILON;
+    if (!startHit && !endHit) return l;
+    const points = [...l.points];
+    if (startHit) points[0] = toPos;
+    if (endHit) points[points.length - 1] = toPos;
+    return { ...l, points };
+  });
+}
+
 /**
  * Copies the current frame and moves each player to the end of any cut, dribble or screen line that
  * starts within about 3 ft of him — including a formula-driven defender, checked against wherever his

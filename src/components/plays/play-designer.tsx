@@ -14,9 +14,10 @@ import { FormError, Input, TextArea } from "@/components/ui/field";
 import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
-import { duplicateFrameAt, nextFrame, removeFrameAt } from "@/lib/plays/frames";
+import { duplicateFrameAt, nextFrame, reattachLines, removeFrameAt } from "@/lib/plays/frames";
 import { formationFrame, type Formation } from "@/lib/plays/formations";
 import { mirrorFrames } from "@/lib/plays/mirror";
+import { resolveDefense } from "@/lib/plays/resolve";
 import { addDefense, addOffense, removeDefense, removeOffense } from "@/lib/plays/roster";
 import { DEFENSE_IDS, EXAMPLE_PLAY, OFFENSE_IDS, type DefenseId, type DrawnLine, type Frame, type LineColor, type OffenseId } from "@/lib/plays/types";
 import { haptic } from "@/lib/haptics";
@@ -132,10 +133,12 @@ export function PlayDesigner({
 
   function movePlayer(id: OffenseId | DefenseId, pos: Point) {
     updateActive((f) => {
+      const fromPos = id.startsWith("O") ? f.offense.find((o) => o.id === id)?.pos : resolveDefense(f).find((d) => d.id === id)?.pos;
+      const lines = fromPos ? reattachLines(f.lines, fromPos, pos) : f.lines;
       if (id.startsWith("O")) {
-        return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)) };
+        return { ...f, offense: f.offense.map((o) => (o.id === id ? { ...o, pos } : o)), lines };
       }
-      return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)) };
+      return { ...f, defense: f.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)), lines };
     });
   }
 
@@ -179,6 +182,30 @@ export function PlayDesigner({
 
   function giveBall(id: OffenseId) {
     updateActive((f) => ({ ...f, ballHolder: id }));
+  }
+
+  /** Where a player actually stands right now — an offensive player's own pos, or a defender's live resolved spot (which may come from a coverage formula, not a stored field). The one source both nudge and swap read from before moving anyone. */
+  function currentPos(id: OffenseId | DefenseId): Point | undefined {
+    return id.startsWith("O") ? frame.offense.find((o) => o.id === id)?.pos : resolveDefense(frame).find((d) => d.id === id)?.pos;
+  }
+
+  function nudgePlayer(id: OffenseId | DefenseId, dx: number, dy: number) {
+    const pos = currentPos(id);
+    if (!pos) return;
+    haptic("tap");
+    recordHistory();
+    movePlayer(id, { x: pos.x + dx, y: pos.y + dy });
+  }
+
+  /** Trades two players' spots in this step — each keeps his own identity (the ball, his coverage choice, everything), just standing where the other used to. Any line drawn onto either of them follows, the same as a drag. */
+  function swapPlayers(a: OffenseId | DefenseId, b: OffenseId | DefenseId) {
+    const posA = currentPos(a);
+    const posB = currentPos(b);
+    if (!posA || !posB) return;
+    haptic("tap");
+    recordHistory();
+    movePlayer(a, posB);
+    movePlayer(b, posA);
   }
 
   function setNote(note: string) {
@@ -502,6 +529,8 @@ export function PlayDesigner({
           onSetCoverage={setCoverage}
           onSetMan={setMan}
           onGiveBall={giveBall}
+          onNudge={nudgePlayer}
+          onSwap={swapPlayers}
         />
       )}
     </div>

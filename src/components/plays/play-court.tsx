@@ -301,14 +301,10 @@ export function PlayCourt({
       return;
     }
 
-    const hit = nearestPlayer(p);
-    if (hit) {
-      onSelectLine?.(null);
-      gesture.current = { kind: hit.kind, id: hit.id, startClient: { x: e.clientX, y: e.clientY }, startPos: hit.pos, moved: false };
-      tryCapture(svg, e.pointerId, false);
-      return;
-    }
-
+    // A selected line's own handle wins here even when it sits exactly on a player (which it
+    // usually does — a line is almost always drawn onto someone) — once you've deliberately
+    // selected the line, that's a clearer signal than "something is also standing at this point."
+    // Any other tap location still grabs whichever player is nearest, same as always.
     const selected = selectedLineId ? frame.lines.find((l) => l.id === selectedLineId) : undefined;
     if (selected) {
       const startD = distance(p, selected.points[0]);
@@ -320,6 +316,14 @@ export function PlayCourt({
         tryCapture(svg, e.pointerId, false);
         return;
       }
+    }
+
+    const hit = nearestPlayer(p);
+    if (hit) {
+      onSelectLine?.(null);
+      gesture.current = { kind: hit.kind, id: hit.id, startClient: { x: e.clientX, y: e.clientY }, startPos: hit.pos, moved: false };
+      tryCapture(svg, e.pointerId, false);
+      return;
     }
 
     const tapped = nearestLine(p);
