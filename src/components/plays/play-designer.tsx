@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { savePlayEditAction, saveMasterOverrideAction } from "@/app/actions/play-edits";
+import { resetPlayEditAction, savePlayEditAction, saveMasterOverrideAction } from "@/app/actions/play-edits";
 import { FilmPlayer } from "@/components/plays/film-player";
 import { FrameStrip } from "@/components/plays/frame-strip";
 import { PlayCourt, type Tool } from "@/components/plays/play-court";
@@ -68,6 +68,9 @@ export function PlayDesigner({
   const [masterConfirmArmed, setMasterConfirmArmed] = useState(false);
   const [masterSaveState, setMasterSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [masterSaveError, setMasterSaveError] = useState<string | null>(null);
+  const [resetConfirmArmed, setResetConfirmArmed] = useState(false);
+  const [resetState, setResetState] = useState<"idle" | "resetting">("idle");
+  const [resetError, setResetError] = useState<string | null>(null);
   // Off by default — the court at its real size and spacing first, since an auto-zoomed crop the
   // coach never asked for reads as the view randomly changing on them. "Fit to play" is there to
   // opt into when a play uses only a fraction of the floor and the action would otherwise sit tiny
@@ -326,6 +329,27 @@ export function PlayDesigner({
     setTimeout(() => setMasterSaveState("idle"), 2000);
   }
 
+  /** Deletes this team's own saved edit, falling back to the master copy (or the stock library version, if nobody's corrected that either) — for undoing a drift you didn't mean to save, not something to reach for by accident. Reloads on success since the reverted data comes from the server, not anything already sitting in this component's state. */
+  async function resetToDefault() {
+    if (!libraryPlayId) return;
+    if (!resetConfirmArmed) {
+      haptic("tap");
+      setResetConfirmArmed(true);
+      return;
+    }
+    haptic("tap");
+    setResetState("resetting");
+    setResetError(null);
+    const result = await resetPlayEditAction(teamId, libraryPlayId);
+    if (result.error) {
+      setResetConfirmArmed(false);
+      setResetState("idle");
+      setResetError(result.error);
+      return;
+    }
+    window.location.reload();
+  }
+
   if (mode === "film") {
     return <FilmPlayer frames={frames} onExit={() => setMode("edit")} region={region} onFlip={flip} startAtStep={activeIndex} />;
   }
@@ -466,6 +490,30 @@ export function PlayDesigner({
                 </Button>
               )}
               {masterSaveError && <FormError className="mt-1">{masterSaveError}</FormError>}
+            </div>
+
+            <div className="space-y-2 border-t border-line pt-3">
+              <p className="text-[11px] text-foreground-mute">
+                Drops your team&apos;s own saved edit to this play and falls back to the master copy (or the stock version, if nobody&apos;s corrected that). For undoing a drift you didn&apos;t mean to save — not for every small tweak.
+              </p>
+              {resetConfirmArmed ? (
+                <div role="alertdialog" aria-label="Drop your team's edit and go back to the default?" className="rounded-xl border border-danger/40 bg-danger/10 px-3 py-2.5">
+                  <p className="text-center text-xs font-semibold text-foreground">Drop your team&apos;s edit and go back to the default?</p>
+                  <div className="mt-2 flex gap-2">
+                    <Button variant="danger" size="sm" className="flex-1" onClick={resetToDefault} disabled={resetState === "resetting"}>
+                      {resetState === "resetting" ? "Resetting…" : "Yes, reset"}
+                    </Button>
+                    <Button variant="secondary" size="sm" className="flex-1" onClick={() => setResetConfirmArmed(false)} disabled={resetState === "resetting"}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="secondary" size="sm" block onClick={resetToDefault}>
+                  Reset to default
+                </Button>
+              )}
+              {resetError && <FormError className="mt-1">{resetError}</FormError>}
             </div>
           </div>
         </Sheet>
