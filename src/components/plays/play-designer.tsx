@@ -14,7 +14,7 @@ import { FormError, Input, TextArea } from "@/components/ui/field";
 import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
-import { duplicateFrameAt, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "@/lib/plays/frames";
+import { duplicateFrameAt, movePlayerAcrossFrames, nextFrame, removeFrameAt } from "@/lib/plays/frames";
 import { formationFrame, type Formation } from "@/lib/plays/formations";
 import { mirrorFrames } from "@/lib/plays/mirror";
 import { resolveDefense } from "@/lib/plays/resolve";
@@ -135,33 +135,7 @@ export function PlayDesigner({
   }
 
   function movePlayer(id: OffenseId | DefenseId, pos: Point) {
-    setFrames((fs) => {
-      const f = fs[activeIndex];
-      const fromPos = id.startsWith("O") ? f.offense.find((o) => o.id === id)?.pos : resolveDefense(f).find((d) => d.id === id)?.pos;
-
-      return fs.map((fr, i) => {
-        if (i === activeIndex) {
-          if (!fromPos) {
-            if (id.startsWith("O")) return { ...fr, offense: fr.offense.map((o) => (o.id === id ? { ...o, pos } : o)) };
-            return { ...fr, defense: fr.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)) };
-          }
-          const lines = reattachLines(fr.lines, fromPos, pos);
-          const arrivals = fr.arrivals?.[id] ? { ...fr.arrivals, [id]: reattachArrival(fr.arrivals[id], fromPos, pos) } : fr.arrivals;
-          const ballArrival = id === fr.ballHolder ? reattachArrival(fr.ballArrival, fromPos, pos) : fr.ballArrival;
-          if (id.startsWith("O")) {
-            return { ...fr, offense: fr.offense.map((o) => (o.id === id ? { ...o, pos } : o)), lines, arrivals, ballArrival };
-          }
-          return { ...fr, defense: fr.defense.map((d) => (d.id === id ? { ...d, coverage: "manual" as const, manualPos: pos } : d)), lines };
-        }
-        // A step's OWN lines are drawn against the player's spot in whichever step borders this
-        // transition — the step right before it (an arrow ending here) or right after it (an arrow
-        // starting from here). Moving him here means either neighbor can be holding a line whose end
-        // still points at the spot he just left; this is what keeps those catching up too, not just
-        // the step actually being edited.
-        if (!fromPos || (i !== activeIndex - 1 && i !== activeIndex + 1)) return fr;
-        return { ...fr, lines: reattachLines(fr.lines, fromPos, pos) };
-      });
-    });
+    setFrames((fs) => movePlayerAcrossFrames(fs, activeIndex, id, pos));
   }
 
   function addLine(line: Omit<DrawnLine, "id">) {

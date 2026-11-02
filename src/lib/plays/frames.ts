@@ -1,6 +1,6 @@
 import { distance, type Point } from "./geometry";
 import { resolveDefense } from "./resolve";
-import type { DrawnLine, Frame, OffenseId } from "./types";
+import type { DefenseId, DrawnLine, Frame, OffenseId } from "./types";
 
 /** "Starts within about 3 feet of him." */
 export const NEAR = 3;
@@ -71,6 +71,66 @@ export function reattachArrival(path: Point[] | undefined, fromPos: Point, toPos
   if (distance(end, fromPos) >= LINE_FOLLOW_EPSILON) return path;
   const next = [...path];
   next[next.length - 1] = toPos;
+  return next;
+}
+
+/** "Literally the same spot" — much tighter than the line-follow epsilon, since this is only ever meant to catch an exact copy (a step that was just holding him), never a step that happens to leave him nearby for some other reason. */
+const HOLD_EPSILON = 0.05;
+
+function framePos(frame: Frame, id: OffenseId | DefenseId): Point | undefined {
+  if (id.startsWith("O")) return frame.offense.find((o) => o.id === id)?.pos;
+  return resolveDefense(frame).find((d) => d.id === id)?.pos;
+}
+
+function withPlayerAt(frame: Frame, id: OffenseId | DefenseId, fromPos: Point, toPos: Point): Frame {
+  const lines = reattachLines(frame.lines, fromPos, toPos);
+  const arrivals = frame.arrivals?.[id] ? { ...frame.arrivals, [id]: reattachArrival(frame.arrivals[id], fromPos, toPos) } : frame.arrivals;
+  const ballArrival = id === frame.ballHolder ? reattachArrival(frame.ballArrival, fromPos, toPos) : frame.ballArrival;
+  if (id.startsWith("O")) {
+    return { ...frame, offense: frame.offense.map((o) => (o.id === id ? { ...o, pos: toPos } : o)), lines, arrivals, ballArrival };
+  }
+  return { ...frame, defense: frame.defense.map((d) => (d.id === (id as DefenseId) ? { ...d, coverage: "manual" as const, manualPos: toPos } : d)), lines };
+}
+
+/**
+ * Moves a player in one step (`frames[index]`) to `toPos`, then keeps every other step honest about
+ * it: the step right before gets its lines/arrivals re-pointed the same as `reattachLines` (a line
+ * ending here may start from his old spot), and — the point of this function — every step AFTER this
+ * one that was simply holding him at the SAME old spot (no independent position of its own) picks up
+ * the new spot too, cascading forward until a step is reached where he's already somewhere else. That
+ * step (an intentional, different placement) and everything beyond it are left untouched. Without
+ * this, fixing an early step's position leaves every later step that was just copying it forward
+ * pointing at the empty spot he used to stand in — the same staleness `reattachLines` already fixes
+ * for drawn lines, generalized to the stored position itself.
+ */
+export function movePlayerAcrossFrames(frames: Frame[], index: number, id: OffenseId | DefenseId, toPos: Point): Frame[] {
+  const fromPos = framePos(frames[index], id);
+  if (!fromPos) {
+    return frames.map((fr, i) => {
+      if (i !== index) return fr;
+      if (id.startsWith("O")) return { ...fr, offense: fr.offense.map((o) => (o.id === id ? { ...o, pos: toPos } : o)) };
+      return { ...fr, defense: fr.defense.map((d) => (d.id === (id as DefenseId) ? { ...d, coverage: "manual" as const, manualPos: toPos } : d)) };
+    });
+  }
+
+  const next = [...frames];
+  next[index] = withPlayerAt(frames[index], id, fromPos, toPos);
+
+  if (index - 1 >= 0) {
+    const prev = frames[index - 1];
+    next[index - 1] = { ...prev, lines: reattachLines(prev.lines, fromPos, toPos) };
+  }
+
+  for (let i = index + 1; i < frames.length; i++) {
+    const fr = frames[i];
+    const pos = framePos(fr, id);
+    if (!pos || distance(pos, fromPos) >= HOLD_EPSILON) {
+      next[i] = { ...fr, lines: reattachLines(fr.lines, fromPos, toPos) };
+      break;
+    }
+    next[i] = withPlayerAt(fr, id, fromPos, toPos);
+  }
+
   return next;
 }
 

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { duplicateFrameAt, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "./frames.ts";
+import { duplicateFrameAt, movePlayerAcrossFrames, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "./frames.ts";
 import type { DrawnLine, Frame } from "./types.ts";
 
 const base: Frame = {
@@ -152,4 +152,82 @@ test("reattachArrival leaves the path alone if its end isn't actually sitting on
 
 test("reattachArrival passes through undefined unchanged — a player with no recorded arrival has nothing to fix up", () => {
   assert.equal(reattachArrival(undefined, { x: 30, y: 10 }, { x: 30, y: 40 }), undefined);
+});
+
+function holdFrame(pos: { x: number; y: number }, lines: DrawnLine[] = []): Frame {
+  return {
+    offense: [
+      { id: "O1", pos },
+      { id: "O2", pos: { x: 40, y: 40 } },
+      { id: "O3", pos: { x: 41, y: 41 } },
+      { id: "O4", pos: { x: 42, y: 42 } },
+      { id: "O5", pos: { x: 43, y: 43 } },
+    ],
+    defense: [
+      { id: "X1", man: "O1", coverage: "manual", manualPos: pos },
+      { id: "X2", man: "O2", coverage: "softDeny" },
+      { id: "X3", man: "O3", coverage: "softDeny" },
+      { id: "X4", man: "O4", coverage: "softDeny" },
+      { id: "X5", man: "O5", coverage: "softDeny" },
+    ],
+    ballHolder: "O2",
+    lines,
+    note: "",
+  };
+}
+
+test("movePlayerAcrossFrames cascades a hold forward through every step that was just copying the old spot, and stops at the first step with its own position", () => {
+  const frames = [holdFrame({ x: 10, y: 10 }), holdFrame({ x: 10, y: 10 }), holdFrame({ x: 10, y: 10 }), holdFrame({ x: 50, y: 50 })];
+  const next = movePlayerAcrossFrames(frames, 0, "O1", { x: 20, y: 20 });
+  assert.deepEqual(next[0].offense.find((o) => o.id === "O1")!.pos, { x: 20, y: 20 });
+  assert.deepEqual(next[1].offense.find((o) => o.id === "O1")!.pos, { x: 20, y: 20 });
+  assert.deepEqual(next[2].offense.find((o) => o.id === "O1")!.pos, { x: 20, y: 20 });
+  // frame 3 already had its own distinct position — left alone, not overwritten
+  assert.deepEqual(next[3].offense.find((o) => o.id === "O1")!.pos, { x: 50, y: 50 });
+});
+
+test("movePlayerAcrossFrames re-points a later step's line that starts from the old spot, right where the hold streak ends", () => {
+  const frames = [
+    holdFrame({ x: 10, y: 10 }),
+    holdFrame({ x: 10, y: 10 }),
+    holdFrame({ x: 50, y: 50 }, [{ id: "l1", type: "cut", color: "offense", points: [{ x: 10, y: 10 }, { x: 50, y: 50 }] }]),
+  ];
+  const next = movePlayerAcrossFrames(frames, 0, "O1", { x: 20, y: 20 });
+  assert.deepEqual(next[2].lines[0].points[0], { x: 20, y: 20 });
+  assert.deepEqual(next[2].lines[0].points[1], { x: 50, y: 50 });
+});
+
+test("movePlayerAcrossFrames only fixes the immediately preceding step's lines, never its stored position", () => {
+  const frames = [
+    holdFrame({ x: 10, y: 10 }, [{ id: "l1", type: "cut", color: "offense", points: [{ x: 1, y: 1 }, { x: 10, y: 10 }] }]),
+    holdFrame({ x: 10, y: 10 }),
+  ];
+  const next = movePlayerAcrossFrames(frames, 1, "O1", { x: 20, y: 20 });
+  assert.deepEqual(next[0].offense.find((o) => o.id === "O1")!.pos, { x: 10, y: 10 });
+  assert.deepEqual(next[0].lines[0].points[1], { x: 20, y: 20 });
+});
+
+test("movePlayerAcrossFrames cascades a manual defender too, through every held step", () => {
+  const frames = [holdFrame({ x: 10, y: 10 }), holdFrame({ x: 10, y: 10 }), holdFrame({ x: 50, y: 50 })];
+  const next = movePlayerAcrossFrames(frames, 0, "X1", { x: 20, y: 20 });
+  const x1f1 = next[1].defense.find((d) => d.id === "X1")!;
+  assert.equal(x1f1.coverage, "manual");
+  assert.deepEqual(x1f1.manualPos, { x: 20, y: 20 });
+  // frame 2 already had its own distinct position — left alone
+  assert.deepEqual(next[2].defense.find((d) => d.id === "X1")!.manualPos, { x: 50, y: 50 });
+});
+
+test("movePlayerAcrossFrames also cascades a cached arrival path and ballArrival through the held steps", () => {
+  const f0 = holdFrame({ x: 10, y: 10 });
+  const f1: Frame = { ...holdFrame({ x: 10, y: 10 }), arrivals: { O1: [{ x: 0, y: 0 }, { x: 10, y: 10 }] }, ballHolder: "O1", ballArrival: [{ x: 5, y: 5 }, { x: 10, y: 10 }] };
+  const next = movePlayerAcrossFrames([f0, f1], 0, "O1", { x: 20, y: 20 });
+  assert.deepEqual(next[1].arrivals?.O1, [{ x: 0, y: 0 }, { x: 20, y: 20 }]);
+  assert.deepEqual(next[1].ballArrival, [{ x: 5, y: 5 }, { x: 20, y: 20 }]);
+});
+
+test("movePlayerAcrossFrames is a no-op cascade when the player isn't found in the active frame (e.g. removed)", () => {
+  const frames = [holdFrame({ x: 10, y: 10 }), holdFrame({ x: 10, y: 10 })];
+  frames[0].offense = frames[0].offense.filter((o) => o.id !== "O1");
+  const next = movePlayerAcrossFrames(frames, 0, "O1", { x: 20, y: 20 });
+  assert.deepEqual(next[1].offense.find((o) => o.id === "O1")!.pos, { x: 10, y: 10 });
 });
