@@ -68,6 +68,22 @@ export function gameNeedsResult(game: TodayGame, todayIso: string): boolean {
   return game.team_score === null && game.opponent_score === null && !game.notes?.trim();
 }
 
+export type TeamRecord = { wins: number; losses: number; ties: number; played: number };
+
+/** Wins/losses/ties from games with a logged final score — future or undecided games don't count. */
+export function teamRecord(games: TodayGame[]): TeamRecord {
+  let wins = 0;
+  let losses = 0;
+  let ties = 0;
+  for (const g of games) {
+    if (g.team_score === null || g.opponent_score === null) continue;
+    if (g.team_score > g.opponent_score) wins += 1;
+    else if (g.team_score < g.opponent_score) losses += 1;
+    else ties += 1;
+  }
+  return { wins, losses, ties, played: wins + losses + ties };
+}
+
 /**
  * Builds the coach's immediate horizon.
  *

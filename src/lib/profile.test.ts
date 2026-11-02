@@ -17,9 +17,9 @@ test("a damaged or foreign cookie is ignored, not trusted", () => {
   }
 });
 
-test("each profile has a home", () => {
+test("each profile has a home — a coach goes straight into the remembered team, skipping the list, when there is one", () => {
   assert.equal(profileHome({ kind: "player", playerId: id }), `/players/${id}`);
-  assert.equal(profileHome({ kind: "coach", teamId: id }), "/coach");
+  assert.equal(profileHome({ kind: "coach", teamId: id }), `/teams/${id}`);
   assert.equal(profileHome({ kind: "coach", teamId: null }), "/coach");
 });
 

@@ -81,6 +81,17 @@ export default async function Home() {
         : undefined;
 
   const teamCount = (teams ?? []).length;
+  // Same "skip the list, go straight to the team" rule as profileHome: the
+  // remembered team if there is one, else the only team when there's just
+  // one, else fall back to the coach list (multiple teams, nothing chosen
+  // yet).
+  const coachTeamId =
+    remembered?.kind === "coach" && remembered.teamId
+      ? remembered.teamId
+      : teamCount === 1
+        ? (teams ?? [])[0].id
+        : null;
+  const coachHref = coachTeamId ? `/teams/${coachTeamId}` : "/coach";
 
   return (
     <div className="flex flex-1 flex-col">
@@ -158,7 +169,7 @@ export default async function Home() {
           })}
 
           <CardLink
-            href="/coach"
+            href={coachHref}
             className={`flex items-center gap-3.5 px-4 py-3.5 ${remembered?.kind === "coach" ? "border-accent!" : ""}`}
           >
             <span

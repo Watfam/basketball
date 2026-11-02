@@ -3,19 +3,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/avatar";
 import { RememberProfile } from "@/components/remember-profile";
-import { formatPercentage, percentage, seasonStart, totalSessions } from "@/lib/basketball/shooting";
+import { formatPercentage, percentage, seasonStart, totalSessions, weekStart } from "@/lib/basketball/shooting";
 import { HeaderLink } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 
 export const metadata = { title: "Coach" };
-
-/** Monday 00:00 of this week, local time. */
-function weekStart(now = new Date()): Date {
-  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return d;
-}
 
 /**
  * The coach profile's home, in the order Matt chose: the players first

@@ -6,10 +6,12 @@ import { RosterRow } from "@/components/roster-row";
 import { AddRosterForm } from "@/components/add-roster-form";
 import { EmptyState } from "@/components/empty-state";
 import { DEFENSIVE_SCHEMES, OFFENSIVE_SCHEMES, TEAM_FOCUS_AREAS } from "@/lib/basketball/taxonomy";
-import { sortRoster, type RosterMember } from "@/lib/basketball/team";
+import { rosterDisplayName, sortRoster, type RosterMember } from "@/lib/basketball/team";
 import { CoachToday } from "@/components/coach-today";
-import { buildCoachToday, type TodayGame, type TodayPlan } from "@/lib/basketball/today";
+import { buildCoachToday, teamRecord, type TodayGame, type TodayPlan } from "@/lib/basketball/today";
 import { totalMinutes, type PracticeBlock } from "@/lib/basketball/practice";
+import { seasonStart, totalSessions, weekStart, type SessionRow, type SessionTotals } from "@/lib/basketball/shooting";
+import { TeamSnapshot, type SnapshotPlayer } from "@/components/team-snapshot";
 
 function schemeLabel(
   options: readonly { value: string; label: string }[],
@@ -112,6 +114,42 @@ export default async function TeamPage({
     roster.map((m) => m.player_id).filter((id): id is string => Boolean(id))
   );
 
+  // This season's shooting for every roster player who has a real profile —
+  // one extra query, only once we know which ids are linked, so a roster
+  // card can show makes/attempts/% and link straight to that player's
+  // shooting history instead of just a name.
+  const linkedIdList = [...linkedPlayerIds];
+  const { data: rosterShotRows } = linkedIdList.length
+    ? await supabase
+        .schema("hoops")
+        .from("shot_sessions")
+        .select("player_id, label, started_at, makes, attempts")
+        .in("player_id", linkedIdList)
+        .not("ended_at", "is", null)
+        .is("deleted_at", null)
+        .gt("attempts", 0)
+        .gte("started_at", seasonStart().toISOString())
+        .limit(1000)
+    : { data: [] as (SessionRow & { player_id: string })[] };
+
+  const shootingByPlayer = new Map<string, SessionTotals>();
+  for (const id of linkedIdList) {
+    shootingByPlayer.set(
+      id,
+      totalSessions((rosterShotRows ?? []).filter((r) => r.player_id === id))
+    );
+  }
+
+  const weekStartMs = weekStart().getTime();
+  const shotThisWeek = new Set(
+    (rosterShotRows ?? []).filter((r) => Date.parse(r.started_at) >= weekStartMs).map((r) => r.player_id)
+  );
+  const snapshotPlayers: SnapshotPlayer[] = roster
+    .filter((m): m is RosterMember & { player_id: string } => Boolean(m.player_id))
+    .map((m) => ({ id: m.player_id, name: rosterDisplayName(m), shotThisWeek: shotThisWeek.has(m.player_id) }));
+
+  const record = teamRecord((gameRows ?? []) as TodayGame[]);
+
   const defensiveLabel = schemeLabel(
     DEFENSIVE_SCHEMES,
     team.defensive_scheme,
@@ -134,10 +172,12 @@ export default async function TeamPage({
       </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-5 px-4 py-5 sm:py-8">
-        <section className="theme-dark hero-sheen panel-lit relative overflow-hidden rounded-3xl border border-line p-5 shadow-[var(--shadow-panel)]">
-          <div className="court-lines absolute inset-0 opacity-60" aria-hidden />
-          <div className="relative">
-            <div className="flex flex-wrap items-center gap-1.5">
+        <div>
+          <h1 className="font-display text-3xl uppercase leading-none tracking-tight text-foreground">
+            {team.name}
+          </h1>
+          {(defensiveLabel || offensiveLabel || focusLabels.length > 0) && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {defensiveLabel && (
                 <span className="rounded-md bg-accent px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-on-accent">
                   {defensiveLabel}
@@ -148,35 +188,17 @@ export default async function TeamPage({
                   {offensiveLabel}
                 </span>
               )}
+              {focusLabels.map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent"
+                >
+                  {label}
+                </span>
+              ))}
             </div>
-
-            <h1 className="font-display mt-3 text-4xl uppercase leading-[0.92] tracking-tight text-foreground">
-              {team.name}
-            </h1>
-
-            {focusLabels.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {focusLabels.map((label) => (
-                  <span
-                    key={label}
-                    className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent"
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-4 border-t border-line pt-3">
-              <span className="font-display text-2xl leading-none text-foreground">
-                {roster.length}
-              </span>
-              <span className="ml-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-foreground-dim">
-                on the roster
-              </span>
-            </div>
-          </div>
-        </section>
+          )}
+        </div>
 
         {isOwner && (
           <CoachToday
@@ -187,9 +209,11 @@ export default async function TeamPage({
           />
         )}
 
+        {isOwner && <TeamSnapshot record={record} players={snapshotPlayers} />}
+
         <section>
           <h2 className="mb-2.5 font-display text-xl uppercase leading-none tracking-wide text-foreground">
-            Roster
+            Roster · {roster.length}
           </h2>
 
           {memberError ? (
@@ -207,7 +231,12 @@ export default async function TeamPage({
           ) : (
             <Card className="divide-y divide-line px-3">
               {roster.map((member) => (
-                <RosterRow key={member.id} member={member} teamId={teamId} />
+                <RosterRow
+                  key={member.id}
+                  member={member}
+                  teamId={teamId}
+                  shooting={member.player_id ? shootingByPlayer.get(member.player_id) ?? null : null}
+                />
               ))}
             </Card>
           )}

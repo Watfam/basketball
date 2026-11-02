@@ -171,6 +171,13 @@ export function seasonStart(now: Date = new Date()): Date {
   return new Date(year, 7, 1);
 }
 
+/** Monday 00:00 of this week, local time. */
+export function weekStart(now: Date = new Date()): Date {
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+
 export type SessionRow = { label: string | null; started_at: string; makes: number; attempts: number };
 
 export type SessionTotals = {
