@@ -6,6 +6,7 @@ import { RememberProfile } from "@/components/remember-profile";
 import { formatPercentage, seasonStart, totalSessions, weekStart } from "@/lib/basketball/shooting";
 import { HeaderLink } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
+import { CameraSwitchToggle } from "@/components/camera-switch-toggle";
 
 export const metadata = { title: "Coach" };
 
@@ -115,6 +116,8 @@ export default async function CoachHomePage() {
             </Card>
           )}
         </section>
+
+        <CameraSwitchToggle />
 
         <section className="space-y-2.5">
           <div className="flex items-baseline justify-between">
