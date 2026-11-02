@@ -17,13 +17,15 @@ const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] 
   { key: "starred", label: "Starred", categories: null },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
+/** Every real category, in the same order they're grouped in TABS — Starred can hold any of them, unlike a single group's own tab. */
+const ALL_CATEGORIES = TABS.flatMap((t) => t.categories ?? []) as PlayCategory[];
 
 function tabFromParam(v: string | null): TabKey {
   return (TAB_KEYS as string[]).includes(v ?? "") ? (v as TabKey) : "offense";
 }
 
 function chipFromParam(v: string | null, tab: TabKey): "all" | PlayCategory {
-  const cats = TABS.find((t) => t.key === tab)?.categories ?? [];
+  const cats = tab === "starred" ? ALL_CATEGORIES : TABS.find((t) => t.key === tab)?.categories ?? [];
   return v && (cats as string[]).includes(v) ? (v as PlayCategory) : "all";
 }
 
@@ -118,13 +120,22 @@ export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; p
   const activeTab = TABS.find((t) => t.key === tab) ?? TABS[0];
   const q = query.trim().toLowerCase();
 
+  // Which categories actually show up among the starred plays right now — a coach's starred list can
+  // span any category, unlike a single group's own tab, so the filter chips are built from what's
+  // actually there instead of listing all seven regardless.
+  const starredCategories = useMemo(
+    () => ALL_CATEGORIES.filter((c) => allPlays.some((p) => starred.has(p.id) && p.category === c)),
+    [allPlays, starred]
+  );
+  const chipCategories = tab === "starred" ? starredCategories : activeTab.categories;
+
   const groups = useMemo(() => {
     if (q) {
       const results = allPlays.filter((p) => matches(p, q));
       return results.length ? [{ label: `Search results`, plays: results }] : [];
     }
     if (tab === "starred") {
-      const results = allPlays.filter((p) => starred.has(p.id));
+      const results = allPlays.filter((p) => starred.has(p.id) && (chip === "all" || p.category === chip));
       return results.length ? [{ label: "Starred", plays: results }] : [];
     }
     const cats = activeTab.categories ?? [];
@@ -178,9 +189,9 @@ export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; p
             ))}
           </div>
 
-          {activeTab.categories && activeTab.categories.length > 1 && (
+          {chipCategories && chipCategories.length > 1 && (
             <div className="flex gap-1.5 overflow-x-auto pb-0.5">
-              {(["all", ...activeTab.categories] as const).map((c) => (
+              {(["all", ...chipCategories] as const).map((c) => (
                 <button
                   key={c}
                   type="button"
