@@ -1437,6 +1437,57 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "blob-22-high",
+    "22 High",
+    "blob",
+    "Baseline OB vs 2-1-2 Zone",
+    "Same 22 shape with 1 and 5 swapped — 1 flashes to the ball-side corner as 4 settles a step lower to pin the weak-side post, then 2 down screens the zone's middle defender so 5 can slip into the paint for a catch on the lob.",
+    [
+      "1: flash hard and direct to the ball-side corner — the quicker you clear, the sooner 4 can settle underneath and the defense has less time to adjust.",
+      "4: just a step lower is enough — you're not clearing out, you're pinning the weak-side post defender off the middle.",
+      "2: screen the zone's middle defender directly, not a spot near him — hold it until 5 is all the way clear.",
+      "3 (inbounder): this is a lob — give it enough air to clear the zone's middle defender hung up on the screen, right into 5's hands in the middle of the paint.",
+    ],
+    [
+      {
+        offense: [o("O1", 31.5, 8.5), o("O2", 25, 22), o("O3", 34, -1.4), o("O4", 18.5, 8.5), o("O5", 25, 16)],
+        defense: [d("X1", "O2", { x: 17, y: 20 }), d("X2", "O1", { x: 33, y: 20 }), d("X3", "O4", { x: 16, y: 6.5 }), d("X4", "O1", { x: 34, y: 6.5 }), d("X5", "O5", { x: 25, y: 13 })],
+        ballHolder: "O3",
+        lines: [],
+        note: "BLOB vs a 2-1-2 zone — the same 22 shape, but 1 and 5 start swapped: 1 on the ball-side block, 5 up at the split spot on the lane line with 2 stacked above him. 4 on the opposite block, 3 inbounding. 5 is the zone's middle defender, 4 the ball-side post, 3 the weak-side post.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 25, 22), o("O3", 34, -1.4), o("O4", 18, 6.5), o("O5", 25, 16)],
+        defense: [d("X1", "O2", { x: 17, y: 20 }), d("X2", "O1", { x: 33, y: 20 }), d("X3", "O4", { x: 17, y: 6 }), d("X4", "O1", { x: 37, y: 6 }), d("X5", "O5", { x: 25, y: 13 })],
+        ballHolder: "O3",
+        lines: [
+          ln("cut", "offense", [{ x: 31.5, y: 8.5 }, { x: 46, y: 4 }]),
+          ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 18, y: 6.5 }]),
+        ],
+        note: "1 flashes directly to the ball-side corner. At the same time, 4 settles a step lower to occupy the weak-side post defender, pinning him off the middle and keeping the paint clear for what's coming.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 24, 13.5), o("O3", 34, -1.4), o("O4", 18, 6.5), o("O5", 28, 10)],
+        defense: [d("X1", "O2", { x: 20, y: 16 }), d("X2", "O1", { x: 30, y: 18 }), d("X3", "O4", { x: 17, y: 6 }), d("X4", "O1", { x: 32, y: 8 }), d("X5", "O5", { x: 22.5, y: 13 })],
+        ballHolder: "O3",
+        lines: [
+          ln("screen", "offense", [{ x: 25, y: 22 }, { x: 24, y: 13.5 }]),
+          ln("cut", "offense", [{ x: 25, y: 16 }, { x: 27, y: 13 }, { x: 28, y: 10 }]),
+        ],
+        note: "2 comes down and screens the zone's middle defender directly, tight. 5 cuts off the screen into the gap right in the middle of the paint, a little toward the ball side.",
+      },
+      {
+        offense: [o("O1", 46, 4), o("O2", 24, 13.5), o("O3", 34, -1.4), o("O4", 18, 6.5), o("O5", 28, 10)],
+        defense: [d("X1", "O2", { x: 20, y: 16 }), d("X2", "O1", { x: 30, y: 18 }), d("X3", "O4", { x: 17, y: 6 }), d("X4", "O1", { x: 30, y: 9 }), d("X5", "O5", { x: 22.5, y: 13 })],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 34, y: -1.4 }, { x: 28, y: 10 }])],
+        note: "3 lobs it over the top to 5 in the middle of the paint for the score — the zone's middle defender is still hung up on 2's screen, and the backside help rotates a step too late.",
+        ballArrival: [{ x: 34, y: -1.4 }, { x: 28, y: 10 }],
+      },
+    ]
+  ),
+
+  play(
     "slob-box",
     "Box SLOB",
     "slob",
