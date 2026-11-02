@@ -27,6 +27,20 @@ function chipFromParam(v: string | null, tab: TabKey): "all" | PlayCategory {
   return v && (cats as string[]).includes(v) ? (v as PlayCategory) : "all";
 }
 
+/**
+ * "ZONE" alone doesn't say whether that's an offense or a defense — fine
+ * inside a tab/chip you already picked, not fine on Starred or a search
+ * result, where plays from every group sit mixed together with no
+ * section heading to supply that context. Collapses to just the category
+ * ("Defense") when the group and the category read the same.
+ */
+function groupedCategoryLabel(cat: PlayCategory): string {
+  const group = TABS.find((t) => t.categories?.includes(cat));
+  const groupLabel = group?.label ?? "";
+  const catLabel = PLAY_CATEGORY_LABEL[cat];
+  return groupLabel && groupLabel !== catLabel ? `${groupLabel} · ${catLabel}` : catLabel;
+}
+
 function starKey(teamId: string) {
   return `plays-starred-${teamId}`;
 }
@@ -235,7 +249,7 @@ export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; p
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="text-[15px] font-bold text-foreground">{p.name}</h3>
                       <span className="shrink-0 rounded-full border border-line-strong px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
-                        {PLAY_CATEGORY_LABEL[p.category]}
+                        {q || tab === "starred" ? groupedCategoryLabel(p.category) : PLAY_CATEGORY_LABEL[p.category]}
                       </span>
                     </div>
                     <p className="mt-1 text-xs font-semibold text-foreground-dim">{p.vs}</p>
