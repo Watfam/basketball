@@ -1078,6 +1078,96 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "zone-x",
+    "X",
+    "zone",
+    "vs 2-1-2 Zone",
+    "Same 1-up/2-wing/2-corner shape as X Counter, but vs a 2-1-2: a quick swing from 1 to 2 and back, then to 3, makes the zone shift twice before 2 and 4 set backside screens on their OWN defenders so 1 can cut to the opposite wing for a skip-pass catch-and-shoot — with a built-in dump-down to a sealing 4 if the defense recovers.",
+    [
+      "1: the pass to 2 and back needs to be live and quick — that's what actually gets the zone shifting side to side, not just resetting it in place.",
+      "2 and 4: screen the BACKSIDE of your own defender, not just near him — he's shifted toward the ball and won't see you coming if you get on his blind side.",
+      "1: cut hard off both screens all the way to the opposite wing — the skip pass is coming the instant you get there, not a beat later.",
+      "If 4's defender (x3) fights through the screen and gets back to guard 1 on the catch, 4 should seal the middle defender (x5) inside instead — 1 dumps it down to 4 for the layup rather than forcing a contested shot.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 10, 22), o("O3", 40, 22), o("O4", 8, 9), o("O5", 42, 9)],
+        defense: [d("X1", "O2", { x: 19.5, y: 24 }), d("X2", "O3", { x: 30.5, y: 24 }), d("X3", "O4", { x: 12, y: 9 }), d("X4", "O5", { x: 38, y: 9 }), d("X5", "O1", { x: 25, y: 18 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "2-1-2 zone look: 1 at the top, 2 and 3 on the wings, 4 and 5 in the corners. 5 sits high at the free-throw line as the zone's lone middle defender; 3 and 4 cover the two corners; 1 and 2 are the two guards up top.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 10, 22), o("O3", 40, 22), o("O4", 8, 9), o("O5", 42, 9)],
+        defense: [d("X1", "O2", { x: 14, y: 22 }), d("X2", "O3", { x: 26, y: 21 }), d("X3", "O4", { x: 10, y: 10 }), d("X4", "O5", { x: 33, y: 11 }), d("X5", "O1", { x: 19, y: 17 })],
+        ballHolder: "O2",
+        lines: [
+          ln("pass", "offense", [{ x: 25, y: 32 }, { x: 10, y: 22 }]),
+          ln("cut", "defense", [{ x: 19.5, y: 24 }, { x: 14, y: 22 }]),
+          ln("cut", "defense", [{ x: 30.5, y: 24 }, { x: 26, y: 21 }]),
+          ln("cut", "defense", [{ x: 12, y: 9 }, { x: 10, y: 10 }]),
+          ln("cut", "defense", [{ x: 38, y: 9 }, { x: 33, y: 11 }]),
+          ln("cut", "defense", [{ x: 25, y: 18 }, { x: 19, y: 17 }]),
+        ],
+        note: "1 passes to 2 on the wing — the zone shifts hard to the ball side.",
+        ballArrival: [{ x: 25, y: 32 }, { x: 10, y: 22 }],
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 10, 22), o("O3", 40, 22), o("O4", 8, 9), o("O5", 42, 9)],
+        defense: [d("X1", "O2", { x: 19.5, y: 24 }), d("X2", "O3", { x: 30.5, y: 24 }), d("X3", "O4", { x: 12, y: 9 }), d("X4", "O5", { x: 38, y: 9 }), d("X5", "O1", { x: 25, y: 18 })],
+        ballHolder: "O1",
+        lines: [
+          ln("pass", "offense", [{ x: 10, y: 22 }, { x: 25, y: 32 }]),
+          ln("cut", "defense", [{ x: 14, y: 22 }, { x: 19.5, y: 24 }]),
+          ln("cut", "defense", [{ x: 26, y: 21 }, { x: 30.5, y: 24 }]),
+          ln("cut", "defense", [{ x: 10, y: 10 }, { x: 12, y: 9 }]),
+          ln("cut", "defense", [{ x: 33, y: 11 }, { x: 38, y: 9 }]),
+          ln("cut", "defense", [{ x: 19, y: 17 }, { x: 25, y: 18 }]),
+        ],
+        note: "2 swings it right back to 1 at the top — the zone has to recover just as fast as it shifted.",
+        ballArrival: [{ x: 10, y: 22 }, { x: 25, y: 32 }],
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 10, 22), o("O3", 40, 22), o("O4", 8, 9), o("O5", 42, 9)],
+        defense: [d("X1", "O2", { x: 24, y: 21 }), d("X2", "O3", { x: 36, y: 22 }), d("X3", "O4", { x: 17, y: 11 }), d("X4", "O5", { x: 40, y: 10 }), d("X5", "O1", { x: 31, y: 17 })],
+        ballHolder: "O3",
+        lines: [
+          ln("pass", "offense", [{ x: 25, y: 32 }, { x: 40, y: 22 }]),
+          ln("cut", "defense", [{ x: 19.5, y: 24 }, { x: 24, y: 21 }]),
+          ln("cut", "defense", [{ x: 30.5, y: 24 }, { x: 36, y: 22 }]),
+          ln("cut", "defense", [{ x: 12, y: 9 }, { x: 17, y: 11 }]),
+          ln("cut", "defense", [{ x: 38, y: 9 }, { x: 40, y: 10 }]),
+          ln("cut", "defense", [{ x: 25, y: 18 }, { x: 31, y: 17 }]),
+        ],
+        note: "1 reverses it to 3 on the other wing — now the zone shifts hard the other way, toward the ball.",
+        ballArrival: [{ x: 25, y: 32 }, { x: 40, y: 22 }],
+      },
+      {
+        offense: [o("O1", 10, 22), o("O2", 22.5, 19), o("O3", 40, 22), o("O4", 15, 10), o("O5", 42, 9)],
+        defense: [d("X1", "O2", { x: 24, y: 21 }), d("X2", "O3", { x: 36, y: 22 }), d("X3", "O4", { x: 17, y: 11 }), d("X4", "O5", { x: 40, y: 10 }), d("X5", "O1", { x: 31, y: 17 })],
+        ballHolder: "O3",
+        lines: [
+          ln("screen", "offense", [{ x: 10, y: 22 }, { x: 22.5, y: 19 }]),
+          ln("screen", "offense", [{ x: 8, y: 9 }, { x: 15, y: 10 }]),
+          ln("cut", "offense", [{ x: 25, y: 32 }, { x: 20, y: 25 }, { x: 10, y: 22 }]),
+        ],
+        note: "2 and 4 both come across and set a backside screen on the defender nearest them — catching x1 and x3 blind while they're still shifted toward the ball. 1 cuts off both screens all the way to the opposite wing, away from the ball.",
+      },
+      {
+        offense: [o("O1", 10, 22), o("O2", 22.5, 19), o("O3", 40, 22), o("O4", 15, 10), o("O5", 42, 9)],
+        defense: [d("X1", "O2", { x: 24, y: 21 }), d("X2", "O3", { x: 30, y: 22 }), d("X3", "O4", { x: 17, y: 11 }), d("X4", "O5", { x: 40, y: 10 }), d("X5", "O1", { x: 31, y: 17 })],
+        ballHolder: "O1",
+        lines: [
+          ln("pass", "offense", [{ x: 40, y: 22 }, { x: 10, y: 22 }]),
+          ln("cut", "defense", [{ x: 36, y: 22 }, { x: 30, y: 22 }]),
+        ],
+        note: "3 skips it cross-court to 1, wide open on the wing — x1 is still fighting through 2's screen and can't closeout in time.",
+        ballArrival: [{ x: 40, y: 22 }, { x: 10, y: 22 }],
+      },
+    ]
+  ),
+
+  play(
     "box-break",
     "Box Press Break",
     "fullCourt",
