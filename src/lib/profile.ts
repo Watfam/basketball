@@ -32,8 +32,8 @@ export function parseProfile(value: string | undefined | null): Profile | null {
  * last opened on this phone, straight in, skipping the players/teams list.
  * That list (/coach) is only the home when there's no remembered team yet
  * (first time) or the team itself can't be resolved; it stays reachable
- * from inside a team (Back) for managing players, the camera lab, or
- * picking a different team once there's more than one.
+ * from inside a team (Back) for managing players or picking a different
+ * team once there's more than one.
  */
 export function profileHome(p: Profile): string {
   if (p.kind === "player") return `/players/${p.playerId}`;

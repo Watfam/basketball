@@ -184,8 +184,8 @@ export default async function Home() {
               </p>
               <p className="mt-1 truncate text-xs font-semibold text-foreground-dim">
                 {teamCount > 0
-                  ? `${teamCount === 1 ? (teams ?? [])[0].name : `${teamCount} teams`} · players, practice, camera lab`
-                  : "Players, camera lab, and teams when you make one"}
+                  ? `${teamCount === 1 ? (teams ?? [])[0].name : `${teamCount} teams`} · players, practice`
+                  : "Players and teams when you make one"}
               </p>
             </div>
             <span className="shrink-0 text-lg text-foreground-mute" aria-hidden>

@@ -3,17 +3,15 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/avatar";
 import { RememberProfile } from "@/components/remember-profile";
-import { formatPercentage, percentage, seasonStart, totalSessions, weekStart } from "@/lib/basketball/shooting";
+import { formatPercentage, seasonStart, totalSessions, weekStart } from "@/lib/basketball/shooting";
 import { HeaderLink } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
-import { ButtonLink } from "@/components/ui/button";
 
 export const metadata = { title: "Coach" };
 
 /**
  * The coach profile's home, in the order Matt chose: the players first
- * (who has been shooting, and how well), then how the camera is doing,
- * then the teams.
+ * (who has been shooting, and how well), then the teams.
  */
 export default async function CoachHomePage() {
   const supabase = await createClient();
@@ -22,7 +20,7 @@ export default async function CoachHomePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: households }, { data: teams }, { data: lastRun }] = await Promise.all([
+  const [{ data: households }, { data: teams }] = await Promise.all([
     supabase.schema("hoops").from("households").select("id").eq("owner_id", user.id).order("created_at", { ascending: true }),
     supabase
       .schema("hoops")
@@ -30,13 +28,6 @@ export default async function CoachHomePage() {
       .select("id, name")
       .eq("owner_id", user.id)
       .order("created_at", { ascending: true }),
-    supabase
-      .schema("hoops")
-      .from("calibration_runs")
-      .select("created_at, hoop_label, rule_version, shots, agreed")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
   ]);
 
   const { data: players } = households?.length
@@ -123,47 +114,6 @@ export default async function CoachHomePage() {
               })}
             </Card>
           )}
-        </section>
-
-        <section className="space-y-2.5">
-          <h2 className="font-display text-xl uppercase leading-none tracking-wide text-foreground">Camera lab</h2>
-          <Card className="p-4">
-            {lastRun ? (
-              <>
-                <div className="flex items-end justify-between gap-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">
-                    {lastRun.hoop_label ?? "Calibration"} ·{" "}
-                    {new Date(lastRun.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })} ·
-                    rule {lastRun.rule_version ?? "?"}
-                  </p>
-                  <p className="font-display text-3xl leading-none text-foreground">
-                    {lastRun.agreed}/{lastRun.shots}
-                  </p>
-                </div>
-                <p className="mt-1.5 text-xs text-foreground-dim">
-                  Last calibration: the camera matched the written record on {lastRun.agreed} of {lastRun.shots} shots (
-                  {formatPercentage(percentage(lastRun.agreed, lastRun.shots))}).
-                </p>
-              </>
-            ) : (
-              <p className="text-xs text-foreground-dim">
-                No calibration yet. Run a clip or the live camera in the detector lab, then calibrate it against what
-                really happened.
-              </p>
-            )}
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {/* sm: three across on a phone leaves too little width for md's padding. */}
-              <ButtonLink href="/lab/calibrate" size="sm">
-                Calibrate
-              </ButtonLink>
-              <ButtonLink href="/lab/detector" variant="secondary" size="sm">
-                Detector
-              </ButtonLink>
-              <ButtonLink href="/lab" variant="secondary" size="sm">
-                History
-              </ButtonLink>
-            </div>
-          </Card>
         </section>
 
         <section className="space-y-2.5">
