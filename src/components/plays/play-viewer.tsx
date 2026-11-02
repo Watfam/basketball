@@ -9,6 +9,7 @@ import { haptic } from "@/lib/haptics";
 import type { LibraryPlay } from "@/lib/plays/library";
 import { mirrorFrames } from "@/lib/plays/mirror";
 import { SPEEDS, usePlayClock } from "@/lib/plays/use-play-clock";
+import { useGoBack } from "@/lib/use-go-back";
 
 /**
  * The default way to look at a play: read-only, laid out as a page (court up top, the full step list
@@ -22,6 +23,10 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
   const [fullscreen, setFullscreen] = useState(false);
   const region = computeContentBounds(frames);
   const { clock, shown, ballOverride, playing, speed, setSpeed, togglePlay, jumpToStep } = usePlayClock(frames);
+  // Returns to the playbook list exactly as the coach left it (same tab/filter/scroll) when that's
+  // really where this screen was opened from this session; a bare link to the list (filters reset)
+  // only when there's nothing recorded to go back to — a play opened from a fresh tab or a shared link.
+  const goToPlaybook = useGoBack(`/teams/${teamId}/plays/playbook`);
 
   function flip() {
     haptic("tap");
@@ -37,9 +42,9 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <Link href={`/teams/${teamId}/plays/playbook`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
+        <button type="button" onClick={goToPlaybook} className="text-sm font-bold text-foreground-dim hover:text-foreground">
           ← Playbook
-        </Link>
+        </button>
         <div className="flex items-center gap-1.5">
           {canEdit && (
             <Link

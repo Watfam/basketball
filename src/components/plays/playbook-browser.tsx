@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, Eyebrow } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { haptic } from "@/lib/haptics";
@@ -15,6 +16,16 @@ const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] 
   { key: "defense", label: "Defense", categories: ["defense"] },
   { key: "starred", label: "Starred", categories: null },
 ];
+const TAB_KEYS = TABS.map((t) => t.key);
+
+function tabFromParam(v: string | null): TabKey {
+  return (TAB_KEYS as string[]).includes(v ?? "") ? (v as TabKey) : "offense";
+}
+
+function chipFromParam(v: string | null, tab: TabKey): "all" | PlayCategory {
+  const cats = TABS.find((t) => t.key === tab)?.categories ?? [];
+  return v && (cats as string[]).includes(v) ? (v as PlayCategory) : "all";
+}
 
 function starKey(teamId: string) {
   return `plays-starred-${teamId}`;
@@ -42,12 +53,34 @@ function matches(p: LibraryPlay, q: string): boolean {
 }
 
 export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; plays: LibraryPlay[] }) {
-  const [tab, setTab] = useState<TabKey>("offense");
-  const [chip, setChip] = useState<"all" | PlayCategory>("all");
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [tab, setTab] = useState<TabKey>(() => tabFromParam(searchParams.get("tab")));
+  const [chip, setChip] = useState<"all" | PlayCategory>(() => chipFromParam(searchParams.get("chip"), tabFromParam(searchParams.get("tab"))));
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [rawStarred] = useLocalDraft(starKey(teamId));
   const starred = useMemo(() => parseStarred(rawStarred), [rawStarred]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  // Mirrors the current tab/chip/search into the URL (replacing, never pushing a new history entry)
+  // so "View play" → the coach's own Back out of the play round-trips to this exact filtered,
+  // scrolled view via router.back() — not a fresh list reset to the defaults. Debounced so typing a
+  // search doesn't replace the URL on every keystroke.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (tab !== "offense") params.set("tab", tab);
+      if (chip !== "all") params.set("chip", chip);
+      if (query.trim()) params.set("q", query);
+      const qs = params.toString();
+      const target = qs ? `${pathname}?${qs}` : pathname;
+      const current = `${pathname}${window.location.search}`;
+      if (target !== current) router.replace(target, { scroll: false });
+    }, 250);
+    return () => clearTimeout(id);
+  }, [tab, chip, query, pathname, router]);
 
   function toggleStar(id: string) {
     haptic("tap");

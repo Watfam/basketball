@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
@@ -29,7 +30,9 @@ export default async function PlaybookPage({ params }: { params: Promise<{ teamI
       </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
-        <PlaybookBrowser teamId={teamId} plays={plays} />
+        <Suspense fallback={null}>
+          <PlaybookBrowser teamId={teamId} plays={plays} />
+        </Suspense>
       </main>
     </div>
   );
