@@ -1168,6 +1168,106 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "zone-short-flash",
+    "Short Flash",
+    "zone",
+    "vs 2-1-2 Zone",
+    "Work the ball down into the short corner, and the instant that catch happens the slot man flashes hard through the gap to the rim for a direct score. Not open? He clears through and the perimeter fills behind him — this is a continuity, not a one-time set, so every time the ball reverses, 5 slides to the new ball-side short corner and whoever's in the slot flashes the same way again.",
+    [
+      "5: get all the way into the short corner early and stay a target there — the catch is what triggers everything else.",
+      "Slot man: time the flash to the instant 5 catches it, not before — cutting early just gets you covered before the ball's even there.",
+      "Not open on the flash? Clear all the way through to the far side — standing in the lane only takes away the next cutter's driving room.",
+      "Every time the ball swings to the other side, 5 relocates to the new short corner and the new slot man gets the same read — keep running it until it's there.",
+    ],
+    [
+      {
+        offense: [o("O4", 9, 29), o("O3", 7, 20), o("O1", 31, 26), o("O2", 44, 20), o("O5", 11, 10)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "2-1-2 look: 4 and 3 stacked on the left side of the perimeter (not down in the corner), 1 in the slot right of center, 2 at free-throw-line-extended on the right, 5 working the left short corner.",
+      },
+      {
+        offense: [o("O4", 9, 29), o("O3", 7, 20), o("O1", 31, 26), o("O2", 44, 20), o("O5", 11, 10)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 31, y: 26 }, { x: 7, y: 20 }])],
+        note: "1 swings it to 3 on the side where 5 is working the short corner.",
+        ballArrival: [{ x: 31, y: 26 }, { x: 7, y: 20 }],
+      },
+      {
+        offense: [o("O4", 9, 29), o("O3", 7, 20), o("O1", 21, 8), o("O2", 44, 20), o("O5", 11, 10)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [
+          ln("pass", "offense", [{ x: 7, y: 20 }, { x: 11, y: 10 }]),
+          ln("cut", "offense", [{ x: 31, y: 26 }, { x: 21, y: 8 }]),
+        ],
+        note: "3 feeds it down into the short corner — the instant 5 catches it, 1 flashes hard through the gap from the slot, calling for it right at the rim.",
+        ballArrival: [{ x: 7, y: 20 }, { x: 11, y: 10 }],
+      },
+      {
+        offense: [o("O4", 9, 29), o("O3", 7, 20), o("O1", 21, 8), o("O2", 44, 20), o("O5", 11, 10)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("pass", "offense", [{ x: 11, y: 10 }, { x: 21, y: 8 }])],
+        note: "5 hits 1 cutting through the gap for the layup.",
+        ballArrival: [{ x: 11, y: 10 }, { x: 21, y: 8 }],
+      },
+    ]
+  ),
+
+  play(
+    "zone-drop",
+    "Drop",
+    "zone",
+    "vs 2-1-2 Zone",
+    "Work it in to 5 at the free-throw line. The instant that catch happens, both wings drop from free-throw-line-extended down to the corners and 4 posts up on the block — 5 now has three live reads at once: either corner shooter or 4 down low.",
+    [
+      "5: catch facing the rim at the free-throw line — you need all three targets in view the moment you catch it.",
+      "Both wings: drop to the corner together, right as 5 catches it — don't wait to see where the ball goes first.",
+      "4: post up hard on the catch and seal for it — you're a live scoring option, not a decoy.",
+      "If the zone collapses to take away a corner, the other corner or 4 underneath is the read — if it collapses on 4 instead, one of the corners is open.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 30), o("O3", 6, 20), o("O2", 44, 20), o("O5", 25, 19), o("O4", 19, 8)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "1 at the top, 2 and 3 on opposite wings at free-throw-line-extended, 5 at the free-throw line, 4 on the block.",
+      },
+      {
+        offense: [o("O1", 25, 30), o("O3", 6, 20), o("O2", 44, 20), o("O5", 25, 19), o("O4", 19, 8)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 25, y: 30 }, { x: 25, y: 19 }])],
+        note: "1 feeds it in to 5 at the free-throw line.",
+        ballArrival: [{ x: 25, y: 30 }, { x: 25, y: 19 }],
+      },
+      {
+        offense: [o("O1", 25, 30), o("O3", 6, 9), o("O2", 44, 9), o("O5", 25, 19), o("O4", 21, 6)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [
+          ln("cut", "offense", [{ x: 6, y: 20 }, { x: 6, y: 9 }]),
+          ln("cut", "offense", [{ x: 44, y: 20 }, { x: 44, y: 9 }]),
+          ln("cut", "offense", [{ x: 19, y: 8 }, { x: 21, y: 6 }]),
+        ],
+        note: "On the catch, 2 and 3 both drop straight down to the corners and 4 posts up tight on the block — 5 now has three live reads.",
+      },
+      {
+        offense: [o("O1", 25, 30), o("O3", 6, 9), o("O2", 44, 9), o("O5", 25, 19), o("O4", 21, 6)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 25, y: 19 }, { x: 44, y: 9 }])],
+        note: "5 reads the zone and kicks out to 2 in the corner for the catch-and-shoot.",
+        ballArrival: [{ x: 25, y: 19 }, { x: 44, y: 9 }],
+      },
+    ]
+  ),
+
+  play(
     "box-break",
     "Box Press Break",
     "fullCourt",
