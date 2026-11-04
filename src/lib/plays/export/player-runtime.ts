@@ -278,9 +278,22 @@ function buildToc(plays: ExportPlay[]): HTMLElement {
   return toc;
 }
 
+/** Only shown when this tab/window was actually opened by another page's script (the in-app "Open" flow always does this) — window.close() is permitted on a script-opened window but silently does nothing otherwise, so there's no point showing a dead button to someone who opened this file directly (a shared/saved copy, no opener at all). */
+function buildCloseBar(): HTMLElement | null {
+  if (!window.opener) return null;
+  const bar = el("div", "hl-closebar");
+  const btn = el("button", "hl-close-btn", "← Back");
+  btn.type = "button";
+  btn.addEventListener("click", () => window.close());
+  bar.append(btn);
+  return bar;
+}
+
 function render(data: ExportData) {
   const root = document.getElementById("playbook-root");
   if (!root) return;
+  const closeBar = buildCloseBar();
+  if (closeBar) root.append(closeBar);
   root.append(buildHeader(data));
   root.append(buildToc(data.plays));
 

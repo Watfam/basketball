@@ -3,7 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
 import { buildPlaybookExportHtml } from "@/app/actions/export-playbook";
 
@@ -176,21 +176,33 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         );
       })}
 
-      <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 -mx-4 border-t border-line bg-background px-5 py-3">
-        <div className="mx-auto flex max-w-lg items-center gap-3">
-          <div className="flex-1 text-xs text-foreground-dim">
-            {selected.size === 0 ? (
-              <span className="font-bold text-accent">Check a play below to include it</span>
-            ) : (
-              <>
-                {selected.size} play{selected.size === 1 ? "" : "s"} selected
-              </>
-            )}
-            {status === "error" && <span className="mt-0.5 block font-bold text-danger">{errorMsg}</span>}
-          </div>
-          <Button onClick={handleOpen} disabled={status === "building" || selected.size === 0}>
+      <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 -mx-4 space-y-2 border-t border-line bg-background px-5 py-3">
+        <div className="mx-auto max-w-lg text-xs text-foreground-dim">
+          {selected.size === 0 ? (
+            <span className="font-bold text-accent">Check a play below to include it</span>
+          ) : (
+            <>
+              {selected.size} play{selected.size === 1 ? "" : "s"} selected
+            </>
+          )}
+          {status === "error" && <span className="mt-0.5 block font-bold text-danger">{errorMsg}</span>}
+        </div>
+        <div className="mx-auto flex max-w-lg gap-2">
+          <Button onClick={handleOpen} disabled={status === "building" || selected.size === 0} className="flex-1">
             {status === "building" ? "Building…" : "Open playbook"}
           </Button>
+          {/* A real server URL rather than the in-page blob trick — lets a long-press offer "Download Linked File" etc. even where Safari's own Share sheet isn't available (the installed home-screen app). Experimental: unconfirmed whether iOS actually treats this differently from the blob approach. */}
+          <a
+            href={selected.size > 0 ? `/api/playbook-export?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent([...selected].join(","))}` : undefined}
+            aria-disabled={selected.size === 0}
+            onClick={(e) => {
+              if (selected.size === 0) e.preventDefault();
+              else haptic("tap");
+            }}
+            className={buttonClass({ variant: "secondary", className: `flex-1 ${selected.size === 0 ? "pointer-events-none opacity-40" : ""}` })}
+          >
+            Download
+          </a>
         </div>
       </div>
     </div>

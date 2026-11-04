@@ -23,6 +23,8 @@ function buildCss(team: ExportData["team"]): string {
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--hl-paper); color: var(--hl-ink); }
+  .hl-closebar { background: var(--hl-navy); padding: 10px 16px 0; }
+  .hl-close-btn { font-size: 13px; font-weight: 700; color: #fff; background: rgba(255,255,255,0.12); border: none; border-radius: 999px; padding: 7px 14px; cursor: pointer; }
   .hl-header { display: flex; align-items: center; gap: 20px; background: var(--hl-navy); color: #fff; padding: 28px 24px; }
   .hl-logo { width: 68px; height: 68px; flex: none; }
   .hl-title-wrap { flex: 1; min-width: 0; }
