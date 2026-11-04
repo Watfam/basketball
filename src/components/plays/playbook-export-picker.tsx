@@ -55,7 +55,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     setCustomSelection(new Set());
   }
 
-  async function handleDownload() {
+  async function handleOpen() {
     setStatus("building");
     setErrorMsg("");
     try {
@@ -65,27 +65,33 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         setErrorMsg(result.error);
         return;
       }
+      // No `download` attribute: on iPhone, a downloaded .html file opens in Quick Look, which
+      // doesn't run JavaScript or render it as a page at all — just a blank preview. Opening the
+      // blob URL as a plain navigation (new tab) instead makes Safari (and every other browser)
+      // render it live, the same as any other webpage. From there, standard share/save (Add to
+      // Home Screen, Save to Files, AirDrop, right-click Save As on desktop) covers keeping a copy.
       const blob = new Blob([result.html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `evangel-lightning-playbook-${new Date().toISOString().slice(0, 10)}.html`;
+      a.target = "_blank";
+      a.rel = "noopener";
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setStatus("idle");
       haptic("success");
     } catch (e) {
       setStatus("error");
-      setErrorMsg(e instanceof Error ? e.message : "Something went wrong building the download.");
+      setErrorMsg(e instanceof Error ? e.message : "Something went wrong building the playbook.");
     }
   }
 
   return (
     <div className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
       <p className="text-sm text-foreground-dim">
-        Pick which plays go in the download — a single file your players and coaches can open on any device, with the notes and the animated diagram for each one. Starred plays are checked to start.
+        Pick which plays go in the playbook — opens in a new tab with the notes and the animated diagram for each one, ready to save or share from there. Starred plays are checked to start.
       </p>
 
       <div className="flex gap-2">
@@ -131,7 +137,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         );
       })}
 
-      <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-line bg-background/95 px-5 py-3 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-line bg-background px-5 py-3">
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="flex-1 text-xs text-foreground-dim">
             {selected.size === 0 ? (
@@ -143,8 +149,8 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
             )}
             {status === "error" && <span className="mt-0.5 block font-bold text-danger">{errorMsg}</span>}
           </div>
-          <Button onClick={handleDownload} disabled={status === "building" || selected.size === 0}>
-            {status === "building" ? "Building…" : "Download playbook"}
+          <Button onClick={handleOpen} disabled={status === "building" || selected.size === 0}>
+            {status === "building" ? "Building…" : "Open playbook"}
           </Button>
         </div>
       </div>
