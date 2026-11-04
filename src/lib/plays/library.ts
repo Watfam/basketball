@@ -1206,12 +1206,16 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
       {
         offense: [o("O4", 9, 29), o("O3", 7, 20), o("O1", 29, 8), o("O2", 44, 20), o("O5", 39, 10)],
         defense: [],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 31, y: 26 }, { x: 29, y: 8 }])],
+        note: "Only once 5 has the ball does 1 flash — hard, through the gap from the slot, calling for it right at the rim.",
+      },
+      {
+        offense: [o("O4", 9, 29), o("O3", 7, 20), o("O1", 29, 8), o("O2", 44, 20), o("O5", 39, 10)],
+        defense: [],
         ballHolder: "O1",
-        lines: [
-          ln("cut", "offense", [{ x: 31, y: 26 }, { x: 29, y: 8 }]),
-          ln("pass", "offense", [{ x: 39, y: 10 }, { x: 29, y: 8 }]),
-        ],
-        note: "The instant 5 catches it, 1 flashes hard through the gap from the slot — 5 hits him there for the layup.",
+        lines: [ln("pass", "offense", [{ x: 39, y: 10 }, { x: 29, y: 8 }])],
+        note: "5 hits 1 cutting through the gap for the layup.",
         ballArrival: [{ x: 39, y: 10 }, { x: 29, y: 8 }],
       },
     ]
@@ -1707,10 +1711,10 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         lines: [
           ln("cut", "offense", [{ x: 25, y: 16 }, { x: 46, y: 4 }]),
           ln("screen", "offense", [{ x: 31.5, y: 8.5 }, { x: 22.5, y: 13 }]),
-          ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 28, y: 11 }, { x: 34, y: 24 }]),
+          ln("cut", "offense", [{ x: 18.5, y: 8.5 }, { x: 23, y: 15 }, { x: 34, y: 24 }]),
           ln("cut", "offense", [{ x: 25, y: 22 }, { x: 10, y: 10 }, { x: 16, y: 24 }]),
         ],
-        note: "1 cuts to the corner and 5 slides over to screen the zone's middle defender directly — same as 22. But 4 cuts across the lane and clears all the way out past the arc to the slot, in line with 3, while 2 fakes toward the opposite corner and mirrors him on the other side.",
+        note: "1 cuts to the corner and 5 slides over to screen the zone's middle defender directly — same as 22. 4 curls right over that same screen, then keeps going past the arc to the slot, in line with 3, while 2 fakes toward the opposite corner and mirrors him on the other side.",
       },
       {
         offense: [o("O1", 46, 4), o("O2", 16, 24), o("O3", 34, -1.4), o("O4", 34, 24), o("O5", 22.5, 13)],
