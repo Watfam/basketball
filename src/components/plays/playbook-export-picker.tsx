@@ -83,7 +83,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   }
 
   return (
-    <div className="space-y-5 pb-28">
+    <div className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
       <p className="text-sm text-foreground-dim">
         Pick which plays go in the download — a single file your players and coaches can open on any device, with the notes and the animated diagram for each one. Starred plays are checked to start.
       </p>
@@ -131,10 +131,16 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         );
       })}
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-background/95 px-5 py-3 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 border-t border-line bg-background/95 px-5 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="flex-1 text-xs text-foreground-dim">
-            {selected.size} play{selected.size === 1 ? "" : "s"} selected
+            {selected.size === 0 ? (
+              <span className="font-bold text-accent">Check a play below to include it</span>
+            ) : (
+              <>
+                {selected.size} play{selected.size === 1 ? "" : "s"} selected
+              </>
+            )}
             {status === "error" && <span className="mt-0.5 block font-bold text-danger">{errorMsg}</span>}
           </div>
           <Button onClick={handleDownload} disabled={status === "building" || selected.size === 0}>
