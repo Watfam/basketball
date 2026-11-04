@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,17 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     promise,
     new Promise<never>((_, reject) => setTimeout(() => reject(new Error("That's taking too long — check your connection and try again.")), ms)),
   ]);
+}
+
+function subscribeToDisplayMode(onChange: () => void) {
+  const mql = window.matchMedia("(display-mode: standalone)");
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+}
+
+function getIsStandalone(): boolean {
+  const nav = window.navigator as Navigator & { standalone?: boolean };
+  return window.matchMedia("(display-mode: standalone)").matches || nav.standalone === true;
 }
 
 function starKey(teamId: string) {
@@ -42,6 +53,15 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
 
   const [status, setStatus] = useState<"idle" | "building" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // An installed "Add to Home Screen" app runs with Safari's own chrome stripped out entirely —
+  // no Share sheet, no address bar — by design (that's what display:"standalone" in manifest.ts
+  // asks for). The playbook will still open fine, but there's no Share button to save/send it from
+  // there, which is a dead end worth warning about up front rather than letting a coach discover it
+  // after already building the file. useSyncExternalStore (same pattern as use-local-draft.ts)
+  // rather than an effect + setState — the server snapshot is always false (no window), so there's
+  // nothing to reconcile on hydration.
+  const isStandalone = useSyncExternalStore(subscribeToDisplayMode, getIsStandalone, () => false);
 
   function toggle(id: string) {
     haptic("tap");
@@ -106,6 +126,12 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       <p className="text-sm text-foreground-dim">
         Pick which plays go in the playbook — opens in a new tab with the notes and the animated diagram for each one, ready to save or share from there. Starred plays are checked to start.
       </p>
+
+      {isStandalone && (
+        <p className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-bold text-accent">
+          You&rsquo;re using the installed app, which hides Safari&rsquo;s Share menu. To save or send the playbook after it opens, do this from Safari directly instead of the home-screen icon.
+        </p>
+      )}
 
       <div className="flex gap-2">
         <Button variant="secondary" size="sm" onClick={selectAllStarred}>
