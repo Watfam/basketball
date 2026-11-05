@@ -5,6 +5,8 @@ import { PlaybookExportPicker } from "@/components/plays/playbook-export-picker"
 import { LIBRARY_PLAYS } from "@/lib/plays/library";
 import { getMasterOverridesAll, getPlayEditsForTeam } from "@/lib/plays/play-edits-store";
 import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
+import { getTeamPlayOrder } from "@/lib/plays/play-order-store";
+import { applyPlayOrder } from "@/lib/plays/play-order";
 
 export default async function PlaybookExportPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = await params;
@@ -26,13 +28,13 @@ export default async function PlaybookExportPage({ params }: { params: Promise<{
   }
   if (!canExport) redirect(`/teams/${teamId}/plays/playbook`);
 
-  const [masters, edits] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId)]);
-  const plays = mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits);
+  const [masters, edits, playOrder] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId), getTeamPlayOrder(hoops, teamId)]);
+  const plays = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
 
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader back={{ href: `/teams/${teamId}/plays/playbook`, label: "Playbook" }}>
-        <span className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Download playbook</span>
+        <span className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Share playbook</span>
       </PageHeader>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">

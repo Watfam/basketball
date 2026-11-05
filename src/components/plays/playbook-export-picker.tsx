@@ -51,7 +51,10 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   const starred = useMemo(() => parseStarred(rawStarred), [rawStarred]);
   // null until the real (post-hydration) starred set has been read once — see the effect-free init below.
   const [customOrder, setCustomOrder] = useState<string[] | null>(null);
-  const order = useMemo(() => customOrder ?? [...starred], [customOrder, starred]);
+  // `plays` already reflects the team's saved play order (applyPlayOrder, run server-side before
+  // this component ever sees it) — defaulting from it rather than the starred Set's own insertion
+  // order means the starting selection matches the same order shown in the catalog below.
+  const order = useMemo(() => customOrder ?? plays.filter((p) => starred.has(p.id)).map((p) => p.id), [customOrder, starred, plays]);
   const selected = useMemo(() => new Set(order), [order]);
 
   const [status, setStatus] = useState<"idle" | "building" | "error">("idle");
@@ -77,7 +80,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     haptic("tap");
     resetLink();
     setCustomOrder((prev) => {
-      const base = prev ?? [...starred];
+      const base = prev ?? plays.filter((p) => starred.has(p.id)).map((p) => p.id);
       return base.includes(id) ? base.filter((x) => x !== id) : [...base, id];
     });
   }
@@ -86,7 +89,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     haptic("tap");
     resetLink();
     setCustomOrder((prev) => {
-      const base = prev ? [...prev] : [...starred];
+      const base = prev ? [...prev] : plays.filter((p) => starred.has(p.id)).map((p) => p.id);
       const i = base.indexOf(id);
       const j = i + dir;
       if (i < 0 || j < 0 || j >= base.length) return base;
@@ -98,7 +101,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   function selectAllStarred() {
     haptic("tap");
     resetLink();
-    setCustomOrder([...starred]);
+    setCustomOrder(plays.filter((p) => starred.has(p.id)).map((p) => p.id));
   }
 
   function selectNone() {
@@ -223,32 +226,42 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         const groupPlays = plays.filter((p) => group.categories.includes(p.category));
         if (!groupPlays.length) return null;
         return (
-          <section key={group.label} className="space-y-2">
+          <section key={group.label} className="space-y-3">
             <h2 className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">{group.label}</h2>
-            <div className="space-y-1.5 rounded-xl border border-line bg-surface p-2">
-              {groupPlays.map((p) => {
-                const checked = selected.has(p.id);
-                return (
-                  <label key={p.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-raised">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggle(p.id)}
-                      className="h-5 w-5 shrink-0 rounded border-line-strong accent-accent"
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-bold text-foreground">{p.name}</span>
-                      <span className="block truncate text-xs text-foreground-mute">
-                        {PLAY_CATEGORY_LABEL[p.category]} · {p.vs}
-                      </span>
-                    </span>
-                    {starred.has(p.id) && (
-                      <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide text-accent">Starred</span>
-                    )}
-                  </label>
-                );
-              })}
-            </div>
+            {/* Sub-grouped by exact category (all BLOB together, all SLOB together, etc.), same as the main Playbook screen — not one flat list across every category this broad section spans. */}
+            {group.categories.map((cat) => {
+              const catPlays = groupPlays.filter((p) => p.category === cat);
+              if (!catPlays.length) return null;
+              return (
+                <div key={cat} className="space-y-1.5">
+                  {group.categories.length > 1 && (
+                    <h3 className="text-[11px] font-bold uppercase tracking-wide text-foreground-mute">{PLAY_CATEGORY_LABEL[cat]}</h3>
+                  )}
+                  <div className="space-y-1.5 rounded-xl border border-line bg-surface p-2">
+                    {catPlays.map((p) => {
+                      const checked = selected.has(p.id);
+                      return (
+                        <label key={p.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-raised">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggle(p.id)}
+                            className="h-5 w-5 shrink-0 rounded border-line-strong accent-accent"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-bold text-foreground">{p.name}</span>
+                            <span className="block truncate text-xs text-foreground-mute">{p.vs}</span>
+                          </span>
+                          {starred.has(p.id) && (
+                            <span className="shrink-0 text-[10px] font-extrabold uppercase tracking-wide text-accent">Starred</span>
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </section>
         );
       })}

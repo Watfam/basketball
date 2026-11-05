@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, Eyebrow } from "@/components/ui/card";
-import { ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { haptic } from "@/lib/haptics";
 import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
 import { PlayThumbnail } from "@/components/plays/play-thumbnail";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
+import { applyPlayOrder, swapInOrder } from "@/lib/plays/play-order";
+import { saveTeamPlayOrderAction } from "@/app/actions/play-order";
 
 type TabKey = "offense" | "situations" | "defense" | "starred";
 const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] = [
@@ -68,7 +70,7 @@ function matches(p: LibraryPlay, q: string): boolean {
   return hay.includes(q);
 }
 
-export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; plays: LibraryPlay[] }) {
+export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false }: { teamId: string; plays: LibraryPlay[]; canReorder?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -79,6 +81,30 @@ export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; p
   const [rawStarred] = useLocalDraft(starKey(teamId));
   const starred = useMemo(() => parseStarred(rawStarred), [rawStarred]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  // Reordering within a category is a change to the TEAM's saved order (migration 0032), so it
+  // needs to survive a refresh, not just live in this component's state — but saving is a network
+  // round trip, and the arrow tap should feel instant. orderOverride is the optimistic client-side
+  // order; it's cleared once the server round-trip actually lands (revalidatePath then hands back
+  // the new serverPlays, at which point serverPlays itself already reflects the save).
+  const [reordering, setReordering] = useState(false);
+  const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
+  const [orderSaveError, setOrderSaveError] = useState<string | null>(null);
+  const allPlays = useMemo(() => (orderOverride ? applyPlayOrder(serverPlays, orderOverride) : serverPlays), [serverPlays, orderOverride]);
+
+  function moveWithinGroup(groupPlays: LibraryPlay[], id: string, dir: -1 | 1) {
+    const i = groupPlays.findIndex((p) => p.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= groupPlays.length) return;
+    haptic("tap");
+    const currentFullOrder = allPlays.map((p) => p.id);
+    const newOrder = swapInOrder(currentFullOrder, id, groupPlays[j].id);
+    setOrderOverride(newOrder);
+    setOrderSaveError(null);
+    saveTeamPlayOrderAction(teamId, newOrder).then((res) => {
+      if (res.error) setOrderSaveError(res.error);
+    });
+  }
 
   // Mirrors the current tab/chip/search into the URL (replacing, never pushing a new history entry)
   // so "View play" → the coach's own Back out of the play round-trips to this exact filtered,
@@ -212,6 +238,15 @@ export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; p
         </>
       )}
 
+      {canReorder && !q && tab !== "starred" && groups.length > 0 && (
+        <div className="flex items-center justify-between gap-3">
+          <Button variant={reordering ? "primary" : "secondary"} size="sm" onClick={() => setReordering((v) => !v)}>
+            {reordering ? "Done reordering" : "Reorder"}
+          </Button>
+          {orderSaveError && <span className="text-xs font-bold text-danger">{orderSaveError}</span>}
+        </div>
+      )}
+
       {groups.length === 0 && (
         <p className="py-10 text-center text-sm text-foreground-mute">
           {q
@@ -228,11 +263,34 @@ export function PlaybookBrowser({ teamId, plays: allPlays }: { teamId: string; p
             {g.label} · {g.plays.length}
           </Eyebrow>
           <div className="mt-2 space-y-3">
-            {g.plays.map((p) => {
+            {g.plays.map((p, i) => {
               const isStarred = starred.has(p.id);
               const isOpen = expanded.has(p.id);
               return (
                 <Card key={p.id} className="overflow-hidden p-0">
+                  {reordering && (
+                    <div className="flex items-center gap-2 border-b border-line bg-raised px-3 py-2">
+                      <span className="flex-1 truncate text-xs font-bold text-foreground-dim">{p.name}</span>
+                      <button
+                        type="button"
+                        aria-label={`Move ${p.name} up`}
+                        disabled={i === 0}
+                        onClick={() => moveWithinGroup(g.plays, p.id, -1)}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-strong text-foreground-dim disabled:opacity-30"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Move ${p.name} down`}
+                        disabled={i === g.plays.length - 1}
+                        onClick={() => moveWithinGroup(g.plays, p.id, 1)}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-strong text-foreground-dim disabled:opacity-30"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  )}
                   <div className="relative h-28 w-full">
                     <PlayThumbnail frames={p.frames} />
                     <button
