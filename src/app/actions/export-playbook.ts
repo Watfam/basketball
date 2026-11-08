@@ -4,6 +4,10 @@
 
 import { createPlaybookExportLink } from "@/lib/plays/export/build-export";
 
-export async function createPlaybookExportLinkAction(teamId: string, playIds: string[]): Promise<{ url: string } | { error: string }> {
-  return createPlaybookExportLink(teamId, playIds);
+export async function createPlaybookExportLinkAction(
+  teamId: string,
+  playIds: string[],
+  hideDefenseIds: string[] = [],
+): Promise<{ url: string } | { error: string }> {
+  return createPlaybookExportLink(teamId, playIds, hideDefenseIds);
 }

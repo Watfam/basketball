@@ -15,6 +15,7 @@ import { applyPlayOrder } from "@/lib/plays/play-order";
 import { deriveDefenseType, deriveSetType } from "@/lib/plays/export/derive";
 import { TEAM_BRANDING } from "@/lib/plays/export/branding";
 import { LOGO_DATA_URI } from "@/lib/plays/export/generated/player-bundle";
+import { stripDefense } from "@/lib/plays/export/strip-defense";
 import { PlaybookPdfDocument } from "@/lib/plays/pdf/document";
 import type { ExportData } from "@/lib/plays/export/types";
 
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
   if (!playIds.length) {
     return new NextResponse("Select at least one play first.", { status: 400 });
   }
+  const hideSet = new Set((searchParams.get("hideDefense") ?? "").split(",").filter(Boolean));
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest) {
       vs: p.vs,
       about: p.about,
       keys: p.keys,
-      frames: p.frames,
+      frames: hideSet.has(id) ? stripDefense(p.frames) : p.frames,
     });
   }
   if (!plays.length) return new NextResponse("None of the selected plays could be found.", { status: 400 });

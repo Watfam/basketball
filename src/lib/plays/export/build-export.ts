@@ -9,9 +9,14 @@ import { renderExportHtml } from "./render-html";
 import { savePlaybookExport } from "./export-store";
 import { TEAM_BRANDING } from "./branding";
 import { PLAYER_BUNDLE_JS, LOGO_DATA_URI } from "./generated/player-bundle";
+import { stripDefense } from "./strip-defense";
 import type { ExportData } from "./types";
 
-export async function createPlaybookExportLink(teamId: string, playIds: string[]): Promise<{ url: string } | { error: string }> {
+export async function createPlaybookExportLink(
+  teamId: string,
+  playIds: string[],
+  hideDefenseIds: string[] = [],
+): Promise<{ url: string } | { error: string }> {
   if (!playIds.length) return { error: "Select at least one play first." };
 
   const supabase = await createClient();
@@ -32,6 +37,7 @@ export async function createPlaybookExportLink(teamId: string, playIds: string[]
   const [masters, edits] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId)]);
   const resolved = mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits);
 
+  const hideSet = new Set(hideDefenseIds);
   const byId = new Map(resolved.map((p) => [p.id, p]));
   const plays: ExportData["plays"] = [];
   for (const id of playIds) {
@@ -47,7 +53,7 @@ export async function createPlaybookExportLink(teamId: string, playIds: string[]
       vs: p.vs,
       about: p.about,
       keys: p.keys,
-      frames: p.frames,
+      frames: hideSet.has(id) ? stripDefense(p.frames) : p.frames,
     });
   }
   if (!plays.length) return { error: "None of the selected plays could be found." };

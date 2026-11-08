@@ -44,6 +44,11 @@ const GROUPS: { label: string; categories: PlayCategory[] }[] = [
   { label: "Defense", categories: ["defense"] },
 ];
 
+/** Whether any frame of this play actually draws defenders — most BLOB plays don't, so there's nothing to toggle for them. */
+function hasDefense(p: LibraryPlay): boolean {
+  return p.frames.some((f) => f.defense.length > 0);
+}
+
 export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays: LibraryPlay[] }) {
   const playsById = useMemo(() => new Map(plays.map((p) => [p.id, p])), [plays]);
 
@@ -61,6 +66,28 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   const [errorMsg, setErrorMsg] = useState("");
   const [linkUrl, setLinkUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Plays actually selected that have defense to show/hide at all — the toggle only matters for these.
+  const selectedWithDefense = useMemo(() => order.filter((id) => hasDefense(playsById.get(id)!)), [order, playsById]);
+  // Off by default for a play means "show defense" (preserves the existing behavior) — this tracks which selected plays have it explicitly turned OFF.
+  const [hiddenDefenseIds, setHiddenDefenseIds] = useState<Set<string>>(new Set());
+
+  function toggleDefense(id: string) {
+    haptic("tap");
+    resetLink();
+    setHiddenDefenseIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function setAllDefense(shown: boolean) {
+    haptic("tap");
+    resetLink();
+    setHiddenDefenseIds(shown ? new Set() : new Set(selectedWithDefense));
+  }
 
   // An installed "Add to Home Screen" app runs with Safari's own chrome stripped out entirely —
   // no Share sheet, no address bar — by design (that's what display:"standalone" in manifest.ts
@@ -121,7 +148,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     // open itself tied to the actual gesture.
     const newTab = window.open("", "_blank");
     try {
-      const result = await withTimeout(createPlaybookExportLinkAction(teamId, order), 20_000);
+      const result = await withTimeout(createPlaybookExportLinkAction(teamId, order, [...hiddenDefenseIds]), 20_000);
       if ("error" in result) {
         newTab?.close();
         setStatus("error");
@@ -173,13 +200,27 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
 
       {order.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">
-            Selected, in this order ({order.length})
-          </h2>
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">
+              Selected, in this order ({order.length})
+            </h2>
+            {selectedWithDefense.length > 0 && (
+              <div className="flex gap-1.5">
+                <button type="button" onClick={() => setAllDefense(true)} className="rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim">
+                  Defense on
+                </button>
+                <button type="button" onClick={() => setAllDefense(false)} className="rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim">
+                  Defense off
+                </button>
+              </div>
+            )}
+          </div>
           <div className="space-y-1.5 rounded-xl border border-line bg-surface p-2">
             {order.map((id, i) => {
               const p = playsById.get(id);
               if (!p) return null;
+              const defenseAvailable = hasDefense(p);
+              const defenseShown = defenseAvailable && !hiddenDefenseIds.has(id);
               return (
                 <div key={id} className="flex items-center gap-2 rounded-lg px-2 py-1.5">
                   <span className="w-5 shrink-0 text-center text-xs font-extrabold text-foreground-mute">{i + 1}</span>
@@ -189,6 +230,19 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
                       {PLAY_CATEGORY_LABEL[p.category]} · {p.vs}
                     </span>
                   </span>
+                  {defenseAvailable && (
+                    <button
+                      type="button"
+                      aria-pressed={defenseShown}
+                      aria-label={`${defenseShown ? "Hide" : "Show"} defense for ${p.name}`}
+                      onClick={() => toggleDefense(id)}
+                      className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide ${
+                        defenseShown ? "border-foreground bg-foreground text-background" : "border-line-strong bg-surface text-foreground-mute"
+                      }`}
+                    >
+                      Defense
+                    </button>
+                  )}
                   <button
                     type="button"
                     aria-label={`Move ${p.name} up`}
@@ -287,20 +341,24 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           </div>
         )}
         <div className="mx-auto flex max-w-lg gap-2">
-          <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="flex-1">
-            {status === "building" ? "Building…" : linkUrl ? "Make a new link" : "Get playbook link"}
+          <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="flex-1 whitespace-nowrap">
+            {status === "building" ? "Building…" : linkUrl ? "New link" : "Get link"}
           </Button>
           {/* A real PDF has no JavaScript to disable, so it sidesteps the whole Quick Look problem that
               killed every HTML-based download attempt — every platform's native PDF viewer (iOS Safari's
               Quick Look included) renders it directly, Share sheet and all. */}
           <a
-            href={selected.size > 0 ? `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}` : undefined}
+            href={
+              selected.size > 0
+                ? `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`
+                : undefined
+            }
             aria-disabled={selected.size === 0}
             onClick={(e) => {
               if (selected.size === 0) e.preventDefault();
               else haptic("tap");
             }}
-            className={buttonClass({ variant: "secondary", className: `flex-1 ${selected.size === 0 ? "pointer-events-none opacity-40" : ""}` })}
+            className={buttonClass({ variant: "secondary", className: `flex-1 whitespace-nowrap ${selected.size === 0 ? "pointer-events-none opacity-40" : ""}` })}
           >
             Download PDF
           </a>
