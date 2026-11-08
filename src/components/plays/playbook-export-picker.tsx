@@ -3,7 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
 import { createPlaybookExportLinkAction } from "@/app/actions/export-playbook";
 
@@ -153,7 +153,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   return (
     <div className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
       <p className="text-sm text-foreground-dim">
-        Pick which plays go in the playbook, in whatever order you want to present them — this gets you a real link anyone can open in a browser, no app or account needed, with the notes and the animated diagram for each one. Starred plays are checked to start.
+        Pick which plays go in the playbook, in whatever order you want to present them. A playbook link opens live in a browser — anyone can watch each play develop, no app or account needed. A PDF is the one to print or hand out — it opens and saves reliably on any device, iPhone included. Starred plays are checked to start.
       </p>
 
       {isStandalone && (
@@ -290,6 +290,20 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="flex-1">
             {status === "building" ? "Building…" : linkUrl ? "Make a new link" : "Get playbook link"}
           </Button>
+          {/* A real PDF has no JavaScript to disable, so it sidesteps the whole Quick Look problem that
+              killed every HTML-based download attempt — every platform's native PDF viewer (iOS Safari's
+              Quick Look included) renders it directly, Share sheet and all. */}
+          <a
+            href={selected.size > 0 ? `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}` : undefined}
+            aria-disabled={selected.size === 0}
+            onClick={(e) => {
+              if (selected.size === 0) e.preventDefault();
+              else haptic("tap");
+            }}
+            className={buttonClass({ variant: "secondary", className: `flex-1 ${selected.size === 0 ? "pointer-events-none opacity-40" : ""}` })}
+          >
+            Download PDF
+          </a>
         </div>
       </div>
     </div>
