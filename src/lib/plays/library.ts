@@ -1394,6 +1394,170 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "blob-tango",
+    "Tango",
+    "blob",
+    "Baseline OB",
+    "Elevator-doors action out of a split stack: 5 cuts from the free-throw line through 2 and 4 closing together near the block, catching the direct entry in the corner. 1 swings through as the safety, then comes back to the wing for 5's pass and lobs it to 5 cutting to the rim off 2's ball screen and 4's back screen.",
+    [
+      "2 and 4: hold your spots on either side of the door, then step together the instant 5 clears between you — too early and there's no trap to spring.",
+      "5: sell the cut hard through the door — the catch in the corner only works if the door actually closes on your man.",
+      "1: you're doing two jobs — clear out first, then come back to the wing ready to catch and immediately read the lob.",
+      "1 on the catch: the lob to 5 has to go up the instant he clears 4's back screen — a beat late and the helper's there.",
+    ],
+    [
+      {
+        offense: [o("O1", 19.5, 19), o("O5", 19.5, 15), o("O4", 31.5, 11), o("O2", 31.5, 7), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "1 and 5 stacked at the free-throw line on the weak side, 2 and 4 stacked on the ball-side block, 3 inbounding.",
+      },
+      {
+        offense: [o("O1", 41, 27), o("O2", 26, 9), o("O4", 35, 9), o("O5", 42, 9), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [
+          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 41, y: 27 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 11 }, { x: 35, y: 9 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 26, y: 9 }]),
+          ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 30, y: 8 }, { x: 42, y: 9 }]),
+          ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 42, y: 9 }]),
+        ],
+        note: "1 clears out as the safety while 2 and 4 close together near the block — elevator doors. 5 cuts through the gap down to the corner for the direct entry from 3.",
+        ballArrival: [{ x: 33, y: -1.4 }, { x: 42, y: 9 }],
+      },
+      {
+        offense: [o("O1", 40, 17), o("O2", 26, 9), o("O4", 35, 9), o("O5", 42, 9), o("O3", 22, 28)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("cut", "offense", [{ x: 41, y: 27 }, { x: 40, y: 17 }]),
+          ln("cut", "offense", [{ x: 33, y: -1.4 }, { x: 27, y: 15 }, { x: 22, y: 28 }]),
+          ln("pass", "offense", [{ x: 42, y: 9 }, { x: 40, y: 17 }]),
+        ],
+        note: "3 follows his own pass in and swings up to the top. 1 comes back down to the wing, and 5 swings it to him there.",
+        ballArrival: [{ x: 42, y: 9 }, { x: 40, y: 17 }],
+      },
+      {
+        offense: [o("O1", 40, 17), o("O2", 36, 15), o("O4", 36, 8), o("O5", 23, 7), o("O3", 22, 28)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [
+          ln("screen", "offense", [{ x: 26, y: 9 }, { x: 36, y: 15 }]),
+          ln("screen", "offense", [{ x: 35, y: 9 }, { x: 36, y: 8 }]),
+          ln("cut", "offense", [{ x: 42, y: 9 }, { x: 30, y: 8 }, { x: 23, y: 7 }]),
+          ln("pass", "offense", [{ x: 40, y: 17 }, { x: 23, y: 7 }]),
+        ],
+        note: "2 ball-screens for 1 while 4 back-screens for 5 — 1 lobs it over the top to 5 cutting to the rim for the layup.",
+        ballArrival: [{ x: 40, y: 17 }, { x: 23, y: 7 }],
+      },
+    ]
+  ),
+
+  play(
+    "blob-boom",
+    "Boom",
+    "blob",
+    "Baseline OB",
+    "Two stacks up top collapse into a double screen in the middle of the paint: 1 clears out as the decoy, 2 and 4 both converge to screen, and 5 flashes straight down between them for a direct-entry layup.",
+    [
+      "1: sell the clear-out all the way — the defense needs to believe you're the first option before 2 and 4 even start moving.",
+      "2 and 4: meet in the middle of the paint, not just near it — the gap you leave is exactly how wide 5's window is.",
+      "5: time the flash to when the screens are actually set — cutting early just runs you into your own teammates.",
+      "3 (inbounder): this is a quick-hitter — the pass to 5 has to be ready the instant he clears the screens.",
+    ],
+    [
+      {
+        offense: [o("O1", 19, 16), o("O2", 19, 20), o("O4", 31, 16), o("O5", 31, 20), o("O3", 25, -1.4)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "1 and 2 stacked up top on the left (1 in front), 4 and 5 stacked up top on the right (4 in front), 3 inbounding from the middle.",
+      },
+      {
+        offense: [o("O1", 41, 4), o("O2", 28, 11), o("O4", 24, 10), o("O5", 31, 20), o("O3", 25, -1.4)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [
+          ln("cut", "offense", [{ x: 19, y: 16 }, { x: 41, y: 4 }]),
+          ln("screen", "offense", [{ x: 19, y: 20 }, { x: 28, y: 11 }]),
+          ln("screen", "offense", [{ x: 31, y: 16 }, { x: 24, y: 10 }]),
+        ],
+        note: "1 clears out to the far corner as the decoy. 2 follows his tail partway then peels off, and 4 comes across — both screening in the middle of the paint.",
+      },
+      {
+        offense: [o("O1", 41, 4), o("O2", 28, 11), o("O4", 24, 10), o("O5", 25, 6), o("O3", 25, -1.4)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [
+          ln("cut", "offense", [{ x: 31, y: 20 }, { x: 27, y: 10 }, { x: 25, y: 6 }]),
+          ln("pass", "offense", [{ x: 25, y: -1.4 }, { x: 25, y: 6 }]),
+        ],
+        note: "5 flashes straight down between 2 and 4's screens — 3 hits him right at the front of the rim for the layup.",
+        ballArrival: [{ x: 25, y: -1.4 }, { x: 25, y: 6 }],
+      },
+    ]
+  ),
+
+  play(
+    "blob-slip",
+    "Slip",
+    "blob",
+    "Baseline OB",
+    "Mirrors Tango's elevator doors on the other personnel group: 2 cuts through 4 and 5 closing together for the direct entry in the corner. Shoot it there if open — if not, dribble to the wing and swing it to 3, who's curling off a double screen from 4 and 5 for the three.",
+    [
+      "4 and 5: same as every elevator door — hold on either side, then close together the instant 2 clears through.",
+      "2 on the catch: shot first — only dribble to the wing if the corner look isn't actually there.",
+      "3: release the inbound pass, then get moving — you're using 4 and 5's same screen a second time, now as a shooter instead of a passer.",
+      "2: the swing pass to 3 has to be on time — he's only open for as long as the defense is hung up on the double screen.",
+    ],
+    [
+      {
+        offense: [o("O1", 19.5, 19), o("O2", 19.5, 15), o("O4", 31.5, 11), o("O5", 31.5, 7), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "1 and 2 stacked at the free-throw line on the weak side, 4 and 5 stacked on the ball-side block, 3 inbounding.",
+      },
+      {
+        offense: [o("O1", 41, 27), o("O4", 35, 9), o("O5", 26, 9), o("O2", 42, 9), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [
+          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 41, y: 27 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 11 }, { x: 35, y: 9 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 26, y: 9 }]),
+          ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 30, y: 8 }, { x: 42, y: 9 }]),
+          ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 42, y: 9 }]),
+        ],
+        note: "1 clears out as the safety while 4 and 5 close together near the block — elevator doors. 2 cuts through the gap down to the corner for the direct entry from 3.",
+        ballArrival: [{ x: 33, y: -1.4 }, { x: 42, y: 9 }],
+      },
+      {
+        offense: [o("O1", 41, 27), o("O4", 35, 9), o("O5", 26, 9), o("O2", 40, 20), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 42, y: 9 }, { x: 40, y: 20 }])],
+        note: "2 reads it — shoot if open right there, else dribble up to the wing.",
+      },
+      {
+        offense: [o("O1", 41, 27), o("O4", 22, 16), o("O5", 22, 13), o("O2", 40, 20), o("O3", 12, 24)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [
+          ln("screen", "offense", [{ x: 35, y: 9 }, { x: 22, y: 16 }]),
+          ln("screen", "offense", [{ x: 26, y: 9 }, { x: 22, y: 13 }]),
+          ln("cut", "offense", [{ x: 33, y: -1.4 }, { x: 22, y: 10 }, { x: 12, y: 24 }]),
+          ln("pass", "offense", [{ x: 40, y: 20 }, { x: 12, y: 24 }]),
+        ],
+        note: "4 and 5 reset into a double screen and 3 curls off it out to the wing — 2 swings it to him for the three.",
+        ballArrival: [{ x: 40, y: 20 }, { x: 12, y: 24 }],
+      },
+    ]
+  ),
+
+  play(
     "blob-box",
     "Box BLOB",
     "blob",
