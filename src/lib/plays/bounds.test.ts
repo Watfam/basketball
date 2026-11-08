@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { computeContentBounds } from "./bounds.ts";
+import { COURT_WIDTH } from "./types.ts";
 import type { Frame } from "./types.ts";
 
 const frame = (overrides: Partial<Frame> = {}): Frame => ({
@@ -12,7 +13,7 @@ const frame = (overrides: Partial<Frame> = {}): Frame => ({
   ...overrides,
 });
 
-test("a tight cluster of players gets a small, padded region, not the whole court", () => {
+test("the x-axis is never cropped to content — both sidelines always stay in view", () => {
   const f = frame({
     offense: [
       { id: "O1", pos: { x: 20, y: 18 } },
@@ -20,8 +21,7 @@ test("a tight cluster of players gets a small, padded region, not the whole cour
     ],
   });
   const r = computeContentBounds([f]);
-  assert.ok(r.width < 40, `expected a tight width, got ${r.width}`);
-  assert.ok(r.x <= 20 && r.x + r.width >= 30, "region must contain both players");
+  assert.ok(r.x <= 0 && r.x + r.width >= COURT_WIDTH, "both sidelines must stay in view regardless of how narrow the content is");
 });
 
 test("the region always meets a minimum portrait-ish aspect ratio so it never letterboxes badly", () => {
@@ -41,12 +41,12 @@ test("a full-court play (large y-spread) is not artificially shrunk below its ow
   assert.ok(r.y <= 5 && r.y + r.height >= 75, "region must still contain the full-court spread");
 });
 
-test("lines, arrivals, and the ball arrival path all expand the region, not just player positions", () => {
-  const withLine = computeContentBounds([frame({ lines: [{ id: "l1", type: "cut", color: "offense", points: [{ x: 20, y: 20 }, { x: 48, y: 20 }] }] })]);
-  assert.ok(withLine.x + withLine.width >= 48, "a line's own points must be in view");
+test("lines, arrivals, and the ball arrival path all expand the y-extent, not just player positions", () => {
+  const withLine = computeContentBounds([frame({ lines: [{ id: "l1", type: "cut", color: "offense", points: [{ x: 20, y: 20 }, { x: 48, y: 70 }] }] })]);
+  assert.ok(withLine.y + withLine.height >= 70, "a line's own points must be in view");
 
-  const withArrival = computeContentBounds([frame({ arrivals: { O1: [{ x: 20, y: 20 }, { x: 2, y: 20 }] } })]);
-  assert.ok(withArrival.x <= 2, "an arrival path's points must be in view");
+  const withArrival = computeContentBounds([frame({ arrivals: { O1: [{ x: 20, y: 20 }, { x: 2, y: 65 }] } })]);
+  assert.ok(withArrival.y + withArrival.height >= 65, "an arrival path's points must be in view");
 
   const withBall = computeContentBounds([frame({ ballArrival: [{ x: 20, y: 20 }, { x: 20, y: 2 }] })]);
   assert.ok(withBall.y <= 2, "a ball arrival path's points must be in view");

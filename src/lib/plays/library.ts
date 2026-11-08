@@ -250,6 +250,43 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "fist",
+    "Fist",
+    "man",
+    "vs Man",
+    "A single, simple read out of basic spacing: 1 drives the lane looking for the layup. If a defender cuts him off before he gets there, he kicks it out to the corner for the open shot.",
+    [
+      "1: attack downhill for real — this only works if the defense has to respect the layup.",
+      "Corner: stay spaced and ready to shoot the instant it comes to you, not drive and decide.",
+      "Everyone else holds their spot — a crowded lane kills both the finish and the kick-out.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 31), o("O2", 44, 4), o("O3", 6, 20), o("O4", 38, 24), o("O5", 14, 6)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Basic spacing. 1 looks to attack the lane off the dribble.",
+      },
+      {
+        offense: [o("O1", 25, 12), o("O2", 44, 4), o("O3", 6, 20), o("O4", 38, 24), o("O5", 14, 6)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 31 }, { x: 25, y: 12 }])],
+        note: "1 drives middle. If a helper cuts him off, he's got a straight kick to the corner.",
+      },
+      {
+        offense: [o("O1", 25, 12), o("O2", 44, 4), o("O3", 6, 20), o("O4", 38, 24), o("O5", 14, 6)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 25, y: 12 }, { x: 44, y: 4 }])],
+        note: "Cut off at the rim, 1 kicks it out to 2 in the corner for the open shot.",
+        ballArrival: [{ x: 25, y: 12 }, { x: 44, y: 4 }],
+      },
+    ]
+  ),
+
+  play(
     "horns-pnr",
     "Horns Pick & Roll",
     "man",
@@ -764,6 +801,122 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         lines: [ln("pass", "offense", [{ x: 35, y: 7 }, { x: 19, y: 8 }])],
         note: "If x5 steps over, 4 is open on the weak block.",
         ballArrival: [{ x: 35, y: 7 }, { x: 19, y: 8 }],
+      },
+    ]
+  ),
+
+  play(
+    "zone-step-up",
+    "Step Up",
+    "zone",
+    "vs 2-3 Zone",
+    "1 dribbles at 2, who steps up above the top of the zone to catch it right in the gap between the top two defenders. 2 drives that gap, collapsing the back of the zone onto the ball side — now overloaded — and skips cross-court to 3 for the open jumper the defense can't rotate to in time.",
+    [
+      "2: meet the dribble — step up into the gap the instant 1 comes at you, don't wait on the wing for a pass that splits the top two.",
+      "2 on the catch: drive the gap hard. The whole point is making x4 and x5 both commit to you.",
+      "3: stay spaced on the weak wing, hands ready — you're one pass from the easiest shot on the floor.",
+      "The skip has to go the moment x4 and x5 both bite — a beat late and x3 recovers.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 31), o("O2", 44, 20), o("O3", 6, 20), o("O4", 6, 5), o("O5", 44, 5)],
+        defense: [d("X1", "O1", { x: 19.5, y: 22.5 }), d("X2", "O1", { x: 30.5, y: 22.5 }), d("X3", "O1", { x: 12, y: 9.5 }), d("X4", "O1", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "1-4 high vs a 2-3. 1 dribbles right at 2, looking to get him to step up and meet it above the zone.",
+      },
+      {
+        offense: [o("O1", 30, 29), o("O2", 34, 25), o("O3", 6, 20), o("O4", 6, 5), o("O5", 44, 5)],
+        defense: [d("X1", "O2", { x: 25, y: 23 }), d("X2", "O2", { x: 34.5, y: 23 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 38, y: 9.5 }), d("X5", "O2", { x: 25, y: 7 })],
+        ballHolder: "O2",
+        lines: [
+          ln("dribble", "offense", [{ x: 25, y: 31 }, { x: 30, y: 29 }]),
+          ln("cut", "offense", [{ x: 44, y: 20 }, { x: 34, y: 25 }]),
+          ln("cut", "defense", [{ x: 19.5, y: 22.5 }, { x: 25, y: 23 }]),
+          ln("cut", "defense", [{ x: 30.5, y: 22.5 }, { x: 34.5, y: 23 }]),
+          ln("pass", "offense", [{ x: 30, y: 29 }, { x: 34, y: 25 }]),
+        ],
+        note: "2 steps up above the zone to catch it right in the gap between x1 and x2.",
+        ballArrival: [{ x: 30, y: 29 }, { x: 34, y: 25 }],
+      },
+      {
+        offense: [o("O1", 25, 29), o("O2", 38, 14), o("O3", 6, 20), o("O4", 6, 5), o("O5", 41, 11)],
+        defense: [d("X1", "O2", { x: 25, y: 23 }), d("X2", "O2", { x: 34.5, y: 23 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 38, y: 13 }), d("X5", "O2", { x: 30, y: 9 })],
+        ballHolder: "O2",
+        lines: [
+          ln("cut", "offense", [{ x: 30, y: 29 }, { x: 25, y: 29 }]),
+          ln("dribble", "offense", [{ x: 34, y: 25 }, { x: 38, y: 14 }]),
+          ln("cut", "offense", [{ x: 44, y: 5 }, { x: 41, y: 11 }]),
+          ln("cut", "defense", [{ x: 38, y: 9.5 }, { x: 38, y: 13 }]),
+          ln("cut", "defense", [{ x: 25, y: 7 }, { x: 30, y: 9 }]),
+        ],
+        note: "2 drives the gap. x4 and x5 both collapse to help — the defense is now overloaded to the ball side, and x3 is alone against both 3 and 4 on the weak side.",
+      },
+      {
+        offense: [o("O1", 25, 29), o("O2", 38, 14), o("O3", 6, 20), o("O4", 6, 5), o("O5", 41, 11)],
+        defense: [d("X1", "O3", { x: 25, y: 23 }), d("X2", "O3", { x: 34.5, y: 23 }), d("X3", "O3", { x: 12, y: 9.5 }), d("X4", "O3", { x: 38, y: 13 }), d("X5", "O3", { x: 30, y: 9 })],
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 38, y: 14 }, { x: 6, y: 20 }])],
+        note: "2 skips it cross-court to 3 — x3 can't get there in time. Open jumper.",
+        ballArrival: [{ x: 38, y: 14 }, { x: 6, y: 20 }],
+      },
+    ]
+  ),
+
+  play(
+    "zone-point",
+    "Point",
+    "zone",
+    "vs 2-3 Zone",
+    "1 points to 2 to start the action, then enters it to him. 4 slides across and screens inside the zone right at the free-throw line while 5 cuts up the lane off it — the zone's two interior defenders both get hung up, and 2 hits 5 cutting to the rim for the finish.",
+    [
+      "1: point to 2 before you enter it — that's the signal for 4 to go set the screen.",
+      "4: time the slide so the screen is set by the time 5 is ready to cut off it.",
+      "5: sell the cut all the way to the rim — the defenders guarding the middle of the zone have to pick one of you.",
+      "2: the pass to 5 has to go the instant he clears the screen — a beat late and x5 recovers.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 31), o("O2", 44, 20), o("O3", 6, 20), o("O4", 34, 22), o("O5", 14, 8)],
+        defense: [d("X1", "O1", { x: 19.5, y: 22.5 }), d("X2", "O1", { x: 30.5, y: 22.5 }), d("X3", "O1", { x: 12, y: 9.5 }), d("X4", "O1", { x: 38, y: 9.5 }), d("X5", "O1", { x: 25, y: 7 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "1-4 vs a 2-3. 1 points to 2 to start the action — the signal for 4 to go set the screen.",
+      },
+      {
+        offense: [o("O1", 25, 31), o("O2", 44, 20), o("O3", 6, 20), o("O4", 34, 22), o("O5", 14, 8)],
+        defense: [d("X1", "O2", { x: 28, y: 23 }), d("X2", "O2", { x: 36, y: 22 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 40, y: 12 }), d("X5", "O2", { x: 25, y: 7 })],
+        ballHolder: "O2",
+        lines: [
+          ln("cut", "defense", [{ x: 19.5, y: 22.5 }, { x: 28, y: 23 }]),
+          ln("cut", "defense", [{ x: 30.5, y: 22.5 }, { x: 36, y: 22 }]),
+          ln("cut", "defense", [{ x: 38, y: 9.5 }, { x: 40, y: 12 }]),
+          ln("pass", "offense", [{ x: 25, y: 31 }, { x: 44, y: 20 }]),
+        ],
+        note: "1 enters it to 2. The zone shifts toward the ball.",
+        ballArrival: [{ x: 25, y: 31 }, { x: 44, y: 20 }],
+      },
+      {
+        offense: [o("O1", 25, 31), o("O2", 44, 20), o("O3", 10, 28), o("O4", 25, 20), o("O5", 22, 14)],
+        defense: [d("X1", "O2", { x: 28, y: 23 }), d("X2", "O2", { x: 30, y: 24 }), d("X3", "O2", { x: 12, y: 9.5 }), d("X4", "O2", { x: 34, y: 14 }), d("X5", "O2", { x: 25, y: 12 })],
+        ballHolder: "O2",
+        lines: [
+          ln("cut", "offense", [{ x: 34, y: 22 }, { x: 25, y: 20 }]),
+          ln("cut", "offense", [{ x: 14, y: 8 }, { x: 22, y: 14 }]),
+          ln("cut", "offense", [{ x: 6, y: 20 }, { x: 10, y: 28 }]),
+          ln("cut", "defense", [{ x: 36, y: 22 }, { x: 30, y: 24 }]),
+          ln("cut", "defense", [{ x: 40, y: 12 }, { x: 34, y: 14 }]),
+          ln("cut", "defense", [{ x: 25, y: 7 }, { x: 25, y: 12 }]),
+        ],
+        note: "4 slides across and screens inside the zone right at the free-throw line. 5 cuts up the lane off it — x2 and x5 both get hung up.",
+      },
+      {
+        offense: [o("O1", 25, 31), o("O2", 44, 20), o("O3", 10, 28), o("O4", 25, 20), o("O5", 25, 9)],
+        defense: [d("X1", "O5", { x: 28, y: 23 }), d("X2", "O5", { x: 30, y: 24 }), d("X3", "O5", { x: 12, y: 9.5 }), d("X4", "O5", { x: 34, y: 14 }), d("X5", "O5", { x: 25, y: 12 })],
+        ballHolder: "O5",
+        lines: [ln("cut", "offense", [{ x: 22, y: 14 }, { x: 25, y: 9 }]), ln("pass", "offense", [{ x: 44, y: 20 }, { x: 25, y: 9 }])],
+        note: "2 hits 5 cutting off the screen for the finish at the rim — x5 never recovers.",
+        ballArrival: [{ x: 44, y: 20 }, { x: 25, y: 9 }],
       },
     ]
   ),
@@ -1553,6 +1706,66 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         ],
         note: "4 and 5 reset into a double screen and 3 curls off it out to the wing — 2 swings it to him for the three.",
         ballArrival: [{ x: 40, y: 20 }, { x: 12, y: 24 }],
+      },
+    ]
+  ),
+
+  play(
+    "blob-otis",
+    "Otis",
+    "blob",
+    "Baseline OB",
+    "Double elevator action: 1 and 2 are stacked at the free-throw line away from the ball while 5 and 4 are stacked on the ball-side block. 5 and 4 close together first and 1 runs through that door for the direct entry in the corner. Then 2 comes down to build a second elevator with 5, right in front of the rim, and 4 curls hard through it for the finish.",
+    [
+      "5 and 4: hold on either side of the door, then step together the instant 1 clears through — too early and there's no door to run through.",
+      "1 on the catch: look to score first — everything after this is just the next read if it's not there.",
+      "2: don't come down to build the second door until 1 has the ball — too early and you tip off the second action.",
+      "4: sell the clear-out away from the rim first — the curl only works if your man believes you're done being involved.",
+      "1: the pass to 4 has to go the instant he clears the second door — a beat late and the helper beats him to the rim.",
+    ],
+    [
+      {
+        offense: [o("O1", 19.5, 15), o("O2", 19.5, 19), o("O5", 31.5, 11), o("O4", 31.5, 7), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [],
+        note: "1 and 2 stacked at the free-throw line on the weak side (1 at the bottom, closer to the door), 5 and 4 stacked on the ball-side block, 3 inbounding.",
+      },
+      {
+        offense: [o("O1", 42, 9), o("O2", 41, 27), o("O5", 35, 9), o("O4", 26, 9), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 41, y: 27 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 11 }, { x: 35, y: 9 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 26, y: 9 }]),
+          ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 30, y: 8 }, { x: 42, y: 9 }]),
+          ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 42, y: 9 }]),
+        ],
+        note: "5 and 4 close together near the block — the first elevator door. 1 cuts through the gap to the corner for the direct entry from 3. 2 clears out top as the decoy, setting up the next action.",
+        ballArrival: [{ x: 33, y: -1.4 }, { x: 42, y: 9 }],
+      },
+      {
+        offense: [o("O1", 42, 9), o("O2", 20, 8), o("O5", 28, 8), o("O4", 14, 16), o("O3", 33, 6)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("cut", "offense", [{ x: 41, y: 27 }, { x: 20, y: 8 }]),
+          ln("cut", "offense", [{ x: 35, y: 9 }, { x: 28, y: 8 }]),
+          ln("cut", "offense", [{ x: 26, y: 9 }, { x: 14, y: 16 }]),
+        ],
+        note: "2 comes back down to build a second elevator door with 5, right in front of the rim, while 4 clears out wide to set up his curl. 1 holds it in the corner.",
+      },
+      {
+        offense: [o("O1", 42, 9), o("O2", 20, 8), o("O5", 28, 8), o("O4", 25, 7), o("O3", 33, 6)],
+        defense: [],
+        ballHolder: "O4",
+        lines: [
+          ln("cut", "offense", [{ x: 14, y: 16 }, { x: 18, y: 11 }, { x: 22, y: 8 }, { x: 25, y: 7 }]),
+          ln("pass", "offense", [{ x: 42, y: 9 }, { x: 25, y: 7 }]),
+        ],
+        note: "4 curls hard through 2 and 5's door to the front of the rim — 1 delivers the pass for the finish.",
+        ballArrival: [{ x: 42, y: 9 }, { x: 25, y: 7 }],
       },
     ]
   ),
