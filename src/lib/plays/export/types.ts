@@ -1,5 +1,5 @@
 import type { Frame } from "../types";
-import type { PlayCategory } from "../library";
+import type { PlayCategory } from "../category";
 
 /** A play's broad "set type" for the export's filter bar — the one axis that's 100% reliable off existing data (category), unlike man-vs-zone (see DefenseType below). */
 export type SetType = "blobSlob" | "other";

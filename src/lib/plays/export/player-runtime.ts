@@ -8,7 +8,7 @@
 import { advanceClock, interpolateFrame, type PlaybackClock } from "../playback";
 import { resolveDefense } from "../resolve";
 import { courtBackgroundSvg, computeExportRegion, dynamicLayerSvg } from "./court-svg";
-import { groupPlaysBySection } from "./groups";
+import { groupPlaysBySection, type ExportSection } from "./groups";
 import type { Frame } from "../types";
 import type { ExportData, ExportPlay, SetType, DefenseType } from "./types";
 
@@ -264,24 +264,29 @@ function buildFilterBar(onChange: (setType: SetType | "all", defenseType: Defens
   return bar;
 }
 
-/** The TOC and the card list are both hard-grouped into the same fixed Offense/Situations/Defense sections — a coach's own play order only controls order WITHIN a section, never which section a play lands in. Returns the links/cards keyed by play id (not by array index) so the filter bar below can toggle visibility without caring where a header sits in the DOM. */
-function buildToc(groups: { label: string; plays: ExportPlay[] }[]): { nav: HTMLElement; linksByPlayId: Map<string, HTMLAnchorElement> } {
+/** The TOC and the card list are both hard-grouped into the same fixed Offense/Situations/Defense sections, each further split into its own exact categories (BLOB vs SLOB vs Press break vs Late game, say) when a section spans more than one — a coach's own play order only controls order WITHIN a category, never which section or category a play lands in. Returns the links/cards keyed by play id (not by array index) so the filter bar below can toggle visibility without caring where a header sits in the DOM. */
+function buildToc(groups: ExportSection<ExportPlay>[]): { nav: HTMLElement; linksByPlayId: Map<string, HTMLAnchorElement> } {
   const toc = el("nav", "hl-toc");
   toc.append(el("span", "hl-toc-label", "Jump to a play"));
   const linksByPlayId = new Map<string, HTMLAnchorElement>();
   groups.forEach((g) => {
     const section = el("div", "hl-toc-section");
     section.append(el("span", "hl-toc-section-label", g.label));
-    const list = el("div", "hl-toc-list");
-    g.plays.forEach((p) => {
-      const a = document.createElement("a");
-      a.href = `#play-${p.id}`;
-      a.className = "hl-toc-link";
-      a.textContent = p.name;
-      list.append(a);
-      linksByPlayId.set(p.id, a);
+    g.subgroups.forEach((sg) => {
+      const subsection = el("div", "hl-toc-subsection");
+      if (g.showSubLabels) subsection.append(el("span", "hl-toc-subsection-label", sg.label));
+      const list = el("div", "hl-toc-list");
+      sg.plays.forEach((p) => {
+        const a = document.createElement("a");
+        a.href = `#play-${p.id}`;
+        a.className = "hl-toc-link";
+        a.textContent = p.name;
+        list.append(a);
+        linksByPlayId.set(p.id, a);
+      });
+      subsection.append(list);
+      section.append(subsection);
     });
-    section.append(list);
     toc.append(section);
   });
   return { nav: toc, linksByPlayId };
@@ -315,16 +320,23 @@ function render(data: ExportData) {
   groups.forEach((g) => {
     const section = el("div", "hl-section");
     section.append(el("h2", "hl-section-title", g.label));
-    g.plays.forEach((p) => {
-      const card = buildPlayCard(p);
-      section.append(card);
-      cardsByPlayId.set(p.id, card);
+    g.subgroups.forEach((sg) => {
+      const subsection = el("div", "hl-subsection");
+      if (g.showSubLabels) subsection.append(el("h3", "hl-subsection-title", sg.label));
+      sg.plays.forEach((p) => {
+        const card = buildPlayCard(p);
+        subsection.append(card);
+        cardsByPlayId.set(p.id, card);
+      });
+      section.append(subsection);
     });
     cardsWrap.append(section);
     sectionEls.push(section);
   });
 
   const tocSectionEls = Array.from(tocNav.querySelectorAll<HTMLElement>(".hl-toc-section"));
+  const subsectionEls = Array.from(cardsWrap.querySelectorAll<HTMLElement>(".hl-subsection"));
+  const tocSubsectionEls = Array.from(tocNav.querySelectorAll<HTMLElement>(".hl-toc-subsection"));
 
   const filterBar = buildFilterBar((setType, defenseType) => {
     data.plays.forEach((p) => {
@@ -336,10 +348,20 @@ function render(data: ExportData) {
       const link = linksByPlayId.get(p.id);
       if (link) link.hidden = !visible;
     });
-    // A section with every one of its plays filtered out shouldn't show a lone, empty header.
+    // A section or subsection (BLOB, SLOB, ...) with every one of its plays filtered out shouldn't
+    // show a lone, empty header — checked at both levels since a filter can empty out just one
+    // category within an otherwise-still-visible section.
+    subsectionEls.forEach((sub) => {
+      const anyVisible = Array.from(sub.querySelectorAll<HTMLElement>(".hl-card")).some((c) => !c.hidden);
+      sub.hidden = !anyVisible;
+    });
     sectionEls.forEach((section) => {
       const anyVisible = Array.from(section.querySelectorAll<HTMLElement>(".hl-card")).some((c) => !c.hidden);
       section.hidden = !anyVisible;
+    });
+    tocSubsectionEls.forEach((sub) => {
+      const anyVisible = Array.from(sub.querySelectorAll<HTMLElement>(".hl-toc-link")).some((a) => !a.hidden);
+      sub.hidden = !anyVisible;
     });
     tocSectionEls.forEach((section) => {
       const anyVisible = Array.from(section.querySelectorAll<HTMLElement>(".hl-toc-link")).some((a) => !a.hidden);

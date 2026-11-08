@@ -8,7 +8,7 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { PlayDiagram, computeExportRegion } from "./court";
 import { PLAYER_COLORS, DEFENSE_COLOR, BALL_COLOR } from "./colors";
-import { groupPlaysBySection } from "../export/groups";
+import { groupPlaysBySection, type ExportSection } from "../export/groups";
 import type { ExportData, ExportPlay } from "../export/types";
 
 const NAVY = "#0d1b33";
@@ -22,6 +22,8 @@ const styles = StyleSheet.create({
   coverListNum: { fontFamily: "Helvetica-Bold", color: NAVY },
   coverSection: { marginBottom: 16 },
   coverSectionLabel: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#55607a", letterSpacing: 1.5, marginBottom: 7 },
+  coverSubsection: { marginBottom: 10 },
+  coverSubsectionLabel: { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#8891a3", letterSpacing: 1, marginBottom: 4 },
   legendRow: { flexDirection: "row", alignItems: "center", gap: 16, marginTop: "auto", paddingTop: 14, borderTop: "1 solid #d8dbe3" },
   legendSwatch: { width: 16, height: 16, borderRadius: 8, alignItems: "center", justifyContent: "center" },
   legendSwatchText: { fontSize: 8, color: "#ffffff", fontFamily: "Helvetica-Bold" },
@@ -67,14 +69,16 @@ function Legend() {
   );
 }
 
-function CoverPage({ data, groups }: { data: ExportData; groups: { label: string; plays: ExportPlay[] }[] }) {
-  // Numbered once, up front, rather than mutated during render — each group starts where the last
-  // one's running count left off, so the cover's numbering matches the per-play page numbers exactly.
+function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<ExportPlay>[] }) {
+  // Numbered once, up front, rather than mutated during render — each section/subgroup starts where
+  // the last one's running count left off, so the cover's numbering matches the per-play page numbers
+  // exactly even though it's printed under nested section/subsection headers.
   let nextNum = 1;
-  const numberedGroups = groups.map((g) => {
-    const numbered = g.plays.map((p) => ({ p, num: nextNum++ }));
-    return { label: g.label, numbered };
-  });
+  const numberedGroups = groups.map((g) => ({
+    label: g.label,
+    showSubLabels: g.showSubLabels,
+    subgroups: g.subgroups.map((sg) => ({ label: sg.label, numbered: sg.plays.map((p) => ({ p, num: nextNum++ })) })),
+  }));
 
   return (
     <Page size="LETTER" style={styles.page}>
@@ -87,11 +91,16 @@ function CoverPage({ data, groups }: { data: ExportData; groups: { label: string
           {numberedGroups.map((g) => (
             <View key={g.label} style={styles.coverSection} wrap={false}>
               <Text style={styles.coverSectionLabel}>{g.label.toUpperCase()}</Text>
-              {g.numbered.map(({ p, num }) => (
-                <Text key={p.id} style={styles.coverListItem}>
-                  <Text style={styles.coverListNum}>{num}. </Text>
-                  {p.name}
-                </Text>
+              {g.subgroups.map((sg) => (
+                <View key={sg.label} style={styles.coverSubsection} wrap={false}>
+                  {g.showSubLabels && <Text style={styles.coverSubsectionLabel}>{sg.label.toUpperCase()}</Text>}
+                  {sg.numbered.map(({ p, num }) => (
+                    <Text key={p.id} style={styles.coverListItem}>
+                      <Text style={styles.coverListNum}>{num}. </Text>
+                      {p.name}
+                    </Text>
+                  ))}
+                </View>
               ))}
             </View>
           ))}
@@ -168,7 +177,7 @@ function PlayPage({ team, play, index, sectionLabel }: { team: ExportData["team"
 
 export function PlaybookPdfDocument({ data }: { data: ExportData }) {
   const groups = groupPlaysBySection(data.plays);
-  const ordered = groups.flatMap((g) => g.plays.map((play) => ({ play, sectionLabel: g.label })));
+  const ordered = groups.flatMap((g) => g.subgroups.flatMap((sg) => sg.plays.map((play) => ({ play, sectionLabel: g.label }))));
   return (
     <Document title={`${data.team.name} Playbook`} author={data.team.name}>
       <CoverPage data={data} groups={groups} />

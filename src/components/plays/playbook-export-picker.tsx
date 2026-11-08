@@ -341,22 +341,24 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           </Button>
           {/* A real PDF has no JavaScript to disable, so it sidesteps the whole Quick Look problem that
               killed every HTML-based download attempt — every platform's native PDF viewer (iOS Safari's
-              Quick Look included) renders it directly, Share sheet and all. */}
-          <a
-            href={
-              selected.size > 0
-                ? `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`
-                : undefined
-            }
-            aria-disabled={selected.size === 0}
-            onClick={(e) => {
-              if (selected.size === 0) e.preventDefault();
-              else haptic("tap");
+              Quick Look included) renders it directly, Share sheet and all. But that native viewer (and
+              its Share button) is Safari's OWN chrome — an installed standalone app has none of it, so a
+              plain same-tab `<a>` just renders the PDF bytes inside the app's own bare webview with no way
+              to save or share it at all. window.open (same escape-the-shell trick as the link button
+              above) hands the navigation to a real Safari tab instead, which is where Quick Look and the
+              Share sheet actually live. */}
+          <button
+            type="button"
+            disabled={selected.size === 0}
+            onClick={() => {
+              haptic("tap");
+              const url = `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
+              window.open(url, "_blank");
             }}
-            className={buttonClass({ variant: "secondary", className: `flex-1 whitespace-nowrap ${selected.size === 0 ? "pointer-events-none opacity-40" : ""}` })}
+            className={buttonClass({ variant: "secondary", className: "flex-1 whitespace-nowrap" })}
           >
             Download PDF
-          </a>
+          </button>
         </div>
       </div>
     </div>

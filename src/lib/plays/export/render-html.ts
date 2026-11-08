@@ -40,8 +40,13 @@ function buildCss(team: ExportData["team"]): string {
   .hl-toc-section { margin-bottom: 10px; }
   .hl-toc-section:last-child { margin-bottom: 0; }
   .hl-toc-section-label { display: block; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hl-muted); font-weight: 700; margin-bottom: 6px; }
-  .hl-section { display: flex; flex-direction: column; gap: 18px; }
+  .hl-toc-subsection { margin-bottom: 8px; }
+  .hl-toc-subsection:last-child { margin-bottom: 0; }
+  .hl-toc-subsection-label { display: block; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hl-muted); opacity: 0.8; font-weight: 700; margin-bottom: 4px; }
+  .hl-section { display: flex; flex-direction: column; gap: 22px; }
   .hl-section-title { margin: 0 0 -4px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800; color: var(--hl-navy); padding-bottom: 8px; border-bottom: 2px solid var(--hl-stripe); }
+  .hl-subsection { display: flex; flex-direction: column; gap: 18px; }
+  .hl-subsection-title { margin: 0; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--hl-muted); }
   .hl-filterbar { display: flex; flex-wrap: wrap; gap: 24px; padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--hl-stripe); position: sticky; top: 0; z-index: 5; }
   .hl-chip-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .hl-chip-label { font-size: 11px; letter-spacing: 0.08em; color: var(--hl-muted); font-weight: 700; margin-right: 2px; }

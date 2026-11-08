@@ -1,16 +1,8 @@
 import type { DefenseId, DrawnLine, Frame, OffenseId, OffensePlayer, DefensePlayer } from "./types";
 import type { Point } from "./geometry";
 
-export type PlayCategory = "man" | "zone" | "blob" | "slob" | "fullCourt" | "late" | "defense";
-export const PLAY_CATEGORY_LABEL: Record<PlayCategory, string> = {
-  man: "Man",
-  zone: "Zone",
-  blob: "BLOB",
-  slob: "SLOB",
-  fullCourt: "Press break",
-  late: "Late game",
-  defense: "Defense",
-};
+export { type PlayCategory, PLAY_CATEGORY_LABEL } from "./category";
+import type { PlayCategory } from "./category";
 
 export type LibraryPlay = {
   id: string;
