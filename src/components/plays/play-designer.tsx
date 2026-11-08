@@ -163,6 +163,30 @@ export function PlayDesigner({
     }));
   }
 
+  /** Dragging an interior point (moves it) or the dashed synthetic midpoint of a still-straight line (inserts a real point there, curving it). One history snapshot, same as any other single-gesture edit. */
+  function editLineMidpoint(lineId: string, index: number, point: Point, insert: boolean) {
+    recordHistory();
+    haptic("tap");
+    updateActive((f) => ({
+      ...f,
+      lines: f.lines.map((l) => {
+        if (l.id !== lineId) return l;
+        const points = insert ? [...l.points.slice(0, index), point, ...l.points.slice(index)] : l.points.map((pt, i) => (i === index ? point : pt));
+        return { ...l, points };
+      }),
+    }));
+  }
+
+  /** Cut/screen/dribble, pressed down directly on a player: relocates him AND adds a line tracing the drag, as one gesture — one history snapshot, not two. Reuses movePlayerAcrossFrames so any OTHER line already touching his old spot (in this step or an adjacent one) still reattaches exactly like a plain Move drag. */
+  function dragDrawPlayer(id: OffenseId | DefenseId, finalPos: Point, line: Omit<DrawnLine, "id">) {
+    recordHistory();
+    haptic("tap");
+    setFrames((fs) => {
+      const moved = movePlayerAcrossFrames(fs, activeIndex, id, finalPos);
+      return moved.map((f, i) => (i === activeIndex ? { ...f, lines: [...f.lines, { ...line, id: nextLineId() }] } : f));
+    });
+  }
+
   function setLineBeat(lineId: string, beat: number) {
     recordHistory();
     haptic("tap");
@@ -506,6 +530,8 @@ export function PlayDesigner({
           selectedLineId={selectedLineId}
           onSelectLine={setSelectedLineId}
           onEditLineEndpoint={editLineEndpoint}
+          onDragDrawPlayer={dragDrawPlayer}
+          onEditLineMidpoint={editLineMidpoint}
           region={region}
         />
       </div>

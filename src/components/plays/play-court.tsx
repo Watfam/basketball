@@ -188,7 +188,7 @@ function LinePath({ line, selected }: { line: DrawnLine; selected?: boolean }) {
   );
 }
 
-/** A small, generously-tappable handle at one end of the selected line — the untrimmed raw point, not the arrow's visually-trimmed tip, since dragging operates on the real stored data. */
+/** A small, generously-tappable handle at a point on the selected line — the untrimmed raw point, not the arrow's visually-trimmed tip, since dragging operates on the real stored data. */
 function LineHandle({ point, color }: { point: Point; color: string }) {
   return (
     <g>
@@ -196,6 +196,15 @@ function LineHandle({ point, color }: { point: Point; color: string }) {
       <circle cx={point.x} cy={point.y} r={0.35} fill={color} />
     </g>
   );
+}
+
+/** The not-yet-real midpoint of a currently-straight (2-point) line — dashed/hollow rather than solid, since nothing is actually there yet; grabbing it is what turns the line curved by inserting a real point. */
+function AddPointHandle({ point, color }: { point: Point; color: string }) {
+  return <circle cx={point.x} cy={point.y} r={0.9} fill="none" stroke={color} strokeWidth={0.35} strokeDasharray="0.6 0.5" opacity={0.75} />;
+}
+
+function midpoint(a: Point, b: Point): Point {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
 export function PlayCourt({
@@ -210,6 +219,8 @@ export function PlayCourt({
   selectedLineId = null,
   onSelectLine,
   onEditLineEndpoint,
+  onDragDrawPlayer,
+  onEditLineMidpoint,
   ballOverride,
   interactive = true,
   region,
@@ -226,6 +237,10 @@ export function PlayCourt({
   selectedLineId?: string | null;
   onSelectLine?: (id: string | null) => void;
   onEditLineEndpoint?: (lineId: string, which: "start" | "end", point: Point) => void;
+  /** Cut/screen/dribble tool, pressed down directly on a player: commits his new position AND a line tracing the drag, in one gesture — see onPointerUp's dragDraw branch. */
+  onDragDrawPlayer?: (id: OffenseId | DefenseId, finalPos: Point, line: Omit<DrawnLine, "id">) => void;
+  /** Dragging an existing interior point (moves it) or the dashed synthetic midpoint of a still-straight 2-point line (inserts a real point there first). */
+  onEditLineMidpoint?: (lineId: string, index: number, point: Point, insert: boolean) => void;
   /** The ball's actual position mid-flight along a pass during playback — overrides deriving it from the holder. */
   ballOverride?: Point;
   /** False during film playback: no drag, draw, or tap-to-open-sheet. */
@@ -241,9 +256,11 @@ export function PlayCourt({
     startPos: Point;
     moved: boolean;
   } | null>(null);
-  const lineGesture = useRef<{ lineId: string; which: "start" | "end" } | null>(null);
+  const lineGesture = useRef<{ lineId: string; which: "start" | "end" | "mid"; index: number; insert: boolean } | null>(null);
+  const dragDrawGesture = useRef<{ kind: "offense" | "defense"; id: string; points: Point[] } | null>(null);
   const [drawing, setDrawing] = useState<{ points: Point[] } | null>(null);
-  const [dragEndpoint, setDragEndpoint] = useState<{ lineId: string; which: "start" | "end"; point: Point } | null>(null);
+  const [dragEndpoint, setDragEndpoint] = useState<{ lineId: string; which: "start" | "end" | "mid"; index: number; insert: boolean; point: Point } | null>(null);
+  const [dragDrawPreview, setDragDrawPreview] = useState<{ kind: "offense" | "defense"; id: string; points: Point[] } | null>(null);
 
   useEffect(() => {
     if (tool !== "move") onSelectLine?.(null);
@@ -251,16 +268,21 @@ export function PlayCourt({
   }, [tool]);
 
   const defense = resolveDefense(frame, ballOverride);
-  const holderPos = frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 47 };
+  const liveDragDrawPos = (kind: "offense" | "defense", id: string): Point | null =>
+    dragDrawPreview && dragDrawPreview.kind === kind && dragDrawPreview.id === id ? dragDrawPreview.points[dragDrawPreview.points.length - 1] : null;
+  const holderLiveDrag = liveDragDrawPos("offense", frame.ballHolder);
+  const holderPos = holderLiveDrag ?? frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 47 };
   const ballPos = ballOverride ?? { x: holderPos.x + 1.7, y: holderPos.y + 1.7 };
 
-  function nearestPlayer(p: Point, radius: number = HIT_R): { kind: "offense" | "defense"; id: string; pos: Point } | null {
+  function nearestPlayer(p: Point, radius: number = HIT_R, excludeId?: string): { kind: "offense" | "defense"; id: string; pos: Point } | null {
     let best: { kind: "offense" | "defense"; id: string; pos: Point; d: number } | null = null;
     for (const o of frame.offense) {
+      if (o.id === excludeId) continue;
       const d = distance(p, o.pos);
       if (d < radius && (!best || d < best.d)) best = { kind: "offense", id: o.id, pos: o.pos, d };
     }
     for (const x of defense) {
+      if (x.id === excludeId) continue;
       const d = distance(p, x.pos);
       if (d < radius && (!best || d < best.d)) best = { kind: "defense", id: x.id, pos: x.pos, d };
     }
@@ -296,6 +318,17 @@ export function PlayCourt({
 
     if (tool !== "move") {
       const snap = nearestPlayer(p, DRAW_START_HIT_R);
+      // Pressing down directly on a player with cut/screen/dribble means "show how he moves" — drag
+      // him and the line traces itself behind him, committed together on release. A pass never moves
+      // the passer (it's the ball that travels), so it keeps the old draw-only behavior; so does
+      // starting anywhere that isn't snapped tight onto a specific player — that's still the right way
+      // to hand-annotate a move after the fact without relocating anyone (see reattachLines/frames.ts).
+      if (snap && tool !== "pass" && onDragDrawPlayer) {
+        dragDrawGesture.current = { kind: snap.kind, id: snap.id, points: [snap.pos] };
+        setDragDrawPreview({ kind: snap.kind, id: snap.id, points: [snap.pos] });
+        tryCapture(svg, e.pointerId, false);
+        return;
+      }
       setDrawing({ points: [snap ? snap.pos : p] });
       tryCapture(svg, e.pointerId, false);
       return;
@@ -311,10 +344,32 @@ export function PlayCourt({
       const endD = distance(p, selected.points[selected.points.length - 1]);
       if (startD < HANDLE_HIT_R || endD < HANDLE_HIT_R) {
         const which: "start" | "end" = startD <= endD ? "start" : "end";
-        lineGesture.current = { lineId: selected.id, which };
-        setDragEndpoint({ lineId: selected.id, which, point: which === "start" ? selected.points[0] : selected.points[selected.points.length - 1] });
+        const index = which === "start" ? 0 : selected.points.length - 1;
+        lineGesture.current = { lineId: selected.id, which, index, insert: false };
+        setDragEndpoint({ lineId: selected.id, which, index, insert: false, point: selected.points[index] });
         tryCapture(svg, e.pointerId, false);
         return;
+      }
+      // An existing interior point (a line already curved by an earlier edit, or hand-authored with
+      // 3+ points) — grab and drag any of them individually.
+      for (let i = 1; i < selected.points.length - 1; i++) {
+        if (distance(p, selected.points[i]) < HANDLE_HIT_R) {
+          lineGesture.current = { lineId: selected.id, which: "mid", index: i, insert: false };
+          setDragEndpoint({ lineId: selected.id, which: "mid", index: i, insert: false, point: selected.points[i] });
+          tryCapture(svg, e.pointerId, false);
+          return;
+        }
+      }
+      // A still-straight 2-point line has no interior point to grab yet — its dashed midpoint handle
+      // (see AddPointHandle) is where dragging inserts a real one, turning it curved on the spot.
+      if (selected.points.length === 2 && onEditLineMidpoint) {
+        const mid = midpoint(selected.points[0], selected.points[1]);
+        if (distance(p, mid) < HANDLE_HIT_R) {
+          lineGesture.current = { lineId: selected.id, which: "mid", index: 1, insert: true };
+          setDragEndpoint({ lineId: selected.id, which: "mid", index: 1, insert: true, point: mid });
+          tryCapture(svg, e.pointerId, false);
+          return;
+        }
       }
     }
 
@@ -339,6 +394,17 @@ export function PlayCourt({
       const last = drawing.points[drawing.points.length - 1];
       if (distance(last, p) > 0.6) {
         setDrawing({ points: [...drawing.points, p] });
+      }
+      return;
+    }
+
+    if (dragDrawGesture.current) {
+      const p = clientToCourt(svg, e.clientX, e.clientY);
+      const pts = dragDrawGesture.current.points;
+      const last = pts[pts.length - 1];
+      if (distance(last, p) > 0.6) {
+        dragDrawGesture.current = { ...dragDrawGesture.current, points: [...pts, p] };
+        setDragDrawPreview({ kind: dragDrawGesture.current.kind, id: dragDrawGesture.current.id, points: dragDrawGesture.current.points });
       }
       return;
     }
@@ -385,6 +451,23 @@ export function PlayCourt({
       return;
     }
 
+    const dd = dragDrawGesture.current;
+    if (dd) {
+      dragDrawGesture.current = null;
+      setDragDrawPreview(null);
+      // Same tap-vs-drag distinction as Move: barely moved means nothing happened, not a zero-length line.
+      if (dd.points.length >= 2) {
+        const rawEnd = dd.points[dd.points.length - 1];
+        const snapEnd = nearestPlayer(rawEnd, HIT_R, dd.id);
+        const isStraight = maxDeviationFromChord(dd.points) < STRAIGHT_TOLERANCE;
+        const finalEnd = snapEnd ? snapEnd.pos : rawEnd;
+        const points = isStraight ? [dd.points[0], finalEnd] : [...dd.points.slice(0, -1), finalEnd];
+        const color: DrawnLine["color"] = dd.kind === "offense" ? "offense" : "defense";
+        onDragDrawPlayer?.(dd.id as OffenseId | DefenseId, finalEnd, { type: tool as LineType, color, points });
+      }
+      return;
+    }
+
     const lg = lineGesture.current;
     if (lg) {
       lineGesture.current = null;
@@ -397,9 +480,11 @@ export function PlayCourt({
         // color is fixed once it's drawn; erase and redraw it to put it on a different team.
         const snap = nearestPlayer(p, DRAW_START_HIT_R);
         onEditLineEndpoint?.(lg.lineId, "start", snap ? snap.pos : p);
-      } else {
+      } else if (lg.which === "end") {
         const snap = nearestPlayer(p);
         onEditLineEndpoint?.(lg.lineId, "end", snap ? snap.pos : p);
+      } else {
+        onEditLineMidpoint?.(lg.lineId, lg.index, p, lg.insert);
       }
       setDragEndpoint(null);
       return;
@@ -434,15 +519,29 @@ export function PlayCourt({
 
       <g>
         {frame.lines.map((line) => {
-          const live =
-            dragEndpoint?.lineId === line.id
-              ? { ...line, points: dragEndpoint.which === "start" ? [dragEndpoint.point, ...line.points.slice(1)] : [...line.points.slice(0, -1), dragEndpoint.point] }
-              : line;
+          let live = line;
+          if (dragEndpoint?.lineId === line.id) {
+            const { which, index, point } = dragEndpoint;
+            const points =
+              which === "start"
+                ? [point, ...line.points.slice(1)]
+                : which === "end"
+                  ? [...line.points.slice(0, -1), point]
+                  : dragEndpoint.insert
+                    ? [...line.points.slice(0, index), point, ...line.points.slice(index)]
+                    : line.points.map((pt, i) => (i === index ? point : pt));
+            live = { ...line, points };
+          }
           return <LinePath key={line.id} line={live} selected={tool === "move" && selectedLineId === line.id} />;
         })}
       </g>
       {drawPreview && drawPreview.points.length > 1 && (
         <LinePath line={{ id: "preview", type: tool as LineType, color: "black", points: drawPreview.points }} />
+      )}
+      {dragDrawPreview && dragDrawPreview.points.length > 1 && (
+        <LinePath
+          line={{ id: "drag-preview", type: tool as LineType, color: dragDrawPreview.kind === "offense" ? "offense" : "defense", points: dragDrawPreview.points }}
+        />
       )}
       {tool === "move" &&
         selectedLineId &&
@@ -450,24 +549,31 @@ export function PlayCourt({
           const sel = frame.lines.find((l) => l.id === selectedLineId);
           if (!sel) return null;
           const color = LINE_COLOR_HEX[sel.color];
+          const pointAt = (i: number, fallback: Point) => (dragEndpoint?.lineId === sel.id && dragEndpoint.which === "mid" && dragEndpoint.index === i && !dragEndpoint.insert ? dragEndpoint.point : fallback);
           const startPt = dragEndpoint?.lineId === sel.id && dragEndpoint.which === "start" ? dragEndpoint.point : sel.points[0];
           const endPt = dragEndpoint?.lineId === sel.id && dragEndpoint.which === "end" ? dragEndpoint.point : sel.points[sel.points.length - 1];
+          const interiorHandles = sel.points.slice(1, -1).map((pt, i) => <LineHandle key={i + 1} point={pointAt(i + 1, pt)} color={color} />);
+          const liveInsert = dragEndpoint?.lineId === sel.id && dragEndpoint.which === "mid" && dragEndpoint.insert ? dragEndpoint.point : null;
           return (
             <g>
               <LineHandle point={startPt} color={color} />
               <LineHandle point={endPt} color={color} />
+              {interiorHandles}
+              {sel.points.length === 2 && (liveInsert ? <LineHandle point={liveInsert} color={color} /> : <AddPointHandle point={midpoint(sel.points[0], sel.points[1])} color={color} />)}
             </g>
           );
         })()}
 
       {frame.offense.map((o) => {
-        const isDragging = dragging?.kind === "offense" && dragging.id === o.id;
+        const liveDrag = liveDragDrawPos("offense", o.id);
+        const pos = liveDrag ?? o.pos;
+        const isDragging = (dragging?.kind === "offense" && dragging.id === o.id) || !!liveDrag;
         const r = isDragging ? PLAYER_R * 1.3 : PLAYER_R;
-        const cy = isDragging ? o.pos.y - LIFT_FEET : o.pos.y;
+        const cy = isDragging ? pos.y - LIFT_FEET : pos.y;
         return (
           <g key={o.id} style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
-            <circle cx={o.pos.x} cy={cy} r={r} fill={OFFENSE_FILL} stroke="#450a0a" strokeWidth={0.2} />
-            <text x={o.pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill="#ffffff">
+            <circle cx={pos.x} cy={cy} r={r} fill={OFFENSE_FILL} stroke="#450a0a" strokeWidth={0.2} />
+            <text x={pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill="#ffffff">
               {o.id.slice(1)}
             </text>
           </g>
@@ -475,13 +581,15 @@ export function PlayCourt({
       })}
 
       {defense.map((d) => {
-        const isDragging = dragging?.kind === "defense" && dragging.id === d.id;
+        const liveDrag = liveDragDrawPos("defense", d.id);
+        const pos = liveDrag ?? d.pos;
+        const isDragging = (dragging?.kind === "defense" && dragging.id === d.id) || !!liveDrag;
         const r = isDragging ? PLAYER_R * 1.3 : PLAYER_R;
-        const cy = isDragging ? d.pos.y - LIFT_FEET : d.pos.y;
+        const cy = isDragging ? pos.y - LIFT_FEET : pos.y;
         return (
           <g key={d.id} style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
-            <circle cx={d.pos.x} cy={cy} r={r} fill={DEFENSE_FILL} stroke="#0a1120" strokeWidth={0.2} />
-            <text x={d.pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill={DEFENSE_NUMBER}>
+            <circle cx={pos.x} cy={cy} r={r} fill={DEFENSE_FILL} stroke="#0a1120" strokeWidth={0.2} />
+            <text x={pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill={DEFENSE_NUMBER}>
               {d.id.slice(1)}
             </text>
           </g>
@@ -490,7 +598,7 @@ export function PlayCourt({
 
       {(() => {
         const holder = frame.offense.find((o) => o.id === frame.ballHolder);
-        const isDragging = dragging?.kind === "offense" && dragging.id === frame.ballHolder;
+        const isDragging = (dragging?.kind === "offense" && dragging.id === frame.ballHolder) || !!holderLiveDrag;
         const liftDy = isDragging && holder ? -LIFT_FEET : 0;
         return (
           <circle
