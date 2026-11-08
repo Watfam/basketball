@@ -37,12 +37,17 @@ function buildCss(team: ExportData["team"]): string {
   .hl-toc-list { display: flex; flex-wrap: wrap; gap: 8px; }
   .hl-toc-link { font-size: 13px; font-weight: 600; color: var(--hl-navy); text-decoration: none; background: var(--hl-stripe); padding: 6px 12px; border-radius: 999px; }
   .hl-toc-link:hover { background: var(--hl-gold); }
+  .hl-toc-section { margin-bottom: 10px; }
+  .hl-toc-section:last-child { margin-bottom: 0; }
+  .hl-toc-section-label { display: block; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hl-muted); font-weight: 700; margin-bottom: 6px; }
+  .hl-section { display: flex; flex-direction: column; gap: 18px; }
+  .hl-section-title { margin: 0 0 -4px; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800; color: var(--hl-navy); padding-bottom: 8px; border-bottom: 2px solid var(--hl-stripe); }
   .hl-filterbar { display: flex; flex-wrap: wrap; gap: 24px; padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--hl-stripe); position: sticky; top: 0; z-index: 5; }
   .hl-chip-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .hl-chip-label { font-size: 11px; letter-spacing: 0.08em; color: var(--hl-muted); font-weight: 700; margin-right: 2px; }
   .hl-chip { font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--hl-stripe); background: #fff; color: var(--hl-ink); cursor: pointer; }
   .hl-chip-active { background: var(--hl-navy); border-color: var(--hl-navy); color: #fff; }
-  .hl-cards { display: flex; flex-direction: column; gap: 18px; padding: 20px; max-width: 980px; margin: 0 auto; }
+  .hl-cards { display: flex; flex-direction: column; gap: 32px; padding: 20px; max-width: 980px; margin: 0 auto; }
   .hl-card { background: #fff; border: 1px solid var(--hl-stripe); border-radius: 14px; padding: 20px; scroll-margin-top: 64px; }
   .hl-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .hl-card-title { margin: 0; font-size: 20px; font-weight: 800; color: var(--hl-navy); }

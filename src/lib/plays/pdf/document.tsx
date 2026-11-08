@@ -8,6 +8,7 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { PlayDiagram, computeExportRegion } from "./court";
 import { PLAYER_COLORS, DEFENSE_COLOR, BALL_COLOR } from "./colors";
+import { groupPlaysBySection } from "../export/groups";
 import type { ExportData, ExportPlay } from "../export/types";
 
 const NAVY = "#0d1b33";
@@ -19,6 +20,8 @@ const styles = StyleSheet.create({
   coverSubtitle: { fontSize: 13, color: "#55607a", marginTop: 4, marginBottom: 28 },
   coverListItem: { fontSize: 14, marginBottom: 7, color: "#1c2333" },
   coverListNum: { fontFamily: "Helvetica-Bold", color: NAVY },
+  coverSection: { marginBottom: 16 },
+  coverSectionLabel: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#55607a", letterSpacing: 1.5, marginBottom: 7 },
   legendRow: { flexDirection: "row", alignItems: "center", gap: 16, marginTop: "auto", paddingTop: 14, borderTop: "1 solid #d8dbe3" },
   legendSwatch: { width: 16, height: 16, borderRadius: 8, alignItems: "center", justifyContent: "center" },
   legendSwatchText: { fontSize: 8, color: "#ffffff", fontFamily: "Helvetica-Bold" },
@@ -64,7 +67,15 @@ function Legend() {
   );
 }
 
-function CoverPage({ data }: { data: ExportData }) {
+function CoverPage({ data, groups }: { data: ExportData; groups: { label: string; plays: ExportPlay[] }[] }) {
+  // Numbered once, up front, rather than mutated during render — each group starts where the last
+  // one's running count left off, so the cover's numbering matches the per-play page numbers exactly.
+  let nextNum = 1;
+  const numberedGroups = groups.map((g) => {
+    const numbered = g.plays.map((p) => ({ p, num: nextNum++ }));
+    return { label: g.label, numbered };
+  });
+
   return (
     <Page size="LETTER" style={styles.page}>
       <View style={{ flex: 1, justifyContent: "center" }}>
@@ -73,11 +84,16 @@ function CoverPage({ data }: { data: ExportData }) {
         <Text style={styles.coverTitle}>{data.team.name.toUpperCase()}</Text>
         <Text style={styles.coverSubtitle}>{data.team.subtitle} — Playbook</Text>
         <View>
-          {data.plays.map((p, i) => (
-            <Text key={p.id} style={styles.coverListItem}>
-              <Text style={styles.coverListNum}>{i + 1}. </Text>
-              {p.name}
-            </Text>
+          {numberedGroups.map((g) => (
+            <View key={g.label} style={styles.coverSection} wrap={false}>
+              <Text style={styles.coverSectionLabel}>{g.label.toUpperCase()}</Text>
+              {g.numbered.map(({ p, num }) => (
+                <Text key={p.id} style={styles.coverListItem}>
+                  <Text style={styles.coverListNum}>{num}. </Text>
+                  {p.name}
+                </Text>
+              ))}
+            </View>
           ))}
         </View>
       </View>
@@ -89,7 +105,7 @@ function CoverPage({ data }: { data: ExportData }) {
   );
 }
 
-function PlayPage({ team, play, index }: { team: ExportData["team"]; play: ExportPlay; index: number }) {
+function PlayPage({ team, play, index, sectionLabel }: { team: ExportData["team"]; play: ExportPlay; index: number; sectionLabel: string }) {
   const region = computeExportRegion(play.frames);
   const chunks: typeof play.frames[] = [];
   for (let i = 0; i < play.frames.length; i += 4) chunks.push(play.frames.slice(i, i + 4));
@@ -99,7 +115,9 @@ function PlayPage({ team, play, index }: { team: ExportData["team"]; play: Expor
       {chunks.map((chunk, pageIdx) => (
         <Page key={pageIdx} size="LETTER" style={styles.page}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>{team.name.toUpperCase()}</Text>
+            <Text style={styles.headerText}>
+              {team.name.toUpperCase()} · {sectionLabel.toUpperCase()}
+            </Text>
             <Text style={styles.headerText}>
               Play {index + 1}: {play.name.toUpperCase()}
               {chunks.length > 1 ? ` (${pageIdx + 1}/${chunks.length})` : ""}
@@ -149,11 +167,13 @@ function PlayPage({ team, play, index }: { team: ExportData["team"]; play: Expor
 }
 
 export function PlaybookPdfDocument({ data }: { data: ExportData }) {
+  const groups = groupPlaysBySection(data.plays);
+  const ordered = groups.flatMap((g) => g.plays.map((play) => ({ play, sectionLabel: g.label })));
   return (
     <Document title={`${data.team.name} Playbook`} author={data.team.name}>
-      <CoverPage data={data} />
-      {data.plays.map((play, i) => (
-        <PlayPage key={play.id} team={data.team} play={play} index={i} />
+      <CoverPage data={data} groups={groups} />
+      {ordered.map(({ play, sectionLabel }, i) => (
+        <PlayPage key={play.id} team={data.team} play={play} index={i} sectionLabel={sectionLabel} />
       ))}
     </Document>
   );

@@ -4,8 +4,9 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
 import { Button, buttonClass } from "@/components/ui/button";
-import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
+import { PLAY_CATEGORY_LABEL, type LibraryPlay } from "@/lib/plays/library";
 import { createPlaybookExportLinkAction } from "@/app/actions/export-playbook";
+import { EXPORT_GROUPS } from "@/lib/plays/export/groups";
 
 /** A hung request (flaky connection, a stuck server call) should never leave the button reading "Building…" forever with no way out. */
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -37,12 +38,6 @@ function parseStarred(raw: string | null): Set<string> {
     return new Set();
   }
 }
-
-const GROUPS: { label: string; categories: PlayCategory[] }[] = [
-  { label: "Offense", categories: ["man", "zone"] },
-  { label: "Situations", categories: ["blob", "slob", "fullCourt", "late"] },
-  { label: "Defense", categories: ["defense"] },
-];
 
 /** Whether any frame of this play actually draws defenders — most BLOB plays don't, so there's nothing to toggle for them. */
 function hasDefense(p: LibraryPlay): boolean {
@@ -276,7 +271,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         </section>
       )}
 
-      {GROUPS.map((group) => {
+      {EXPORT_GROUPS.map((group) => {
         const groupPlays = plays.filter((p) => group.categories.includes(p.category));
         if (!groupPlays.length) return null;
         return (

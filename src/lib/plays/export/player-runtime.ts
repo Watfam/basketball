@@ -8,6 +8,7 @@
 import { advanceClock, interpolateFrame, type PlaybackClock } from "../playback";
 import { resolveDefense } from "../resolve";
 import { courtBackgroundSvg, computeExportRegion, dynamicLayerSvg } from "./court-svg";
+import { groupPlaysBySection } from "./groups";
 import type { Frame } from "../types";
 import type { ExportData, ExportPlay, SetType, DefenseType } from "./types";
 
@@ -263,19 +264,27 @@ function buildFilterBar(onChange: (setType: SetType | "all", defenseType: Defens
   return bar;
 }
 
-function buildToc(plays: ExportPlay[]): HTMLElement {
+/** The TOC and the card list are both hard-grouped into the same fixed Offense/Situations/Defense sections — a coach's own play order only controls order WITHIN a section, never which section a play lands in. Returns the links/cards keyed by play id (not by array index) so the filter bar below can toggle visibility without caring where a header sits in the DOM. */
+function buildToc(groups: { label: string; plays: ExportPlay[] }[]): { nav: HTMLElement; linksByPlayId: Map<string, HTMLAnchorElement> } {
   const toc = el("nav", "hl-toc");
   toc.append(el("span", "hl-toc-label", "Jump to a play"));
-  const list = el("div", "hl-toc-list");
-  plays.forEach((p) => {
-    const a = document.createElement("a");
-    a.href = `#play-${p.id}`;
-    a.className = "hl-toc-link";
-    a.textContent = p.name;
-    list.append(a);
+  const linksByPlayId = new Map<string, HTMLAnchorElement>();
+  groups.forEach((g) => {
+    const section = el("div", "hl-toc-section");
+    section.append(el("span", "hl-toc-section-label", g.label));
+    const list = el("div", "hl-toc-list");
+    g.plays.forEach((p) => {
+      const a = document.createElement("a");
+      a.href = `#play-${p.id}`;
+      a.className = "hl-toc-link";
+      a.textContent = p.name;
+      list.append(a);
+      linksByPlayId.set(p.id, a);
+    });
+    section.append(list);
+    toc.append(section);
   });
-  toc.append(list);
-  return toc;
+  return { nav: toc, linksByPlayId };
 }
 
 /** Only shown when this tab/window was actually opened by another page's script (the in-app "Open" flow always does this) — window.close() is permitted on a script-opened window but silently does nothing otherwise, so there's no point showing a dead button to someone who opened this file directly (a shared/saved copy, no opener at all). */
@@ -295,27 +304,47 @@ function render(data: ExportData) {
   const closeBar = buildCloseBar();
   if (closeBar) root.append(closeBar);
   root.append(buildHeader(data));
-  root.append(buildToc(data.plays));
+
+  const groups = groupPlaysBySection(data.plays);
+  const { nav: tocNav, linksByPlayId } = buildToc(groups);
+  root.append(tocNav);
 
   const cardsWrap = el("div", "hl-cards");
-  const cards = data.plays.map((p) => {
-    const card = buildPlayCard(p);
-    cardsWrap.append(card);
-    return card;
+  const cardsByPlayId = new Map<string, HTMLElement>();
+  const sectionEls: HTMLElement[] = [];
+  groups.forEach((g) => {
+    const section = el("div", "hl-section");
+    section.append(el("h2", "hl-section-title", g.label));
+    g.plays.forEach((p) => {
+      const card = buildPlayCard(p);
+      section.append(card);
+      cardsByPlayId.set(p.id, card);
+    });
+    cardsWrap.append(section);
+    sectionEls.push(section);
   });
 
+  const tocSectionEls = Array.from(tocNav.querySelectorAll<HTMLElement>(".hl-toc-section"));
+
   const filterBar = buildFilterBar((setType, defenseType) => {
-    data.plays.forEach((p, i) => {
+    data.plays.forEach((p) => {
       const setOk = setType === "all" || p.setType === setType;
       const defOk = defenseType === "all" || p.defenseType === null || p.defenseType === defenseType;
-      cards[i].hidden = !(setOk && defOk);
+      const visible = setOk && defOk;
+      const card = cardsByPlayId.get(p.id);
+      if (card) card.hidden = !visible;
+      const link = linksByPlayId.get(p.id);
+      if (link) link.hidden = !visible;
     });
-    const toc = root.querySelector(".hl-toc-list");
-    if (toc) {
-      Array.from(toc.children).forEach((a, i) => {
-        (a as HTMLElement).hidden = cards[i].hidden;
-      });
-    }
+    // A section with every one of its plays filtered out shouldn't show a lone, empty header.
+    sectionEls.forEach((section) => {
+      const anyVisible = Array.from(section.querySelectorAll<HTMLElement>(".hl-card")).some((c) => !c.hidden);
+      section.hidden = !anyVisible;
+    });
+    tocSectionEls.forEach((section) => {
+      const anyVisible = Array.from(section.querySelectorAll<HTMLElement>(".hl-toc-link")).some((a) => !a.hidden);
+      section.hidden = !anyVisible;
+    });
   });
   root.append(filterBar, cardsWrap);
 }
