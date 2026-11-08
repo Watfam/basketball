@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Region } from "@/lib/plays/bounds";
-import { distance, length, maxDeviationFromChord, smoothPath, sub, trimEnd, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
+import { distance, length, simplifyPath, smoothPath, sub, trimEnd, unit, zigzagAlongPath, type Point } from "@/lib/plays/geometry";
 import { resolveDefense } from "@/lib/plays/resolve";
 import { COURT_LENGTH, COURT_WIDTH, DEFENDED_HOOP, type DefenseId, type DrawnLine, type Frame, type LineType, type OffenseId } from "@/lib/plays/types";
 
@@ -26,7 +26,8 @@ const BALL_R = 1.1;
 /** How far a token lifts above the fingertip while dragging, in court feet — fixed rather than derived from the live px-per-foot scale, so it's readable from render without touching a ref. */
 const LIFT_FEET = 3.4;
 const TAP_SLOP = 0.6; // feet of finger movement that still counts as a tap, not a drag
-const STRAIGHT_TOLERANCE = 1.3; // feet a sampled drag can wander off its own chord and still count as "meant to be straight"
+/** How far (in feet) a point can sit off the simplified path and still get dropped — small enough to keep a real bend, large enough that ordinary finger/mouse jitter in an intended-straight drag never survives. */
+const SIMPLIFY_EPSILON = 1.2;
 
 function clientToCourt(svg: SVGSVGElement, clientX: number, clientY: number): Point {
   const pt = svg.createSVGPoint();
@@ -433,9 +434,12 @@ export function PlayCourt({
     if (d.points.length < 2) return;
     const end = d.points[d.points.length - 1];
     const snapEnd = nearestPlayer(end);
-    // A real drag samples many points even along a dead-straight path; only a deliberate wander off that path's own chord counts as "freehand curved."
-    const isStraight = maxDeviationFromChord(d.points) < STRAIGHT_TOLERANCE;
-    const points = isStraight ? [d.points[0], snapEnd ? snapEnd.pos : end] : [...d.points.slice(0, -1), snapEnd ? snapEnd.pos : end];
+    const finalEnd = snapEnd ? snapEnd.pos : end;
+    // simplifyPath collapses a dead-straight (if slightly jittery) drag all the way to its own two
+    // endpoints, and a genuinely curved one down to just its real bends — not one stored, individually
+    // draggable point per ~0.6 ft sample, which is what made a real drag render jagged and left a
+    // selected line with far more edit handles than anyone could actually grab and use.
+    const points = simplifyPath([...d.points.slice(0, -1), finalEnd], SIMPLIFY_EPSILON);
     const startHit = nearestPlayer(d.points[0], DRAW_START_HIT_R);
     const color: DrawnLine["color"] = startHit ? (startHit.kind === "offense" ? "offense" : "defense") : "black";
     onAddLine({ type: tool as LineType, color, points });
@@ -459,9 +463,8 @@ export function PlayCourt({
       if (dd.points.length >= 2) {
         const rawEnd = dd.points[dd.points.length - 1];
         const snapEnd = nearestPlayer(rawEnd, HIT_R, dd.id);
-        const isStraight = maxDeviationFromChord(dd.points) < STRAIGHT_TOLERANCE;
         const finalEnd = snapEnd ? snapEnd.pos : rawEnd;
-        const points = isStraight ? [dd.points[0], finalEnd] : [...dd.points.slice(0, -1), finalEnd];
+        const points = simplifyPath([...dd.points.slice(0, -1), finalEnd], SIMPLIFY_EPSILON);
         const color: DrawnLine["color"] = dd.kind === "offense" ? "offense" : "defense";
         onDragDrawPlayer?.(dd.id as OffenseId | DefenseId, finalEnd, { type: tool as LineType, color, points });
       }

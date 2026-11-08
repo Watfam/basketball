@@ -1716,13 +1716,13 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
     "Lift",
     "blob",
     "Baseline OB",
-    "Double elevator action: 1 and 2 are stacked at the free-throw line away from the ball while 5 and 4 are stacked on the ball-side block. 1 cuts through 5 and 4's loose elevator door first — a decoy, he never gets the pass. Then 2 comes down to build a real elevator with 5, and 4 loops back through it and down to the basket for the only pass of the play, straight from the inbounder.",
+    "1 and 2 are stacked at the free-throw line away from the ball while 5 and 4 are stacked on the ball-side block. 1 cuts straight through the gap between 4 and 5 first — a decoy, and neither of them moves for it. Then 2 comes down to build a real elevator door with 5 right where he's standing, and 4 runs through it and loops down to the basket for the only pass of the play, straight from the inbounder.",
     [
-      "5 and 4: the first door is loose — hold your spots, then step together as 1 clears through. Nobody's catching there, it just has to look live.",
+      "4 and 5: don't move for the first cut — you're just a passing lane for 1, not a door yet. Moving early tips off that something's coming later.",
       "1: sell the cut all the way to the corner even though it's not coming to you — the defense has to actually believe it.",
       "2: come down to build the real door with 5 only once 1 has cleared — too early and you tip off where this is really going.",
-      "4: clear out wide first, then loop back hard through 2 and 5's door — the curl is the whole point, not the first cut.",
-      "3: hold it the entire first action — the only pass of the play is to 4, the instant he clears the second door.",
+      "4: the loop is the whole point — run through 2 and 5's door with purpose, then curl hard back down to the rim.",
+      "3: hold it through the entire first action — the only pass of the play is to 4, the instant he clears the door.",
     ],
     [
       {
@@ -1733,36 +1733,28 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         note: "1 and 2 stacked at the free-throw line on the weak side (1 at the bottom, closer to the door), 5 and 4 stacked on the ball-side block, 3 inbounding.",
       },
       {
-        offense: [o("O1", 42, 9), o("O2", 19.5, 19), o("O5", 35, 9), o("O4", 26, 9), o("O3", 33, -1.4)],
+        offense: [o("O1", 42, 9), o("O2", 19.5, 19), o("O5", 31.5, 11), o("O4", 31.5, 7), o("O3", 33, -1.4)],
+        defense: [],
+        ballHolder: "O3",
+        lines: [ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 31.5, y: 9 }, { x: 42, y: 9 }])],
+        note: "1 cuts through the gap between 4 and 5 — they don't move at all, it's just a passing lane. He's the decoy; he doesn't get it. 3 just holds the ball.",
+      },
+      {
+        offense: [o("O1", 42, 9), o("O2", 35, 11), o("O5", 31.5, 11), o("O4", 25, 7), o("O3", 33, -1.4)],
         defense: [],
         ballHolder: "O3",
         lines: [
-          ln("cut", "offense", [{ x: 31.5, y: 11 }, { x: 35, y: 9 }]),
-          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 26, y: 9 }]),
-          ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 30, y: 8 }, { x: 42, y: 9 }]),
+          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 35, y: 11 }]),
+          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 33, y: 11 }, { x: 28, y: 9 }, { x: 25, y: 7 }]),
         ],
-        note: "5 and 4 close together as a loose elevator door. 1 cuts through it as the decoy — he doesn't get it. 3 just holds the ball.",
+        note: "2 comes down to build a door with 5, who never moved. 4 runs through it and loops down to the basket.",
       },
       {
-        offense: [o("O1", 42, 9), o("O2", 20, 8), o("O5", 28, 8), o("O4", 14, 16), o("O3", 33, -1.4)],
-        defense: [],
-        ballHolder: "O3",
-        lines: [
-          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 20, y: 8 }]),
-          ln("cut", "offense", [{ x: 35, y: 9 }, { x: 28, y: 8 }]),
-          ln("cut", "offense", [{ x: 26, y: 9 }, { x: 14, y: 16 }]),
-        ],
-        note: "2 comes down to build a new, real elevator door with 5, right in front of the rim, while 4 clears out wide to set up his loop back through it.",
-      },
-      {
-        offense: [o("O1", 42, 9), o("O2", 20, 8), o("O5", 28, 8), o("O4", 25, 7), o("O3", 33, -1.4)],
+        offense: [o("O1", 42, 9), o("O2", 35, 11), o("O5", 31.5, 11), o("O4", 25, 7), o("O3", 33, -1.4)],
         defense: [],
         ballHolder: "O4",
-        lines: [
-          ln("cut", "offense", [{ x: 14, y: 16 }, { x: 18, y: 11 }, { x: 22, y: 8 }, { x: 25, y: 7 }]),
-          ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 25, y: 7 }]),
-        ],
-        note: "4 loops through 2 and 5's door and down to the basket — 3 delivers the only pass of the play for the finish.",
+        lines: [ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 25, y: 7 }])],
+        note: "3 delivers the only pass of the play to 4 for the finish.",
         ballArrival: [{ x: 33, y: -1.4 }, { x: 25, y: 7 }],
       },
     ]

@@ -102,15 +102,42 @@ export function zigzagAlongPath(points: Point[], amplitude = 1.1, segments = 10)
   return path;
 }
 
-/** How far a sampled drag path wanders from the straight line between its own endpoints — small means "meant to be straight," large means a deliberate freehand curve. */
-export function maxDeviationFromChord(points: Point[]): number {
-  if (points.length < 3) return 0;
+/** Perpendicular distance from `p` to the infinite line through `a`-`b` — falls back to plain distance from `a` when they coincide (a zero-length "line" has no direction to measure against). */
+function perpendicularDistance(p: Point, a: Point, b: Point): number {
+  const ab = sub(b, a);
+  const abLen = length(ab);
+  if (abLen < 1e-9) return distance(p, a);
+  const ap = sub(p, a);
+  return Math.abs(ap.x * ab.y - ap.y * ab.x) / abLen;
+}
+
+/**
+ * Ramer-Douglas-Peucker: reduces a dense freehand path (one point roughly every 0.6 ft of a real
+ * drag) down to the few points that actually matter for its shape, within `epsilon` feet of the
+ * original. A path that's basically straight collapses all the way to just its own two endpoints —
+ * the real finger/mouse jitter in an intended-to-be-straight drag never survives this, so the
+ * rendered line comes out clean rather than visibly jagged. A genuinely curved drag keeps only its
+ * real bends, not one stored, individually-draggable point per sample — a 15 ft curved drag used to
+ * leave 20+ overlapping edit handles behind it; this leaves 2-5, matching the shape a coach would
+ * actually want to grab and adjust.
+ */
+export function simplifyPath(points: Point[], epsilon: number): Point[] {
+  if (points.length < 3) return points;
   const start = points[0];
   const end = points[points.length - 1];
-  const chord = sub(end, start);
-  const chordLen = length(chord);
-  if (chordLen < 1e-6) return Math.max(...points.map((p) => distance(p, start)));
-  const dir = scale(chord, 1 / chordLen);
-  const normal = { x: -dir.y, y: dir.x };
-  return Math.max(...points.map((p) => Math.abs((p.x - start.x) * normal.x + (p.y - start.y) * normal.y)));
+  let maxDist = -1;
+  let maxIndex = 0;
+  for (let i = 1; i < points.length - 1; i++) {
+    const d = perpendicularDistance(points[i], start, end);
+    if (d > maxDist) {
+      maxDist = d;
+      maxIndex = i;
+    }
+  }
+  if (maxDist > epsilon) {
+    const left = simplifyPath(points.slice(0, maxIndex + 1), epsilon);
+    const right = simplifyPath(points.slice(maxIndex), epsilon);
+    return [...left.slice(0, -1), ...right];
+  }
+  return [start, end];
 }
