@@ -1659,12 +1659,12 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
     "Slip",
     "blob",
     "Baseline OB",
-    "Mirrors Tango's elevator doors on the other personnel group: 2 cuts through 4 and 5 closing together for the direct entry in the corner. Shoot it there if open — if not, dribble to the wing and swing it to 3, who's curling off a double screen from 4 and 5 for the three.",
+    "Mirrors Tango's elevator doors on the other personnel group: 2 cuts through 4 and 5 closing together for the direct entry in the corner. Shoot it there if open — if not, dribble to the wing. 4 and 5 then reset into a tight double screen right where they already are, and 3 curls hard off it back down to the exact corner 2 just cleared out of for the catch-and-shoot three.",
     [
       "4 and 5: same as every elevator door — hold on either side, then close together the instant 2 clears through.",
       "2 on the catch: shot first — only dribble to the wing if the corner look isn't actually there.",
-      "3: release the inbound pass, then get moving — you're using 4 and 5's same screen a second time, now as a shooter instead of a passer.",
-      "2: the swing pass to 3 has to be on time — he's only open for as long as the defense is hung up on the double screen.",
+      "3: release the inbound pass, then get moving — you're using 4 and 5's same screen a second time, now as a shooter instead of a passer, right back where the play started.",
+      "2: the pass to 3 has to be on time — he's only open for as long as the defense is hung up on the double screen.",
     ],
     [
       {
@@ -1696,17 +1696,17 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         note: "2 reads it — shoot if open right there, else dribble up to the wing.",
       },
       {
-        offense: [o("O1", 41, 27), o("O4", 22, 16), o("O5", 22, 13), o("O2", 40, 20), o("O3", 12, 24)],
+        offense: [o("O1", 41, 27), o("O4", 32, 11), o("O5", 29, 9), o("O2", 40, 20), o("O3", 46, 6)],
         defense: [],
         ballHolder: "O3",
         lines: [
-          ln("screen", "offense", [{ x: 35, y: 9 }, { x: 22, y: 16 }]),
-          ln("screen", "offense", [{ x: 26, y: 9 }, { x: 22, y: 13 }]),
-          ln("cut", "offense", [{ x: 33, y: -1.4 }, { x: 22, y: 10 }, { x: 12, y: 24 }]),
-          ln("pass", "offense", [{ x: 40, y: 20 }, { x: 12, y: 24 }]),
+          ln("screen", "offense", [{ x: 35, y: 9 }, { x: 32, y: 11 }]),
+          ln("screen", "offense", [{ x: 26, y: 9 }, { x: 29, y: 9 }]),
+          ln("cut", "offense", [{ x: 33, y: -1.4 }, { x: 31, y: 9 }, { x: 38, y: 8 }, { x: 46, y: 6 }]),
+          ln("pass", "offense", [{ x: 40, y: 20 }, { x: 46, y: 6 }]),
         ],
-        note: "4 and 5 reset into a double screen and 3 curls off it out to the wing — 2 swings it to him for the three.",
-        ballArrival: [{ x: 40, y: 20 }, { x: 12, y: 24 }],
+        note: "4 and 5 reset into a tight double screen right where they already are. 3 curls hard off it back down to the same corner 2 cleared out of — 2 swings it to him there for the three.",
+        ballArrival: [{ x: 40, y: 20 }, { x: 46, y: 6 }],
       },
     ]
   ),
