@@ -20,10 +20,10 @@ const styles = StyleSheet.create({
   coverSubtitle: { fontSize: 13, color: "#55607a", marginTop: 4, marginBottom: 28 },
   coverListItem: { fontSize: 14, marginBottom: 7, color: "#1c2333" },
   coverListNum: { fontFamily: "Helvetica-Bold", color: NAVY },
-  coverSection: { marginBottom: 16 },
-  coverSectionLabel: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#55607a", letterSpacing: 1.5, marginBottom: 7 },
-  coverSubsection: { marginBottom: 10 },
-  coverSubsectionLabel: { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#8891a3", letterSpacing: 1, marginBottom: 4 },
+  coverSectionLabel: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#55607a", letterSpacing: 1.5, marginTop: 12, marginBottom: 7 },
+  coverSubsectionLabel: { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#8891a3", letterSpacing: 1, marginTop: 6, marginBottom: 4 },
+  coverColumns: { flexDirection: "row", gap: 28 },
+  coverColumn: { flex: 1 },
   legendRow: { flexDirection: "row", alignItems: "center", gap: 16, marginTop: "auto", paddingTop: 14, borderTop: "1 solid #d8dbe3" },
   legendSwatch: { width: 16, height: 16, borderRadius: 8, alignItems: "center", justifyContent: "center" },
   legendSwatchText: { fontSize: 8, color: "#ffffff", fontFamily: "Helvetica-Bold" },
@@ -69,42 +69,81 @@ function Legend() {
   );
 }
 
-function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<ExportPlay>[] }) {
-  // Numbered once, up front, rather than mutated during render — each section/subgroup starts where
-  // the last one's running count left off, so the cover's numbering matches the per-play page numbers
-  // exactly even though it's printed under nested section/subsection headers.
+type CoverRow =
+  | { kind: "section"; key: string; label: string }
+  | { kind: "subsection"; key: string; label: string }
+  | { kind: "play"; key: string; num: number; name: string };
+
+/**
+ * Flattened section → subsection → play rows, in display order, with continuous numbering across
+ * the whole list. Flattening (rather than nesting views per section) is what makes the two-column
+ * split below possible: react-pdf's layout has no multi-column primitive, so getting a long list
+ * to flow across two side-by-side columns means splitting this same sequence of rows ourselves.
+ */
+function flattenCoverRows(groups: ExportSection<ExportPlay>[]): CoverRow[] {
+  const rows: CoverRow[] = [];
   let nextNum = 1;
-  const numberedGroups = groups.map((g) => ({
-    label: g.label,
-    showSubLabels: g.showSubLabels,
-    subgroups: g.subgroups.map((sg) => ({ label: sg.label, numbered: sg.plays.map((p) => ({ p, num: nextNum++ })) })),
-  }));
+  groups.forEach((g) => {
+    rows.push({ kind: "section", key: `s-${g.label}`, label: g.label });
+    g.subgroups.forEach((sg) => {
+      if (g.showSubLabels) rows.push({ kind: "subsection", key: `sub-${g.label}-${sg.label}`, label: sg.label });
+      sg.plays.forEach((p) => rows.push({ kind: "play", key: p.id, num: nextNum++, name: p.name }));
+    });
+  });
+  return rows;
+}
+
+function CoverRowText({ row }: { row: CoverRow }) {
+  if (row.kind === "section") return <Text style={styles.coverSectionLabel}>{row.label.toUpperCase()}</Text>;
+  if (row.kind === "subsection") return <Text style={styles.coverSubsectionLabel}>{row.label.toUpperCase()}</Text>;
+  return (
+    <Text style={styles.coverListItem}>
+      <Text style={styles.coverListNum}>{row.num}. </Text>
+      {row.name}
+    </Text>
+  );
+}
+
+// Above this many rows, a single centered column runs past one page's height and react-pdf splits
+// it awkwardly across two — each half re-centered in whatever space it has, leaving a big gap under
+// a short first page and the legend looking like it's floating on its own. Two columns keep it on
+// one page instead.
+const COVER_COLUMN_THRESHOLD = 12;
+
+function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<ExportPlay>[] }) {
+  const rows = flattenCoverRows(groups);
+  const useColumns = rows.length > COVER_COLUMN_THRESHOLD;
+
+  // Split as close to half-and-half as possible, but never leave a header row dangling alone at the
+  // bottom of column one — push the break forward to the next play row when that would happen.
+  let splitAt = Math.ceil(rows.length / 2);
+  while (splitAt < rows.length && rows[splitAt - 1].kind !== "play") splitAt++;
+  const columns = useColumns ? [rows.slice(0, splitAt), rows.slice(splitAt)] : [rows];
 
   return (
     <Page size="LETTER" style={styles.page}>
-      <View style={{ flex: 1, justifyContent: "center" }}>
+      <View style={useColumns ? { flex: 1 } : { flex: 1, justifyContent: "center" }}>
         {/* eslint-disable-next-line jsx-a11y/alt-text -- this is @react-pdf/renderer's Image (a PDF primitive), not an HTML <img>; it has no alt prop */}
         <Image src={data.team.logoDataUri} style={styles.coverLogo} />
         <Text style={styles.coverTitle}>{data.team.name.toUpperCase()}</Text>
         <Text style={styles.coverSubtitle}>{data.team.subtitle} — Playbook</Text>
-        <View>
-          {numberedGroups.map((g) => (
-            <View key={g.label} style={styles.coverSection} wrap={false}>
-              <Text style={styles.coverSectionLabel}>{g.label.toUpperCase()}</Text>
-              {g.subgroups.map((sg) => (
-                <View key={sg.label} style={styles.coverSubsection} wrap={false}>
-                  {g.showSubLabels && <Text style={styles.coverSubsectionLabel}>{sg.label.toUpperCase()}</Text>}
-                  {sg.numbered.map(({ p, num }) => (
-                    <Text key={p.id} style={styles.coverListItem}>
-                      <Text style={styles.coverListNum}>{num}. </Text>
-                      {p.name}
-                    </Text>
-                  ))}
-                </View>
-              ))}
-            </View>
-          ))}
-        </View>
+        {useColumns ? (
+          <View style={styles.coverColumns}>
+            {columns.map((col, i) => (
+              <View key={i} style={styles.coverColumn}>
+                {col.map((row) => (
+                  <CoverRowText key={row.key} row={row} />
+                ))}
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View>
+            {rows.map((row) => (
+              <CoverRowText key={row.key} row={row} />
+            ))}
+          </View>
+        )}
       </View>
       <Text style={{ fontSize: 8, color: "#8891a3", textAlign: "center" }}>
         Generated {new Date(data.generatedAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}

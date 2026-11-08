@@ -62,6 +62,9 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   const [linkUrl, setLinkUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const [pdfStatus, setPdfStatus] = useState<"idle" | "preparing" | "error">("idle");
+  const [pdfErrorMsg, setPdfErrorMsg] = useState("");
+
   // Plays actually selected that have defense to show/hide at all — the toggle only matters for these.
   const selectedWithDefense = useMemo(() => order.filter((id) => hasDefense(playsById.get(id)!)), [order, playsById]);
   // Off by default for a play means "show defense" (preserves the existing behavior) — this tracks which selected plays have it explicitly turned OFF.
@@ -161,6 +164,49 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     }
   }
 
+  /**
+   * A real Safari tab's Quick Look viewer has a native Share button built in — but an installed
+   * standalone app has none of Safari's chrome, and (unlike the "Get link" button's blank-tab
+   * trick) window.open() for this app's own origin just opens another in-app tab inside the SAME
+   * standalone container, not actual Safari — so that escape never worked for this button, which
+   * is why the PWA still showed the PDF with no way to save or share it. The Web Share API's
+   * `files` support sidesteps the whole problem: it hands the PDF straight to iOS's native share
+   * sheet (Save to Files, AirDrop, Messages, Print, ...) from right inside the app, standalone or
+   * not, so it's used whenever the browser supports it rather than only as a standalone fallback.
+   */
+  async function handleDownloadPdf() {
+    haptic("tap");
+    setPdfStatus("preparing");
+    setPdfErrorMsg("");
+    const url = `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
+    const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
+    try {
+      if (nav.share && nav.canShare) {
+        const res = await withTimeout(fetch(url), 30_000);
+        if (!res.ok) throw new Error("Couldn't build the PDF — try again.");
+        const blob = await res.blob();
+        const file = new File([blob], "playbook.pdf", { type: "application/pdf" });
+        if (nav.canShare({ files: [file] })) {
+          await nav.share({ files: [file] });
+          setPdfStatus("idle");
+          return;
+        }
+      }
+      // No file-sharing support at all (older browser, desktop Safari/Chrome) — a real tab's own
+      // Quick Look viewer and Share button cover it instead, same as before.
+      window.open(url, "_blank");
+      setPdfStatus("idle");
+    } catch (e) {
+      // The user backing out of the native share sheet throws AbortError — not a real failure.
+      if (e instanceof Error && e.name === "AbortError") {
+        setPdfStatus("idle");
+        return;
+      }
+      setPdfStatus("error");
+      setPdfErrorMsg(e instanceof Error ? e.message : "Something went wrong preparing the PDF.");
+    }
+  }
+
   function copyLink() {
     if (!linkUrl) return;
     const fallback = () => window.prompt("Copy this link:", linkUrl);
@@ -173,6 +219,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   }
 
   return (
+    <>
     <div className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
       <p className="text-sm text-foreground-dim">
         Pick which plays go in the playbook, in whatever order you want to present them. A playbook link opens live in a browser — anyone can watch each play develop, no app or account needed. A PDF is the one to print or hand out — it opens and saves reliably on any device, iPhone included. Starred plays are checked to start.
@@ -314,7 +361,14 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           </section>
         );
       })}
+    </div>
 
+    {/* A sibling of the padded content above, not nested inside it — the content's own
+        bottom padding exists so the last catalog row isn't hidden under this bar (and the
+        real bottom nav beneath it), not to leave dead space under the bar itself. Nesting
+        this inside that padded div put the padding AFTER the bar instead of reserving room
+        FOR it: once scrolled to the end, the bar would un-stick and sit well above the real
+        nav with a large blank gap trailing it — exactly the "floating" look this fixes. */}
       <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 -mx-4 space-y-2 border-t border-line bg-background px-5 py-3">
         {linkUrl ? (
           <div className="mx-auto flex max-w-lg items-center gap-2">
@@ -335,32 +389,23 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
             {status === "error" && <span className="mt-0.5 block font-bold text-danger">{errorMsg}</span>}
           </div>
         )}
+        {pdfStatus === "error" && (
+          <p className="mx-auto max-w-lg text-xs font-bold text-danger">{pdfErrorMsg}</p>
+        )}
         <div className="mx-auto flex max-w-lg gap-2">
           <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="flex-1 whitespace-nowrap">
             {status === "building" ? "Building…" : linkUrl ? "New link" : "Get link"}
           </Button>
-          {/* A real PDF has no JavaScript to disable, so it sidesteps the whole Quick Look problem that
-              killed every HTML-based download attempt — every platform's native PDF viewer (iOS Safari's
-              Quick Look included) renders it directly, Share sheet and all. But that native viewer (and
-              its Share button) is Safari's OWN chrome — an installed standalone app has none of it, so a
-              plain same-tab `<a>` just renders the PDF bytes inside the app's own bare webview with no way
-              to save or share it at all. window.open (same escape-the-shell trick as the link button
-              above) hands the navigation to a real Safari tab instead, which is where Quick Look and the
-              Share sheet actually live. */}
           <button
             type="button"
-            disabled={selected.size === 0}
-            onClick={() => {
-              haptic("tap");
-              const url = `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
-              window.open(url, "_blank");
-            }}
+            disabled={pdfStatus === "preparing" || selected.size === 0}
+            onClick={handleDownloadPdf}
             className={buttonClass({ variant: "secondary", className: "flex-1 whitespace-nowrap" })}
           >
-            Download PDF
+            {pdfStatus === "preparing" ? "Preparing…" : "Download PDF"}
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
