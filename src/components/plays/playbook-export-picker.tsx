@@ -139,46 +139,67 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     setStatus("building");
     setErrorMsg("");
     setLinkUrl(null);
-    // Opened synchronously, inside the real tap, before any await — Safari (especially iOS) can
-    // silently drop a window.open/target=_blank that happens after an async gap, since the
-    // "this came from a real tap" grace period it grants doesn't reliably survive a server round
-    // trip. Opening a blank tab right now, then navigating it once the link is ready, keeps the
-    // open itself tied to the actual gesture.
-    const newTab = window.open("", "_blank");
     try {
       const result = await withTimeout(createPlaybookExportLinkAction(teamId, order, [...hiddenDefenseIds]), 20_000);
       if ("error" in result) {
-        newTab?.close();
         setStatus("error");
         setErrorMsg(result.error);
         return;
       }
-      if (newTab) newTab.location.href = result.url;
       setLinkUrl(result.url);
       setStatus("idle");
       haptic("success");
     } catch (e) {
-      newTab?.close();
       setStatus("error");
       setErrorMsg(e instanceof Error ? e.message : "Something went wrong building the playbook.");
     }
   }
 
+  function handleViewLink() {
+    if (!linkUrl) return;
+    haptic("tap");
+    window.open(linkUrl, "_blank");
+  }
+
+  /** A URL shares natively everywhere Web Share exists, standalone app included — sharing a link, unlike a file, never needs to leave the app's own container at all, so there's no window.open escape trick needed here in the first place. */
+  async function handleShareLink() {
+    if (!linkUrl) return;
+    haptic("tap");
+    const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
+    if (nav.share) {
+      try {
+        await nav.share({ url: linkUrl, title: "Playbook" });
+        return;
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") return;
+      }
+    }
+    copyLink();
+  }
+
+  function pdfUrl() {
+    return `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
+  }
+
+  function handleViewPdf() {
+    haptic("tap");
+    window.open(pdfUrl(), "_blank");
+  }
+
   /**
    * A real Safari tab's Quick Look viewer has a native Share button built in — but an installed
-   * standalone app has none of Safari's chrome, and (unlike the "Get link" button's blank-tab
-   * trick) window.open() for this app's own origin just opens another in-app tab inside the SAME
-   * standalone container, not actual Safari — so that escape never worked for this button, which
-   * is why the PWA still showed the PDF with no way to save or share it. The Web Share API's
-   * `files` support sidesteps the whole problem: it hands the PDF straight to iOS's native share
-   * sheet (Save to Files, AirDrop, Messages, Print, ...) from right inside the app, standalone or
-   * not, so it's used whenever the browser supports it rather than only as a standalone fallback.
+   * standalone app has none of Safari's chrome, and (unlike a plain link) window.open() for this
+   * app's own origin just opens another in-app tab inside the SAME standalone container, not
+   * actual Safari — so that escape doesn't work for a file the way it does for a URL. The Web
+   * Share API's `files` support sidesteps the whole problem: it hands the PDF straight to iOS's
+   * native share sheet (Save to Files, AirDrop, Messages, Print, ...) from right inside the app,
+   * standalone or not, so it's used whenever the browser supports it.
    */
-  async function handleDownloadPdf() {
+  async function handleSharePdf() {
     haptic("tap");
     setPdfStatus("preparing");
     setPdfErrorMsg("");
-    const url = `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
+    const url = pdfUrl();
     const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
     try {
       if (nav.share && nav.canShare) {
@@ -192,8 +213,8 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           return;
         }
       }
-      // No file-sharing support at all (older browser, desktop Safari/Chrome) — a real tab's own
-      // Quick Look viewer and Share button cover it instead, same as before.
+      // No file-sharing support at all (older browser, desktop Safari/Chrome) — fall back to the
+      // same plain view-in-a-new-tab behavior as the View button.
       window.open(url, "_blank");
       setPdfStatus("idle");
     } catch (e) {
@@ -363,48 +384,82 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       })}
     </div>
 
-    {/* A sibling of the padded content above, not nested inside it — the content's own
-        bottom padding exists so the last catalog row isn't hidden under this bar (and the
-        real bottom nav beneath it), not to leave dead space under the bar itself. Nesting
-        this inside that padded div put the padding AFTER the bar instead of reserving room
-        FOR it: once scrolled to the end, the bar would un-stick and sit well above the real
-        nav with a large blank gap trailing it — exactly the "floating" look this fixes. */}
-      <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 -mx-4 space-y-2 border-t border-line bg-background px-5 py-3">
-        {linkUrl ? (
-          <div className="mx-auto flex max-w-lg items-center gap-2">
-            <input readOnly value={linkUrl} className="min-w-0 flex-1 truncate rounded-lg border border-line-strong bg-surface px-3 py-2 text-xs text-foreground-dim" onFocus={(e) => e.currentTarget.select()} />
-            <Button size="sm" onClick={copyLink}>
-              {copied ? "Copied" : "Copy link"}
-            </Button>
-          </div>
-        ) : (
-          <div className="mx-auto max-w-lg text-xs text-foreground-dim">
-            {selected.size === 0 ? (
-              <span className="font-bold text-accent">Check a play below to include it</span>
-            ) : (
-              <>
-                {selected.size} play{selected.size === 1 ? "" : "s"} selected
-              </>
-            )}
-            {status === "error" && <span className="mt-0.5 block font-bold text-danger">{errorMsg}</span>}
-          </div>
-        )}
-        {pdfStatus === "error" && (
-          <p className="mx-auto max-w-lg text-xs font-bold text-danger">{pdfErrorMsg}</p>
-        )}
-        <div className="mx-auto flex max-w-lg gap-2">
-          <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="flex-1 whitespace-nowrap">
-            {status === "building" ? "Building…" : linkUrl ? "New link" : "Get link"}
-          </Button>
-          <button
-            type="button"
-            disabled={pdfStatus === "preparing" || selected.size === 0}
-            onClick={handleDownloadPdf}
-            className={buttonClass({ variant: "secondary", className: "flex-1 whitespace-nowrap" })}
-          >
-            {pdfStatus === "preparing" ? "Preparing…" : "Download PDF"}
-          </button>
+    {/*
+      A sibling of the padded content above, not nested inside it — the content's own bottom
+      padding exists so the last catalog row isn't hidden under this bar (and the real bottom
+      nav beneath it), not to leave dead space under the bar itself. Nesting this inside that
+      padded div put the padding AFTER the bar instead of reserving room FOR it.
+
+      `bottom` reads --team-bottom-nav-height, published by TeamBottomNav from its own actual
+      rendered height (TeamBottomNav.tsx) — a fixed rem guess drifts out of sync with that bar's
+      real height/safe-area and leaves a gap; the fallback only covers the instant before that
+      effect runs.
+    */}
+      <div
+        className="sticky z-40 -mx-4 space-y-3 border-t border-line bg-background px-5 py-3"
+        style={{ bottom: "var(--team-bottom-nav-height, calc(4.75rem + env(safe-area-inset-bottom)))" }}
+      >
+        <div>
+          {linkUrl ? (
+            <div className="flex items-center gap-2">
+              <input readOnly value={linkUrl} className="min-w-0 flex-1 truncate rounded-lg border border-line-strong bg-surface px-3 py-2 text-xs text-foreground-dim" onFocus={(e) => e.currentTarget.select()} />
+              <Button size="sm" variant="ghost" onClick={copyLink}>
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            </div>
+          ) : (
+            <div className="text-xs text-foreground-dim">
+              {selected.size === 0 ? (
+                <span className="font-bold text-accent">Check a play below to include it</span>
+              ) : (
+                <>
+                  {selected.size} play{selected.size === 1 ? "" : "s"} selected
+                </>
+              )}
+            </div>
+          )}
+          {status === "error" && <p className="mt-0.5 text-xs font-bold text-danger">{errorMsg}</p>}
+          {pdfStatus === "error" && <p className="mt-0.5 text-xs font-bold text-danger">{pdfErrorMsg}</p>}
         </div>
+
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
+          <span>Link — live, in a browser</span>
+          <span>PDF — print or hand out</span>
+
+          {linkUrl ? (
+            <>
+              <button type="button" onClick={handleViewLink} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
+                View link
+              </button>
+              <button type="button" onClick={handleViewPdf} disabled={selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
+                View PDF
+              </button>
+              <Button onClick={handleShareLink} className="whitespace-nowrap">
+                Share link
+              </Button>
+              <Button onClick={handleSharePdf} disabled={pdfStatus === "preparing" || selected.size === 0} className="whitespace-nowrap">
+                {pdfStatus === "preparing" ? "Preparing…" : "Share PDF"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="row-span-2 h-full whitespace-nowrap">
+                {status === "building" ? "Building…" : "Get link"}
+              </Button>
+              <button type="button" onClick={handleViewPdf} disabled={selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
+                View PDF
+              </button>
+              <Button onClick={handleSharePdf} disabled={pdfStatus === "preparing" || selected.size === 0} className="whitespace-nowrap">
+                {pdfStatus === "preparing" ? "Preparing…" : "Share PDF"}
+              </Button>
+            </>
+          )}
+        </div>
+        {linkUrl && (
+          <button type="button" onClick={handleGetLink} disabled={status === "building"} className="text-[11px] font-bold text-foreground-mute underline underline-offset-2">
+            {status === "building" ? "Building a new link…" : "Build a new link"}
+          </button>
+        )}
       </div>
     </>
   );

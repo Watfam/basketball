@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TEAM_TABS, TEAM_MORE_TABS, activeTeamTab, isImmersiveTeamRoute } from "@/lib/basketball/team-nav";
 import { haptic } from "@/lib/haptics";
 import { Sheet, PickLink } from "@/components/ui/sheet";
@@ -85,6 +85,22 @@ export function TeamBottomNav({ teamId }: { teamId: string }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const [moreOpener, setMoreOpener] = useState<HTMLElement | null>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  // Publishes this bar's REAL rendered height (safe-area padding included) as a CSS variable, so
+  // any other sticky bar meant to sit directly above it (the playbook export footer, so far) can
+  // read the actual number instead of a hand-tuned rem guess that drifts out of sync with this
+  // nav's own padding/safe-area and leaves a gap once it does.
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const publish = () => document.documentElement.style.setProperty("--team-bottom-nav-height", `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   if (isImmersiveTeamRoute(pathname)) return null;
 
   const active = activeTeamTab(pathname, teamId);
@@ -92,6 +108,7 @@ export function TeamBottomNav({ teamId }: { teamId: string }) {
 
   return (
     <nav
+      ref={navRef}
       aria-label="Team"
       className="sticky bottom-0 z-20 border-t border-line bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur"
     >
