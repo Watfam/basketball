@@ -135,7 +135,8 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     setCustomOrder([]);
   }
 
-  async function handleGetLink() {
+  /** Always builds a fresh row, even if one already exists — the explicit "Build a new link" action for after the selection's changed. */
+  async function buildLink(): Promise<string | null> {
     setStatus("building");
     setErrorMsg("");
     setLinkUrl(null);
@@ -144,37 +145,50 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       if ("error" in result) {
         setStatus("error");
         setErrorMsg(result.error);
-        return;
+        return null;
       }
       setLinkUrl(result.url);
       setStatus("idle");
       haptic("success");
+      return result.url;
     } catch (e) {
       setStatus("error");
       setErrorMsg(e instanceof Error ? e.message : "Something went wrong building the playbook.");
+      return null;
     }
   }
 
-  function handleViewLink() {
-    if (!linkUrl) return;
+  /** Reuses the current link if there is one; only builds when there isn't yet — View/Share tap this, not buildLink() directly, so they never throw away a perfectly good link just to make another. */
+  async function ensureLinkUrl(): Promise<string | null> {
+    return linkUrl ?? buildLink();
+  }
+
+  async function handleBuildNewLink() {
     haptic("tap");
-    window.open(linkUrl, "_blank");
+    await buildLink();
+  }
+
+  async function handleViewLink() {
+    haptic("tap");
+    const url = await ensureLinkUrl();
+    if (url) window.open(url, "_blank");
   }
 
   /** A URL shares natively everywhere Web Share exists, standalone app included — sharing a link, unlike a file, never needs to leave the app's own container at all, so there's no window.open escape trick needed here in the first place. */
   async function handleShareLink() {
-    if (!linkUrl) return;
     haptic("tap");
+    const url = await ensureLinkUrl();
+    if (!url) return;
     const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
     if (nav.share) {
       try {
-        await nav.share({ url: linkUrl, title: "Playbook" });
+        await nav.share({ url, title: "Playbook" });
         return;
       } catch (e) {
         if (e instanceof Error && e.name === "AbortError") return;
       }
     }
-    copyLink();
+    copyToClipboard(url);
   }
 
   function pdfUrl() {
@@ -228,27 +242,30 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     }
   }
 
-  function copyLink() {
-    if (!linkUrl) return;
-    const fallback = () => window.prompt("Copy this link:", linkUrl);
+  function copyToClipboard(text: string) {
+    const fallback = () => window.prompt("Copy this link:", text);
     if (!navigator.clipboard?.writeText) return fallback();
-    navigator.clipboard.writeText(linkUrl).then(() => {
+    navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       haptic("success");
       setTimeout(() => setCopied(false), 2000);
     }, fallback);
   }
 
+  function copyLink() {
+    if (linkUrl) copyToClipboard(linkUrl);
+  }
+
   return (
     <>
     <div className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
       <p className="text-sm text-foreground-dim">
-        Pick which plays go in the playbook, in whatever order you want to present them. A playbook link opens live in a browser — anyone can watch each play develop, no app or account needed. A PDF is the one to print or hand out — it opens and saves reliably on any device, iPhone included. Starred plays are checked to start.
+        Pick which plays go in the playbook, in whatever order you want to present them. Interactive opens live in a browser — anyone can watch each play develop, no app or account needed. A PDF is the one to print or hand out — it opens and saves reliably on any device, iPhone included. Starred plays are checked to start.
       </p>
 
       {isStandalone && (
         <p className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-bold text-accent">
-          You&rsquo;re using the installed app, which hides Safari&rsquo;s address bar. The link below still works fine — copy it with the button provided rather than looking for an address bar.
+          You&rsquo;re using the installed app, which hides Safari&rsquo;s address bar. Sharing still works fine from the buttons below.
         </p>
       )}
 
@@ -423,40 +440,25 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         </div>
 
         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
-          <span>Link — live, in a browser</span>
+          <span>Interactive — plays animate</span>
           <span>PDF — print or hand out</span>
 
-          {linkUrl ? (
-            <>
-              <button type="button" onClick={handleViewLink} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
-                View link
-              </button>
-              <button type="button" onClick={handleViewPdf} disabled={selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
-                View PDF
-              </button>
-              <Button onClick={handleShareLink} className="whitespace-nowrap">
-                Share link
-              </Button>
-              <Button onClick={handleSharePdf} disabled={pdfStatus === "preparing" || selected.size === 0} className="whitespace-nowrap">
-                {pdfStatus === "preparing" ? "Preparing…" : "Share PDF"}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button onClick={handleGetLink} disabled={status === "building" || selected.size === 0} className="row-span-2 h-full whitespace-nowrap">
-                {status === "building" ? "Building…" : "Get link"}
-              </Button>
-              <button type="button" onClick={handleViewPdf} disabled={selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
-                View PDF
-              </button>
-              <Button onClick={handleSharePdf} disabled={pdfStatus === "preparing" || selected.size === 0} className="whitespace-nowrap">
-                {pdfStatus === "preparing" ? "Preparing…" : "Share PDF"}
-              </Button>
-            </>
-          )}
+          <button type="button" onClick={handleViewLink} disabled={status === "building" || selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
+            {status === "building" ? "Building…" : "View"}
+          </button>
+          <button type="button" onClick={handleViewPdf} disabled={selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
+            View
+          </button>
+
+          <Button onClick={handleShareLink} disabled={status === "building" || selected.size === 0} className="whitespace-nowrap">
+            {status === "building" ? "Building…" : "Share"}
+          </Button>
+          <Button onClick={handleSharePdf} disabled={pdfStatus === "preparing" || selected.size === 0} className="whitespace-nowrap">
+            {pdfStatus === "preparing" ? "Preparing…" : "Share"}
+          </Button>
         </div>
         {linkUrl && (
-          <button type="button" onClick={handleGetLink} disabled={status === "building"} className="text-[11px] font-bold text-foreground-mute underline underline-offset-2">
+          <button type="button" onClick={handleBuildNewLink} disabled={status === "building"} className="text-[11px] font-bold text-foreground-mute underline underline-offset-2">
             {status === "building" ? "Building a new link…" : "Build a new link"}
           </button>
         )}
