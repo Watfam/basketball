@@ -1572,13 +1572,13 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         defense: [],
         ballHolder: "O5",
         lines: [
-          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 41, y: 27 }]),
-          ln("cut", "offense", [{ x: 31.5, y: 11 }, { x: 35, y: 9 }]),
-          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 26, y: 9 }]),
-          ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 30, y: 8 }, { x: 42, y: 9 }]),
+          ln("cut", "offense", [{ x: 19.5, y: 19 }, { x: 41, y: 27 }], 1),
+          ln("cut", "offense", [{ x: 31.5, y: 11 }, { x: 35, y: 9 }], 2),
+          ln("cut", "offense", [{ x: 31.5, y: 7 }, { x: 26, y: 9 }], 2),
+          ln("cut", "offense", [{ x: 19.5, y: 15 }, { x: 30, y: 8 }, { x: 42, y: 9 }], 1),
           ln("pass", "offense", [{ x: 33, y: -1.4 }, { x: 42, y: 9 }]),
         ],
-        note: "1 clears out as the safety while 2 and 4 close together near the block — elevator doors. 5 cuts through the gap down to the corner for the direct entry from 3.",
+        note: "1 clears out and 5 starts his cut right away; 2 and 4 don't close the door until he's already on his way through — elevator doors. 5 catches the direct entry from 3 in the corner once he clears.",
         ballArrival: [{ x: 33, y: -1.4 }, { x: 42, y: 9 }],
       },
       {
