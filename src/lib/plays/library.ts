@@ -789,7 +789,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   play(
     "cycle",
     "Cycle",
-    "man",
+    "system",
     "Transition vs Man",
     "The team's go-to transition identity: push the ball up the floor with the PASS, not the dribble, looking to score in about 7 seconds. Triggered off any live ball — an inbound after a made basket (shown here, 5 to 1), a defensive rebound, or a steal — with 2 and 3 sprinting the floor immediately to spot up at the three-point line on both elbows, and 1 getting into outlet position to start the advance. 4 trails level with the ball, then fills the ball-side block the instant a side is picked. 5 trails the farthest and stops at the top of the arc, opposite 1, as the reset outlet. The shot everyone's sprinting for is the catch-and-shoot three off the advance pass — if it's taken away, go inside to 4 sealed on the block, or reset through 5 at the top and attack the other way.",
     [

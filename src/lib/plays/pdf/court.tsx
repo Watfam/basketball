@@ -158,14 +158,26 @@ function PlayerToken({ id, pos, fill, numberFill }: { id: string; pos: Point; fi
   );
 }
 
-/** One static, printable court diagram for a single rest frame — lines, then offense, then defense, then the ball on top, same paint order as the live app. */
-export function PlayDiagram({ frame, region }: { frame: Frame; region: Region }) {
+/**
+ * One static, printable court diagram for a single rest frame — lines, then offense, then defense,
+ * then the ball on top, same paint order as the live app.
+ *
+ * `height` is a fixed point value, not just `width: "100%"` — without it, a full/near-full-court
+ * play (a transition set, a press break) renders at a much taller box than a half-court play,
+ * since its region spans most of COURT_LENGTH rather than just the ~30 units a half-court set
+ * uses. An unconstrained height blows out that one row to fit the tall diagram, which is exactly
+ * the kind of avoidable page-count/white-space cost this fixed height exists to prevent. SVG's
+ * default `preserveAspectRatio` ("xMidYMid meet") scales the content down to fit within both
+ * bounds without distorting it — a tall play just ends up pillarboxed (narrower, not stretched)
+ * at the same row height every other play gets.
+ */
+export function PlayDiagram({ frame, region, height }: { frame: Frame; region: Region; height: number }) {
   const resolved: ResolvedDefender[] = resolveDefense(frame);
   const holderPos = frame.offense.find((o) => o.id === frame.ballHolder)?.pos ?? { x: 25, y: 25 };
   const ballPos = { x: holderPos.x + 1.7, y: holderPos.y + 1.7 };
 
   return (
-    <Svg viewBox={`${region.x} ${region.y} ${region.width} ${region.height}`} style={{ width: "100%" }}>
+    <Svg viewBox={`${region.x} ${region.y} ${region.width} ${region.height}`} style={{ width: "100%", height }}>
       <ArrowMarkers />
       <CourtMarkings />
       {frame.lines.map((line) => (

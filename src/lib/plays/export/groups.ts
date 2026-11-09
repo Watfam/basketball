@@ -8,6 +8,7 @@ import { PLAY_CATEGORY_LABEL, type PlayCategory } from "../category";
  * actually ships" the way the old BLOB/SLOB flattening bug did.
  */
 export const EXPORT_GROUPS: { label: string; categories: PlayCategory[] }[] = [
+  { label: "Offensive System", categories: ["system"] },
   { label: "Offense", categories: ["man", "zone"] },
   { label: "Situations", categories: ["blob", "slob", "fullCourt", "late"] },
   { label: "Defense", categories: ["defense"] },

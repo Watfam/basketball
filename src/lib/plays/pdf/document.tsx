@@ -33,11 +33,16 @@ const styles = StyleSheet.create({
   playTitle: { fontSize: 20, fontFamily: "Helvetica-Bold", color: NAVY, textAlign: "center", marginBottom: 4 },
   playVs: { fontSize: 10, color: "#55607a", textAlign: "center", marginBottom: 4 },
   playAbout: { fontSize: 9, color: "#3a4256", textAlign: "center", marginBottom: 14, lineHeight: 1.4, paddingHorizontal: 24 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  cell: { width: "48.5%", border: "1 solid #d8dbe3", borderRadius: 4, padding: 8 },
-  cellCaption: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 },
-  cellNum: { width: 16, height: 16, borderRadius: 8, backgroundColor: NAVY, color: "#fff", fontSize: 9, fontFamily: "Helvetica-Bold", textAlign: "center" },
-  cellNote: { fontSize: 8.5, color: "#3a4256", marginTop: 4, lineHeight: 1.35 },
+  // 3 columns of 2 rows (6 per page) instead of 2x2 (4 per page) — most plays in this library run
+  // 5-7 frames, so the old 4-per-page cap meant a second, nearly-empty page just to show the last
+  // 1-3 frames. width leaves more slack than an exact 3-way split of 100% (31.8*3 = 95.4%) since
+  // `gap` reserves real point space between columns on top of each cell's own percentage width —
+  // too tight a percentage here causes an unwanted wrap to a 2nd row of only 2 cells.
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  cell: { width: "31.8%", border: "1 solid #d8dbe3", borderRadius: 4, padding: 6 },
+  cellCaption: { flexDirection: "row", alignItems: "center", gap: 5, marginBottom: 3 },
+  cellNum: { width: 14, height: 14, borderRadius: 7, backgroundColor: NAVY, color: "#fff", fontSize: 8, fontFamily: "Helvetica-Bold", textAlign: "center" },
+  cellNote: { fontSize: 7.5, color: "#3a4256", marginTop: 3, lineHeight: 1.3 },
   keysBox: { marginTop: 14, padding: 10, backgroundColor: "#f2f4f8", borderRadius: 4 },
   keysTitle: { fontSize: 9, fontFamily: "Helvetica-Bold", color: NAVY, marginBottom: 5, letterSpacing: 0.5 },
   keyLine: { fontSize: 8.5, color: "#3a4256", marginBottom: 3, lineHeight: 1.3 },
@@ -190,10 +195,13 @@ function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<E
   );
 }
 
+const FRAMES_PER_PAGE = 6;
+const DIAGRAM_HEIGHT = 108;
+
 function PlayPage({ team, play, index, sectionLabel }: { team: ExportData["team"]; play: ExportPlay; index: number; sectionLabel: string }) {
   const region = computeExportRegion(play.frames);
   const chunks: typeof play.frames[] = [];
-  for (let i = 0; i < play.frames.length; i += 4) chunks.push(play.frames.slice(i, i + 4));
+  for (let i = 0; i < play.frames.length; i += FRAMES_PER_PAGE) chunks.push(play.frames.slice(i, i + FRAMES_PER_PAGE));
 
   return (
     <>
@@ -219,14 +227,14 @@ function PlayPage({ team, play, index, sectionLabel }: { team: ExportData["team"
           )}
           <View style={styles.grid}>
             {chunk.map((frame, i) => {
-              const stepNum = pageIdx * 4 + i;
+              const stepNum = pageIdx * FRAMES_PER_PAGE + i;
               return (
                 <View key={stepNum} style={styles.cell} wrap={false}>
                   <View style={styles.cellCaption}>
                     <Text style={styles.cellNum}>{stepNum === 0 ? "•" : stepNum}</Text>
-                    <Text style={{ fontSize: 8.5, fontFamily: "Helvetica-Bold", color: NAVY }}>{stepNum === 0 ? "SET" : `STEP ${stepNum}`}</Text>
+                    <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: NAVY }}>{stepNum === 0 ? "SET" : `STEP ${stepNum}`}</Text>
                   </View>
-                  <PlayDiagram frame={frame} region={region} />
+                  <PlayDiagram frame={frame} region={region} height={DIAGRAM_HEIGHT} />
                   <Text style={styles.cellNote}>{frame.note}</Text>
                 </View>
               );

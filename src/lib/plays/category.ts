@@ -6,9 +6,10 @@
  * exactly that — an 8x bundle-size jump (18 KB -> 140 KB) for a small label lookup. library.ts
  * re-exports both names below, so nothing that already imports them from "./library" needs to change.
  */
-export type PlayCategory = "man" | "zone" | "blob" | "slob" | "fullCourt" | "late" | "defense";
+export type PlayCategory = "system" | "man" | "zone" | "blob" | "slob" | "fullCourt" | "late" | "defense";
 
 export const PLAY_CATEGORY_LABEL: Record<PlayCategory, string> = {
+  system: "Offensive System",
   man: "Man",
   zone: "Zone",
   blob: "BLOB",
