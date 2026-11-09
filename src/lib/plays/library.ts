@@ -725,6 +725,68 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "zoom",
+    "Zoom",
+    "man",
+    "vs Man",
+    "An entry pass to 5 at the elbow starts a double zoom action: 1 screens down for 2 on the strong side while 3 screens down for 4 on the weak side, both at the exact same time. Whoever curls open takes a dribble handoff from 5 and attacks downhill. If neither has a driving lane, the handoff keeps moving to the next player at the top — continuous dribble-handoff action until someone gets a crack at the rim.",
+    [
+      "Screeners (1 and 3): go together, not one after the other — make the defense deal with both actions at the same time.",
+      "Cutters (2 and 4): curl tight off the screen, right into 5's hip — a lazy, wide path gives the defense time to recover.",
+      "5: catch and read immediately. Go to whichever side is actually open, not whichever side you planned on.",
+      "No drive on the catch? Don't force it — hand off again to the next man coming through the top and keep the zoom going.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 32), o("O2", 43, 18), o("O3", 15, 27), o("O4", 7, 18), o("O5", 25, 22)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "1 at the top with the ball. 5 sets up at the elbow, just a step higher than usual. 4 is weak side, beyond the three. 3 is above 4, closer to the top. 2 is on the strong-side wing.",
+      },
+      {
+        offense: [o("O1", 25, 32), o("O2", 43, 18), o("O3", 15, 27), o("O4", 7, 18), o("O5", 25, 22)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("pass", "offense", [{ x: 25, y: 32 }, { x: 25, y: 22 }])],
+        note: "1 enters the ball to 5 at the elbow.",
+        ballArrival: [{ x: 25, y: 32 }, { x: 25, y: 22 }],
+      },
+      {
+        offense: [o("O1", 36, 24), o("O2", 43, 18), o("O3", 13, 20), o("O4", 7, 18), o("O5", 25, 22)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [ln("screen", "offense", [{ x: 25, y: 32 }, { x: 36, y: 24 }]), ln("screen", "offense", [{ x: 15, y: 27 }, { x: 13, y: 20 }])],
+        note: "1 cuts down to screen for 2 on the strong side. 3 screens for 4 on the weak side — both at the same time.",
+      },
+      {
+        offense: [o("O1", 36, 24), o("O2", 30, 23), o("O3", 13, 20), o("O4", 19, 23), o("O5", 25, 22)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [
+          ln("cut", "offense", [{ x: 43, y: 18 }, { x: 38, y: 22 }, { x: 33, y: 25 }, { x: 30, y: 23 }]),
+          ln("cut", "offense", [{ x: 7, y: 18 }, { x: 12, y: 22 }, { x: 17, y: 25 }, { x: 19, y: 23 }]),
+        ],
+        note: "Both cut hard off the screens at the same time, right to 5's hip. 5 reads the defense for which side is actually open.",
+      },
+      {
+        offense: [o("O1", 36, 24), o("O2", 29, 20), o("O3", 13, 20), o("O4", 19, 23), o("O5", 28, 21)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 25, y: 22 }, { x: 28, y: 21 }]), ln("cut", "offense", [{ x: 30, y: 23 }, { x: 29, y: 20 }])],
+        note: "5 dribbles at 2 and hands it off — 2 takes it off 5's hip while 5 peels away. (Same read, mirrored, if 4's side is the one that's open.)",
+      },
+      {
+        offense: [o("O1", 36, 24), o("O2", 22, 8), o("O3", 13, 20), o("O4", 19, 23), o("O5", 25, 15)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 29, y: 20 }, { x: 26, y: 14 }, { x: 23, y: 10 }, { x: 22, y: 8 }])],
+        note: "2 drives downhill for the score. No drive? Keep it alive — hand off again to the next man at the top rather than forcing a bad shot.",
+      },
+    ]
+  ),
+
+  play(
     "zone-highlow",
     "High-Low vs 2-3",
     "zone",
