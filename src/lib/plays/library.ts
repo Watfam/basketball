@@ -787,6 +787,60 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "cycle",
+    "Cycle",
+    "man",
+    "Transition vs Man",
+    "The team's go-to transition identity: push the ball up the floor with the PASS, not the dribble, looking to score in about 7 seconds. Triggered off any live ball — an inbound after a made basket (shown here, 5 to 1), a defensive rebound, or a steal — with 2 and 3 sprinting the floor immediately to spot up at the three-point line on both elbows, and 1 getting into outlet position to start the advance. 4 trails level with the ball, then fills the ball-side block the instant a side is picked. 5 trails the farthest and stops at the top of the arc, opposite 1, as the reset outlet. The shot everyone's sprinting for is the catch-and-shoot three off the advance pass — if it's taken away, go inside to 4 sealed on the block, or reset through 5 at the top and attack the other way.",
+    [
+      "Advance it with the pass, not the dribble — that's the whole identity of this break. 1's job off the catch is to find the pass ahead, not walk it up.",
+      "2 and 3: don't wait for the ball to find you — sprint and be spotted up at the three before 1 even has an outlet.",
+      "4: stay level with the ball on the way up, then read which side it goes and fill that block — not a fixed side.",
+      "5: trail the farthest, stop at the top opposite 1 — you're the release valve if the catch-and-shoot three isn't there.",
+      "This is a live-ball read off a make, a rebound, or a steal — not a dead-ball call. Those have their own plays.",
+    ],
+    [
+      {
+        offense: [o("O1", 36, 74), o("O2", 46, 50), o("O3", 4, 50), o("O4", 25, 60), o("O5", 25, 81)],
+        defense: [],
+        ballHolder: "O5",
+        lines: [],
+        note: "Off a made basket, 5 inbounds. 1 breaks right for the outlet. 2 and 3 are already sprinting — this works the exact same way off a defensive rebound or a steal, with whoever grabs it finding 1 for the same outlet instead of an inbound.",
+      },
+      {
+        offense: [o("O1", 36, 74), o("O2", 41, 28), o("O3", 9, 28), o("O4", 25, 48), o("O5", 25, 81)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("pass", "offense", [{ x: 25, y: 81 }, { x: 36, y: 74 }])],
+        note: "5 inbounds to 1. No dribbling it up — 1's only job here is to find the pass ahead.",
+        ballArrival: [{ x: 25, y: 81 }, { x: 36, y: 74 }],
+      },
+      {
+        offense: [o("O1", 30, 55), o("O2", 39, 19), o("O3", 11, 19), o("O4", 25, 38), o("O5", 25, 65)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 36, y: 74 }, { x: 39, y: 19 }])],
+        note: "1 fires it ahead to 2 the instant he's up the floor — advancing with the pass, not the dribble, is the whole point. 2 is already spotted up and ready.",
+        ballArrival: [{ x: 36, y: 74 }, { x: 39, y: 19 }],
+      },
+      {
+        offense: [o("O1", 30, 55), o("O2", 39, 19), o("O3", 11, 19), o("O4", 31, 9), o("O5", 18, 30)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [ln("cut", "offense", [{ x: 25, y: 38 }, { x: 31, y: 9 }])],
+        note: "The instant it goes to 2's side, 4 fills the ball-side block. 5 keeps trailing to the top, opposite 1.",
+      },
+      {
+        offense: [o("O1", 30, 55), o("O2", 39, 19), o("O3", 11, 19), o("O4", 31, 9), o("O5", 16, 27)],
+        defense: [],
+        ballHolder: "O2",
+        lines: [],
+        note: "2 catches in rhythm and shoots — that's the shot we want, 7 seconds or less. If it's contested, 4 is sealed inside or 5 is at the top to reset and go again the other way.",
+      },
+    ]
+  ),
+
+  play(
     "zone-highlow",
     "High-Low vs 2-3",
     "zone",
