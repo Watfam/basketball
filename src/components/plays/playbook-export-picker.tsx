@@ -158,20 +158,25 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     }
   }
 
-  /** Reuses the current link if there is one; only builds when there isn't yet — View/Share tap this, not buildLink() directly, so they never throw away a perfectly good link just to make another. */
+  /** Reuses the current link if there is one; only builds when there isn't yet — View/Share tap this, not buildLink() directly, so they never throw away a perfectly good link just to make another. A play/order/defense change already nulls it out via resetLink(), so this alone is enough to pick up a fresh one next time without needing a separate, user-visible "rebuild" step. */
   async function ensureLinkUrl(): Promise<string | null> {
     return linkUrl ?? buildLink();
   }
 
-  async function handleBuildNewLink() {
-    haptic("tap");
-    await buildLink();
-  }
-
   async function handleViewLink() {
     haptic("tap");
+    // Opened synchronously, before the await below — Safari can silently drop a window.open that
+    // happens after an async gap, since the "this came from a real tap" grace period it grants
+    // doesn't reliably survive a server round trip. Opening a blank tab right now, then navigating
+    // it once the link is ready, keeps the open itself tied to the actual gesture.
+    const newTab = window.open("", "_blank");
     const url = await ensureLinkUrl();
-    if (url) window.open(url, "_blank");
+    if (url) {
+      if (newTab) newTab.location.href = url;
+      else window.open(url, "_blank");
+    } else {
+      newTab?.close();
+    }
   }
 
   /** A URL shares natively everywhere Web Share exists, standalone app included — sharing a link, unlike a file, never needs to leave the app's own container at all, so there's no window.open escape trick needed here in the first place. */
@@ -188,6 +193,8 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         if (e instanceof Error && e.name === "AbortError") return;
       }
     }
+    // No Web Share support at all (most desktop browsers) — copy it instead, with "Copied!" shown
+    // right on the Share button itself since there's no separate URL field to glance at anymore.
     copyToClipboard(url);
   }
 
@@ -195,9 +202,31 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
     return `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
   }
 
-  function handleViewPdf() {
+  /**
+   * Fetches the PDF itself and navigates an already-open tab to the resulting blob, rather than
+   * just window.open-ing the API route directly — a raw window.open shows a stark blank white tab
+   * for however long the server takes to render the PDF, with no feedback at all on THIS screen.
+   * Fetching it here means the "Preparing…" state (shared with Share PDF below) covers that same
+   * wait on the button itself, and the new tab only appears once there's something to show it.
+   */
+  async function handleViewPdf() {
     haptic("tap");
-    window.open(pdfUrl(), "_blank");
+    setPdfStatus("preparing");
+    setPdfErrorMsg("");
+    const newTab = window.open("", "_blank");
+    try {
+      const res = await withTimeout(fetch(pdfUrl()), 30_000);
+      if (!res.ok) throw new Error("Couldn't build the PDF — try again.");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      if (newTab) newTab.location.href = blobUrl;
+      else window.open(blobUrl, "_blank");
+      setPdfStatus("idle");
+    } catch (e) {
+      newTab?.close();
+      setPdfStatus("error");
+      setPdfErrorMsg(e instanceof Error ? e.message : "Something went wrong preparing the PDF.");
+    }
   }
 
   /**
@@ -250,10 +279,6 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       haptic("success");
       setTimeout(() => setCopied(false), 2000);
     }, fallback);
-  }
-
-  function copyLink() {
-    if (linkUrl) copyToClipboard(linkUrl);
   }
 
   return (
@@ -417,24 +442,15 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         style={{ bottom: "var(--team-bottom-nav-height, calc(4.75rem + env(safe-area-inset-bottom)))" }}
       >
         <div>
-          {linkUrl ? (
-            <div className="flex items-center gap-2">
-              <input readOnly value={linkUrl} className="min-w-0 flex-1 truncate rounded-lg border border-line-strong bg-surface px-3 py-2 text-xs text-foreground-dim" onFocus={(e) => e.currentTarget.select()} />
-              <Button size="sm" variant="ghost" onClick={copyLink}>
-                {copied ? "Copied" : "Copy"}
-              </Button>
-            </div>
-          ) : (
-            <div className="text-xs text-foreground-dim">
-              {selected.size === 0 ? (
-                <span className="font-bold text-accent">Check a play below to include it</span>
-              ) : (
-                <>
-                  {selected.size} play{selected.size === 1 ? "" : "s"} selected
-                </>
-              )}
-            </div>
-          )}
+          <div className="text-xs text-foreground-dim">
+            {selected.size === 0 ? (
+              <span className="font-bold text-accent">Check a play below to include it</span>
+            ) : (
+              <>
+                {selected.size} play{selected.size === 1 ? "" : "s"} selected
+              </>
+            )}
+          </div>
           {status === "error" && <p className="mt-0.5 text-xs font-bold text-danger">{errorMsg}</p>}
           {pdfStatus === "error" && <p className="mt-0.5 text-xs font-bold text-danger">{pdfErrorMsg}</p>}
         </div>
@@ -446,22 +462,17 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           <button type="button" onClick={handleViewLink} disabled={status === "building" || selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
             {status === "building" ? "Building…" : "View"}
           </button>
-          <button type="button" onClick={handleViewPdf} disabled={selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
-            View
+          <button type="button" onClick={handleViewPdf} disabled={pdfStatus === "preparing" || selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
+            {pdfStatus === "preparing" ? "Preparing…" : "View"}
           </button>
 
           <Button onClick={handleShareLink} disabled={status === "building" || selected.size === 0} className="whitespace-nowrap">
-            {status === "building" ? "Building…" : "Share"}
+            {status === "building" ? "Building…" : copied ? "Copied!" : "Share"}
           </Button>
           <Button onClick={handleSharePdf} disabled={pdfStatus === "preparing" || selected.size === 0} className="whitespace-nowrap">
             {pdfStatus === "preparing" ? "Preparing…" : "Share"}
           </Button>
         </div>
-        {linkUrl && (
-          <button type="button" onClick={handleBuildNewLink} disabled={status === "building"} className="text-[11px] font-bold text-foreground-mute underline underline-offset-2">
-            {status === "building" ? "Building a new link…" : "Build a new link"}
-          </button>
-        )}
       </div>
     </>
   );

@@ -74,21 +74,40 @@ type CoverRow =
   | { kind: "subsection"; key: string; label: string }
   | { kind: "play"; key: string; num: number; name: string };
 
-/**
- * Flattened section → subsection → play rows, in display order, with continuous numbering across
- * the whole list. Flattening (rather than nesting views per section) is what makes the two-column
- * split below possible: react-pdf's layout has no multi-column primitive, so getting a long list
- * to flow across two side-by-side columns means splitting this same sequence of rows ourselves.
- */
-function flattenCoverRows(groups: ExportSection<ExportPlay>[]): CoverRow[] {
-  const rows: CoverRow[] = [];
+/** One per subgroup — its own subsection header (if shown) glued to its own plays, so a column
+ * break never falls between a header and some, but not all, of its plays. The section label is
+ * tracked separately rather than baked into the first subgroup's rows, since which chunk ends up
+ * "first in a column" for a given section depends on how the split comes out — a section whose
+ * subgroups land in two different columns needs its own label repeated at the top of each. */
+type CoverChunk = { sectionLabel: string; rows: CoverRow[] };
+
+function buildCoverChunks(groups: ExportSection<ExportPlay>[]): CoverChunk[] {
+  const chunks: CoverChunk[] = [];
   let nextNum = 1;
   groups.forEach((g) => {
-    rows.push({ kind: "section", key: `s-${g.label}`, label: g.label });
     g.subgroups.forEach((sg) => {
+      const rows: CoverRow[] = [];
       if (g.showSubLabels) rows.push({ kind: "subsection", key: `sub-${g.label}-${sg.label}`, label: sg.label });
       sg.plays.forEach((p) => rows.push({ kind: "play", key: p.id, num: nextNum++, name: p.name }));
+      chunks.push({ sectionLabel: g.label, rows });
     });
+  });
+  return chunks;
+}
+
+/** Assembles one column's chunks into display rows, inserting a section header whenever a chunk's
+ * section differs from whatever immediately precedes it IN THIS COLUMN — so a section split across
+ * both columns gets its label repeated at the top of the second one instead of starting there with
+ * a bare subsection header and no section context above it. */
+function assembleColumn(chunks: CoverChunk[]): CoverRow[] {
+  const rows: CoverRow[] = [];
+  let lastSection: string | null = null;
+  chunks.forEach((chunk, i) => {
+    if (chunk.sectionLabel !== lastSection) {
+      rows.push({ kind: "section", key: `s-${chunk.sectionLabel}-${i}`, label: chunk.sectionLabel });
+      lastSection = chunk.sectionLabel;
+    }
+    rows.push(...chunk.rows);
   });
   return rows;
 }
@@ -111,14 +130,32 @@ function CoverRowText({ row }: { row: CoverRow }) {
 const COVER_COLUMN_THRESHOLD = 12;
 
 function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<ExportPlay>[] }) {
-  const rows = flattenCoverRows(groups);
-  const useColumns = rows.length > COVER_COLUMN_THRESHOLD;
+  const chunks = buildCoverChunks(groups);
+  const totalRows = chunks.reduce((n, c) => n + c.rows.length, 0) + new Set(chunks.map((c) => c.sectionLabel)).size;
+  const useColumns = totalRows > COVER_COLUMN_THRESHOLD;
 
-  // Split as close to half-and-half as possible, but never leave a header row dangling alone at the
-  // bottom of column one — push the break forward to the next play row when that would happen.
-  let splitAt = Math.ceil(rows.length / 2);
-  while (splitAt < rows.length && rows[splitAt - 1].kind !== "play") splitAt++;
-  const columns = useColumns ? [rows.slice(0, splitAt), rows.slice(splitAt)] : [rows];
+  // Greedily hands each chunk, in document order, to whichever column currently holds less —
+  // keeps every chunk whole while balancing the two columns for any mix of chunk sizes. A
+  // "fill column one until it crosses the halfway mark" rule looks equivalent but isn't: with
+  // only two chunks close to half each, column one's running total can stay just under half
+  // even after taking the first chunk, so it greedily swallows the second one too and leaves
+  // column two empty.
+  const chunks1: CoverChunk[] = [];
+  const chunks2: CoverChunk[] = [];
+  if (useColumns) {
+    let fill1 = 0;
+    let fill2 = 0;
+    for (const chunk of chunks) {
+      if (fill1 <= fill2) {
+        chunks1.push(chunk);
+        fill1 += chunk.rows.length;
+      } else {
+        chunks2.push(chunk);
+        fill2 += chunk.rows.length;
+      }
+    }
+  }
+  const columns = useColumns ? [assembleColumn(chunks1), assembleColumn(chunks2)] : [assembleColumn(chunks)];
 
   return (
     <Page size="LETTER" style={styles.page}>
@@ -139,7 +176,7 @@ function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<E
           </View>
         ) : (
           <View>
-            {rows.map((row) => (
+            {columns[0].map((row) => (
               <CoverRowText key={row.key} row={row} />
             ))}
           </View>
