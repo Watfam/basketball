@@ -1218,7 +1218,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
 
   play(
     "schultz-shallow",
-    "Shallow",
+    "Slice",
     "zone",
     "vs 2-3 Zone",
     "A dribble-at that drags the zone's attention toward the ball while 2 loops through the middle of the paint and pops out at the top, between the two guards. Whoever has to scramble back to pick him up gets screened on the catch, opening a drive down the middle with three live reads at the rim.",
