@@ -1254,6 +1254,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
       "1: the pass out and back is a fake, not a real reset — attack the gap the instant it opens, don't stop to survey it.",
       "4: read x5 the moment he commits to the drive and slip behind him right away — don't wait to see if the pass is actually coming.",
       "If x5 holds the rim instead of stepping up, pull up from the floor just inside the free-throw line — don't force a pass into a crowd.",
+      "Call: if the coach calls \"X\" and then yells \"Again,\" that means this — X Counter, not X a second time.",
     ],
     [
       {
@@ -2144,6 +2145,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
       "2: the fake toward the corner needs to look real — a half-hearted one lets the defense sit on the mirror spot before you get there.",
       "1: after the pass to 4, get into the screen for 3 right away — he's standing on the sideline with nowhere to go until you free him.",
       "4 on the catch: 3 for the three, then 5 sealed inside, then swing it to 2 — 1 is trailing the baseline the whole way and is the last read, spotting up in the far corner.",
+      "Call: if the coach calls \"22\" and then yells \"Again,\" that means this — 22 Counter, not 22 a second time.",
     ],
     [
       {
