@@ -789,7 +789,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   play(
     "cycle",
     "Cycle",
-    "system",
+    "offenseSystem",
     "Transition vs Man",
     "The team's go-to transition identity: push the ball up the floor with the PASS, not the dribble, looking to score in about 7 seconds. Triggered off any live ball — an inbound after a made basket (shown here, 5 to 1), a defensive rebound, or a steal — with 2 and 3 sprinting the floor immediately to spot up at the three-point line on both elbows, and 1 getting into outlet position to start the advance. 4 trails level with the ball, then fills the ball-side block the instant a side is picked. 5 trails the farthest and stops at the top of the arc, opposite 1, as the reset outlet. The shot everyone's sprinting for is the catch-and-shoot three off the advance pass — if it's taken away, go inside to 4 sealed on the block, or reset through 5 at the top and attack the other way.",
     [
@@ -2534,18 +2534,17 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
 
   play(
     "run-jump",
-    "Run & Jump Press",
-    "defense",
-    "Full court man",
-    "Lightning base press. Man-to-man full court, turn the dribbler, and the closest level defender jumps him from the side.",
+    "Gold",
+    "defenseSystem",
+    "Full court man (also runs in the half court)",
+    "The team's base full-court press — man-to-man ball pressure built to force mistakes. Turn the dribbler to a sideline and trap him there with the next defender over, side to side only, never down the floor. The instant the dribble's picked up in the trap, the original on-ball defender leaves for the opponent's next most dangerous man. Off the ball, every defender splits the court — straddling the midline between their own man and the ball, ready to close a trap from either side. Defenders further up the floor hold that same split, hunting a pass to pick off in the air rather than collapsing down to help. Runs possession after possession until it forces a turnover. Primarily a full-court press, but the same rules hold just as well in the half court.",
     [
-      "Soft deny inbound to the corner below the FT line.",
-      "Inbounder’s defender: free safety on the inbound side until the catch, then full man.",
-      "Cut off the dribbler; closest level defender jumps from the side.",
-      "Never trap down.",
-      "Off the ball: level with or in front of the ball. Pinch if the dribbler goes middle.",
+      "Turn the dribbler to a sideline — the trap only works against a line, never out in the open floor.",
+      "Trap side to side, never down the floor. Collapsing toward your own basket just opens a lane behind you.",
+      "The instant the dribble's picked up in the trap, the on-ball defender leaves for the next closest open man — don't stand and admire it.",
+      "Off the ball: split the court. Stay on the midline between your man and the ball, not glued to either one.",
+      "Defenders up the floor keep splitting too, hunting a pass to pick off in the air — not collapsing to trap down.",
       "Dead ball: on-ball defender runs to the most dangerous open man.",
-      "Ball side: loose deny. Help side: split the court.",
     ],
     [
       {
@@ -2553,7 +2552,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         defense: [d("X4", "O4", { x: 22.5, y: 81.8 }), d("X1", "O4", { x: 17.5, y: 78.6 }), d("X2", "O4", { x: 36.5, y: 71.5 }), d("X3", "O4", { x: 13.5, y: 56.3 }), d("X5", "O4", { x: 31.5, y: 51.8 })],
         ballHolder: "O4",
         lines: [],
-        note: "Lightning base press. Man-to-man full court, turn the dribbler, and the closest level defender jumps him from the side.",
+        note: "Gold — the team's base full-court press. Man-to-man ball pressure, turn the dribbler to a sideline, trap him there side to side with the next defender over.",
       },
       {
         offense: [o("O1", 18, 76.4), o("O2", 38, 70.6), o("O3", 12, 54.5), o("O4", 25, 85.6), o("O5", 33, 50)],
@@ -2592,18 +2591,19 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         note: "On the jump, x1 runs to the most dangerous open man (3). Everyone rotates up.",
       },
     ],
-    "This is the team's own base press, not a standard textbook diagram — it matches the Run & Jump system Hardwood Lab already tracks for this team."
+    "This is the team's own base press, called \"Gold\" — not a standard textbook diagram. It's the Run & Jump system Hardwood Lab already tracks for this team."
   ),
 
   play(
     "man-help",
     "Half-Court Man",
-    "defense",
-    "Help-side principles",
-    "Lightning half-court man rules. Pressure the ball, loose deny one pass away, split the court two passes away.",
+    "defenseSystem",
+    "Man-to-man principles",
+    "The team's base defensive identity: man-to-man with relentless ball pressure, built to create chaos — not a blind, straight-up man with no help. One pass away, we deny. More than one pass away, we're in help, splitting the court between our own man and the ball.",
     [
-      "Ball side: loose deny. Help side: split the court.",
-      "Jump to the ball on every pass — move while the ball is in the air.",
+      "Ball pressure, every possession — that's the identity. A relaxed on-ball defender is the one thing that breaks this whole system.",
+      "One pass away: loose deny. More than one pass away: split the court between your man and the ball, in help.",
+      "Jump to the ball on every pass — move while the ball is in the air, not after it lands.",
       "Closeout: short choppy steps, high hand, take away the shot.",
       "Talk: “ball,” “help,” “shot.”",
     ],
@@ -2613,7 +2613,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         defense: [d("X1", "O1", { x: 25, y: 29 }), d("X2", "O1", { x: 41.5, y: 20 }), d("X3", "O1", { x: 11, y: 19.5 }), d("X4", "O1", { x: 9.5, y: 7 }), d("X5", "O1", { x: 31.5, y: 10 })],
         ballHolder: "O1",
         lines: [],
-        note: "Lightning half-court man rules. Pressure the ball, loose deny one pass away, split the court two passes away.",
+        note: "Ball pressure, man-to-man, built to create chaos. Loose deny one pass away, split the court in help two passes away.",
       },
       {
         offense: [o("O1", 25, 32), o("O2", 44.5, 21), o("O3", 5.5, 21), o("O4", 3, 3.5), o("O5", 32, 8)],
@@ -2646,6 +2646,54 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         ballArrival: [{ x: 42, y: 6.5 }, { x: 3, y: 3.5 }],
       },
     ]
+  ),
+
+  play(
+    "animal-press",
+    "Animal Press",
+    "defenseSystem",
+    "Full court — Wolves, Foxes, Bear",
+    "The team's second full-court press, built on PGC Basketball's Animal Press — every defender plays a role, not a fixed spot on the floor. Wolves hunt: they deny the initial inbound, then turn upfield looking for ball pressure and a trap anywhere they can get one. Foxes sit in the middle third of the floor, around the volleyball line between the three-point line and midcourt, as a zone — cunning and patient, baiting a pass into their area for the steal. The Bear mirrors that same depth in our own half, centered, but plays it straight man-to-man on the deepest offensive player, protecting the rim at all costs and picking off anything thrown his way. Base shell is two Wolves, two Foxes, and one Bear — the exact mix can change, but that's the default.",
+    [
+      "Wolves: deny the inbound first, then hunt — ball pressure and a trap anywhere once it's live.",
+      "Foxes: you're a zone, not a man. Sit at the volleyball line, bait the pass into your area, don't chase it.",
+      "Bear: stay on the deepest man no matter what's happening elsewhere. Protect the rim first, steal second.",
+      "Same rule as Gold once a trap forms: side to side, never down the floor.",
+      "The Bear is what makes a mistake fatal — everyone else's job is just to make the pass that beats this press hard to find.",
+    ],
+    [
+      {
+        offense: [o("O1", 25, 84), o("O2", 12, 80), o("O3", 10, 46), o("O4", 40, 46), o("O5", 25, 20)],
+        defense: [d("X1", "O2", { x: 13, y: 78 }), d("X2", "O3", { x: 22, y: 70 }), d("X3", "O3", { x: 12, y: 50 }), d("X4", "O4", { x: 38, y: 50 }), d("X5", "O5", { x: 25, y: 34 })],
+        ballHolder: "O1",
+        lines: [],
+        note: "Base animal shell: two Wolves (X1, X2) deny the inbound and the first catch. Two Foxes (X3, X4) sit at the volleyball line in the middle third. The Bear (X5) mirrors that same depth in our own half, centered, man-to-man on the deepest outlet.",
+      },
+      {
+        offense: [o("O1", 25, 84), o("O2", 13, 76), o("O3", 10, 46), o("O4", 40, 46), o("O5", 25, 20)],
+        defense: [d("X1", "O2", { x: 14, y: 77 }), d("X2", "O3", { x: 22, y: 70 }), d("X3", "O3", { x: 12, y: 50 }), d("X4", "O4", { x: 38, y: 50 }), d("X5", "O5", { x: 25, y: 34 })],
+        ballHolder: "O2",
+        lines: [ln("pass", "offense", [{ x: 25, y: 84 }, { x: 13, y: 76 }])],
+        note: "The inbound still gets in — X1's wolf stays glued to the catch. Ball pressure from the first second, no gap to relax into.",
+        ballArrival: [{ x: 25, y: 84 }, { x: 13, y: 76 }],
+      },
+      {
+        offense: [o("O1", 25, 84), o("O2", 8, 66), o("O3", 10, 46), o("O4", 40, 46), o("O5", 25, 20)],
+        defense: [d("X1", "O2", { x: 10, y: 67 }), d("X2", "O2", { x: 9, y: 62 }), d("X3", "O3", { x: 12, y: 50 }), d("X4", "O4", { x: 38, y: 50 }), d("X5", "O5", { x: 25, y: 34 })],
+        ballHolder: "O2",
+        lines: [ln("dribble", "offense", [{ x: 13, y: 76 }, { x: 8, y: 66 }]), ln("cut", "defense", [{ x: 14, y: 77 }, { x: 10, y: 67 }]), ln("cut", "defense", [{ x: 22, y: 70 }, { x: 9, y: 62 }])],
+        note: "X1 turns him to the sideline. X2 releases from support and sprints in — two Wolves, one trap, side to side, same rule as Gold: never trap down. Foxes and the Bear hold their zones; they don't get pulled into the ball.",
+      },
+      {
+        offense: [o("O1", 25, 84), o("O2", 8, 66), o("O3", 10, 46), o("O4", 40, 46), o("O5", 25, 20)],
+        defense: [d("X1", "O2", { x: 9, y: 67 }), d("X2", "O2", { x: 8, y: 63 }), d("X3", "O3", { x: 11, y: 47 }), d("X4", "O4", { x: 38, y: 50 }), d("X5", "O5", { x: 25, y: 34 })],
+        ballHolder: "O3",
+        lines: [ln("pass", "offense", [{ x: 8, y: 66 }, { x: 10, y: 46 }])],
+        note: "Trapped, he throws it toward the middle to escape — right into a Fox's zone. X3 reads it the whole way and comes away with it before O3 ever gets a hand on it. Turnover.",
+        ballArrival: [{ x: 8, y: 66 }, { x: 10, y: 46 }],
+      },
+    ],
+    "PGC Basketball (Coach Mano Watsa), \"How to Run the Full Court Animal Press Defense\" — the wolves/foxes/bear roles and the base 2-2-1 shell are the team's own implementation of this named system; the exact drills and teaching progressions are PGC's own and aren't reproduced here."
   ),
 
   play(

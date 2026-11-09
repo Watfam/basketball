@@ -11,11 +11,12 @@ import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/
 import { applyPlayOrder, swapInOrder } from "@/lib/plays/play-order";
 import { saveTeamPlayOrderAction } from "@/app/actions/play-order";
 
-type TabKey = "system" | "offense" | "situations" | "defense" | "starred";
+type TabKey = "offenseSystem" | "offense" | "situations" | "defenseSystem" | "defense" | "starred";
 const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] = [
-  { key: "system", label: "Offensive System", categories: ["system"] },
+  { key: "offenseSystem", label: "Offensive System", categories: ["offenseSystem"] },
   { key: "offense", label: "Offense", categories: ["man", "zone"] },
   { key: "situations", label: "Situations", categories: ["blob", "slob", "fullCourt", "late"] },
+  { key: "defenseSystem", label: "Defensive System", categories: ["defenseSystem"] },
   { key: "defense", label: "Defense", categories: ["defense"] },
   { key: "starred", label: "Starred", categories: null },
 ];
