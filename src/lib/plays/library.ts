@@ -1939,7 +1939,7 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
 
   play(
     "blob-stack",
-    "Stack",
+    "Stack BLOB",
     "blob",
     "Baseline OB vs 2-1-2 Zone",
     "Vs a 2-1-2 zone: 1-4-5-2 stack on the ball-side block, 3 inbounding right in front of it. 1 clears to the corner while 4 screens the zone's middle defender directly, and 5 cuts straight down the lane line for a direct-entry layup, with the middle cleared by 4's screen and 2 retreating up top as the safety valve.",
