@@ -28,7 +28,7 @@ export default async function TeamPhilosophyPage({ params }: { params: Promise<{
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}/plays/playbook`, label: team.name }}>
+      <PageHeader back={{ href: `/teams/${teamId}/plays`, label: team.name }}>
         <span className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Philosophy</span>
       </PageHeader>
 

@@ -356,7 +356,7 @@ export function PlayDesigner({
     <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
       <div className="shrink-0 border-b border-line bg-surface/80 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur">
         <div className="flex items-center justify-between gap-3">
-          <Link href={`/teams/${teamId}/plays/playbook`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
+          <Link href={`/teams/${teamId}/plays`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
             ← Playbook
           </Link>
           {libraryPlayId && (

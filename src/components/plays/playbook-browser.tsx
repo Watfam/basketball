@@ -72,17 +72,26 @@ function matches(p: LibraryPlay, q: string): boolean {
   return hay.includes(q);
 }
 
-const FADE = 28;
+function ChevronIcon({ dir, className }: { dir: "left" | "right"; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={dir === "right" ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"} />
+    </svg>
+  );
+}
 
 /**
  * A horizontally scrolling row (category tabs, filter chips) gives no hint that more sits off-screen
  * once the visible items happen to fit without obviously running off the edge — a flat edge reads as
- * "that's everything," not "swipe for more." Fades whichever edge still has content past it, the same
- * affordance iOS and most apps use for an edge-to-edge scroller; both sides fade away once there's
- * nothing left in that direction. Needs the -webkit- prefix too — this ships as an iOS PWA (Safari).
- * A wrapper component, not a hook, so the ref never leaves this component's own render.
+ * "that's everything," not "swipe for more." A soft mask-fade alone turned out too subtle here (the
+ * pill background and the page background are close enough in tone that the fade barely registered),
+ * so this pairs a solid chevron badge — real contrast, unmissable regardless of the row's own colors
+ * — with a short opaque-to-transparent scrim behind it, on whichever edge still has content past it.
+ * A wrapper component, not a hook, so the ref never leaves this component's own render. Callers pass
+ * the inner scrollable row's own classes (not the outer bleed margin — this owns that itself, so the
+ * chevrons line up with the true bled edge rather than the unbled content column).
  */
-function ScrollFadeRow({ className, children }: { className: string; children: ReactNode }) {
+function ScrollHintRow({ className, children }: { className: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: false, end: false });
 
@@ -104,10 +113,25 @@ function ScrollFadeRow({ className, children }: { className: string; children: R
     };
   }, []);
 
-  const mask = `linear-gradient(to right, ${edges.start ? "transparent" : "black"}, black ${FADE}px, black calc(100% - ${FADE}px), ${edges.end ? "transparent" : "black"})`;
   return (
-    <div ref={ref} style={{ WebkitMaskImage: mask, maskImage: mask }} className={className}>
-      {children}
+    <div className="relative -mx-4">
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+      {edges.start && (
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center bg-gradient-to-r from-background via-background/90 to-transparent pl-1">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-background shadow-sm">
+            <ChevronIcon dir="left" className="h-3.5 w-3.5" />
+          </span>
+        </div>
+      )}
+      {edges.end && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-12 items-center justify-end bg-gradient-to-l from-background via-background/90 to-transparent pr-1">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-background shadow-sm">
+            <ChevronIcon dir="right" className="h-3.5 w-3.5" />
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -237,7 +261,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
 
       {!q && (
         <>
-          <ScrollFadeRow className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
+          <ScrollHintRow className="flex gap-1.5 overflow-x-auto px-4 pb-0.5">
             {TABS.map((t) => (
               <button
                 key={t.key}
@@ -255,10 +279,10 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
                 {t.label}
               </button>
             ))}
-          </ScrollFadeRow>
+          </ScrollHintRow>
 
           {chipCategories && chipCategories.length > 1 && (
-            <ScrollFadeRow className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
+            <ScrollHintRow className="flex gap-1.5 overflow-x-auto px-4 pb-0.5">
               {(["all", ...chipCategories] as const).map((c) => (
                 <button
                   key={c}
@@ -275,7 +299,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
                   {c === "all" ? "All" : PLAY_CATEGORY_LABEL[c]}
                 </button>
               ))}
-            </ScrollFadeRow>
+            </ScrollHintRow>
           )}
         </>
       )}
@@ -405,7 +429,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
                     )}
 
                     <div className="mt-3 flex items-center justify-between gap-3">
-                      <ButtonLink href={`/teams/${teamId}/plays/playbook/${p.id}`} size="sm" variant="secondary">
+                      <ButtonLink href={`/teams/${teamId}/plays/${p.id}`} size="sm" variant="secondary">
                         View play
                       </ButtonLink>
                       <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">

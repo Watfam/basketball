@@ -26,7 +26,7 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
   // Returns to the playbook list exactly as the coach left it (same tab/filter/scroll) when that's
   // really where this screen was opened from this session; a bare link to the list (filters reset)
   // only when there's nothing recorded to go back to — a play opened from a fresh tab or a shared link.
-  const goToPlaybook = useGoBack(`/teams/${teamId}/plays/playbook`);
+  const goToPlaybook = useGoBack(`/teams/${teamId}/plays`);
 
   function flip() {
     haptic("tap");

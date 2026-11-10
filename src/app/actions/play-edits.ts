@@ -7,8 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getPlayEdit, resetPlayEdit, savePlayEdit, saveMasterOverride, type PlayEditInput } from "@/lib/plays/play-edits-store";
 
 function refresh(teamId: string) {
-  revalidatePath(`/teams/${teamId}/plays/playbook`, "page");
-  revalidatePath(`/teams/${teamId}/plays/playbook/[playId]`, "page");
+  revalidatePath(`/teams/${teamId}/plays`, "page");
+  revalidatePath(`/teams/${teamId}/plays/[playId]`, "page");
   revalidatePath(`/teams/${teamId}/plays/designer`, "page");
 }
 

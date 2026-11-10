@@ -28,7 +28,7 @@ export const TEAM_TABS: TeamTab[] = [
   { key: "roster", label: "Today", href: (id) => `/teams/${id}` },
   { key: "practice", label: "Practice", href: (id) => `/teams/${id}/practice` },
   { key: "games", label: "Games", href: (id) => `/teams/${id}/games` },
-  { key: "plays", label: "Plays", href: (id) => `/teams/${id}/plays/playbook` },
+  { key: "plays", label: "Plays", href: (id) => `/teams/${id}/plays` },
 ];
 
 /** The destinations tucked behind the bottom bar's More tab. */

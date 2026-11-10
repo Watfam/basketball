@@ -24,8 +24,8 @@ export async function saveTeamPlayOrderAction(teamId: string, order: string[]): 
 
   const res = await saveTeamPlayOrder(hoops, teamId, order);
   if (!res.error) {
-    revalidatePath(`/teams/${teamId}/plays/playbook`, "page");
-    revalidatePath(`/teams/${teamId}/plays/playbook/export`, "page");
+    revalidatePath(`/teams/${teamId}/plays`, "page");
+    revalidatePath(`/teams/${teamId}/plays/export`, "page");
   }
   return res;
 }
