@@ -4,6 +4,7 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/card";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay } from "@/lib/plays/library";
 import { createPlaybookExportLinkAction } from "@/app/actions/export-playbook";
 import { EXPORT_GROUPS } from "@/lib/plays/export/groups";
@@ -332,9 +333,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       {order.length > 0 && (
         <section className="space-y-2">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">
-              Selected, in this order ({order.length})
-            </h2>
+            <Eyebrow>Selected, in this order ({order.length})</Eyebrow>
             {selectedWithDefense.length > 0 && (
               <div className="flex gap-1.5">
                 <button type="button" onClick={() => setAllDefense(true)} className="rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim">
@@ -412,7 +411,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
         if (!groupPlays.length) return null;
         return (
           <section key={group.label} className="space-y-3">
-            <h2 className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">{group.label}</h2>
+            <Eyebrow>{group.label}</Eyebrow>
             {/* Sub-grouped by exact category (all BLOB together, all SLOB together, etc.), same as the main Playbook screen — not one flat list across every category this broad section spans. */}
             {group.categories.map((cat) => {
               const catPlays = groupPlays.filter((p) => p.category === cat);
