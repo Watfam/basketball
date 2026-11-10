@@ -34,12 +34,16 @@ export default async function PlaybookPage({ params }: { params: Promise<{ teamI
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }}>
-        <span className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Playbook</span>
         {canExport && <HeaderLink href={`/teams/${teamId}/plays/philosophy`}>Philosophy</HeaderLink>}
-        {canExport && <HeaderLink href={`/teams/${teamId}/plays/playbook/export`}>Share</HeaderLink>}
+        {canExport && (
+          <HeaderLink href={`/teams/${teamId}/plays/playbook/export`} tone="accent">
+            Share
+          </HeaderLink>
+        )}
       </PageHeader>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
+      <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
+        <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">Playbook</h1>
         <Suspense fallback={null}>
           <PlaybookBrowser teamId={teamId} plays={plays} canReorder={canExport} />
         </Suspense>

@@ -17,6 +17,7 @@ export default function Loading() {
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
+        <div className="h-8 w-40 animate-pulse rounded-full bg-elevated" />
         <div className="h-11 animate-pulse rounded-xl bg-elevated" />
         <div className="h-10 animate-pulse rounded-xl bg-elevated" />
         <div className="grid grid-cols-4 gap-1 rounded-xl bg-raised p-1">
