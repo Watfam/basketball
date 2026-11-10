@@ -3,7 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
-import { Button, buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay } from "@/lib/plays/library";
 import { createPlaybookExportLinkAction } from "@/app/actions/export-playbook";
 import { EXPORT_GROUPS } from "@/lib/plays/export/groups";
@@ -42,6 +42,22 @@ function parseStarred(raw: string | null): Set<string> {
 /** Whether any frame of this play actually draws defenders — most BLOB plays don't, so there's nothing to toggle for them. */
 function hasDefense(p: LibraryPlay): boolean {
   return p.frames.some((f) => f.defense.length > 0);
+}
+
+function ChevronIcon({ dir, className }: { dir: "up" | "down"; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={dir === "up" ? "M6 15l6-6 6 6" : "M6 9l6 6 6-6"} />
+    </svg>
+  );
+}
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
 }
 
 export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays: LibraryPlay[] }) {
@@ -285,28 +301,23 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
 
   return (
     <>
-    <div className="space-y-5 pb-[calc(9.5rem+env(safe-area-inset-bottom))]">
-      <p className="text-sm text-foreground-dim">
-        Pick which plays go in the playbook, in whatever order you want to present them. Interactive opens live in a browser — anyone can watch each play develop, no app or account needed. A PDF is the one to print or hand out — it opens and saves reliably on any device, iPhone included. Starred plays are checked to start.
-      </p>
+    <div className="space-y-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))]">
+      <p className="text-sm text-foreground-dim">Pick the plays, in whatever order you want to present them. Starred plays are checked to start.</p>
 
       {isStandalone && (
-        <p className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-bold text-accent">
-          You&rsquo;re using the installed app, which hides Safari&rsquo;s address bar. Sharing still works fine from the buttons below.
-        </p>
+        <p className="text-xs text-foreground-mute">Using the installed app — sharing still works fine from the buttons below.</p>
       )}
 
-      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2.5 hover:bg-raised">
+      <label className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2.5 hover:bg-raised">
+        <span className="text-sm font-bold text-foreground">
+          Include Team Philosophy <span className="font-normal text-foreground-mute">— PDF only</span>
+        </span>
         <input
           type="checkbox"
           checked={includePhilosophy}
           onChange={(e) => { haptic("tap"); setIncludePhilosophy(e.target.checked); }}
           className="h-5 w-5 shrink-0 rounded border-line-strong accent-accent"
         />
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-bold text-foreground">Include Team Philosophy page</span>
-          <span className="block text-xs text-foreground-mute">The front-matter page before any play — PDF only.</span>
-        </span>
       </label>
 
       <div className="flex gap-2">
@@ -342,7 +353,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
               const defenseAvailable = hasDefense(p);
               const defenseShown = defenseAvailable && !hiddenDefenseIds.has(id);
               return (
-                <div key={id} className="flex items-center gap-2 rounded-lg px-2 py-1.5">
+                <div key={id} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5">
                   <span className="w-5 shrink-0 text-center text-xs font-extrabold text-foreground-mute">{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-bold text-foreground">{p.name}</span>
@@ -368,26 +379,26 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
                     aria-label={`Move ${p.name} up`}
                     disabled={i === 0}
                     onClick={() => move(id, -1)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-strong text-foreground-dim disabled:opacity-30"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-line-strong text-foreground-dim disabled:opacity-30"
                   >
-                    ▲
+                    <ChevronIcon dir="up" className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     aria-label={`Move ${p.name} down`}
                     disabled={i === order.length - 1}
                     onClick={() => move(id, 1)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-strong text-foreground-dim disabled:opacity-30"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-line-strong text-foreground-dim disabled:opacity-30"
                   >
-                    ▼
+                    <ChevronIcon dir="down" className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     aria-label={`Remove ${p.name}`}
                     onClick={() => toggle(id)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground-mute"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-foreground-mute"
                   >
-                    ✕
+                    <XIcon className="h-4 w-4" />
                   </button>
                 </div>
               );
@@ -453,33 +464,36 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       effect runs.
     */}
       <div
-        className="sticky z-40 -mx-4 space-y-3 border-t border-line bg-background px-5 py-3"
+        className="sticky z-40 -mx-4 space-y-2 border-t border-line bg-background px-5 py-3"
         style={{ bottom: "var(--team-bottom-nav-height, calc(4.75rem + env(safe-area-inset-bottom)))" }}
       >
-        <div>
-          <div className="text-xs text-foreground-dim">
-            {selected.size === 0 ? (
-              <span className="font-bold text-accent">Check a play below to include it</span>
-            ) : (
-              <>
-                {selected.size} play{selected.size === 1 ? "" : "s"} selected
-              </>
-            )}
+        {selected.size === 0 && <p className="text-xs font-bold text-accent">Check a play below to include it</p>}
+        {status === "error" && <p className="text-xs font-bold text-danger">{errorMsg}</p>}
+        {pdfStatus === "error" && <p className="text-xs font-bold text-danger">{pdfErrorMsg}</p>}
+
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Interactive</span>
+            <button
+              type="button"
+              onClick={handleViewLink}
+              disabled={status === "building" || selected.size === 0}
+              className="text-xs font-bold text-foreground-dim hover:text-foreground disabled:opacity-40"
+            >
+              {status === "building" ? "…" : "View"}
+            </button>
           </div>
-          {status === "error" && <p className="mt-0.5 text-xs font-bold text-danger">{errorMsg}</p>}
-          {pdfStatus === "error" && <p className="mt-0.5 text-xs font-bold text-danger">{pdfErrorMsg}</p>}
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">
-          <span>Interactive — plays animate</span>
-          <span>PDF — print or hand out</span>
-
-          <button type="button" onClick={handleViewLink} disabled={status === "building" || selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
-            {status === "building" ? "Building…" : "View"}
-          </button>
-          <button type="button" onClick={handleViewPdf} disabled={pdfStatus === "preparing" || selected.size === 0} className={buttonClass({ variant: "secondary", className: "whitespace-nowrap" })}>
-            {pdfStatus === "preparing" ? "Preparing…" : "View"}
-          </button>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">PDF</span>
+            <button
+              type="button"
+              onClick={handleViewPdf}
+              disabled={pdfStatus === "preparing" || selected.size === 0}
+              className="text-xs font-bold text-foreground-dim hover:text-foreground disabled:opacity-40"
+            >
+              {pdfStatus === "preparing" ? "…" : "View"}
+            </button>
+          </div>
 
           <Button onClick={handleShareLink} disabled={status === "building" || selected.size === 0} className="whitespace-nowrap">
             {status === "building" ? "Building…" : copied ? "Copied!" : "Share"}

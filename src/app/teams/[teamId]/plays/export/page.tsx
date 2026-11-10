@@ -33,11 +33,10 @@ export default async function PlaybookExportPage({ params }: { params: Promise<{
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}/plays`, label: "Playbook" }}>
-        <span className="text-xs font-extrabold uppercase tracking-wide text-foreground-dim">Share playbook</span>
-      </PageHeader>
+      <PageHeader back={{ href: `/teams/${teamId}/plays`, label: "Playbook" }} />
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
+        <h1 className="mb-4 font-display text-3xl uppercase leading-none tracking-wide text-foreground">Share Playbook</h1>
         <PlaybookExportPicker teamId={teamId} plays={plays} />
       </main>
     </div>
