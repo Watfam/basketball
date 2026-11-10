@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, Eyebrow } from "@/components/ui/card";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -70,6 +70,46 @@ function StarIcon({ filled, className }: { filled: boolean; className?: string }
 function matches(p: LibraryPlay, q: string): boolean {
   const hay = `${p.name} ${p.vs} ${p.about} ${p.source ?? ""} ${PLAY_CATEGORY_LABEL[p.category]}`.toLowerCase();
   return hay.includes(q);
+}
+
+const FADE = 28;
+
+/**
+ * A horizontally scrolling row (category tabs, filter chips) gives no hint that more sits off-screen
+ * once the visible items happen to fit without obviously running off the edge — a flat edge reads as
+ * "that's everything," not "swipe for more." Fades whichever edge still has content past it, the same
+ * affordance iOS and most apps use for an edge-to-edge scroller; both sides fade away once there's
+ * nothing left in that direction. Needs the -webkit- prefix too — this ships as an iOS PWA (Safari).
+ * A wrapper component, not a hook, so the ref never leaves this component's own render.
+ */
+function ScrollFadeRow({ className, children }: { className: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ start: false, end: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => {
+      setEdges({
+        start: el.scrollLeft > 1,
+        end: el.scrollLeft + el.clientWidth < el.scrollWidth - 1,
+      });
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  const mask = `linear-gradient(to right, ${edges.start ? "transparent" : "black"}, black ${FADE}px, black calc(100% - ${FADE}px), ${edges.end ? "transparent" : "black"})`;
+  return (
+    <div ref={ref} style={{ WebkitMaskImage: mask, maskImage: mask }} className={className}>
+      {children}
+    </div>
+  );
 }
 
 export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false }: { teamId: string; plays: LibraryPlay[]; canReorder?: boolean }) {
@@ -197,7 +237,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
 
       {!q && (
         <>
-          <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
+          <ScrollFadeRow className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
             {TABS.map((t) => (
               <button
                 key={t.key}
@@ -215,10 +255,10 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
                 {t.label}
               </button>
             ))}
-          </div>
+          </ScrollFadeRow>
 
           {chipCategories && chipCategories.length > 1 && (
-            <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+            <ScrollFadeRow className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
               {(["all", ...chipCategories] as const).map((c) => (
                 <button
                   key={c}
@@ -235,7 +275,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
                   {c === "all" ? "All" : PLAY_CATEGORY_LABEL[c]}
                 </button>
               ))}
-            </div>
+            </ScrollFadeRow>
           )}
         </>
       )}
