@@ -64,6 +64,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
 
   const [pdfStatus, setPdfStatus] = useState<"idle" | "preparing" | "error">("idle");
   const [pdfErrorMsg, setPdfErrorMsg] = useState("");
+  const [includePhilosophy, setIncludePhilosophy] = useState(true);
 
   // Plays actually selected that have defense to show/hide at all — the toggle only matters for these.
   const selectedWithDefense = useMemo(() => order.filter((id) => hasDefense(playsById.get(id)!)), [order, playsById]);
@@ -199,7 +200,8 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
   }
 
   function pdfUrl() {
-    return `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}`;
+    const philosophyParam = includePhilosophy ? "" : "&philosophy=0";
+    return `/api/playbook-pdf?teamId=${encodeURIComponent(teamId)}&ids=${encodeURIComponent(order.join(","))}&hideDefense=${encodeURIComponent([...hiddenDefenseIds].join(","))}${philosophyParam}`;
   }
 
   /**
@@ -293,6 +295,19 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
           You&rsquo;re using the installed app, which hides Safari&rsquo;s address bar. Sharing still works fine from the buttons below.
         </p>
       )}
+
+      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2.5 hover:bg-raised">
+        <input
+          type="checkbox"
+          checked={includePhilosophy}
+          onChange={(e) => { haptic("tap"); setIncludePhilosophy(e.target.checked); }}
+          className="h-5 w-5 shrink-0 rounded border-line-strong accent-accent"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-bold text-foreground">Include Team Philosophy page</span>
+          <span className="block text-xs text-foreground-mute">The front-matter page before any play — PDF only.</span>
+        </span>
+      </label>
 
       <div className="flex gap-2">
         <Button variant="secondary" size="sm" onClick={selectAllStarred}>

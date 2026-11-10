@@ -31,6 +31,11 @@ export type ExportData = {
   generatedAt: string;
   team: { name: string; subtitle: string; logoDataUri: string; navy: string; gold: string; silver: string; paper: string; stripe: string };
   plays: ExportPlay[];
-  /** The PDF's own front-matter page, before any play. Falls back to the hardcoded defaults (src/lib/plays/philosophy.ts) when omitted — only the PDF route fetches a team's saved override. */
-  philosophy?: PhilosophyPillar[];
+  /**
+   * The PDF's own front-matter page, before any play. Three states: omitted (not applicable — only
+   * the PDF route ever sets this) falls back to the hardcoded defaults; an array renders that content
+   * (a team's saved override, or the defaults); `null` means the page was explicitly left out of this
+   * export and must not render at all.
+   */
+  philosophy?: PhilosophyPillar[] | null;
 };

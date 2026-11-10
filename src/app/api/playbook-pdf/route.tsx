@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Select at least one play first.", { status: 400 });
   }
   const hideSet = new Set((searchParams.get("hideDefense") ?? "").split(",").filter(Boolean));
+  const includePhilosophy = searchParams.get("philosophy") !== "0";
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     getMasterOverridesAll(hoops),
     getPlayEditsForTeam(hoops, teamId),
     getTeamPlayOrder(hoops, teamId),
-    getTeamPhilosophy(hoops, teamId),
+    includePhilosophy ? getTeamPhilosophy(hoops, teamId) : Promise.resolve(null),
   ]);
   const resolved = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
 
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
       stripe: TEAM_BRANDING.stripe,
     },
     plays,
-    philosophy: philosophy ?? TEAM_PHILOSOPHY,
+    philosophy: includePhilosophy ? (philosophy ?? TEAM_PHILOSOPHY) : null,
   };
 
   const buffer = await renderToBuffer(<PlaybookPdfDocument data={data} />);
