@@ -106,10 +106,16 @@ function ScrollHintRow({ className, children }: { className: string; children: R
     };
     update();
     el.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    // Not just window resize — the body's own custom font (Archivo) finishing its load reflows this
+    // row's text width well after mount, with no resize event of its own to catch it. A ResizeObserver
+    // on the row itself reacts to that reflow directly, instead of trusting whatever scrollWidth looked
+    // like at the first measurement.
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    document.fonts?.ready.then(update);
     return () => {
       el.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      observer.disconnect();
     };
   }, []);
 
