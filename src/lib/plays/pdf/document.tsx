@@ -10,6 +10,7 @@ import { PlayDiagram, computeExportRegion } from "./court";
 import { PLAYER_COLORS, DEFENSE_COLOR, BALL_COLOR } from "./colors";
 import { groupPlaysBySection, type ExportSection } from "../export/groups";
 import type { ExportData, ExportPlay } from "../export/types";
+import { TEAM_PHILOSOPHY, type PhilosophyPillar } from "../philosophy";
 
 const NAVY = "#0d1b33";
 
@@ -195,6 +196,32 @@ function CoverPage({ data, groups }: { data: ExportData; groups: ExportSection<E
   );
 }
 
+function PhilosophyPage({ team, pillars }: { team: ExportData["team"]; pillars: PhilosophyPillar[] }) {
+  return (
+    <Page size="LETTER" style={styles.page}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>{team.name.toUpperCase()} · TEAM PHILOSOPHY</Text>
+        <Text style={styles.headerText}>Before the Plays</Text>
+      </View>
+      <Text style={styles.playTitle}>Team Philosophy</Text>
+      <Text style={styles.playAbout}>The standing rules every play in this book runs inside of.</Text>
+      {pillars.map((pillar) => (
+        <View key={pillar.title} style={styles.keysBox}>
+          <Text style={styles.keysTitle}>{pillar.title.toUpperCase()}</Text>
+          {pillar.points.map((pt, i) => (
+            <Text key={i} style={styles.keyLine}>
+              {"•"} {pt}
+            </Text>
+          ))}
+        </View>
+      ))}
+      <View style={styles.footer} fixed>
+        <Legend />
+      </View>
+    </Page>
+  );
+}
+
 const FRAMES_PER_PAGE = 6;
 const DIAGRAM_HEIGHT = 108;
 
@@ -265,6 +292,7 @@ export function PlaybookPdfDocument({ data }: { data: ExportData }) {
   return (
     <Document title={`${data.team.name} Playbook`} author={data.team.name}>
       <CoverPage data={data} groups={groups} />
+      <PhilosophyPage team={data.team} pillars={TEAM_PHILOSOPHY} />
       {ordered.map(({ play, sectionLabel }, i) => (
         <PlayPage key={play.id} team={data.team} play={play} index={i} sectionLabel={sectionLabel} />
       ))}
