@@ -292,7 +292,7 @@ export function PlaybookPdfDocument({ data }: { data: ExportData }) {
   return (
     <Document title={`${data.team.name} Playbook`} author={data.team.name}>
       <CoverPage data={data} groups={groups} />
-      <PhilosophyPage team={data.team} pillars={TEAM_PHILOSOPHY} />
+      <PhilosophyPage team={data.team} pillars={data.philosophy ?? TEAM_PHILOSOPHY} />
       {ordered.map(({ play, sectionLabel }, i) => (
         <PlayPage key={play.id} team={data.team} play={play} index={i} sectionLabel={sectionLabel} />
       ))}

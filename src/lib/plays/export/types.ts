@@ -1,5 +1,6 @@
 import type { Frame } from "../types";
 import type { PlayCategory } from "../category";
+import type { PhilosophyPillar } from "../philosophy";
 
 /** A play's broad "set type" for the export's filter bar — the one axis that's 100% reliable off existing data (category), unlike man-vs-zone (see DefenseType below). */
 export type SetType = "blobSlob" | "other";
@@ -30,4 +31,6 @@ export type ExportData = {
   generatedAt: string;
   team: { name: string; subtitle: string; logoDataUri: string; navy: string; gold: string; silver: string; paper: string; stripe: string };
   plays: ExportPlay[];
+  /** The PDF's own front-matter page, before any play. Falls back to the hardcoded defaults (src/lib/plays/philosophy.ts) when omitted — only the PDF route fetches a team's saved override. */
+  philosophy?: PhilosophyPillar[];
 };

@@ -9,6 +9,8 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createClient } from "@/lib/supabase/server";
 import { LIBRARY_PLAYS, PLAY_CATEGORY_LABEL } from "@/lib/plays/library";
 import { getMasterOverridesAll, getPlayEditsForTeam } from "@/lib/plays/play-edits-store";
+import { getTeamPhilosophy } from "@/lib/plays/philosophy-store";
+import { TEAM_PHILOSOPHY } from "@/lib/plays/philosophy";
 import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
 import { getTeamPlayOrder } from "@/lib/plays/play-order-store";
 import { applyPlayOrder } from "@/lib/plays/play-order";
@@ -47,7 +49,12 @@ export async function GET(request: NextRequest) {
   }
   if (!canExport) return new NextResponse("Only a coach on this team can download the playbook.", { status: 403 });
 
-  const [masters, edits, playOrder] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId), getTeamPlayOrder(hoops, teamId)]);
+  const [masters, edits, playOrder, philosophy] = await Promise.all([
+    getMasterOverridesAll(hoops),
+    getPlayEditsForTeam(hoops, teamId),
+    getTeamPlayOrder(hoops, teamId),
+    getTeamPhilosophy(hoops, teamId),
+  ]);
   const resolved = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
 
   const byId = new Map(resolved.map((p) => [p.id, p]));
@@ -83,6 +90,7 @@ export async function GET(request: NextRequest) {
       stripe: TEAM_BRANDING.stripe,
     },
     plays,
+    philosophy: philosophy ?? TEAM_PHILOSOPHY,
   };
 
   const buffer = await renderToBuffer(<PlaybookPdfDocument data={data} />);
