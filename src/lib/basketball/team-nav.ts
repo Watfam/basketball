@@ -70,5 +70,5 @@ export function activeTeamTab(pathname: string, teamId: string): TeamTab["key"] 
  * screen, and the court above it is drawn edge to edge.
  */
 export function isImmersiveTeamRoute(pathname: string): boolean {
-  return pathname.endsWith("/run") || pathname.endsWith("/plays");
+  return pathname.endsWith("/run") || pathname.endsWith("/plays/designer");
 }

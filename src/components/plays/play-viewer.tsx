@@ -48,7 +48,7 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
         <div className="flex items-center gap-1.5">
           {canEdit && (
             <Link
-              href={`/teams/${teamId}/plays?lib=${play.id}`}
+              href={`/teams/${teamId}/plays/designer?lib=${play.id}`}
               onClick={() => haptic("tap")}
               aria-label="Edit this play"
               className="flex items-center gap-1 rounded-full border border-line-strong px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-dim hover:border-accent hover:text-accent"

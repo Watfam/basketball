@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader, HeaderLink } from "@/components/ui/page-header";
+import { PageHeader } from "@/components/ui/page-header";
+import { ButtonLink } from "@/components/ui/button";
 import { PlaybookBrowser } from "@/components/plays/playbook-browser";
 import { LIBRARY_PLAYS } from "@/lib/plays/library";
 import { getMasterOverridesAll, getPlayEditsForTeam } from "@/lib/plays/play-edits-store";
@@ -34,11 +35,15 @@ export default async function PlaybookPage({ params }: { params: Promise<{ teamI
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader back={{ href: `/teams/${teamId}`, label: team.name }}>
-        {canExport && <HeaderLink href={`/teams/${teamId}/plays/philosophy`}>Philosophy</HeaderLink>}
         {canExport && (
-          <HeaderLink href={`/teams/${teamId}/plays/playbook/export`} tone="accent">
+          <ButtonLink href={`/teams/${teamId}/plays/philosophy`} variant="secondary" size="sm">
+            Philosophy
+          </ButtonLink>
+        )}
+        {canExport && (
+          <ButtonLink href={`/teams/${teamId}/plays/playbook/export`} size="sm">
             Share
-          </HeaderLink>
+          </ButtonLink>
         )}
       </PageHeader>
 

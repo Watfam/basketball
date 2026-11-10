@@ -175,7 +175,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
 
   return (
     <div className="space-y-4">
-      <ButtonLink href={`/teams/${teamId}/plays`} size="md" block onClick={() => haptic("tap")}>
+      <ButtonLink href={`/teams/${teamId}/plays/designer`} size="md" block onClick={() => haptic("tap")}>
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" aria-hidden><path d="M12 5v14M5 12h14" /></svg>
         New play
       </ButtonLink>
@@ -197,7 +197,7 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
 
       {!q && (
         <>
-          <div className="grid grid-cols-4 gap-1 rounded-xl bg-raised p-1">
+          <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5">
             {TABS.map((t) => (
               <button
                 key={t.key}
@@ -208,8 +208,8 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
                   setChip("all");
                 }}
                 aria-current={tab === t.key}
-                className={`rounded-lg py-2 text-xs font-extrabold uppercase tracking-wide ${
-                  tab === t.key ? "bg-surface text-foreground shadow-sm" : "text-foreground-dim"
+                className={`shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-extrabold uppercase tracking-wide transition-colors ${
+                  tab === t.key ? "bg-foreground text-background" : "bg-raised text-foreground-dim hover:text-foreground"
                 }`}
               >
                 {t.label}

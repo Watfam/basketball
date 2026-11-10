@@ -5,7 +5,7 @@ import { LIBRARY_PLAYS } from "@/lib/plays/library";
 import { getMasterOverride, getPlayEdit } from "@/lib/plays/play-edits-store";
 import { resolvePlay } from "@/lib/plays/merge-edits";
 
-export default async function PlaysPage({
+export default async function PlayDesignerPage({
   params,
   searchParams,
 }: {

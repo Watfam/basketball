@@ -1,18 +1,22 @@
 import { Card } from "@/components/ui/card";
 
 /**
- * Without this, Next.js falls back to the parent /plays segment's own
- * loading.tsx — an empty, forced-dark full-screen rectangle built for the
- * (full-bleed, dark) play designer. The playbook list is an ordinary light
- * page, so it needs its own fallback instead of inheriting that one.
+ * Without this, a cold navigation can transiently show the parent /plays
+ * segment's own loading.tsx instead, while this route's code is still
+ * loading. That ancestor fallback is intentionally generic (it covers this
+ * route, Philosophy, Share, and the designer); this one matches the actual
+ * shape of the playbook list so the swap isn't jarring.
  */
 export default function Loading() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 border-b border-line bg-background/85 px-5 py-3 backdrop-blur">
         <div className="mx-auto flex w-full max-w-lg items-center justify-between">
-          <div className="h-3 w-16 animate-pulse rounded-full bg-elevated" />
-          <div className="h-3 w-16 animate-pulse rounded-full bg-elevated" />
+          <div className="h-3 w-20 animate-pulse rounded-full bg-elevated" />
+          <div className="flex gap-2">
+            <div className="h-9 w-24 animate-pulse rounded-xl border border-line-strong bg-surface" />
+            <div className="h-9 w-20 animate-pulse rounded-xl bg-elevated" />
+          </div>
         </div>
       </header>
 
@@ -20,9 +24,9 @@ export default function Loading() {
         <div className="h-8 w-40 animate-pulse rounded-full bg-elevated" />
         <div className="h-11 animate-pulse rounded-xl bg-elevated" />
         <div className="h-10 animate-pulse rounded-xl bg-elevated" />
-        <div className="grid grid-cols-4 gap-1 rounded-xl bg-raised p-1">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-7 animate-pulse rounded-lg bg-elevated" />
+        <div className="flex gap-1.5">
+          {[24, 20, 24, 28, 20, 20].map((w, i) => (
+            <div key={i} className="h-8 shrink-0 animate-pulse rounded-full bg-raised" style={{ width: `${w * 4}px` }} />
           ))}
         </div>
         <div className="flex gap-1.5">

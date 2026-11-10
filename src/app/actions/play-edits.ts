@@ -9,7 +9,7 @@ import { getPlayEdit, resetPlayEdit, savePlayEdit, saveMasterOverride, type Play
 function refresh(teamId: string) {
   revalidatePath(`/teams/${teamId}/plays/playbook`, "page");
   revalidatePath(`/teams/${teamId}/plays/playbook/[playId]`, "page");
-  revalidatePath(`/teams/${teamId}/plays`, "page");
+  revalidatePath(`/teams/${teamId}/plays/designer`, "page");
 }
 
 export async function savePlayEditAction(

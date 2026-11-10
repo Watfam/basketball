@@ -1,8 +1,9 @@
 /**
- * Without this, Next.js falls back to the parent /plays segment's own
- * loading.tsx — an empty, forced-dark full-screen rectangle built for the
- * (full-bleed, dark) play designer. This is an ordinary light page, so it
- * needs its own fallback instead of inheriting that one.
+ * Without this, a cold navigation can transiently show the parent /plays
+ * segment's own loading.tsx instead, while this route's code is still
+ * loading. That ancestor fallback is intentionally generic (it covers this
+ * route, Playbook, Philosophy, and the designer); this one matches the
+ * actual shape of the export picker so the swap isn't jarring.
  */
 export default function Loading() {
   return (
