@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { TEAM_TABS, TEAM_MORE_TABS, activeTeamTab, isImmersiveTeamRoute } from "@/lib/basketball/team-nav";
 import { haptic } from "@/lib/haptics";
 import { Sheet, PickLink } from "@/components/ui/sheet";
@@ -91,7 +91,12 @@ export function TeamBottomNav({ teamId }: { teamId: string }) {
   // any other sticky bar meant to sit directly above it (the playbook export footer, so far) can
   // read the actual number instead of a hand-tuned rem guess that drifts out of sync with this
   // nav's own padding/safe-area and leaves a gap once it does.
-  useEffect(() => {
+  //
+  // useLayoutEffect, not useEffect: useEffect fires AFTER the browser's first paint, so that first
+  // frame — the one most likely to get screenshotted, since it's what's on screen the instant a
+  // screen opens — would paint with the fallback value, a real (if small) gap, not the true height.
+  // useLayoutEffect runs before that first paint, so the real value is what ever actually renders.
+  useLayoutEffect(() => {
     const el = navRef.current;
     if (!el) return;
     const publish = () => document.documentElement.style.setProperty("--team-bottom-nav-height", `${el.offsetHeight}px`);

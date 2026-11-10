@@ -464,7 +464,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
       effect runs.
     */}
       <div
-        className="sticky z-40 -mx-4 space-y-2 border-t border-line bg-background px-5 py-3"
+        className="sticky z-40 -mx-4 space-y-2 rounded-t-2xl border-t border-line bg-background px-5 py-3 shadow-[0_-6px_16px_rgba(0,0,0,0.06)]"
         style={{ bottom: "var(--team-bottom-nav-height, calc(4.75rem + env(safe-area-inset-bottom)))" }}
       >
         {selected.size === 0 && <p className="text-xs font-bold text-accent">Check a play below to include it</p>}
@@ -478,7 +478,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
               type="button"
               onClick={handleViewLink}
               disabled={status === "building" || selected.size === 0}
-              className="text-xs font-bold text-foreground-dim hover:text-foreground disabled:opacity-40"
+              className="rounded-full bg-raised px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim hover:text-foreground disabled:opacity-40"
             >
               {status === "building" ? "…" : "View"}
             </button>
@@ -489,7 +489,7 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
               type="button"
               onClick={handleViewPdf}
               disabled={pdfStatus === "preparing" || selected.size === 0}
-              className="text-xs font-bold text-foreground-dim hover:text-foreground disabled:opacity-40"
+              className="rounded-full bg-raised px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-foreground-dim hover:text-foreground disabled:opacity-40"
             >
               {pdfStatus === "preparing" ? "…" : "View"}
             </button>
