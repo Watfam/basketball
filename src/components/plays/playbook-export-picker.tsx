@@ -5,6 +5,7 @@ import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
+import { PlayThumbnail } from "@/components/plays/play-thumbnail";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay } from "@/lib/plays/library";
 import { createPlaybookExportLinkAction } from "@/app/actions/export-playbook";
 import { EXPORT_GROUPS } from "@/lib/plays/export/groups";
@@ -354,6 +355,9 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
               return (
                 <div key={id} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5">
                   <span className="w-5 shrink-0 text-center text-xs font-extrabold text-foreground-mute">{i + 1}</span>
+                  <div className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md">
+                    <PlayThumbnail frames={p.frames} />
+                  </div>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-bold text-foreground">{p.name}</span>
                     <span className="block truncate text-xs text-foreground-mute">
@@ -432,6 +436,9 @@ export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays:
                             onChange={() => toggle(p.id)}
                             className="h-5 w-5 shrink-0 rounded border-line-strong accent-accent"
                           />
+                          <div className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md">
+                            <PlayThumbnail frames={p.frames} />
+                          </div>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm font-bold text-foreground">{p.name}</span>
                             <span className="block truncate text-xs text-foreground-mute">{p.vs}</span>
