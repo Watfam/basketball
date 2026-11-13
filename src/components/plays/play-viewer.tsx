@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { FilmPlayer } from "@/components/plays/film-player";
 import { PlayCourt } from "@/components/plays/play-court";
 import { computeContentBounds } from "@/lib/plays/bounds";
@@ -21,6 +21,7 @@ import { useGoBack } from "@/lib/use-go-back";
 export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamId: string; canEdit: boolean }) {
   const [frames, setFrames] = useState(play.frames);
   const [fullscreen, setFullscreen] = useState(false);
+  const [highlight, setHighlight] = useState<ComponentProps<typeof PlayCourt>["highlightId"]>(null);
   const region = computeContentBounds(frames);
   const { clock, shown, ballOverride, playing, speed, setSpeed, togglePlay, jumpToStep } = usePlayClock(frames);
   // Returns to the playbook list exactly as the coach left it (same tab/filter/scroll) when that's
@@ -34,7 +35,7 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
   }
 
   if (fullscreen) {
-    return <FilmPlayer frames={frames} onExit={() => setFullscreen(false)} region={region} onFlip={flip} />;
+    return <FilmPlayer frames={frames} onExit={() => setFullscreen(false)} region={region} onFlip={flip} highlightId={highlight} />;
   }
 
   const activeStep = clock.phase === "hold" ? clock.frameIndex : clock.frameIndex + 1;
@@ -104,6 +105,7 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
             ballOverride={ballOverride}
             interactive={false}
             region={region}
+            highlightId={highlight}
           />
         </div>
 
@@ -135,6 +137,30 @@ export function PlayViewer({ play, teamId, canEdit }: { play: LibraryPlay; teamI
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Follow one player: for a kid learning the 4 spot, "what do I do in this play?" is the whole question — one number lit up across every step answers it. */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Follow</span>
+            <button
+              type="button"
+              onClick={() => { haptic("tap"); setHighlight(null); }}
+              aria-pressed={highlight === null}
+              className={`min-h-8 rounded-lg border px-2.5 text-xs font-extrabold ${highlight === null ? "border-accent bg-accent/10 text-accent" : "border-line bg-raised text-foreground-dim"}`}
+            >
+              All
+            </button>
+            {[...frames[0].offense.map((o) => o.id), ...frames[0].defense.map((d) => d.id)].map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => { haptic("tap"); setHighlight((h) => (h === id ? null : id)); }}
+                aria-pressed={highlight === id}
+                className={`min-h-8 rounded-lg border px-2.5 text-xs font-extrabold ${highlight === id ? "border-accent bg-accent/10 text-accent" : "border-line bg-raised text-foreground-dim"}`}
+              >
+                {id.startsWith("X") ? id : id.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
       </div>

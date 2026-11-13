@@ -225,6 +225,7 @@ export function PlayCourt({
   ballOverride,
   interactive = true,
   region,
+  highlightId = null,
 }: {
   frame: Frame;
   tool: Tool;
@@ -248,6 +249,8 @@ export function PlayCourt({
   interactive?: boolean;
   /** Crops the viewBox to this court-feet region instead of the whole court — fitting both axes to where the play actually happens, not just one, is what actually makes the action render bigger (see bounds.ts). Falls back to the whole court (plus the standard margin) when absent. */
   region?: Region;
+  /** Follow one player: he keeps full color and gets a ring, everyone else fades back. For a kid learning one spot ("what does the 4 do here?") this is the whole point of the play viewer; null shows everyone normally. */
+  highlightId?: OffenseId | DefenseId | null;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gesture = useRef<{
@@ -574,7 +577,12 @@ export function PlayCourt({
         const r = isDragging ? PLAYER_R * 1.3 : PLAYER_R;
         const cy = isDragging ? pos.y - LIFT_FEET : pos.y;
         return (
-          <g key={o.id} style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
+          <g
+            key={o.id}
+            opacity={highlightId && highlightId !== o.id ? 0.28 : 1}
+            style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1), opacity 0.2s" }}
+          >
+            {highlightId === o.id && <circle cx={pos.x} cy={cy} r={r + 0.75} fill="none" stroke="#ffffff" strokeWidth={0.45} />}
             <circle cx={pos.x} cy={cy} r={r} fill={OFFENSE_FILL} stroke="#450a0a" strokeWidth={0.2} />
             <text x={pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill="#ffffff">
               {o.id.slice(1)}
@@ -590,7 +598,12 @@ export function PlayCourt({
         const r = isDragging ? PLAYER_R * 1.3 : PLAYER_R;
         const cy = isDragging ? pos.y - LIFT_FEET : pos.y;
         return (
-          <g key={d.id} style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1)" }}>
+          <g
+            key={d.id}
+            opacity={highlightId && highlightId !== d.id ? 0.28 : 1}
+            style={{ transition: isDragging || !interactive ? "none" : "cx 0.4s cubic-bezier(.22,1,.36,1), cy 0.4s cubic-bezier(.22,1,.36,1), opacity 0.2s" }}
+          >
+            {highlightId === d.id && <circle cx={pos.x} cy={cy} r={r + 0.75} fill="none" stroke="#ffffff" strokeWidth={0.45} />}
             <circle cx={pos.x} cy={cy} r={r} fill={DEFENSE_FILL} stroke="#0a1120" strokeWidth={0.2} />
             <text x={pos.x} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={r * 1.05} fontWeight={800} fill={DEFENSE_NUMBER}>
               {d.id.slice(1)}

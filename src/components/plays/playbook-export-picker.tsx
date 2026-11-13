@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
-import { useLocalDraft } from "@/lib/use-local-draft";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/card";
@@ -29,18 +28,6 @@ function getIsStandalone(): boolean {
   return window.matchMedia("(display-mode: standalone)").matches || nav.standalone === true;
 }
 
-function starKey(teamId: string) {
-  return `plays-starred-${teamId}`;
-}
-
-function parseStarred(raw: string | null): Set<string> {
-  try {
-    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
-  } catch {
-    return new Set();
-  }
-}
-
 /** Whether any frame of this play actually draws defenders — most BLOB plays don't, so there's nothing to toggle for them. */
 function hasDefense(p: LibraryPlay): boolean {
   return p.frames.some((f) => f.defense.length > 0);
@@ -62,11 +49,10 @@ function XIcon({ className }: { className?: string }) {
   );
 }
 
-export function PlaybookExportPicker({ teamId, plays }: { teamId: string; plays: LibraryPlay[] }) {
+export function PlaybookExportPicker({ teamId, plays, starred: starredIds }: { teamId: string; plays: LibraryPlay[]; starred: string[] }) {
   const playsById = useMemo(() => new Map(plays.map((p) => [p.id, p])), [plays]);
 
-  const [rawStarred] = useLocalDraft(starKey(teamId));
-  const starred = useMemo(() => parseStarred(rawStarred), [rawStarred]);
+  const starred = useMemo(() => new Set(starredIds), [starredIds]);
   // null until the real (post-hydration) starred set has been read once — see the effect-free init below.
   const [customOrder, setCustomOrder] = useState<string[] | null>(null);
   // `plays` already reflects the team's saved play order (applyPlayOrder, run server-side before

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ComponentProps } from "react";
 import { PlayCourt } from "@/components/plays/play-court";
 import { haptic } from "@/lib/haptics";
 import type { Region } from "@/lib/plays/bounds";
@@ -13,6 +13,7 @@ export function FilmPlayer({
   region,
   onFlip,
   startAtStep,
+  highlightId = null,
 }: {
   frames: Frame[];
   onExit: () => void;
@@ -21,6 +22,8 @@ export function FilmPlayer({
   onFlip?: () => void;
   /** Opens straight into the ONE transition leading into this step (from the hold right before it), then pauses there, instead of autoplaying the whole thing from the start — "show me just what happens between step i-1 and step i." Omit for the normal full-play autoplay. */
   startAtStep?: number;
+  /** Follow one player through the whole play — passed straight through to the court. */
+  highlightId?: ComponentProps<typeof PlayCourt>["highlightId"];
 }) {
   const { clock, shown, ballOverride, fromFrame, playing, speed, setSpeed, togglePlay, scrub, jumpToStep, fraction } = usePlayClock(frames, {
     autoplay: startAtStep === undefined,
@@ -76,6 +79,7 @@ export function FilmPlayer({
           ballOverride={ballOverride}
           interactive={false}
           region={region}
+          highlightId={highlightId}
         />
       </div>
 

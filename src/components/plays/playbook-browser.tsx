@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, Eyebrow } from "@/components/ui/card";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { haptic } from "@/lib/haptics";
-import { readDraft, useLocalDraft, writeDraft } from "@/lib/use-local-draft";
+import { importStarredAction, setStarredAction } from "@/app/actions/starred";
 import { PlayThumbnail } from "@/components/plays/play-thumbnail";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
 import { applyPlayOrder, swapInOrder } from "@/lib/plays/play-order";
@@ -142,7 +142,18 @@ function ScrollHintRow({ className, children }: { className: string; children: R
   );
 }
 
-export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false }: { teamId: string; plays: LibraryPlay[]; canReorder?: boolean }) {
+export function PlaybookBrowser({
+  teamId,
+  plays: serverPlays,
+  canReorder = false,
+  initialStarred,
+}: {
+  teamId: string;
+  plays: LibraryPlay[];
+  canReorder?: boolean;
+  /** The team's saved starred list (migration 0034) — the server reads it so the first paint already has it, no flash of an empty Starred tab. */
+  initialStarred: string[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -150,8 +161,34 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
   const [tab, setTab] = useState<TabKey>(() => tabFromParam(searchParams.get("tab")));
   const [chip, setChip] = useState<"all" | PlayCategory>(() => chipFromParam(searchParams.get("chip"), tabFromParam(searchParams.get("tab"))));
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
-  const [rawStarred] = useLocalDraft(starKey(teamId));
-  const starred = useMemo(() => parseStarred(rawStarred), [rawStarred]);
+  const [starred, setStarred] = useState<Set<string>>(() => new Set(initialStarred));
+
+  // One-shot migration off the old per-phone storage: stars used to live only in localStorage
+  // (per device, gone on a new phone, invisible to an assistant coach). The first time a device
+  // with an old list opens the playbook, push that list up to the team's own table (additive — it
+  // never un-stars anything already saved), fold it into this screen immediately, and clear the
+  // key so it can't re-import. Harmless no-op on every device that never had one.
+  useEffect(() => {
+    let legacy: string[] = [];
+    try {
+      legacy = [...parseStarred(window.localStorage.getItem(starKey(teamId)))];
+    } catch {
+      return;
+    }
+    if (!legacy.length) return;
+    // Fold the old list into this screen only once the server has it — a one-time migration doesn't
+    // need to be optimistic, and keeping the setState inside the completion callback (not the effect
+    // body) is what react-hooks/set-state-in-effect is asking for.
+    importStarredAction(teamId, legacy).then((res) => {
+      if (res.error) return;
+      setStarred((prev) => new Set([...prev, ...legacy]));
+      try {
+        window.localStorage.removeItem(starKey(teamId));
+      } catch {
+        // storage unavailable — nothing to clear
+      }
+    });
+  }, [teamId]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   // Reordering within a category is a change to the TEAM's saved order (migration 0032), so it
@@ -196,13 +233,26 @@ export function PlaybookBrowser({ teamId, plays: serverPlays, canReorder = false
     return () => clearTimeout(id);
   }, [tab, chip, query, pathname, router]);
 
+  // Optimistic: the star flips on the tap, the save happens behind it, and only an actual error
+  // puts it back — a round trip on every star would make game-night prep feel laggy.
   function toggleStar(id: string) {
     haptic("tap");
-    const key = starKey(teamId);
-    const next = parseStarred(readDraft(key));
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    writeDraft(key, JSON.stringify([...next]));
+    const wasStarred = starred.has(id);
+    setStarred((prev) => {
+      const next = new Set(prev);
+      if (wasStarred) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setStarredAction(teamId, id, !wasStarred).then((res) => {
+      if (!res.error) return;
+      setStarred((prev) => {
+        const next = new Set(prev);
+        if (wasStarred) next.add(id);
+        else next.delete(id);
+        return next;
+      });
+    });
   }
 
   function toggleExpanded(id: string) {

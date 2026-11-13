@@ -7,6 +7,7 @@ import { getMasterOverridesAll, getPlayEditsForTeam } from "@/lib/plays/play-edi
 import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
 import { getTeamPlayOrder } from "@/lib/plays/play-order-store";
 import { applyPlayOrder } from "@/lib/plays/play-order";
+import { getTeamStarred } from "@/lib/plays/starred-store";
 
 export default async function PlaybookExportPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = await params;
@@ -28,7 +29,12 @@ export default async function PlaybookExportPage({ params }: { params: Promise<{
   }
   if (!canExport) redirect(`/teams/${teamId}/plays`);
 
-  const [masters, edits, playOrder] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId), getTeamPlayOrder(hoops, teamId)]);
+  const [masters, edits, playOrder, starred] = await Promise.all([
+    getMasterOverridesAll(hoops),
+    getPlayEditsForTeam(hoops, teamId),
+    getTeamPlayOrder(hoops, teamId),
+    getTeamStarred(hoops, teamId),
+  ]);
   const plays = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
 
   return (
@@ -37,7 +43,7 @@ export default async function PlaybookExportPage({ params }: { params: Promise<{
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-5 sm:py-8">
         <h1 className="mb-4 font-display text-3xl uppercase leading-none tracking-wide text-foreground">Share Playbook</h1>
-        <PlaybookExportPicker teamId={teamId} plays={plays} />
+        <PlaybookExportPicker teamId={teamId} plays={plays} starred={starred} />
       </main>
     </div>
   );

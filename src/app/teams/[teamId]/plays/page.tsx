@@ -9,6 +9,7 @@ import { getMasterOverridesAll, getPlayEditsForTeam } from "@/lib/plays/play-edi
 import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
 import { getTeamPlayOrder } from "@/lib/plays/play-order-store";
 import { applyPlayOrder } from "@/lib/plays/play-order";
+import { getTeamStarred } from "@/lib/plays/starred-store";
 
 export default async function PlaybookPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = await params;
@@ -29,7 +30,12 @@ export default async function PlaybookPage({ params }: { params: Promise<{ teamI
     canExport = membership?.role === "coach" || membership?.role === "assistant_coach";
   }
 
-  const [masters, edits, playOrder] = await Promise.all([getMasterOverridesAll(hoops), getPlayEditsForTeam(hoops, teamId), getTeamPlayOrder(hoops, teamId)]);
+  const [masters, edits, playOrder, starred] = await Promise.all([
+    getMasterOverridesAll(hoops),
+    getPlayEditsForTeam(hoops, teamId),
+    getTeamPlayOrder(hoops, teamId),
+    getTeamStarred(hoops, teamId),
+  ]);
   const plays = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
 
   return (
@@ -50,7 +56,7 @@ export default async function PlaybookPage({ params }: { params: Promise<{ teamI
       <main className="mx-auto w-full max-w-lg flex-1 space-y-4 px-4 py-5 sm:py-8">
         <h1 className="font-display text-3xl uppercase leading-none tracking-wide text-foreground">Playbook</h1>
         <Suspense fallback={null}>
-          <PlaybookBrowser teamId={teamId} plays={plays} canReorder={canExport} />
+          <PlaybookBrowser teamId={teamId} plays={plays} canReorder={canExport} initialStarred={starred} />
         </Suspense>
       </main>
     </div>
