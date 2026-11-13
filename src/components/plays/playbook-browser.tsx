@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, Eyebrow } from "@/components/ui/card";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { haptic } from "@/lib/haptics";
 import { importStarredAction, setStarredAction } from "@/app/actions/starred";
+import { hidePlaysAction, restorePlaysAction } from "@/app/actions/hidden-plays";
 import { PlayThumbnail } from "@/components/plays/play-thumbnail";
 import { PLAY_CATEGORY_LABEL, type LibraryPlay, type PlayCategory } from "@/lib/plays/library";
 import { applyPlayOrder, swapInOrder } from "@/lib/plays/play-order";
 import { saveTeamPlayOrderAction } from "@/app/actions/play-order";
 
-type TabKey = "offenseSystem" | "offense" | "situations" | "defenseSystem" | "defense" | "starred";
+type TabKey = "offenseSystem" | "offense" | "situations" | "defenseSystem" | "defense" | "starred" | "hidden";
 const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] = [
   { key: "offenseSystem", label: "Offensive System", categories: ["offenseSystem"] },
   { key: "offense", label: "Offense", categories: ["man", "zone"] },
@@ -19,6 +20,7 @@ const TABS: { key: TabKey; label: string; categories: PlayCategory[] | null }[] 
   { key: "defenseSystem", label: "Defensive System", categories: ["defenseSystem"] },
   { key: "defense", label: "Defense", categories: ["defense"] },
   { key: "starred", label: "Starred", categories: null },
+  { key: "hidden", label: "Hidden", categories: null },
 ];
 const TAB_KEYS = TABS.map((t) => t.key);
 /** Every real category, in the same order they're grouped in TABS — Starred can hold any of them, unlike a single group's own tab. */
@@ -147,12 +149,15 @@ export function PlaybookBrowser({
   plays: serverPlays,
   canReorder = false,
   initialStarred,
+  hiddenPlays = [],
 }: {
   teamId: string;
   plays: LibraryPlay[];
   canReorder?: boolean;
   /** The team's saved starred list (migration 0034) — the server reads it so the first paint already has it, no flash of an empty Starred tab. */
   initialStarred: string[];
+  /** Plays this team has hidden from its playbook (migration 0035) — kept out of `plays`, shown only on the Hidden tab so they can be restored. */
+  hiddenPlays?: LibraryPlay[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -190,6 +195,56 @@ export function PlaybookBrowser({
     });
   }, [teamId]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  // Select mode: pick several plays, then hide them all (or, on the Hidden tab, restore them) in one save.
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+
+  function endSelecting() {
+    setSelecting(false);
+    setSelected(new Set());
+    setBulkError(null);
+  }
+
+  function toggleSelected(id: string) {
+    haptic("tap");
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function setGroupSelected(ids: string[], on: boolean) {
+    haptic("tap");
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) {
+        if (on) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  }
+
+  async function applyBulk() {
+    if (!selected.size || bulkBusy) return;
+    haptic("tap");
+    setBulkBusy(true);
+    setBulkError(null);
+    const ids = [...selected];
+    const res = tab === "hidden" ? await restorePlaysAction(teamId, ids) : await hidePlaysAction(teamId, ids);
+    setBulkBusy(false);
+    if (res.error) {
+      setBulkError(res.error);
+      return;
+    }
+    if (tab === "hidden" && ids.length >= hiddenPlays.length) setTab("offense");
+    endSelecting();
+  }
 
   // Reordering within a category is a change to the TEAM's saved order (migration 0032), so it
   // needs to survive a refresh, not just live in this component's state — but saving is a network
@@ -286,12 +341,13 @@ export function PlaybookBrowser({
       const results = allPlays.filter((p) => starred.has(p.id) && (chip === "all" || p.category === chip));
       return results.length ? [{ label: "Starred", plays: results }] : [];
     }
+    if (tab === "hidden") return hiddenPlays.length ? [{ label: "Hidden", plays: hiddenPlays }] : [];
     const cats = activeTab.categories ?? [];
     const visibleCats = chip === "all" ? cats : [chip as PlayCategory];
     return visibleCats
       .map((cat) => ({ label: PLAY_CATEGORY_LABEL[cat], plays: allPlays.filter((p) => p.category === cat) }))
       .filter((g) => g.plays.length > 0);
-  }, [q, tab, chip, starred, activeTab, allPlays]);
+  }, [q, tab, chip, starred, activeTab, allPlays, hiddenPlays]);
 
   return (
     <div className="space-y-4">
@@ -318,12 +374,17 @@ export function PlaybookBrowser({
       {!q && (
         <>
           <ScrollHintRow className="flex gap-1.5 overflow-x-auto px-4 pb-0.5">
-            {TABS.map((t) => (
+            {TABS.filter((t) => t.key !== "hidden" || hiddenPlays.length > 0 || tab === "hidden").map((t) => (
               <button
                 key={t.key}
                 type="button"
                 onClick={() => {
                   haptic("tap");
+                  // Hide and restore are different actions, so a selection never carries across the Hidden tab's edge.
+                  if (t.key === "hidden" || tab === "hidden") {
+                    setSelected(new Set());
+                    setBulkError(null);
+                  }
                   setTab(t.key);
                   setChip("all");
                 }}
@@ -332,7 +393,7 @@ export function PlaybookBrowser({
                   tab === t.key ? "bg-foreground text-background" : "bg-raised text-foreground-dim hover:text-foreground"
                 }`}
               >
-                {t.label}
+                {t.key === "hidden" ? `${t.label} · ${hiddenPlays.length}` : t.label}
               </button>
             ))}
           </ScrollHintRow>
@@ -360,13 +421,36 @@ export function PlaybookBrowser({
         </>
       )}
 
-      {canReorder && !q && tab !== "starred" && groups.length > 0 && (
-        <div className="flex items-center justify-between gap-3">
-          <Button variant={reordering ? "primary" : "secondary"} size="sm" onClick={() => setReordering((v) => !v)}>
-            {reordering ? "Done reordering" : "Reorder"}
-          </Button>
+      {canReorder && groups.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {!q && tab !== "starred" && tab !== "hidden" && !selecting && (
+            <Button variant={reordering ? "primary" : "secondary"} size="sm" onClick={() => setReordering((v) => !v)}>
+              {reordering ? "Done reordering" : "Reorder"}
+            </Button>
+          )}
+          {!reordering && (
+            <Button
+              variant={selecting ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => {
+                haptic("tap");
+                if (selecting) endSelecting();
+                else setSelecting(true);
+              }}
+            >
+              {selecting ? "Cancel" : tab === "hidden" ? "Select to restore" : "Select"}
+            </Button>
+          )}
           {orderSaveError && <span className="text-xs font-bold text-danger">{orderSaveError}</span>}
         </div>
+      )}
+
+      {selecting && selected.size === 0 && !bulkError && (
+        <p className="text-xs font-semibold text-foreground-dim">
+          {tab === "hidden"
+            ? "Tap the plays you want back in the playbook."
+            : "Tap the plays you will not run. Hidden plays leave the playbook, Share and the PDF, and you can bring them back from the Hidden tab."}
+        </p>
       )}
 
       {groups.length === 0 && (
@@ -375,21 +459,56 @@ export function PlaybookBrowser({
             ? "No plays match that search."
             : tab === "starred"
               ? "No starred plays yet. Star a play to pull it up fast on game night."
-              : "Nothing here yet."}
+              : tab === "hidden"
+                ? "Nothing is hidden."
+                : "Nothing here yet."}
         </p>
       )}
 
       {groups.map((g) => (
         <section key={g.label}>
-          <Eyebrow>
-            {g.label} · {g.plays.length}
-          </Eyebrow>
+          <div className="flex items-center justify-between gap-3">
+            <Eyebrow>
+              {g.label} · {g.plays.length}
+            </Eyebrow>
+            {selecting && (
+              <button
+                type="button"
+                onClick={() => {
+                  const ids = g.plays.map((gp) => gp.id);
+                  setGroupSelected(ids, !ids.every((id) => selected.has(id)));
+                }}
+                className="text-xs font-extrabold uppercase tracking-wide text-accent"
+              >
+                {g.plays.every((gp) => selected.has(gp.id)) ? "Clear all" : "Select all"}
+              </button>
+            )}
+          </div>
           <div className="mt-2 space-y-3">
             {g.plays.map((p, i) => {
               const isStarred = starred.has(p.id);
               const isOpen = expanded.has(p.id);
+              const isPicked = selected.has(p.id);
               return (
-                <Card key={p.id} className="overflow-hidden p-0">
+                <Card
+                  key={p.id}
+                  className={`overflow-hidden p-0 ${selecting ? `cursor-pointer ${isPicked ? "ring-2 ring-accent" : ""}` : ""}`}
+                  {...(selecting
+                    ? {
+                        role: "checkbox",
+                        "aria-checked": isPicked,
+                        "aria-label": p.name,
+                        tabIndex: 0,
+                        onClick: () => toggleSelected(p.id),
+                        onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
+                          if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            toggleSelected(p.id);
+                          }
+                        },
+                      }
+                    : {})}
+                >
                   {reordering && (
                     <div className="flex items-center gap-2 border-b border-line bg-raised px-3 py-2">
                       <span className="flex-1 truncate text-xs font-bold text-foreground-dim">{p.name}</span>
@@ -415,16 +534,29 @@ export function PlaybookBrowser({
                   )}
                   <div className="relative h-28 w-full">
                     <PlayThumbnail frames={p.frames} />
-                    <button
-                      type="button"
-                      onClick={() => toggleStar(p.id)}
-                      aria-pressed={isStarred}
-                      aria-label={isStarred ? "Unstar this play" : "Star this play"}
-                      className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/70"
-                    >
-                      <StarIcon filled={isStarred} className={`h-4 w-4 ${isStarred ? "text-accent" : ""}`} />
-                    </button>
-                    {p.videoUrl && (
+                    {selecting ? (
+                      <span
+                        aria-hidden
+                        className={`absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border-2 ${
+                          isPicked ? "border-accent bg-accent text-on-accent" : "border-white bg-black/45 text-transparent"
+                        }`}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12.5l4.5 4.5L19 7.5" />
+                        </svg>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => toggleStar(p.id)}
+                        aria-pressed={isStarred}
+                        aria-label={isStarred ? "Unstar this play" : "Star this play"}
+                        className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/70"
+                      >
+                        <StarIcon filled={isStarred} className={`h-4 w-4 ${isStarred ? "text-accent" : ""}`} />
+                      </button>
+                    )}
+                    {p.videoUrl && !selecting && (
                       <a
                         href={p.videoUrl}
                         target="_blank"
@@ -445,6 +577,7 @@ export function PlaybookBrowser({
                     </div>
                     <p className="mt-1 text-xs font-semibold text-foreground-dim">{p.vs}</p>
 
+                    {!selecting && (
                     <button
                       type="button"
                       onClick={() => toggleExpanded(p.id)}
@@ -456,8 +589,9 @@ export function PlaybookBrowser({
                       </svg>
                       Steps &amp; coaching points
                     </button>
+                    )}
 
-                    {isOpen && (
+                    {isOpen && !selecting && (
                       <div className="mt-3 space-y-3 border-t border-line pt-3">
                         <p className="text-xs leading-relaxed text-foreground-dim">{p.about}</p>
                         <ol className="space-y-1.5">
@@ -485,9 +619,15 @@ export function PlaybookBrowser({
                     )}
 
                     <div className="mt-3 flex items-center justify-between gap-3">
-                      <ButtonLink href={`/teams/${teamId}/plays/${p.id}`} size="sm" variant="secondary">
-                        View play
-                      </ButtonLink>
+                      {selecting ? (
+                        <span className={`text-xs font-extrabold uppercase tracking-wide ${isPicked ? "text-accent" : "text-foreground-mute"}`}>
+                          {isPicked ? (tab === "hidden" ? "Will be restored" : "Will be hidden") : "Tap to select"}
+                        </span>
+                      ) : (
+                        <ButtonLink href={`/teams/${teamId}/plays/${p.id}`} size="sm" variant="secondary">
+                          View play
+                        </ButtonLink>
+                      )}
                       <span className="shrink-0 text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">
                         {p.frames.length} beats
                       </span>
@@ -499,6 +639,32 @@ export function PlaybookBrowser({
           </div>
         </section>
       ))}
+
+      {selecting && (
+        <div
+          className="sticky z-40 -mx-4 space-y-2 rounded-t-2xl border-t border-line bg-background px-5 py-3 shadow-[0_-6px_16px_rgba(0,0,0,0.06)]"
+          style={{ bottom: "var(--team-bottom-nav-height, calc(4.75rem + env(safe-area-inset-bottom)))" }}
+        >
+          {bulkError && <p className="text-xs font-bold text-danger">{bulkError}</p>}
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-bold text-foreground">
+              {selected.size === 0 ? "None selected" : `${selected.size} selected`}
+            </span>
+            <Button
+              variant={tab === "hidden" ? "primary" : "danger"}
+              size="md"
+              disabled={selected.size === 0 || bulkBusy}
+              onClick={applyBulk}
+            >
+              {bulkBusy
+                ? "Saving…"
+                : tab === "hidden"
+                  ? `Restore ${selected.size || ""} ${selected.size === 1 ? "play" : "plays"}`
+                  : `Hide ${selected.size || ""} ${selected.size === 1 ? "play" : "plays"}`}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

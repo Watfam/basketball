@@ -13,6 +13,7 @@ import { getTeamPhilosophy } from "@/lib/plays/philosophy-store";
 import { TEAM_PHILOSOPHY } from "@/lib/plays/philosophy";
 import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
 import { getTeamPlayOrder } from "@/lib/plays/play-order-store";
+import { getTeamHidden } from "@/lib/plays/hidden-store";
 import { applyPlayOrder } from "@/lib/plays/play-order";
 import { deriveDefenseType, deriveSetType } from "@/lib/plays/export/derive";
 import { TEAM_BRANDING } from "@/lib/plays/export/branding";
@@ -50,13 +51,15 @@ export async function GET(request: NextRequest) {
   }
   if (!canExport) return new NextResponse("Only a coach on this team can download the playbook.", { status: 403 });
 
-  const [masters, edits, playOrder, philosophy] = await Promise.all([
+  const [masters, edits, playOrder, hidden, philosophy] = await Promise.all([
     getMasterOverridesAll(hoops),
     getPlayEditsForTeam(hoops, teamId),
     getTeamPlayOrder(hoops, teamId),
+    getTeamHidden(hoops, teamId),
     includePhilosophy ? getTeamPhilosophy(hoops, teamId) : Promise.resolve(null),
   ]);
-  const resolved = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
+  const hiddenSet = new Set(hidden);
+  const resolved = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder).filter((p) => !hiddenSet.has(p.id));
 
   const byId = new Map(resolved.map((p) => [p.id, p]));
   const plays: ExportData["plays"] = [];

@@ -8,6 +8,7 @@ import { mergeLibraryWithEdits } from "@/lib/plays/merge-edits";
 import { getTeamPlayOrder } from "@/lib/plays/play-order-store";
 import { applyPlayOrder } from "@/lib/plays/play-order";
 import { getTeamStarred } from "@/lib/plays/starred-store";
+import { getTeamHidden } from "@/lib/plays/hidden-store";
 
 export default async function PlaybookExportPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = await params;
@@ -29,13 +30,15 @@ export default async function PlaybookExportPage({ params }: { params: Promise<{
   }
   if (!canExport) redirect(`/teams/${teamId}/plays`);
 
-  const [masters, edits, playOrder, starred] = await Promise.all([
+  const [masters, edits, playOrder, starred, hidden] = await Promise.all([
     getMasterOverridesAll(hoops),
     getPlayEditsForTeam(hoops, teamId),
     getTeamPlayOrder(hoops, teamId),
     getTeamStarred(hoops, teamId),
+    getTeamHidden(hoops, teamId),
   ]);
-  const plays = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder);
+  const hiddenSet = new Set(hidden);
+  const plays = applyPlayOrder(mergeLibraryWithEdits(LIBRARY_PLAYS, masters, edits), playOrder).filter((p) => !hiddenSet.has(p.id));
 
   return (
     <div className="flex flex-1 flex-col">
