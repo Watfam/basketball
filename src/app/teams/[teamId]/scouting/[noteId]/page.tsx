@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ScoutingNoteForm } from "@/components/scouting-note-form";
-import { PageHeader } from "@/components/ui/page-header";
+import { PageHeader, HeaderLink } from "@/components/ui/page-header";
 
 export default async function EditScoutingNotePage({
   params,
@@ -28,7 +28,11 @@ export default async function EditScoutingNotePage({
 
   return (
     <div className="flex flex-1 flex-col">
-      <PageHeader back={{ href: `/teams/${teamId}/scouting`, label: "Scouting" }} width="md" />
+      <PageHeader back={{ href: `/teams/${teamId}/scouting`, label: "Scouting" }} width="md">
+        <HeaderLink href={`/teams/${teamId}/scouting/${noteId}/matchups`} tone="accent">
+          Test our plays
+        </HeaderLink>
+      </PageHeader>
       <main className="mx-auto w-full max-w-xl flex-1 px-4 py-5 sm:py-8">
         <ScoutingNoteForm teamId={teamId} existing={note} />
       </main>
