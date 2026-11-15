@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader, HeaderLink } from "@/components/ui/page-header";
 import { CardLink } from "@/components/ui/card";
+import { formatGameDate, notePreview, parseScoutingNotes } from "@/lib/scouting/report";
 
 export default async function ScoutingNotesPage({
   params,
@@ -48,13 +49,19 @@ export default async function ScoutingNotesPage({
           />
         ) : (
           (notes ?? []).map((note) => {
-            const body = (note.notes ?? {}) as Record<string, string>;
-            const preview = body.personnel || body.tendencies || body.game_plan || "";
+            const doc = parseScoutingNotes(note.notes);
+            const preview = notePreview(note.notes);
+            const diagramCount = doc.diagrams.length;
             return (
               <CardLink key={note.id} href={`/teams/${teamId}/scouting/${note.id}`} className="p-4">
                 <p className="font-display text-xl uppercase leading-none tracking-tight text-foreground">
                   {note.opponent_name}
                 </p>
+                {(doc.gameDate || diagramCount > 0) && (
+                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-accent">
+                    {[doc.gameDate && formatGameDate(doc.gameDate), diagramCount > 0 && `${diagramCount} diagram${diagramCount === 1 ? "" : "s"}`].filter(Boolean).join(" · ")}
+                  </p>
+                )}
                 {preview && (
                   <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-foreground-dim">
                     {preview}

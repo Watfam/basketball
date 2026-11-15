@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { parseScoutingNotes, type ScoutDiagram } from "@/lib/scouting/report";
 
 /**
  * Creates a team. The caller becomes owner_id — no separate coach
@@ -195,45 +196,119 @@ export async function linkRosterPlayer(teamMemberId: string, teamId: string, pla
 }
 
 /**
- * Creates or updates a scouting note for one opponent. notes is a small
- * fixed-shape JSONB object (tendencies / personnel / game_plan) rather
- * than fully freeform — enough structure that re-reading an old note
- * before a rematch is fast, without a schema rigid enough to fight a
- * coach's actual notes.
+ * Creates or updates a scouting note for one opponent. `notes` is the structured scouting document
+ * (see src/lib/scouting/report.ts) stored in the notes jsonb. Drawn diagrams are owned by
+ * saveScoutDiagram/deleteScoutDiagram below, never by this form, so an update here always keeps
+ * whatever diagrams the database already has — a form opened before a diagram was drawn can not
+ * wipe it out on save.
  */
 export async function saveScoutingNote(
   teamId: string,
   noteId: string | null,
-  input: { opponentName: string; notes: Record<string, string> }
+  input: { opponentName: string; notes: Record<string, unknown> }
 ) {
   if (!teamId) return { error: "Missing team." };
   const opponentName = input.opponentName.trim();
   if (!opponentName) return { error: "Name the opponent." };
 
   const supabase = await createClient();
-  const payload = { team_id: teamId, opponent_name: opponentName, notes: input.notes };
+  const scouting = supabase.schema("hoops").from("scouting_notes");
 
   if (noteId) {
+    const { data: current, error: readError } = await supabase
+      .schema("hoops")
+      .from("scouting_notes")
+      .select("notes")
+      .eq("id", noteId)
+      .eq("team_id", teamId)
+      .maybeSingle();
+    if (readError) return { error: readError.message };
+    if (!current) return { error: "That note no longer exists." };
+    const diagrams = parseScoutingNotes(current.notes).diagrams;
     const { error } = await supabase
       .schema("hoops")
       .from("scouting_notes")
-      .update(payload)
-      .eq("id", noteId);
+      .update({ opponent_name: opponentName, notes: { ...input.notes, diagrams } })
+      .eq("id", noteId)
+      .eq("team_id", teamId);
     if (error) return { error: error.message };
     revalidatePath(`/teams/${teamId}/scouting`);
     return { error: null, noteId };
   }
 
-  const { data, error } = await supabase
-    .schema("hoops")
-    .from("scouting_notes")
-    .insert(payload)
+  const { data, error } = await scouting
+    .insert({ team_id: teamId, opponent_name: opponentName, notes: { ...input.notes, diagrams: [] } })
     .select("id")
     .single();
   if (error) return { error: error.message };
 
   revalidatePath(`/teams/${teamId}/scouting`);
   return { error: null, noteId: data.id as string };
+}
+
+/** Adds a diagram to a note, or replaces the one with the same id. Only touches the diagrams list. */
+export async function saveScoutDiagram(teamId: string, noteId: string, diagram: ScoutDiagram) {
+  if (!teamId || !noteId) return { error: "Missing note." };
+  if (!diagram.frames?.length) return { error: "A diagram needs at least one step." };
+  const supabase = await createClient();
+  const { data: current, error: readError } = await supabase
+    .schema("hoops")
+    .from("scouting_notes")
+    .select("notes")
+    .eq("id", noteId)
+    .eq("team_id", teamId)
+    .maybeSingle();
+  if (readError) return { error: readError.message };
+  if (!current) return { error: "That note no longer exists." };
+
+  const notes = (current.notes && typeof current.notes === "object" ? current.notes : {}) as Record<string, unknown>;
+  const existing = parseScoutingNotes(notes).diagrams;
+  const clean: ScoutDiagram = {
+    id: diagram.id,
+    section: diagram.section,
+    title: diagram.title.trim() || "Untitled diagram",
+    caption: diagram.caption.trim(),
+    frames: diagram.frames,
+  };
+  const diagrams = existing.some((d) => d.id === clean.id) ? existing.map((d) => (d.id === clean.id ? clean : d)) : [...existing, clean];
+
+  const { error } = await supabase
+    .schema("hoops")
+    .from("scouting_notes")
+    .update({ notes: { ...notes, v: 2, diagrams } })
+    .eq("id", noteId)
+    .eq("team_id", teamId);
+  if (error) return { error: error.message };
+  revalidatePath(`/teams/${teamId}/scouting`);
+  revalidatePath(`/teams/${teamId}/scouting/${noteId}`);
+  return { error: null };
+}
+
+export async function deleteScoutDiagram(teamId: string, noteId: string, diagramId: string) {
+  if (!teamId || !noteId || !diagramId) return { error: "Missing diagram." };
+  const supabase = await createClient();
+  const { data: current, error: readError } = await supabase
+    .schema("hoops")
+    .from("scouting_notes")
+    .select("notes")
+    .eq("id", noteId)
+    .eq("team_id", teamId)
+    .maybeSingle();
+  if (readError) return { error: readError.message };
+  if (!current) return { error: "That note no longer exists." };
+
+  const notes = (current.notes && typeof current.notes === "object" ? current.notes : {}) as Record<string, unknown>;
+  const diagrams = parseScoutingNotes(notes).diagrams.filter((d) => d.id !== diagramId);
+  const { error } = await supabase
+    .schema("hoops")
+    .from("scouting_notes")
+    .update({ notes: { ...notes, diagrams } })
+    .eq("id", noteId)
+    .eq("team_id", teamId);
+  if (error) return { error: error.message };
+  revalidatePath(`/teams/${teamId}/scouting`);
+  revalidatePath(`/teams/${teamId}/scouting/${noteId}`);
+  return { error: null };
 }
 
 export async function deleteScoutingNote(noteId: string, teamId: string) {

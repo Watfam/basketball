@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { resetPlayEditAction, savePlayEditAction, saveMasterOverrideAction } from "@/app/actions/play-edits";
+import { saveScoutDiagram, deleteScoutDiagram } from "@/app/actions/team";
+import type { ScoutSectionKey } from "@/lib/scouting/report";
 import { FilmPlayer } from "@/components/plays/film-player";
 import { FrameStrip } from "@/components/plays/frame-strip";
 import { PlayCourt, type Tool } from "@/components/plays/play-court";
@@ -38,6 +40,7 @@ export function PlayDesigner({
   initialVs,
   initialAbout,
   initialKeys,
+  scouting,
 }: {
   teamId: string;
   /** Present only when this is a known library play (opened via ?lib=) — unlocks Details and Save, since there is somewhere to save an edit to. A blank new play has nothing to attach an edit to. */
@@ -47,6 +50,8 @@ export function PlayDesigner({
   initialVs?: string;
   initialAbout?: string;
   initialKeys?: string[];
+  /** Drawing an opponent's diagram for a scouting report instead of editing a library play: Save writes it into that note, and the back link returns to the note. */
+  scouting?: { noteId: string; diagramId: string; section: ScoutSectionKey; backHref: string; backLabel: string };
 }) {
   const [frames, setFrames] = useState(initialFrames ?? EXAMPLE_PLAY);
   const [past, setPast] = useState<Frame[][]>([]);
@@ -77,6 +82,10 @@ export function PlayDesigner({
   // in a corner of the screen.
   const [fitToPlay, setFitToPlay] = useState(false);
   const region = fitToPlay ? computeContentBounds(frames) : undefined;
+
+  const canSave = Boolean(libraryPlayId || scouting);
+  const [scoutDeleteArmed, setScoutDeleteArmed] = useState(false);
+  const [scoutDeleting, setScoutDeleting] = useState(false);
 
   const frame = frames[activeIndex];
   const selectedLine = selectedLineId ? frame.lines.find((l) => l.id === selectedLineId) : undefined;
@@ -290,12 +299,14 @@ export function PlayDesigner({
   }
 
   async function save() {
-    if (!libraryPlayId) return;
+    if (!canSave) return;
     haptic("tap");
     setSaveState("saving");
     setSaveError(null);
     const keys = keysText.split("\n").map((k) => k.trim()).filter(Boolean);
-    const result = await savePlayEditAction(teamId, libraryPlayId, { name, vs, about, keys, frames });
+    const result = scouting
+      ? await saveScoutDiagram(teamId, scouting.noteId, { id: scouting.diagramId, section: scouting.section, title: name, caption: about, frames })
+      : await savePlayEditAction(teamId, libraryPlayId!, { name, vs, about, keys, frames });
     if (result.error) {
       setSaveState("idle");
       setSaveError(result.error);
@@ -327,6 +338,25 @@ export function PlayDesigner({
     setTimeout(() => setMasterSaveState("idle"), 2000);
   }
 
+  async function removeScoutDiagram() {
+    if (!scouting) return;
+    if (!scoutDeleteArmed) {
+      haptic("tap");
+      setScoutDeleteArmed(true);
+      return;
+    }
+    haptic("tap");
+    setScoutDeleting(true);
+    const result = await deleteScoutDiagram(teamId, scouting.noteId, scouting.diagramId);
+    if (result.error) {
+      setScoutDeleting(false);
+      setScoutDeleteArmed(false);
+      setSaveError(result.error);
+      return;
+    }
+    window.location.href = scouting.backHref;
+  }
+
   /** Deletes this team's own saved edit, falling back to the master copy (or the stock library version, if nobody's corrected that either) — for undoing a drift you didn't mean to save, not something to reach for by accident. Reloads on success since the reverted data comes from the server, not anything already sitting in this component's state. */
   async function resetToDefault() {
     if (!libraryPlayId) return;
@@ -356,10 +386,10 @@ export function PlayDesigner({
     <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
       <div className="shrink-0 border-b border-line bg-surface/80 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur">
         <div className="flex items-center justify-between gap-3">
-          <Link href={`/teams/${teamId}/plays`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
-            ← Playbook
+          <Link href={scouting ? scouting.backHref : `/teams/${teamId}/plays`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
+            {scouting ? `← ${scouting.backLabel}` : "← Playbook"}
           </Link>
-          {libraryPlayId && (
+          {canSave && (
             <button
               type="button"
               onClick={save}
@@ -372,7 +402,7 @@ export function PlayDesigner({
         </div>
         {saveError && <FormError className="mt-1">{saveError}</FormError>}
         <div className="mt-1 flex items-center justify-between gap-3">
-          {libraryPlayId ? (
+          {canSave ? (
             <button
               type="button"
               onClick={(e) => {
@@ -433,7 +463,7 @@ export function PlayDesigner({
 
       {detailsOpen && (
         <Sheet
-          title="Play details"
+          title={scouting ? "Diagram details" : "Play details"}
           onClose={() => {
             setDetailsOpen(false);
             setMasterConfirmArmed(false);
@@ -446,18 +476,27 @@ export function PlayDesigner({
               <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Name</label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Play name" />
             </div>
+            {!scouting && (
+              <div className="space-y-1">
+                <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Situation (shown as the card subtitle)</label>
+                <Input value={vs} onChange={(e) => setVs(e.target.value)} placeholder="vs Man, vs 2-3 Zone, Baseline OB…" />
+              </div>
+            )}
             <div className="space-y-1">
-              <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Situation (shown as the card subtitle)</label>
-              <Input value={vs} onChange={(e) => setVs(e.target.value)} placeholder="vs Man, vs 2-3 Zone, Baseline OB…" />
+              <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">{scouting ? "Caption (printed under the diagram)" : "What it is for"}</label>
+              <TextArea
+                value={about}
+                onChange={(e) => setAbout(e.target.value)}
+                rows={3}
+                placeholder={scouting ? "What this shows and what we do about it." : "One or two sentences a player reads first."}
+              />
             </div>
-            <div className="space-y-1">
-              <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">What it is for</label>
-              <TextArea value={about} onChange={(e) => setAbout(e.target.value)} rows={3} placeholder="One or two sentences a player reads first." />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Coaching points — one per line</label>
-              <TextArea value={keysText} onChange={(e) => setKeysText(e.target.value)} rows={5} placeholder={"Screener: hold until contact.\nCutter: set up the defender first."} />
-            </div>
+            {!scouting && (
+              <div className="space-y-1">
+                <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Coaching points — one per line</label>
+                <TextArea value={keysText} onChange={(e) => setKeysText(e.target.value)} rows={5} placeholder={"Screener: hold until contact.\nCutter: set up the defender first."} />
+              </div>
+            )}
 
             <div className="space-y-3 border-t border-line pt-3">
               <p className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Roster — up to 5 a side</p>
@@ -466,6 +505,28 @@ export function PlayDesigner({
               <p className="text-[11px] text-foreground-mute">Applies to the whole play, not just this step — tap a player on court to drop him, tap an empty slot to bring him back.</p>
             </div>
 
+            {scouting ? (
+              <div className="space-y-2 border-t border-line pt-3">
+                {scoutDeleteArmed ? (
+                  <div role="alertdialog" aria-label="Delete this diagram?" className="rounded-xl border border-danger/40 bg-danger/10 px-3 py-2.5">
+                    <p className="text-center text-xs font-semibold text-foreground">Delete this diagram from the report?</p>
+                    <div className="mt-2 flex gap-2">
+                      <Button variant="danger" size="sm" className="flex-1" onClick={removeScoutDiagram} disabled={scoutDeleting}>
+                        {scoutDeleting ? "Deleting…" : "Yes, delete"}
+                      </Button>
+                      <Button variant="secondary" size="sm" className="flex-1" onClick={() => setScoutDeleteArmed(false)} disabled={scoutDeleting}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button variant="secondary" size="sm" block onClick={removeScoutDiagram}>
+                    Delete diagram
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
             <div className="space-y-2 border-t border-line pt-3">
               <p className="text-[11px] text-foreground-mute">
                 Corrects the shared default every team starts from, not just your team&apos;s copy. A team with its own edit to this play keeps it.
@@ -513,6 +574,8 @@ export function PlayDesigner({
               )}
               {resetError && <FormError className="mt-1">{resetError}</FormError>}
             </div>
+              </>
+            )}
           </div>
         </Sheet>
       )}

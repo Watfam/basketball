@@ -29,11 +29,8 @@ export default async function EditScoutingNotePage({
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader back={{ href: `/teams/${teamId}/scouting`, label: "Scouting" }} width="md" />
-      <main className="mx-auto w-full max-w-md flex-1 px-4 py-5 sm:py-8">
-        <ScoutingNoteForm
-          teamId={teamId}
-          existing={{ ...note, notes: note.notes as Record<string, string> | null }}
-        />
+      <main className="mx-auto w-full max-w-xl flex-1 px-4 py-5 sm:py-8">
+        <ScoutingNoteForm teamId={teamId} existing={note} />
       </main>
     </div>
   );
