@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { duplicateFrameAt, movePlayerAcrossFrames, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "./frames.ts";
+import { duplicateFrameAt, movePlayerAcrossFrames, movePlayerAndFollow, nextFrame, reattachArrival, reattachLines, removeFrameAt } from "./frames.ts";
 import type { DrawnLine, Frame } from "./types.ts";
 
 const base: Frame = {
@@ -230,4 +230,25 @@ test("movePlayerAcrossFrames is a no-op cascade when the player isn't found in t
   frames[0].offense = frames[0].offense.filter((o) => o.id !== "O1");
   const next = movePlayerAcrossFrames(frames, 0, "O1", { x: 20, y: 20 });
   assert.deepEqual(next[1].offense.find((o) => o.id === "O1")!.pos, { x: 10, y: 10 });
+});
+
+function defFrame(pos: { x: number; y: number }): Frame {
+  return { ...holdFrame({ x: 10, y: 10 }), defense: [{ id: "X1", man: "O1", coverage: "manual", manualPos: pos }] };
+}
+
+test("movePlayerAndFollow carries a defender's later slides with him instead of leaving them at their old spots", () => {
+  const frames = [defFrame({ x: 20, y: 20 }), defFrame({ x: 24, y: 18 }), defFrame({ x: 24, y: 18 }), defFrame({ x: 30, y: 12 })];
+  const next = movePlayerAndFollow(frames, 0, "X1", { x: 22, y: 20 });
+  const at = (i: number) => next[i].defense[0].manualPos;
+  assert.deepEqual(at(0), { x: 22, y: 20 });
+  assert.deepEqual(at(1), { x: 26, y: 18 });
+  assert.deepEqual(at(2), { x: 26, y: 18 });
+  assert.deepEqual(at(3), { x: 32, y: 12 });
+});
+
+test("movePlayerAndFollow leaves an offensive player's later steps to the hold cascade alone", () => {
+  const frames = [holdFrame({ x: 10, y: 10 }), holdFrame({ x: 10, y: 10 }), holdFrame({ x: 50, y: 50 })];
+  const next = movePlayerAndFollow(frames, 0, "O1", { x: 20, y: 20 });
+  assert.deepEqual(next[1].offense.find((o) => o.id === "O1")!.pos, { x: 20, y: 20 });
+  assert.deepEqual(next[2].offense.find((o) => o.id === "O1")!.pos, { x: 50, y: 50 });
 });

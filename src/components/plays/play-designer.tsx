@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { resetPlayEditAction, savePlayEditAction, saveMasterOverrideAction } from "@/app/actions/play-edits";
 import { saveScoutDiagram, deleteScoutDiagram } from "@/app/actions/team";
@@ -16,7 +17,7 @@ import { FormError, Input, TextArea } from "@/components/ui/field";
 import { computeContentBounds } from "@/lib/plays/bounds";
 import type { Coverage } from "@/lib/plays/coverage";
 import type { Point } from "@/lib/plays/geometry";
-import { duplicateFrameAt, movePlayerAcrossFrames, nextFrame, removeFrameAt } from "@/lib/plays/frames";
+import { duplicateFrameAt, movePlayerAcrossFrames, movePlayerAndFollow, nextFrame, removeFrameAt } from "@/lib/plays/frames";
 import { formationFrame, type Formation } from "@/lib/plays/formations";
 import { mirrorFrames } from "@/lib/plays/mirror";
 import { resolveDefense } from "@/lib/plays/resolve";
@@ -84,6 +85,12 @@ export function PlayDesigner({
   const region = fitToPlay ? computeContentBounds(frames) : undefined;
 
   const canSave = Boolean(libraryPlayId || scouting);
+  const router = useRouter();
+  const snapshot = JSON.stringify({ frames, name, about });
+  const [savedSnapshot, setSavedSnapshot] = useState(snapshot);
+  const dirty = snapshot !== savedSnapshot;
+  const [leaveOpen, setLeaveOpen] = useState(false);
+  const [leaveOpener, setLeaveOpener] = useState<HTMLElement | null>(null);
   const [scoutDeleteArmed, setScoutDeleteArmed] = useState(false);
   const [scoutDeleting, setScoutDeleting] = useState(false);
 
@@ -99,6 +106,13 @@ export function PlayDesigner({
       document.body.style.overflow = prev;
     };
   }, []);
+
+  useEffect(() => {
+    if (!scouting || !dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [scouting, dirty]);
 
   /** Moves to a different frame, dropping any selected line — it belongs to the frame it was selected on, and leaving that frame should drop it rather than leave a stale selection (and its editing handles) pointing wherever it is now. */
   function goToFrame(i: number) {
@@ -144,7 +158,7 @@ export function PlayDesigner({
   }
 
   function movePlayer(id: OffenseId | DefenseId, pos: Point) {
-    setFrames((fs) => movePlayerAcrossFrames(fs, activeIndex, id, pos));
+    setFrames((fs) => (scouting ? movePlayerAndFollow(fs, activeIndex, id, pos) : movePlayerAcrossFrames(fs, activeIndex, id, pos)));
   }
 
   function addLine(line: Omit<DrawnLine, "id">) {
@@ -298,8 +312,9 @@ export function PlayDesigner({
     setSelected((s) => (s === id ? null : s));
   }
 
-  async function save() {
-    if (!canSave) return;
+  async function save(): Promise<boolean> {
+    if (!canSave) return false;
+    const savingSnapshot = snapshot;
     haptic("tap");
     setSaveState("saving");
     setSaveError(null);
@@ -310,10 +325,18 @@ export function PlayDesigner({
     if (result.error) {
       setSaveState("idle");
       setSaveError(result.error);
-      return;
+      return false;
     }
+    setSavedSnapshot(savingSnapshot);
     setSaveState("saved");
-    setTimeout(() => setSaveState("idle"), 2000);
+    if (!scouting) setTimeout(() => setSaveState("idle"), 2000);
+    return true;
+  }
+
+  async function saveAndLeave() {
+    if (!scouting) return;
+    if (await save()) router.push(scouting.backHref);
+    else setLeaveOpen(false);
   }
 
   async function saveMaster() {
@@ -386,17 +409,35 @@ export function PlayDesigner({
     <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground">
       <div className="shrink-0 border-b border-line bg-surface/80 px-4 pb-2 pt-[max(0.6rem,env(safe-area-inset-top))] backdrop-blur">
         <div className="flex items-center justify-between gap-3">
-          <Link href={scouting ? scouting.backHref : `/teams/${teamId}/plays`} className="text-sm font-bold text-foreground-dim hover:text-foreground">
+          <Link
+            href={scouting ? scouting.backHref : `/teams/${teamId}/plays`}
+            onClick={(e) => {
+              if (scouting && dirty) {
+                e.preventDefault();
+                setLeaveOpener(e.currentTarget);
+                setLeaveOpen(true);
+              }
+            }}
+            className="text-sm font-bold text-foreground-dim hover:text-foreground"
+          >
             {scouting ? `← ${scouting.backLabel}` : "← Playbook"}
           </Link>
-          {canSave && (
+          {scouting && !dirty && (
+            <Link
+              href={scouting.backHref}
+              className="rounded-full bg-accent px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-on-accent"
+            >
+              {saveState === "saved" ? "Saved · Back to report" : "Done"}
+            </Link>
+          )}
+          {canSave && !(scouting && !dirty) && (
             <button
               type="button"
               onClick={save}
               disabled={saveState === "saving"}
               className="rounded-full bg-accent px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-on-accent disabled:opacity-60"
             >
-              {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved" : "Save"}
+              {saveState === "saving" ? "Saving…" : scouting ? "Save diagram" : saveState === "saved" ? "Saved" : "Save"}
             </button>
           )}
         </div>
@@ -461,6 +502,23 @@ export function PlayDesigner({
         </div>
       </div>
 
+      {leaveOpen && scouting && (
+        <Sheet title="Unsaved changes" onClose={() => setLeaveOpen(false)} opener={leaveOpener}>
+          <div className="space-y-2">
+            <p className="text-sm text-foreground-dim">You changed this diagram since you last saved.</p>
+            <Button block onClick={saveAndLeave} disabled={saveState === "saving"}>
+              {saveState === "saving" ? "Saving…" : "Save and go back to the report"}
+            </Button>
+            <Button variant="secondary" block onClick={() => router.push(scouting.backHref)} disabled={saveState === "saving"}>
+              Discard changes
+            </Button>
+            <Button variant="secondary" block onClick={() => setLeaveOpen(false)} disabled={saveState === "saving"}>
+              Keep editing
+            </Button>
+          </div>
+        </Sheet>
+      )}
+
       {detailsOpen && (
         <Sheet
           title={scouting ? "Diagram details" : "Play details"}
@@ -472,6 +530,12 @@ export function PlayDesigner({
           opener={detailsOpener}
         >
           <div className="space-y-3">
+            {scouting && (
+              <div className="rounded-xl border border-line bg-surface px-3 py-2.5 text-xs leading-relaxed text-foreground-dim">
+                <p className="font-bold text-foreground">Drawing their play</p>
+                <p className="mt-1">Drag a player to place him. Pick Pass, Cut, Dribble or Screen, then drag to draw it. Add a step with the + in the step strip. Moving a defender also moves his later steps with him. Tap Save diagram when you are done.</p>
+              </div>
+            )}
             <div className="space-y-1">
               <label className="text-[11px] font-extrabold uppercase tracking-wide text-foreground-mute">Name</label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Play name" />

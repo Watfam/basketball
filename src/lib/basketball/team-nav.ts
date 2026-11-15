@@ -65,10 +65,10 @@ export function activeTeamTab(pathname: string, teamId: string): TeamTab["key"] 
  * mis-tap away from dumping the coach out mid-practice) has no business
  * there. Same reasoning as the player-facing session player.
  *
- * The play designer is the same shape for the same reason: its own bottom
+ * The play designer (and the scouting-diagram designer, which is the same component) is the same shape for the same reason: its own bottom
  * toolbar (Move/Pass/Cut/Dribble/Screen) already owns that strip of the
  * screen, and the court above it is drawn edge to edge.
  */
 export function isImmersiveTeamRoute(pathname: string): boolean {
-  return pathname.endsWith("/run") || pathname.endsWith("/plays/designer");
+  return pathname.endsWith("/run") || pathname.endsWith("/plays/designer") || /\/scouting\/[^/]+\/diagram\/[^/]+$/.test(pathname);
 }

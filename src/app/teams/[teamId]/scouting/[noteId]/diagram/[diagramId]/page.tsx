@@ -40,7 +40,7 @@ export default async function ScoutDiagramPage({
         diagramId,
         section: sectionKey,
         backHref: `/teams/${teamId}/scouting/${noteId}`,
-        backLabel: note.opponent_name,
+        backLabel: "Back to report",
       }}
     />
   );

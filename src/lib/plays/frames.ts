@@ -135,6 +135,31 @@ export function movePlayerAcrossFrames(frames: Frame[], index: number, id: Offen
 }
 
 /**
+ * movePlayerAcrossFrames, plus: a DEFENDER's later steps travel with him. Scouting diagrams are drawn
+ * with the defense sliding a few feet every step (a zone shifting, a press rotating), so there is rarely
+ * a later step that exactly repeats his spot for the hold-cascade to pick up. Instead every later step
+ * he was NOT just holding moves by the same distance, so fixing where he starts keeps each slide intact
+ * and the next step begins from the corrected spot. Offense is left alone: his later steps are where
+ * his own cuts and passes end, and shifting those would pull the destination away from the drawn line.
+ */
+export function movePlayerAndFollow(frames: Frame[], index: number, id: OffenseId | DefenseId, toPos: Point): Frame[] {
+  const fromPos = framePos(frames[index], id);
+  const moved = movePlayerAcrossFrames(frames, index, id, toPos);
+  if (!fromPos || id.startsWith("O")) return moved;
+  const dx = toPos.x - fromPos.x;
+  const dy = toPos.y - fromPos.y;
+  if (dx === 0 && dy === 0) return moved;
+  return moved.map((fr, i) => {
+    if (i <= index) return fr;
+    const before = framePos(frames[i], id);
+    const after = framePos(fr, id);
+    if (!before || !after || distance(before, after) > 1e-9) return fr;
+    const shifted = { x: Math.min(49.5, Math.max(0.5, before.x + dx)), y: Math.min(86, Math.max(-2, before.y + dy)) };
+    return withPlayerAt(fr, id, before, shifted);
+  });
+}
+
+/**
  * Copies the current frame and moves each player to the end of any cut, dribble or screen line that
  * starts within about 3 ft of him — including a formula-driven defender, checked against wherever his
  * coverage currently has him standing, not just a Manual one. A pass line starting at the ball handler
