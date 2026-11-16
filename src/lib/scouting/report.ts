@@ -11,6 +11,8 @@ export type ScoutSectionKey =
   | "defense_half"
   | "defense_full"
   | "offense"
+  | "ball_screen"
+  | "transition"
   | "blob_offense"
   | "blob_defense"
   | "slob"
@@ -54,6 +56,18 @@ export const SCOUT_SECTIONS: ScoutSectionDef[] = [
     label: "Offense",
     placeholder: "What they run, who it runs through, how they get shots — and how we guard it",
     diagram: { side: "offense", hint: "Their sets" },
+  },
+  {
+    key: "ball_screen",
+    label: "Ball screens",
+    placeholder: "How they run it (who screens, where), how they guard ours (drop, hedge, switch, trap), and how we cover theirs",
+    diagram: { side: "offense", hint: "Their ball-screen action" },
+  },
+  {
+    key: "transition",
+    label: "Transition",
+    placeholder: "How fast they run, who leaks out, where the first pass goes, and how we get back",
+    diagram: { side: "offense", hint: "Their transition" },
   },
   {
     key: "blob_offense",
@@ -101,7 +115,19 @@ export type ScoutPlayer = {
   tendencies: string;
   /** How we guard him. */
   plan: string;
+  position: string;
+  /** "5' 9\"" as MaxPreps prints it. */
+  height: string;
+  /** "Fr.", "So.", "8th". */
+  grade: string;
+  /** Shooting hand — "R" or "L". Drives how we shade him. */
+  hand: "" | "R" | "L";
+  /** A one-line stat summary, e.g. "16.0 PPG (1 GP)". */
+  stats: string;
 };
+
+/** One tile in the front-page numbers strip: Record, Points/game, and whatever else the coach adds. */
+export type ScoutStat = { id: string; label: string; value: string };
 
 export type ScoutDiagram = {
   id: string;
@@ -115,6 +141,9 @@ export type ScoutDoc = {
   gameDate: string;
   /** One line that sums the opponent up — printed large on the report cover. */
   headline: string;
+  /** Where the numbers came from, so one tap refreshes them. */
+  maxprepsUrl: string;
+  teamStats: ScoutStat[];
   sections: Record<ScoutSectionKey, string>;
   players: ScoutPlayer[];
   diagrams: ScoutDiagram[];
@@ -142,7 +171,30 @@ export function parseScoutingNotes(raw: unknown): ScoutDoc {
     ? (obj.players as unknown[]).flatMap((p, i) => {
         if (!p || typeof p !== "object") return [];
         const r = p as Record<string, unknown>;
-        return [{ id: str(r.id) || `p${i}`, number: str(r.number), name: str(r.name), label: str(r.label), tendencies: str(r.tendencies), plan: str(r.plan) }];
+        const hand = str(r.hand);
+        return [
+          {
+            id: str(r.id) || `p${i}`,
+            number: str(r.number),
+            name: str(r.name),
+            label: str(r.label),
+            tendencies: str(r.tendencies),
+            plan: str(r.plan),
+            position: str(r.position),
+            height: str(r.height),
+            grade: str(r.grade),
+            hand: hand === "R" || hand === "L" ? hand : "",
+            stats: str(r.stats),
+          } satisfies ScoutPlayer,
+        ];
+      })
+    : [];
+
+  const teamStats: ScoutStat[] = Array.isArray(obj.teamStats)
+    ? (obj.teamStats as unknown[]).flatMap((t, i) => {
+        if (!t || typeof t !== "object") return [];
+        const r = t as Record<string, unknown>;
+        return str(r.label).trim() || str(r.value).trim() ? [{ id: str(r.id) || `t${i}`, label: str(r.label), value: str(r.value) }] : [];
       })
     : [];
 
@@ -156,12 +208,12 @@ export function parseScoutingNotes(raw: unknown): ScoutDoc {
       })
     : [];
 
-  return { gameDate: str(obj.gameDate), headline: str(obj.headline), sections, players, diagrams };
+  return { gameDate: str(obj.gameDate), headline: str(obj.headline), maxprepsUrl: str(obj.maxprepsUrl), teamStats, sections, players, diagrams };
 }
 
 /** The jsonb that goes back into the notes column. */
 export function serializeScoutingNotes(doc: ScoutDoc): Record<string, unknown> {
-  return { v: 2, gameDate: doc.gameDate, headline: doc.headline, ...doc.sections, players: doc.players, diagrams: doc.diagrams };
+  return { v: 2, gameDate: doc.gameDate, headline: doc.headline, maxprepsUrl: doc.maxprepsUrl, teamStats: doc.teamStats, ...doc.sections, players: doc.players, diagrams: doc.diagrams };
 }
 
 /** Non-empty lines of a section's text, with any leading bullet stripped. */

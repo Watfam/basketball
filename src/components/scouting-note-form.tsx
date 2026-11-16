@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveScoutingNote, deleteScoutingNote } from "@/app/actions";
+import { pullMaxPrepsAction } from "@/app/actions/scouting-import";
 import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
@@ -16,6 +17,7 @@ import {
   type ScoutDoc,
   type ScoutPlayer,
   type ScoutSectionDef,
+  type ScoutStat,
 } from "@/lib/scouting/report";
 
 type ExistingNote = {
@@ -62,6 +64,8 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
   const [pending, startTransition] = useTransition();
   const [deleting, startDeleteTransition] = useTransition();
   const [busyAction, setBusyAction] = useState<"report" | "diagram" | null>(null);
+  const [pulling, setPulling] = useState(false);
+  const [pullNote, setPullNote] = useState<string | null>(null);
 
   const dirty = JSON.stringify([opponentName, doc]) !== snapshot;
   const diagrams = savedDoc.diagrams;
@@ -71,9 +75,51 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
     setDoc((d) => ({ ...d, sections: { ...d.sections, [key]: value } }));
   }
 
-  function patch(p: Partial<Omit<ScoutDoc, "sections" | "players" | "diagrams">>) {
+  function patch(p: Partial<Omit<ScoutDoc, "sections" | "players" | "diagrams" | "teamStats">>) {
     setJustSaved(false);
     setDoc((d) => ({ ...d, ...p }));
+  }
+
+  function setTeamStats(fn: (t: ScoutStat[]) => ScoutStat[]) {
+    setJustSaved(false);
+    setDoc((d) => ({ ...d, teamStats: fn(d.teamStats) }));
+  }
+
+  /** Reads the record and scoring, and fills in name, grade, height, position and stats on every card that has a jersey number. */
+  async function pullMaxPreps() {
+    haptic("tap");
+    setError(null);
+    setPullNote(null);
+    setPulling(true);
+    const result = await pullMaxPrepsAction(teamId, doc.maxprepsUrl, doc.players.map((p) => p.number));
+    setPulling(false);
+    if ("error" in result) {
+      setError(result.error);
+      return;
+    }
+    const t = result.team;
+    const games = Math.max(1, t.gamesPlayed);
+    const tiles: ScoutStat[] = [
+      { id: "mp-record", label: "Record", value: t.record },
+      { id: "mp-ppg", label: "Points / game", value: (t.pointsFor / games).toFixed(1) },
+      { id: "mp-oppg", label: "Allowed / game", value: (t.pointsAgainst / games).toFixed(1) },
+      ...(t.region ? [{ id: "mp-region", label: "Region", value: t.regionPlace ? `${t.regionPlace} · ${t.region}` : t.region }] : []),
+    ];
+    const byNumber = new Map(t.players.map((p) => [p.number, p]));
+    setJustSaved(false);
+    setDoc((d) => ({
+      ...d,
+      teamStats: [...tiles, ...d.teamStats.filter((x) => !x.id.startsWith("mp-"))],
+      players: d.players.map((p) => {
+        const m = byNumber.get(p.number.trim());
+        if (!m) return p;
+        return { ...p, name: p.name.trim() || m.name, grade: m.grade || p.grade, height: m.height || p.height, position: m.position || p.position, stats: m.stats || p.stats };
+      }),
+    }));
+    const filled = t.players.length;
+    const cards = doc.players.filter((p) => p.number.trim()).length;
+    setPullNote(`Pulled ${t.record} and ${(t.pointsFor / games).toFixed(1)} points a game. ${filled} of ${cards} numbered player ${cards === 1 ? "card" : "cards"} filled in.`);
+    haptic("success");
   }
 
   function setPlayers(fn: (p: ScoutPlayer[]) => ScoutPlayer[]) {
@@ -276,6 +322,57 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
         </div>
       </section>
 
+      <section className={cardClass}>
+        <p className={labelClass}>Team numbers</p>
+        <p className="mt-1 text-xs text-foreground-mute">Printed in a strip on the front page. Paste their MaxPreps link to fill the record and scoring, and to fill in names, sizes and stats on any player card that has a jersey number.</p>
+        <div className="mt-3 flex gap-2">
+          <Input
+            value={doc.maxprepsUrl}
+            onChange={(e) => patch({ maxprepsUrl: e.target.value })}
+            placeholder="https://www.maxpreps.com/al/fairfield/restoration-academy/basketball/jv/stats/"
+            inputMode="url"
+            autoCapitalize="none"
+            autoCorrect="off"
+          />
+          <Button variant="secondary" size="md" onClick={pullMaxPreps} disabled={pulling || !doc.maxprepsUrl.trim()} className="shrink-0 whitespace-nowrap">
+            {pulling ? "Pulling…" : "Pull from MaxPreps"}
+          </Button>
+        </div>
+        {pullNote && <p className="mt-2 text-xs font-bold text-accent">{pullNote}</p>}
+        {doc.teamStats.length > 0 && (
+          <ul className="mt-3 grid grid-cols-2 gap-2.5">
+            {doc.teamStats.map((t) => (
+              <li key={t.id} className="rounded-xl border border-line bg-raised p-2.5">
+                <input
+                  value={t.label}
+                  onChange={(e) => setTeamStats((all) => all.map((x) => (x.id === t.id ? { ...x, label: e.target.value } : x)))}
+                  placeholder="Label"
+                  className="w-full bg-transparent text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute placeholder:text-foreground-mute focus:outline-none"
+                />
+                <input
+                  value={t.value}
+                  onChange={(e) => setTeamStats((all) => all.map((x) => (x.id === t.id ? { ...x, value: e.target.value } : x)))}
+                  placeholder="Value"
+                  className="mt-0.5 w-full bg-transparent text-lg font-extrabold text-foreground placeholder:text-foreground-mute focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setTeamStats((all) => all.filter((x) => x.id !== t.id))}
+                  className="mt-1 text-[11px] font-bold text-foreground-mute hover:text-danger"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-3">
+          <Button variant="secondary" size="sm" onClick={() => setTeamStats((all) => [...all, { id: newId(), label: "", value: "" }])}>
+            + Add a number
+          </Button>
+        </div>
+      </section>
+
       {beforePlayers.map(renderSection)}
 
       <section className={cardClass}>
@@ -286,7 +383,7 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
             size="sm"
             onClick={() => {
               haptic("tap");
-              setPlayers((p) => [...p, { id: newId(), number: "", name: "", label: "", tendencies: "", plan: "" }]);
+              setPlayers((p) => [...p, { id: newId(), number: "", name: "", label: "", tendencies: "", plan: "", position: "", height: "", grade: "", hand: "", stats: "" }]);
             }}
           >
             + Add player
@@ -307,10 +404,39 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Name (if you know it)</span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Name</span>
                   <Input value={p.name} onChange={(e) => setPlayers((all) => all.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />
                 </label>
               </div>
+              <div className="mt-2.5 grid grid-cols-3 gap-2.5">
+                {([["grade", "Grade", "So."], ["height", "Height", "5'10\""], ["position", "Position", "G"]] as const).map(([key, label, ph]) => (
+                  <label key={key} className="block space-y-1">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">{label}</span>
+                    <Input value={p[key]} onChange={(e) => setPlayers((all) => all.map((x, j) => (j === i ? { ...x, [key]: e.target.value } : x)))} placeholder={ph} />
+                  </label>
+                ))}
+              </div>
+              <div className="mt-2.5 flex items-center gap-2">
+                <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Shoots</span>
+                {(["R", "L"] as const).map((h) => (
+                  <button
+                    key={h}
+                    type="button"
+                    aria-pressed={p.hand === h}
+                    onClick={() => {
+                      haptic("tap");
+                      setPlayers((all) => all.map((x, j) => (j === i ? { ...x, hand: x.hand === h ? "" : h } : x)));
+                    }}
+                    className={`rounded-full border px-3 py-1 text-xs font-extrabold ${p.hand === h ? "border-accent bg-accent text-on-accent" : "border-line bg-surface text-foreground-dim"}`}
+                  >
+                    {h === "R" ? "Right" : "Left"}
+                  </button>
+                ))}
+              </div>
+              <label className="mt-2.5 block space-y-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Stats</span>
+                <Input value={p.stats} onChange={(e) => setPlayers((all) => all.map((x, j) => (j === i ? { ...x, stats: e.target.value } : x)))} placeholder="16.0 PPG (1 GP)" />
+              </label>
               <label className="mt-2.5 block space-y-1">
                 <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Role in a few words</span>
                 <Input value={p.label} onChange={(e) => setPlayers((all) => all.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} placeholder="Best player" />
