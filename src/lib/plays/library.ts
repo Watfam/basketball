@@ -589,6 +589,58 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
   ),
 
   play(
+    "one-four-high",
+    "1-4 High",
+    "man",
+    "Transition vs Man",
+    "Early offense out of transition: 5 comes across to set a ball screen for 1 at the top while the weak-side wing cuts from the help side. 5 then curls to free-throw-line depth and the strong-side wing fans to the corner, so 1 has a cutter, a shooter and a mid-range target to read off the drive.",
+    [
+      "Get to your spots in transition: 3 left wing, 5 left top, 1 right top, 2 right wing, 4 right short corner.",
+      "5: come to the ball and set the screen — a real screen, not a wave.",
+      "1: wait for the screen, then drive off it. Don't pass up the drive.",
+      "3: cut from the help side as 1 drives, timed to the drive so the help defender has to choose.",
+      "5: after the screen, curl to about free-throw-line depth and be ready to catch.",
+      "2: fan to the corner as 1 turns the corner — keep it wide so the drive has a kick-out.",
+    ],
+    [
+      {
+        offense: [o("O1", 34, 28), o("O2", 44, 21), o("O3", 5.5, 21), o("O4", 39, 10), o("O5", 17, 28)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Out of transition: 3 on the left wing, 5 left top, 1 right top with the ball, 2 on the right wing and 4 in the right short corner.",
+      },
+      {
+        offense: [o("O1", 34, 28), o("O2", 44, 21), o("O3", 5.5, 21), o("O4", 39, 10), o("O5", 29.5, 27)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [ln("screen", "offense", [{ x: 17, y: 28 }, { x: 29.5, y: 27 }])],
+        note: "5 comes across and sets a ball screen for 1.",
+      },
+      {
+        offense: [o("O1", 28, 13), o("O2", 44, 21), o("O3", 21, 7), o("O4", 39, 10), o("O5", 29.5, 27)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("dribble", "offense", [{ x: 34, y: 28 }, { x: 32, y: 24.5 }, { x: 30, y: 19.5 }, { x: 28, y: 13 }]),
+          ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 12, y: 12 }, { x: 21, y: 7 }]),
+        ],
+        note: "1 drives off the screen. 3 cuts from the help side through the lane.",
+      },
+      {
+        offense: [o("O1", 28, 13), o("O2", 46.5, 4), o("O3", 21, 7), o("O4", 39, 10), o("O5", 21, 19)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("cut", "offense", [{ x: 29.5, y: 27 }, { x: 25, y: 24.5 }, { x: 21.5, y: 21.5 }, { x: 21, y: 19 }]),
+          ln("cut", "offense", [{ x: 44, y: 21 }, { x: 46, y: 13 }, { x: 46.5, y: 4 }]),
+        ],
+        note: "5 curls to about free-throw-line depth while 2 fans to the corner. 1 reads: 3 at the rim, 5 at the line, 2 or 4 on the kick.",
+      },
+    ]
+  ),
+
+  play(
     "elevator",
     "Elevator",
     "man",
