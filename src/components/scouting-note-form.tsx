@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveScoutingNote, deleteScoutingNote } from "@/app/actions";
 import { haptic } from "@/lib/haptics";
-import { Button, buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/ui/confirm-delete";
 import { FormError, Input, TextArea } from "@/components/ui/field";
 import { PlayThumbnail } from "@/components/plays/play-thumbnail";
@@ -27,6 +27,14 @@ type ExistingNote = {
 const labelClass = "text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent";
 const cardClass = "panel-lit rounded-3xl border border-line bg-surface p-5";
 
+/** A hung request should never leave a button stuck on "Preparing…". */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error("That's taking too long — check your connection and try again.")), ms)),
+  ]);
+}
+
 function newId() {
   return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -41,7 +49,7 @@ function editable(doc: ScoutDoc) {
  * A scouting report written section by section, the way the film gets watched: tip, their
  * defense (half court and press), their offense, baseline and sideline out-of-bounds, then the
  * players that matter. Every section that can be shown on a court has its own "Draw diagram".
- * "Generate report" turns whatever is here into a printable PDF.
+ * View PDF / Share PDF turn whatever is here into a printable report.
  */
 export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existing?: ExistingNote }) {
   const router = useRouter();
@@ -73,7 +81,7 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
     setDoc((d) => ({ ...d, players: fn(d.players) }));
   }
 
-  /** Writes the note, returning its id — what Draw diagram and Generate report need before they can send the coach anywhere. */
+  /** Writes the note, returning its id — what Draw diagram and the PDF buttons need before they can send the coach anywhere. */
   async function persist(): Promise<{ noteId: string } | { error: string }> {
     if (!opponentName.trim()) return { error: "Name the opponent." };
     const result = await saveScoutingNote(teamId, existing?.id ?? null, {
@@ -121,31 +129,70 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
     router.push(`/teams/${teamId}/scouting/${noteId}/diagram/${newId()}?section=${section}`);
   }
 
-  async function generateReport() {
-    haptic("tap");
-    setError(null);
-    // Opened before the save finishes — a tab opened after an await is blocked as a popup on iOS.
-    const tab = window.open("", "_blank");
-    setBusyAction("report");
-    let noteId = existing?.id;
-    if (!existing || dirty) {
-      const result = await persist();
-      if ("error" in result) {
-        tab?.close();
-        setBusyAction(null);
-        setError(result.error);
-        return;
-      }
-      noteId = result.noteId;
-      setJustSaved(true);
-    }
-    const url = `/api/scouting-pdf?teamId=${teamId}&noteId=${noteId}`;
-    if (tab) tab.location.href = url;
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a PDF file route, not a page
-    else window.location.href = url;
-    setBusyAction(null);
+  /** Saves first when the note is new or edited, so the PDF always matches what's on screen. */
+  async function ensureSaved(): Promise<string> {
+    if (existing && !dirty) return existing.id;
+    const result = await persist();
+    if ("error" in result) throw new Error(result.error);
+    setJustSaved(true);
+    return result.noteId;
+  }
+
+  function afterPdf(noteId: string) {
     if (!existing) router.replace(`/teams/${teamId}/scouting/${noteId}`);
     else router.refresh();
+  }
+
+  async function fetchPdf(noteId: string) {
+    const res = await withTimeout(fetch(`/api/scouting-pdf?teamId=${encodeURIComponent(teamId)}&noteId=${encodeURIComponent(noteId)}`), 30_000);
+    if (!res.ok) throw new Error("Couldn't build the report — try again.");
+    return res.blob();
+  }
+
+  async function handleViewPdf() {
+    haptic("tap");
+    setError(null);
+    setBusyAction("report");
+    // Opened before any await — a tab opened after one is blocked as a popup on iOS.
+    const tab = window.open("", "_blank");
+    try {
+      const noteId = await ensureSaved();
+      const blobUrl = URL.createObjectURL(await fetchPdf(noteId));
+      if (tab) tab.location.href = blobUrl;
+      else window.open(blobUrl, "_blank");
+      setBusyAction(null);
+      afterPdf(noteId);
+    } catch (e) {
+      tab?.close();
+      setBusyAction(null);
+      setError(e instanceof Error ? e.message : "Something went wrong preparing the PDF.");
+    }
+  }
+
+  /** Web Share with a file hands the PDF to the native share sheet — works inside an installed app, where a new tab can't. */
+  async function handleSharePdf() {
+    haptic("tap");
+    setError(null);
+    setBusyAction("report");
+    const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
+    try {
+      const noteId = await ensureSaved();
+      const blob = await fetchPdf(noteId);
+      const slug = opponentName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "report";
+      const file = new File([blob], `scouting-report-${slug}.pdf`, { type: "application/pdf" });
+      if (nav.share && nav.canShare?.({ files: [file] })) {
+        await nav.share({ files: [file] });
+      } else {
+        window.open(URL.createObjectURL(blob), "_blank");
+      }
+      setBusyAction(null);
+      afterPdf(noteId);
+    } catch (e) {
+      setBusyAction(null);
+      // Backing out of the share sheet isn't a failure.
+      if (e instanceof Error && e.name === "AbortError") return;
+      setError(e instanceof Error ? e.message : "Something went wrong preparing the PDF.");
+    }
   }
 
   function remove() {
@@ -312,14 +359,12 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
           <Button variant="secondary" size="md" className="flex-1" onClick={save} disabled={pending || busyAction !== null}>
             {pending ? "Saving…" : justSaved && !dirty ? "Saved" : existing ? "Save" : "Save note"}
           </Button>
-          <button
-            type="button"
-            onClick={generateReport}
-            disabled={pending || busyAction !== null}
-            className={buttonClass({ variant: "primary", size: "md", className: "flex-[1.4]" })}
-          >
-            {busyAction === "report" ? "Building…" : "Generate report"}
-          </button>
+          <Button variant="secondary" size="md" className="flex-1" onClick={handleViewPdf} disabled={pending || busyAction !== null}>
+            {busyAction === "report" ? "…" : "View PDF"}
+          </Button>
+          <Button variant="primary" size="md" className="flex-1" onClick={handleSharePdf} disabled={pending || busyAction !== null}>
+            {busyAction === "report" ? "Preparing…" : "Share PDF"}
+          </Button>
         </div>
       </div>
     </div>
