@@ -593,14 +593,14 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
     "1-4 High",
     "man",
     "Transition vs Man",
-    "Early offense out of transition: 5 comes across to set a ball screen for 1 at the top while the weak-side wing cuts from the help side. 5 then curls to free-throw-line depth and the strong-side wing fans to the corner, so 1 has a cutter, a shooter and a mid-range target to read off the drive.",
+    "Early offense out of transition: 5 comes across to set a ball screen for 1 at the top while the weak-side wing fans to the corner. 5 then curls to free-throw-line depth and the strong-side wing fans to the other corner, so 1 has two corner shooters and a mid-range target to read off the drive.",
     [
       "Get to your spots in transition: 3 left wing, 5 left top, 1 right top, 2 right wing, 4 right short corner.",
       "5: come to the ball and set the screen — a real screen, not a wave.",
       "1: wait for the screen, then drive off it. Don't pass up the drive.",
-      "3: cut from the help side as 1 drives, timed to the drive so the help defender has to choose.",
+      "3: fan to the left corner as 1 drives — get there early and stay wide so the help defender has to choose.",
       "5: after the screen, curl to about free-throw-line depth and be ready to catch.",
-      "2: fan to the corner as 1 turns the corner — keep it wide so the drive has a kick-out.",
+      "2: fan to the right corner as 1 turns the corner — keep it wide so the drive has a kick-out.",
     ],
     [
       {
@@ -618,24 +618,80 @@ export const LIBRARY_PLAYS: LibraryPlay[] = [
         note: "5 comes across and sets a ball screen for 1.",
       },
       {
-        offense: [o("O1", 28, 13), o("O2", 44, 21), o("O3", 21, 7), o("O4", 39, 10), o("O5", 29.5, 27)],
+        offense: [o("O1", 28, 13), o("O2", 44, 21), o("O3", 3.5, 4), o("O4", 39, 10), o("O5", 29.5, 27)],
         defense: [],
         ballHolder: "O1",
         lines: [
           ln("dribble", "offense", [{ x: 34, y: 28 }, { x: 32, y: 24.5 }, { x: 30, y: 19.5 }, { x: 28, y: 13 }]),
-          ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 12, y: 12 }, { x: 21, y: 7 }]),
+          ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 4, y: 13 }, { x: 3.5, y: 4 }]),
         ],
-        note: "1 drives off the screen. 3 cuts from the help side through the lane.",
+        note: "1 drives off the screen. 3 fans to the left corner.",
       },
       {
-        offense: [o("O1", 28, 13), o("O2", 46.5, 4), o("O3", 21, 7), o("O4", 39, 10), o("O5", 21, 19)],
+        offense: [o("O1", 28, 13), o("O2", 46.5, 4), o("O3", 3.5, 4), o("O4", 39, 10), o("O5", 21, 19)],
         defense: [],
         ballHolder: "O1",
         lines: [
           ln("cut", "offense", [{ x: 29.5, y: 27 }, { x: 25, y: 24.5 }, { x: 21.5, y: 21.5 }, { x: 21, y: 19 }]),
           ln("cut", "offense", [{ x: 44, y: 21 }, { x: 46, y: 13 }, { x: 46.5, y: 4 }]),
         ],
-        note: "5 curls to about free-throw-line depth while 2 fans to the corner. 1 reads: 3 at the rim, 5 at the line, 2 or 4 on the kick.",
+        note: "5 curls to about free-throw-line depth while 2 fans to the corner. 1 reads: 5 at the line, or a kick to either corner (3 or 2) or 4.",
+      },
+    ]
+  ),
+
+  play(
+    "five-four-double",
+    "5-4 Double",
+    "man",
+    "Transition vs Man",
+    "Early offense out of transition from the same spots as 1-4 High, but 2 starts down in the corner. 5 screens the ball for 1 while 4 screens for 2 coming up to the wing; then 5 turns around and screens for 4, who curls around it to the rim. 1 has a drive, a cutter from the help side, and a big curling to the basket to read.",
+    [
+      "Spots: 3 left wing, 5 left top, 1 right top with the ball, 2 down in the right corner, 4 right short corner.",
+      "5: come across and set the ball screen for 1. 1: wait for it, then drive.",
+      "4: set the screen for 2 at the same time as 5 sets his — 2 uses it to come up to the wing.",
+      "3: cut from the help side through the lane as 1 drives, timed so the help defender has to choose.",
+      "5: after the ball screen, go set the second screen for 4 — a real screen, 4 needs to come off it shoulder to shoulder.",
+      "4: curl tight around 5 to the rim. 1 keeps the dribble alive to find him.",
+    ],
+    [
+      {
+        offense: [o("O1", 34, 28), o("O2", 46.5, 7), o("O3", 5.5, 21), o("O4", 39, 10), o("O5", 17, 28)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [],
+        note: "Same spots as 1-4 High, but 2 starts down in the right corner: 3 on the left wing, 5 left top, 1 right top with the ball, 4 in the right short corner.",
+      },
+      {
+        offense: [o("O1", 34, 28), o("O2", 46.5, 7), o("O3", 5.5, 21), o("O4", 42.5, 9.5), o("O5", 29.5, 27)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("screen", "offense", [{ x: 17, y: 28 }, { x: 29.5, y: 27 }]),
+          ln("screen", "offense", [{ x: 39, y: 10 }, { x: 42.5, y: 9.5 }]),
+        ],
+        note: "5 sets the ball screen for 1. At the same time 4 steps over and screens for 2 in the corner.",
+      },
+      {
+        offense: [o("O1", 28, 13), o("O2", 44.5, 21), o("O3", 21, 7), o("O4", 42.5, 9.5), o("O5", 29.5, 27)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("dribble", "offense", [{ x: 34, y: 28 }, { x: 32, y: 24.5 }, { x: 30, y: 19.5 }, { x: 28, y: 13 }]),
+          ln("cut", "offense", [{ x: 46.5, y: 7 }, { x: 47, y: 14 }, { x: 44.5, y: 21 }]),
+          ln("cut", "offense", [{ x: 5.5, y: 21 }, { x: 12, y: 12 }, { x: 21, y: 7 }]),
+        ],
+        note: "1 drives off the screen. 2 comes off 4's screen up to the wing. 3 cuts from the help side through the lane.",
+      },
+      {
+        offense: [o("O1", 28, 13), o("O2", 44.5, 21), o("O3", 21, 7), o("O4", 32, 9), o("O5", 35, 19)],
+        defense: [],
+        ballHolder: "O1",
+        lines: [
+          ln("screen", "offense", [{ x: 29.5, y: 27 }, { x: 35, y: 19 }]),
+          ln("cut", "offense", [{ x: 42.5, y: 9.5 }, { x: 41, y: 15 }, { x: 38, y: 20.5 }, { x: 33.5, y: 19.5 }, { x: 32, y: 9 }]),
+        ],
+        note: "5 turns around and screens for 4, who curls around it to the rim. 1 reads: 4 curling, 3 at the rim, 5 at the elbow, or the kick to 2.",
       },
     ]
   ),
