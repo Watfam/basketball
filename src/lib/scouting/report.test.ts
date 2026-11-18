@@ -42,7 +42,7 @@ test("the new player and team fields survive a round trip, and bad values are dr
     teamStats: [{ id: "a", label: "Record", value: "4-0" }, { nope: 1 }],
     ball_screen: "Hedge hard",
     transition: "They leak out",
-    players: [{ id: "p", number: "2", hand: "R", height: "5'9\"", grade: "Fr.", position: "G", stats: "16 PPG" }, { id: "q", number: "22", hand: "left" }],
+    players: [{ id: "p", number: "2", hand: "R", height: "5'9\"", grade: "Fr.", position: "G", stats: "16 PPG", ranking: "#6 in Alabama" }, { id: "q", number: "22", hand: "left" }],
   });
   const back = parseScoutingNotes(JSON.parse(JSON.stringify(serializeScoutingNotes(doc))));
   assert.equal(back.sections.ball_screen, "Hedge hard");
@@ -52,5 +52,7 @@ test("the new player and team fields survive a round trip, and bad values are dr
   assert.equal(back.maxprepsUrl, "https://www.maxpreps.com/al/x/y/basketball/jv/stats/");
   assert.equal(back.players[0].hand, "R");
   assert.equal(back.players[0].stats, "16 PPG");
+  assert.equal(back.players[0].ranking, "#6 in Alabama");
+  assert.equal(back.players[1].ranking, "");
   assert.equal(back.players[1].hand, "");
 });

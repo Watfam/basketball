@@ -383,7 +383,7 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
             size="sm"
             onClick={() => {
               haptic("tap");
-              setPlayers((p) => [...p, { id: newId(), number: "", name: "", label: "", tendencies: "", plan: "", position: "", height: "", grade: "", hand: "", stats: "" }]);
+              setPlayers((p) => [...p, { id: newId(), number: "", name: "", label: "", tendencies: "", plan: "", position: "", height: "", grade: "", hand: "", stats: "", ranking: "" }]);
             }}
           >
             + Add player
@@ -436,6 +436,10 @@ export function ScoutingNoteForm({ teamId, existing }: { teamId: string; existin
               <label className="mt-2.5 block space-y-1">
                 <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Stats</span>
                 <Input value={p.stats} onChange={(e) => setPlayers((all) => all.map((x, j) => (j === i ? { ...x, stats: e.target.value } : x)))} placeholder="16.0 PPG (1 GP)" />
+              </label>
+              <label className="mt-2.5 block space-y-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Ranking or honors</span>
+                <Input value={p.ranking} onChange={(e) => setPlayers((all) => all.map((x, j) => (j === i ? { ...x, ranking: e.target.value } : x)))} placeholder="#6 in Alabama, class of 2030" />
               </label>
               <label className="mt-2.5 block space-y-1">
                 <span className="text-[10px] font-extrabold uppercase tracking-wide text-foreground-mute">Role in a few words</span>

@@ -124,6 +124,8 @@ export type ScoutPlayer = {
   hand: "" | "R" | "L";
   /** A one-line stat summary, e.g. "16.0 PPG (1 GP)". */
   stats: string;
+  /** A ranking or honor worth knowing before tip, e.g. "#6 Alabama 2030 (Prep Hoops)". */
+  ranking: string;
 };
 
 /** One tile in the front-page numbers strip: Record, Points/game, and whatever else the coach adds. */
@@ -185,6 +187,7 @@ export function parseScoutingNotes(raw: unknown): ScoutDoc {
             grade: str(r.grade),
             hand: hand === "R" || hand === "L" ? hand : "",
             stats: str(r.stats),
+            ranking: str(r.ranking),
           } satisfies ScoutPlayer,
         ];
       })
